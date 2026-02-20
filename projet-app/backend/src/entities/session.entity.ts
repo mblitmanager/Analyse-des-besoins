@@ -1,0 +1,51 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
+
+@Entity('sessions')
+export class Session {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  brand: string;
+
+  @Column()
+  civilite: string;
+
+  @Column()
+  nom: string;
+
+  @Column()
+  prenom: string;
+
+  @Column()
+  telephone: string;
+
+  @Column()
+  conseiller: string;
+
+  @Column({ nullable: true })
+  formationChoisie: string;
+
+  @Column('simple-json', { nullable: true })
+  prerequisiteScore: any;
+
+  @Column('simple-json', { nullable: true })
+  levelsScores: any;
+
+  @Column({ nullable: true })
+  stopLevel: string;
+
+  @Column({ nullable: true })
+  finalRecommendation: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ nullable: true })
+  emailSentAt: Date;
+}
