@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 
 const store = useAppStore();
 const router = useRouter();
+
+// Track visibility of logos (hide if image not found)
+const logosVisible = reactive({ aopia: true, like: true, nsconseil: true });
 
 const form = ref({
   civilite: "M.",
@@ -16,12 +19,29 @@ const form = ref({
 
 const loading = ref(false);
 
-const conseillers = [
-  "Sélectionnez votre conseiller...",
-  "Jean Dupont",
-  "Marie Curie",
-  "Albert Einstein",
-];
+const conseillers = ref(["Sélectionnez votre conseiller..."]);
+
+async function fetchConseillers() {
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const response = await fetch(`${apiBaseUrl}/contacts`);
+    const data = await response.json();
+
+    // Filter active contacts and extract names
+    const activeNames = data
+      .filter((c) => c.isActive !== false)
+      .map((c) => `${c.prenom} ${c.nom}`);
+
+    conseillers.value = ["Sélectionnez votre conseiller...", ...activeNames];
+  } catch (error) {
+    console.error("Failed to fetch conseillers:", error);
+  }
+}
+
+onMounted(() => {
+  fetchConseillers();
+});
 
 async function startTest() {
   if (!form.value.nom || !form.value.prenom || !form.value.telephone) {
@@ -83,248 +103,112 @@ async function testDbConnection() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit">
-    <!-- Header -->
-    <header
-      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl shadow-lg shadow-brand-primary/20"
-        >
-          W
+  <div class="min-h-screen flex flex-col bg-gray-50">
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex-shrink-0 flex items-center">
+          <div class="h-8 w-auto flex items-center space-x-2">
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">W</div>
+            <span class="font-bold text-xl text-gray-900 tracking-tight">Wizzy Learn</span>
+          </div>
         </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
-      </div>
 
-      <!-- Brand Logos Container -->
-      <div class="flex items-center gap-8">
-        <div
-          v-if="store.isDirectLink || store.brand === 'aopia'"
-          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
-        >
-          <div class="w-2 h-2 rounded-full bg-blue-600"></div>
-          <span
-            class="text-xs font-black uppercase tracking-widest text-slate-400"
-            >Aopia</span
-          >
-        </div>
-        <div
-          v-if="store.isDirectLink || store.brand === 'like'"
-          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
-        >
-          <div class="w-2 h-2 rounded-full bg-red-500"></div>
-          <span
-            class="text-xs font-black uppercase tracking-widest text-slate-400"
-            >Like</span
-          >
-        </div>
-        <div
-          v-if="store.isDirectLink || store.brand === 'nsconseil'"
-          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
-        >
-          <div class="w-2 h-2 rounded-full bg-green-500"></div>
-          <span
-            class="text-xs font-black uppercase tracking-widest text-slate-400"
-            >NS Conseil</span
-          >
-        </div>
-      </div>
+        <div class="flex items-center gap-6">
+          <!-- logos (if available) -->
+          <div class="flex items-center gap-4">
+            <img v-if="logosVisible.aopia" src="/logos/aopia.svg" alt="AOPIA" @error="logosVisible.aopia=false" class="h-8 object-contain" />
+            <img v-if="logosVisible.like" src="/logos/like.svg" alt="Like" @error="logosVisible.like=false" class="h-8 object-contain" />
+            <img v-if="logosVisible.nsconseil" src="/logos/nsconseil.svg" alt="NS Conseil" @error="logosVisible.nsconseil=false" class="h-8 object-contain" />
+          </div>
 
-      <div
-        class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100"
-      >
-        <span class="material-icons-outlined text-gray-400"
-          >account_circle</span
-        >
-        <span class="text-sm font-bold text-gray-500">Invité</span>
+          <div class="text-sm text-gray-500 hidden sm:block">
+            Besoin d'aide ? <a class="text-blue-600 hover:text-blue-500 font-medium" href="#">Contactez le support</a>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main class="flex-1 flex items-center justify-center p-4 py-12">
-      <div class="max-w-2xl w-full">
-        <!-- Progress Info -->
-        <div class="flex items-center justify-between mb-6 px-2">
-          <span
-            class="text-xs font-bold text-brand-primary uppercase tracking-widest"
-            >Étape {{ store.getProgress("/").current }} sur
-            {{ store.getProgress("/").total }}</span
-          >
-          <span
-            class="text-xs font-bold text-gray-400 uppercase tracking-widest"
-            >{{ store.getProgress("/").label }}</span
-          >
-        </div>
-        <div
-          class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-16"
-        >
-          <div
-            class="h-full bg-brand-primary transition-all duration-500"
-            :style="{ width: store.getProgress('/').percentage + '%' }"
-          ></div>
+    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+          <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Identification</h2>
+          <p class="mt-2 text-sm text-gray-600">Veuillez renseigner vos informations pour accéder à votre test de positionnement.</p>
         </div>
 
-        <div
-          class="bg-white rounded-2xl shadow-md border border-gray-100 p-10 md:p-14 relative"
-        >
-          <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-3">
-            Identification du bénéficiaire
-          </h1>
-          <p class="text-gray-400 text-base md:text-lg mb-10">
-            Veuillez renseigner vos informations pour commencer le test de
-            positionnement.
-          </p>
-
-          <div class="space-y-6">
-            <!-- Civilité -->
-            <div class="space-y-2">
-              <label class="block text-sm font-bold text-gray-800"
-                >Civilité</label
-              >
-              <div class="flex gap-3">
-                <button
-                  @click="form.civilite = 'M.'"
-                  class="flex-1 py-3 px-4 rounded-2xl border-2 transition-all flex items-center justify-between font-bold text-sm"
-                  :class="
-                    form.civilite === 'M.'
-                      ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
-                  "
-                >
-                  <span>M.</span>
-                  <div
-                    v-if="form.civilite === 'M.'"
-                    class="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center text-white"
-                  >
-                    <span class="material-icons-outlined text-xs">check</span>
-                  </div>
-                </button>
-                <button
-                  @click="form.civilite = 'Mme'"
-                  class="flex-1 py-3 px-4 rounded-2xl border-2 transition-all flex items-center justify-between font-bold text-sm"
-                  :class="
-                    form.civilite === 'Mme'
-                      ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
-                  "
-                >
-                  <span>Mme</span>
-                  <div
-                    v-if="form.civilite === 'Mme'"
-                    class="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center text-white"
-                  >
-                    <span class="material-icons-outlined text-xs">check</span>
-                  </div>
-                </button>
+        <div class="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
+          <form @submit.prevent="startTest" class="space-y-6">
+            <div>
+              <span class="wizzy-label">Civilité</span>
+              <div class="mt-2 flex space-x-6">
+                <div class="flex items-center">
+                  <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="monsieur" name="civilite" type="radio" value="M." />
+                  <label class="ml-3 block text-sm font-medium text-gray-700" for="monsieur">Monsieur</label>
+                </div>
+                <div class="flex items-center">
+                  <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="madame" name="civilite" type="radio" value="Mme" />
+                  <label class="ml-3 block text-sm font-medium text-gray-700" for="madame">Madame</label>
+                </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Nom -->
-              <div class="space-y-2">
-                <label class="block text-sm font-bold text-gray-800">Nom</label>
-                <input
-                  v-model="form.nom"
-                  type="text"
-                  placeholder="Votre nom"
-                  class="w-full px-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
-                />
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+              <div class="col-span-1">
+                <label class="wizzy-label" for="last-name">Nom</label>
+                <input v-model="form.nom" autocomplete="family-name" class="wizzy-input" id="last-name" name="last-name" placeholder="Dupont" required type="text" />
               </div>
-              <!-- Prénom -->
-              <div class="space-y-2">
-                <label class="block text-sm font-bold text-gray-800"
-                  >Prénom</label
-                >
-                <input
-                  v-model="form.prenom"
-                  type="text"
-                  placeholder="Votre prénom"
-                  class="w-full px-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
-                />
+              <div class="col-span-1">
+                <label class="wizzy-label" for="first-name">Prénom</label>
+                <input v-model="form.prenom" autocomplete="given-name" class="wizzy-input" id="first-name" name="first-name" placeholder="Jean" required type="text" />
               </div>
             </div>
 
-            <!-- Téléphone -->
-            <div class="space-y-2">
-              <label class="block text-sm font-bold text-gray-800"
-                >Téléphone</label
-              >
-              <div class="relative group">
-                <span
-                  class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors text-xl"
-                  >phone</span
-                >
-                <input
-                  v-model="form.telephone"
-                  type="tel"
-                  placeholder="06 12 34 56 78"
-                  class="w-full pl-14 pr-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
-                />
+            <div>
+              <label class="wizzy-label" for="phone">Téléphone</label>
+              <div class="relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-icons-outlined text-gray-400 text-[20px]">call</span>
+                </div>
+                <input v-model="form.telephone" autocomplete="tel" class="wizzy-input pl-10" id="phone" name="phone" placeholder="06 12 34 56 78" required type="tel" />
               </div>
             </div>
 
-            <!-- Conseiller -->
-            <div class="space-y-2">
-              <label class="block text-sm font-bold text-gray-800"
-                >Conseiller en formation</label
-              >
-              <div class="relative group">
-                <span
-                  class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors text-xl"
-                  >badge</span
-                >
-                <select
-                  v-model="form.conseiller"
-                  class="w-full pl-14 pr-10 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 appearance-none cursor-pointer text-sm"
-                >
-                  <option
-                    v-for="c in conseillers"
-                    :key="c"
-                    :value="c === 'Sélectionnez votre conseiller...' ? '' : c"
-                  >
-                    {{ c }}
-                  </option>
-                </select>
-                <span
-                  class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-xl"
-                  >expand_more</span
-                >
-              </div>
+            <div>
+              <label class="wizzy-label" for="conseiller">Conseiller en formation</label>
+              <select v-model="form.conseiller" class="wizzy-input bg-white" id="conseiller" name="conseiller">
+                <option disabled value="">Sélectionnez votre conseiller</option>
+                <option v-for="c in conseillers" :key="c" :value="c === 'Sélectionnez votre conseiller...' ? '' : c">{{ c }}</option>
+              </select>
             </div>
 
-            <div class="pt-6">
-              <button
-                @click="startTest"
-                :disabled="loading"
-                class="w-full py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
-              >
-                <span>Démarrer le test</span>
-                <span v-if="!loading" class="material-icons-outlined text-2xl"
-                  >arrow_forward</span
-                >
-                <div
-                  v-else
-                  class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
-                ></div>
+            <div class="pt-4">
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                Démarrer le test
+                <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>
+            </div>
+          </form>
+
+          <div class="mt-6">
+            <div class="relative">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">Sécurisé et confidentiel</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Footer -->
-        <footer
-          class="mt-12 text-center text-xs text-gray-400 font-bold uppercase tracking-widest pb-8"
-        >
-          Wizzy Learn © 2024. Tous droits réservés. <br />
-          Besoin d'aide ?
-          <a href="#" class="text-brand-primary hover:underline"
-            >Contactez le support</a
-          >.
-        </footer>
+        <p class="text-center text-xs text-gray-400">© 2024 Wizzy Learn. Tous droits réservés.</p>
       </div>
     </main>
+
+    <!-- decorative blobs -->
+    <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+      <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-100 opacity-50 blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-indigo-50 opacity-50 blur-2xl"></div>
+    </div>
   </div>
 </template>
 

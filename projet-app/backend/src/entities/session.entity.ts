@@ -39,11 +39,17 @@ export class Session {
   @Column('simple-json', { nullable: true })
   levelsScores: any;
 
+  @Column({ type: 'int', nullable: true })
+  scorePretest: number;
+
   @Column({ nullable: true })
   stopLevel: string;
 
   @Column({ nullable: true })
   finalRecommendation: string;
+
+  @Column({ nullable: true })
+  lastValidatedLevel: string;
 
   @CreateDateColumn()
   createdAt: Date;

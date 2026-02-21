@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Patch, Param, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
 
 export class CreateSessionDto {
@@ -14,6 +23,11 @@ export class CreateSessionDto {
 export class UpdateSessionDto {
   prerequisiteScore?: any;
   levelsScores?: any;
+  lastValidatedLevel?: string;
+  stopLevel?: string;
+  finalRecommendation?: string;
+  complementaryQuestions?: any;
+  availabilities?: any;
 }
 
 @Controller('sessions')
@@ -23,6 +37,12 @@ export class SessionsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sessionsService.findOne(id);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  findAll() {
+    return this.sessionsService.findAll();
   }
 
   @Post()

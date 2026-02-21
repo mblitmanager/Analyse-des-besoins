@@ -17,4 +17,12 @@ export class ContactsService {
   findAll() {
     return this.contactRepo.find({ order: { createdAt: 'DESC' } });
   }
+
+  update(id: number, data: Partial<Contact>) {
+    return this.contactRepo.update(id, data);
+  }
+
+  remove(id: number) {
+    return this.contactRepo.delete(id);
+  }
 }

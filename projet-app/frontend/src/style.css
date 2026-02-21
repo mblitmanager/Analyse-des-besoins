@@ -1,11 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@layer components {
+  .wizzy-label {
+    display: block;
+    font-size: .875rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+    color: var(--title-color);
+    margin-bottom: .375rem;
+  }
+  
+  .wizzy-input {
+    background-color: #f9fafb; /* gray-50 fallback */
+    border-color: #e5e7eb; /* gray-200 */
+    border-radius: 0.75rem; /* rounded-xl */
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    color: #111827;
+    transition: all 0.2s;
+  }
+
+  .wizzy-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid #f3f4f6; /* gray-100 */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+}
 
 :root {
   --brand-primary: #3b82f6;
   --brand-secondary: #0D1B3E;
   --brand-accent: #60a5fa;
+  /* Palette personnalisée */
+  --title-color: #315263;
+  --section-color: #428496;
+  --accent-color: #ebb973;
+  --accent-color-soft: rgba(235, 185, 115, 0.14);
   font-family: 'Outfit', system-ui, sans-serif;
 }
 
@@ -28,7 +61,8 @@
 }
 
 body {
-  @apply bg-[#F8FAFC] text-gray-900;
+  background-color: #F8FAFC;
+  color: #111827;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -36,4 +70,91 @@ body {
 
 #app {
   width: 100%;
+}
+
+/* Utility classes for headings and section titles using provided palette */
+.heading-primary {
+  color: var(--title-color);
+}
+
+.section-title {
+  color: var(--section-color);
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+.bg-accent-soft {
+  background-color: var(--accent-color-soft);
+}
+
+/* Example Tailwind-compatible helpers (for components that don't use @apply) */
+.card-heading {
+  font-weight: 700;
+  color: var(--title-color);
+}
+
+.muted-heading {
+  color: rgba(49,82,99,0.8);
+}
+
+/* Success / positive helpers */
+:root {
+  --success-color: #22c55e;
+}
+
+.text-success {
+  color: var(--success-color);
+}
+
+.bg-success-soft {
+  background-color: rgba(34,197,94,0.12);
+}
+
+/* Primary button helper using brand secondary for better contrast */
+.btn-primary {
+  background-color: var(--brand-primary);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  box-shadow: 0 6px 18px rgba(59,130,246,0.08);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.btn-primary:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(59,130,246,0.12); }
+
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Generic button helpers */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  transition: all 0.12s ease;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(49,82,99,0.08);
+  color: var(--title-color);
+}
+
+/* Overlay helper for modal backdrops using brand-secondary */
+.overlay-dark {
+  background-color: rgba(13, 27, 62, 0.4);
+}
+
+/* Background utility for brand secondary color */
+.bg-brand-secondary {
+  background-color: var(--brand-secondary);
+  color: white;
 }

@@ -1,0 +1,18 @@
+:root{ --bg:#f7f7fb; --accent:#2563eb; }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,body,#root{height:100%;margin:0}
+body{font-family:Inter, system-ui, Arial, sans-serif;background:var(--bg);color:#111}
+.app{max-width:900px;margin:40px auto;padding:20px}
+header h1{margin:0 0 20px 0}
+section{background:white;padding:16px;border-radius:8px;box-shadow:0 2px 8px rgba(16,24,40,0.05)}
+
+/* form styles */
+label{display:block}
+input{width:100%;padding:8px;border:1px solid #e6e6ef;border-radius:6px;margin-top:6px}
+input.invalid{border-color:#f43f5e}
+small.error{color:#b91c1c;font-size:0.85rem}
+button{background:var(--accent);color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer}
+button[disabled]{opacity:0.6;cursor:not-allowed}

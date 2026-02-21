@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
+import axios from "axios";
 
 const store = useAppStore();
 const router = useRouter();
@@ -20,15 +21,17 @@ onMounted(async () => {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-    const res = await fetch(`${apiBaseUrl}/questions/workflow/complementary`);
-    questions.value = await res.json();
+    const res = await axios.get(
+      `${apiBaseUrl}/questions/workflow/complementary`,
+    );
+    questions.value = res.data;
 
-    // Initialize responses
+    // Initialize responses keyed by q.id
     questions.value.forEach((q) => {
       if (q.metadata?.type === "radio_toggle") {
-        responses.value[q.text] = "Non";
+        responses.value[q.id] = "Non";
       } else {
-        responses.value[q.text] = "";
+        responses.value[q.id] = "";
       }
     });
   } catch (error) {
@@ -43,10 +46,8 @@ async function nextStep() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-    await fetch(`${apiBaseUrl}/sessions/${sessionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ complementaryQuestions: responses.value }),
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      complementaryQuestions: responses.value,
     });
     const nextRoute = store.getNextRoute("/complementary");
     router.push(nextRoute || "/availabilities");
@@ -58,43 +59,53 @@ async function nextStep() {
 }
 
 function shouldShowQuestion(q) {
-  if (!q.metadata?.condition) return True;
+  if (!q.metadata?.condition) return true; // Fixed: was 'True' (Python syntax)
 
-  // Basic support for "handicap == 'Oui'"
+  // Support: "handicap == 'Oui'"
   if (q.metadata.condition === "handicap == 'Oui'") {
-    // Search for handicap question response
     const handicapQ = questions.value.find((item) =>
-      item.text.includes("handicap"),
+      item.text.toLowerCase().includes("handicap"),
     );
-    return handicapQ && responses.value[handicapQ.text] === "Oui";
+    return handicapQ ? responses.value[handicapQ.id] === "Oui" : false;
   }
   return true;
+}
+
+async function skipStep() {
+  const nextRoute = store.getNextRoute("/complementary");
+  router.push(nextRoute || "/availabilities");
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit p-8">
-    <div class="max-w-2xl mx-auto w-full">
-      <div class="bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
-        <h1
-          class="text-3xl font-black text-[#0D1B3E] mb-2 text-center italic uppercase tracking-tight"
+  <div class="min-h-screen flex flex-col font-outfit">
+    <!-- Header -->
+    <header
+      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
         >
-          Questions Complémentaires
-        </h1>
-        <div class="flex items-center justify-between mb-2 px-1">
+          W
+        </div>
+        <span class="font-bold text-gray-800 text-xl tracking-tight"
+          >Wizzy Learn</span
+        >
+      </div>
+      <div class="hidden md:flex flex-col items-end">
+        <div class="flex items-center gap-2 mb-1">
           <span
             class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"
             >Progression</span
           >
-          <span class="text-[10px] text-brand-primary font-bold"
-            >Étape {{ store.getProgress("/complementary").current }}/{{
+          <span class="text-[10px] text-brand-primary font-bold">
+            Étape {{ store.getProgress("/complementary").current }}/{{
               store.getProgress("/complementary").total
-            }}</span
-          >
+            }}
+          </span>
         </div>
-        <div
-          class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-10"
-        >
+        <div class="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             class="h-full bg-brand-primary transition-all duration-700"
             :style="{
@@ -102,83 +113,152 @@ function shouldShowQuestion(q) {
             }"
           ></div>
         </div>
-        <div v-if="loading" class="flex justify-center py-20">
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
+          Questions Complémentaires
+        </h1>
+        <p class="text-gray-400 text-base md:text-lg">
+          Quelques informations supplémentaires pour personnaliser votre
+          parcours.
+        </p>
+      </div>
+
+      <div v-if="loading" class="flex justify-center py-20">
+        <div
+          class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
+        ></div>
+      </div>
+
+      <div v-else class="space-y-6">
+        <div
+          class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
+        >
           <div
-            class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
-          ></div>
-        </div>
-
-        <div v-else class="space-y-8">
-          <div v-for="q in questions" :key="q.id">
-            <div v-if="shouldShowQuestion(q)" class="space-y-3 animate-fade-in">
-              <div class="flex items-center gap-2 mb-1">
-                <span
-                  v-if="q.icon"
-                  class="material-icons-outlined text-brand-primary text-sm"
-                  >{{ q.icon }}</span
-                >
-                <label
-                  class="block text-sm font-black text-gray-700 uppercase tracking-wider"
-                  >{{ q.text }}</label
-                >
-              </div>
-
-              <!-- Textarea Type -->
-              <textarea
-                v-if="q.metadata?.type === 'textarea'"
-                v-model="responses[q.text]"
-                :rows="q.metadata.rows || 3"
-                :placeholder="q.metadata.placeholder"
-                class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all font-bold text-gray-700 shadow-sm"
-              ></textarea>
-
-              <!-- Radio Toggle Type (Oui/Non) -->
-              <div
-                v-elif="q.metadata?.type === 'radio_toggle'"
-                class="flex gap-4"
+            class="px-6 py-5 border-b border-gray-50 flex items-center gap-3 bg-gray-50/30"
+          >
+            <div
+              class="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center"
+            >
+              <span class="material-icons-outlined text-blue-600 text-lg"
+                >person_search</span
               >
-                <button
-                  v-for="opt in q.options"
-                  :key="opt"
-                  @click="responses[q.text] = opt"
-                  :class="
-                    responses[q.text] === opt
-                      ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30'
-                      : 'bg-gray-100 text-gray-400'
-                  "
-                  class="flex-1 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all"
-                >
-                  {{ opt }}
-                </button>
-              </div>
+            </div>
+            <h2 class="text-base font-bold text-gray-800">Votre profil</h2>
+          </div>
+          <div class="p-6 md:p-8 space-y-8">
+            <div v-for="q in questions" :key="q.id">
+              <div v-if="shouldShowQuestion(q)" class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <span
+                    v-if="q.icon"
+                    class="material-icons-outlined text-brand-primary text-sm"
+                    >{{ q.icon }}</span
+                  >
+                  <p class="text-base font-bold heading-primary">
+                    {{ q.text }}
+                  </p>
+                </div>
 
-              <!-- Default Text Type -->
-              <input
-                v-else
-                v-model="responses[q.text]"
-                type="text"
-                :placeholder="q.metadata?.placeholder || ''"
-                class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all font-bold text-gray-700 shadow-sm"
-              />
+                <!-- Radio Toggle Type (Oui/Non) -->
+                <div
+                  v-if="q.metadata?.type === 'radio_toggle'"
+                  class="flex gap-3"
+                >
+                  <button
+                    v-for="opt in q.options"
+                    :key="opt"
+                    @click="responses[q.id] = opt"
+                    class="flex-1 py-4 rounded-2xl border-2 font-bold text-sm transition-all"
+                    :class="
+                      responses[q.id] === opt
+                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
+                        : 'border-gray-100 text-gray-400 hover:border-brand-primary/30'
+                    "
+                  >
+                    {{ opt }}
+                  </button>
+                </div>
+
+                <!-- Textarea Type -->
+                <textarea
+                  v-else-if="q.metadata?.type === 'textarea'"
+                  v-model="responses[q.id]"
+                  :rows="q.metadata.rows || 3"
+                  :placeholder="q.metadata.placeholder || ''"
+                  class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                ></textarea>
+
+                <!-- Default Text Type -->
+                <input
+                  v-else
+                  v-model="responses[q.id]"
+                  type="text"
+                  :placeholder="q.metadata?.placeholder || ''"
+                  class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                />
+              </div>
             </div>
           </div>
+        </div>
 
+        <!-- Footer Actions -->
+        <div
+          class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4"
+        >
           <button
-            @click="nextStep"
-            :disabled="submitting"
-            class="w-full py-5 bg-black text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-gray-800 transition-all flex items-center justify-center gap-3 shadow-xl"
+            @click="router.push('/resultats')"
+            class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
           >
-            <span v-if="!submitting">Continuer</span>
-            <span
-              v-else
-              class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
-            ></span>
-            <span v-if="!submitting" class="material-icons-outlined"
-              >arrow_forward</span
-            >
+            <span class="material-icons-outlined">arrow_back</span>
+            Précédent
           </button>
+          <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <button
+              @click="skipStep"
+              class="px-6 py-4 text-gray-400 hover:text-gray-600 font-bold text-sm transition-all border-2 border-transparent hover:border-gray-100 rounded-2xl"
+            >
+              Passer cette étape
+            </button>
+            <button
+              @click="nextStep"
+              :disabled="submitting"
+              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
+            >
+              <span>Continuer</span>
+              <span v-if="!submitting" class="material-icons-outlined text-xl"
+                >arrow_forward</span
+              >
+              <div
+                v-else
+                class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
+              ></div>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
+
+    <footer
+      class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
+    >
+      <div>© 2024 Wizzy Learn. Tous droits réservés.</div>
+      <div class="flex gap-8">
+        <a href="#" class="hover:text-brand-primary">Confidentialité</a>
+        <a href="#" class="hover:text-brand-primary">Conditions</a>
+      </div>
+    </footer>
   </div>
 </template>
+
+<style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
+
+.font-outfit {
+  font-family: "Outfit", sans-serif;
+}
+</style>

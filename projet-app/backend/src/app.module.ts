@@ -11,13 +11,18 @@ import { Session } from './entities/session.entity';
 import { Contact } from './entities/contact.entity';
 import { Stagiaire } from './entities/stagiaire.entity';
 import { WorkflowStep } from './entities/workflow-step.entity';
+import { User } from './entities/user.entity';
+import { Setting } from './entities/setting.entity';
 import { FormationsModule } from './formations/formations.module';
 import { QuestionsModule } from './questions/questions.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { WorkflowModule } from './workflow/workflow.module';
+import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -31,7 +36,7 @@ import { EmailModule } from './email/email.module';
 
         if (databaseUrl) {
           return {
-            type: 'postgres',
+            type: 'postgres' as const,
             url: databaseUrl,
             entities: [
               Formation,
@@ -41,14 +46,15 @@ import { EmailModule } from './email/email.module';
               Contact,
               Stagiaire,
               WorkflowStep,
+              User,
+              Setting,
             ],
-            synchronize: false,
-            ssl: true,
+            synchronize: true,
           };
         }
 
         return {
-          type: 'postgres',
+          type: 'postgres' as const,
           host: configService.get<string>('DATABASE_HOST') || 'localhost',
           port: configService.get<number>('DATABASE_PORT') || 5432,
           username: configService.get<string>('DATABASE_USER') || 'user',
@@ -63,8 +69,10 @@ import { EmailModule } from './email/email.module';
             Contact,
             Stagiaire,
             WorkflowStep,
+            User,
+            Setting,
           ],
-          synchronize: false,
+          synchronize: true,
         };
       },
       inject: [ConfigService],
@@ -77,6 +85,8 @@ import { EmailModule } from './email/email.module';
       Contact,
       Stagiaire,
       WorkflowStep,
+      User,
+      Setting,
     ]),
     FormationsModule,
     QuestionsModule,
@@ -84,6 +94,9 @@ import { EmailModule } from './email/email.module';
     EmailModule,
     ContactsModule,
     WorkflowModule,
+    AuthModule,
+    AdminModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedService, EmailService],

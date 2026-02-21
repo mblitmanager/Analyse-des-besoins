@@ -53,4 +53,27 @@ export class QuestionsService {
       order: { order: 'ASC' },
     });
   }
+
+  async findAll() {
+    return this.questionRepo.find({ order: { type: 'ASC', order: 'ASC' } });
+  }
+
+  async create(data: Partial<Question>) {
+    const question = this.questionRepo.create(data);
+    return this.questionRepo.save(question);
+  }
+
+  async update(id: number, data: Partial<Question>) {
+    await this.questionRepo.update(id, data);
+    return this.questionRepo.findOne({ where: { id } });
+  }
+
+  async remove(id: number) {
+    const question = await this.questionRepo.findOne({ where: { id } });
+    if (question) {
+      await this.questionRepo.remove(question);
+      return true;
+    }
+    return false;
+  }
 }

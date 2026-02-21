@@ -12,6 +12,15 @@ export class Formation {
   @Column()
   label: string;
 
+  @Column({ nullable: true })
+  category: string;
+
+  @Column({ nullable: true })
+  icon: string;
+
+  @Column({ nullable: true })
+  color: string;
+
   @Column({ type: 'text', nullable: true })
   objectifs: string;
 
