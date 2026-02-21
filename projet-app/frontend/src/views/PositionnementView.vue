@@ -2,7 +2,9 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import { useAppStore } from "../stores/app";
 
+const store = useAppStore();
 const router = useRouter();
 
 const currentLevelIndex = ref(0);
@@ -11,7 +13,6 @@ const questions = ref([]);
 const currentResponses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
-const finished = ref(false);
 
 const formationSlug = localStorage.getItem("selected_formation_slug");
 const formationLabel = localStorage.getItem("selected_formation_label");
@@ -33,9 +34,12 @@ async function loadLevelQuestions() {
     questions.value.forEach((q) => {
       currentResponses.value[q.id] = null;
     });
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error) {
     console.error("Failed to load level questions:", error);
-    alert("Erreur lors du chargement des questions de niveau.");
+    alert("Erreur lors de l'chargement des questions.");
   } finally {
     loading.value = false;
   }
@@ -71,9 +75,7 @@ async function nextStep() {
       levelsScores: levelsScores.value,
     });
 
-    // 3. Check cumulative logic / stop condition
-    // In this simplified frontend adaptive logic, we stop if score < 80% (or dynamic threshold from DB)
-    // The backend `submit` will also recalculate this, but we handle the UI flow here.
+    // 3. Adaptive logic: threshold 80%
     if (
       percentage < 80 ||
       currentLevelIndex.value === levels.value.length - 1
@@ -88,7 +90,7 @@ async function nextStep() {
     }
   } catch (error) {
     console.error("Failed to advance test:", error);
-    alert("Erreur lors de la validation du niveau.");
+    alert("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
@@ -96,148 +98,226 @@ async function nextStep() {
 </script>
 
 <template>
-  <div
-    class="min-h-screen py-12 px-4 bg-gray-50 flex justify-center items-start"
-  >
-    <div
-      class="max-w-3xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
+  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit">
+    <!-- Header -->
+    <header
+      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
     >
-      <!-- Progress Bar -->
-      <div class="h-2 w-full bg-gray-100">
+      <div class="flex items-center gap-3">
         <div
-          class="h-full bg-brand-primary transition-all duration-500"
-          :style="{ width: (currentLevelIndex / levels.length) * 100 + '%' }"
-        ></div>
+          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
+        >
+          W
+        </div>
+        <span class="font-bold text-gray-800 text-xl tracking-tight"
+          >Wizzy Learn</span
+        >
       </div>
 
-      <div class="p-8 md:p-12">
+      <div class="flex items-center gap-4">
+        <button
+          class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all font-bold text-sm text-gray-600 border border-gray-100"
+        >
+          <span class="material-icons-outlined text-lg">save</span>
+          Enregistrer et quitter
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-12">
+      <!-- Title Area -->
+      <div class="mb-12 relative">
         <div
-          class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10"
+          class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
         >
           <div>
-            <span
-              class="text-brand-primary font-bold uppercase tracking-widest text-xs"
-              >Positionnement adaptive</span
-            >
-            <h1 class="text-3xl font-extrabold text-gray-900 mt-1">
-              {{ formationLabel }} - Niveau {{ levels[currentLevelIndex] }}
+            <h1 class="text-4xl font-extrabold text-[#0D1B3E] mb-2">
+              Test de positionnement - {{ formationLabel }}
             </h1>
-          </div>
-          <div
-            class="px-4 py-2 bg-gray-100 rounded-full text-sm font-bold text-gray-600"
-          >
-            Étage {{ currentLevelIndex + 1 }} / {{ levels.length }}
-          </div>
-        </div>
-
-        <div
-          v-if="loading"
-          class="flex flex-col items-center justify-center py-20 gap-4"
-        >
-          <div
-            class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
-          ></div>
-          <p class="text-gray-400 font-medium italic">
-            Préparation des questions adaptées...
-          </p>
-        </div>
-
-        <div v-else class="space-y-10">
-          <div
-            v-for="(q, idx) in questions"
-            :key="q.id"
-            class="animate-fade-in-up"
-          >
-            <p class="text-xl font-medium text-gray-800 mb-6 leading-relaxed">
-              <span
-                class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-bold mr-2"
-                >{{ idx + 1 }}</span
-              >
-              {{ q.text }}
+            <p class="text-gray-400 font-medium">
+              Parcours adaptatif : Succès sur les premières questions validé.
             </p>
+          </div>
+          <div
+            class="flex items-center gap-2 px-6 py-3 bg-[#E1F9EB] text-[#22C55E] rounded-full text-xs font-black uppercase tracking-wider shadow-sm"
+          >
+            <span class="material-icons-outlined">trending_up</span>
+            En bonne voie pour {{ levels[currentLevelIndex] }}
+          </div>
+        </div>
 
-            <div class="grid grid-cols-1 gap-3">
-              <label
-                v-for="(option, oIdx) in q.options"
-                :key="oIdx"
-                class="flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer group relative overflow-hidden"
-                :class="
-                  currentResponses[q.id] === option
-                    ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary'
-                    : 'border-gray-100 bg-gray-50/50 hover:bg-white hover:border-brand-accent'
-                "
-              >
-                <input
-                  type="radio"
-                  :name="'q-' + q.id"
-                  v-model="currentResponses[q.id]"
-                  :value="option"
-                  class="hidden"
-                />
-                <div
-                  class="w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 transition-all"
-                  :class="
-                    currentResponses[q.id] === option
-                      ? 'border-brand-primary bg-brand-primary'
-                      : 'border-gray-300'
-                  "
-                >
-                  <svg
-                    v-if="currentResponses[q.id] === option"
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-white"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+        <!-- Progress Bar -->
+        <div
+          class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-gray-100 mb-10"
+        >
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span
+              class="text-[11px] font-black text-[#0D1B3E] uppercase tracking-widest"
+              >Progression globale</span
+            >
+            <span
+              class="text-[11px] font-black text-brand-primary uppercase tracking-widest"
+              >Étape 4 sur 5</span
+            >
+          </div>
+          <div
+            class="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden border border-gray-50"
+          >
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{
+                width: ((currentLevelIndex + 1) / levels.length) * 100 + '%',
+              }"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="loading"
+        class="flex flex-col items-center justify-center py-32 gap-6 bg-white rounded-[2rem] shadow-sm border border-gray-100"
+      >
+        <div
+          class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
+        ></div>
+        <p class="text-gray-400 font-bold italic">
+          Préparation du module {{ levels[currentLevelIndex] }}...
+        </p>
+      </div>
+
+      <div v-else class="space-y-12">
+        <div class="relative">
+          <div class="flex items-center gap-4 mb-10">
+            <span
+              class="text-xs font-black text-gray-300 uppercase tracking-[0.2em] whitespace-nowrap"
+              >RÉVISION {{ levels[currentLevelIndex] }}</span
+            >
+            <div class="h-px w-full bg-gray-100"></div>
+          </div>
+
+          <div class="space-y-6">
+            <div
+              v-for="(q, idx) in questions"
+              :key="q.id"
+              class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden group"
+            >
+              <div class="p-8 md:p-10">
+                <div class="flex items-start gap-6 mb-8">
+                  <div
+                    class="w-10 h-10 shrink-0 rounded-2xl bg-[#E1F9EB] flex items-center justify-center text-[#22C55E] font-black text-lg"
                   >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
+                    {{ idx + 1 }}
+                  </div>
+                  <div class="pt-1">
+                    <h3
+                      class="text-xl font-bold text-[#0D1B3E] leading-snug mb-2"
+                    >
+                      {{ q.text }}
+                    </h3>
+                    <p class="text-sm text-gray-400 font-medium">
+                      Sélectionnez la réponse correcte pour valider ce point.
+                    </p>
+                  </div>
                 </div>
-                <span
-                  class="text-lg font-medium"
-                  :class="
-                    currentResponses[q.id] === option
-                      ? 'text-brand-primary'
-                      : 'text-gray-700'
-                  "
-                  >{{ option }}</span
-                >
-              </label>
+
+                <div class="grid grid-cols-1 gap-4">
+                  <label
+                    v-for="(option, oIdx) in q.options"
+                    :key="oIdx"
+                    class="flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group/opt"
+                    :class="
+                      currentResponses[q.id] === option
+                        ? 'border-brand-primary bg-brand-primary/5'
+                        : 'border-gray-50 bg-[#F8FAFC] hover:border-brand-primary/30 hover:bg-white'
+                    "
+                  >
+                    <input
+                      type="radio"
+                      :name="'q-' + q.id"
+                      v-model="currentResponses[q.id]"
+                      :value="option"
+                      class="hidden"
+                    />
+                    <div class="flex items-center gap-4">
+                      <div
+                        class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                        :class="
+                          currentResponses[q.id] === option
+                            ? 'border-brand-primary bg-brand-primary'
+                            : 'border-gray-300 group-hover/opt:border-brand-primary'
+                        "
+                      >
+                        <div
+                          v-if="currentResponses[q.id] === option"
+                          class="w-1.5 h-1.5 rounded-full bg-white"
+                        ></div>
+                      </div>
+                      <span
+                        class="text-lg font-bold"
+                        :class="
+                          currentResponses[q.id] === option
+                            ? 'text-brand-primary'
+                            : 'text-gray-700'
+                        "
+                      >
+                        {{ option }}
+                      </span>
+                    </div>
+                    <span
+                      v-if="currentResponses[q.id] === option"
+                      class="material-icons-outlined text-brand-primary animate-scale-in"
+                      >check_circle</span
+                    >
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Footer Info -->
+        <div
+          class="bg-white border border-gray-100 rounded-[1.5rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div class="flex items-center gap-4">
+            <div
+              class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white"
+            >
+              <span class="material-icons-outlined">auto_fix_high</span>
+            </div>
+            <div>
+              <p
+                class="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1"
+              >
+                PROCHAINE ÉTAPE
+              </p>
+              <p class="text-sm font-bold text-[#0D1B3E]">
+                Finalisation du profil {{ levels[currentLevelIndex] }}
+              </p>
             </div>
           </div>
 
-          <div class="pt-10 flex border-t border-gray-100">
+          <div class="flex items-center gap-4">
+            <button
+              @click="router.push('/formations')"
+              class="px-6 py-3 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+            >
+              Précédent
+            </button>
             <button
               @click="nextStep"
               :disabled="
                 submitting ||
                 Object.values(currentResponses).some((r) => r === null)
               "
-              class="ml-auto px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl hover:shadow-brand-primary/40 disabled:opacity-30 disabled:grayscale transition-all flex items-center gap-3 transform active:scale-95"
+              class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-30 disabled:translate-y-0"
             >
               <span>{{
-                currentLevelIndex === levels.length - 1
-                  ? "Terminer le test"
-                  : "Valider ce niveau"
+                currentLevelIndex === levels.length - 1 ? "Terminer" : "Suivant"
               }}</span>
-              <svg
-                v-if="!submitting"
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <span v-if="!submitting" class="material-icons-outlined text-xl"
+                >arrow_forward</span
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
               <div
                 v-else
                 class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
@@ -246,23 +326,30 @@ async function nextStep() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out backwards;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
+
+.font-outfit {
+  font-family: "Outfit", sans-serif;
 }
 
-@keyframes fadeInUp {
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
   from {
+    transform: scale(0);
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
+    transform: scale(1);
     opacity: 1;
-    transform: translateY(0);
   }
 }
 </style>
