@@ -15,8 +15,8 @@ const router = createRouter({
       component: () => import('../views/PrerequisView.vue')
     },
     {
-      path: '/formation-selection',
-      name: 'formation-selection',
+      path: '/formations',
+      name: 'formations',
       component: () => import('../views/FormationSelectionView.vue')
     },
     {

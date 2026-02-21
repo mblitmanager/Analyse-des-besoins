@@ -228,12 +228,12 @@ async function submitPrerequis() {
       </div>
     </header>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-12">
-      <div class="text-center mb-12">
-        <h1 class="text-4xl font-extrabold text-[#0D1B3E] mb-3">
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-2">
           Prérequis - Niveau Informatique
         </h1>
-        <p class="text-gray-400 text-lg">
+        <p class="text-gray-400 text-base md:text-lg">
           Veuillez répondre aux questions suivantes pour évaluer votre niveau de
           confort avec les outils numériques.
         </p>
@@ -249,36 +249,36 @@ async function submitPrerequis() {
         <div
           v-for="group in groups"
           :key="group.title"
-          class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden"
+          class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
         >
           <div
-            class="px-8 py-6 border-b border-gray-50 flex items-center gap-4 bg-gray-50/30"
+            class="px-6 py-5 border-b border-gray-50 flex items-center gap-3 bg-gray-50/30"
           >
             <div
-              class="w-10 h-10 rounded-xl flex items-center justify-center"
+              class="w-9 h-9 rounded-lg flex items-center justify-center text-sm"
               :class="
                 group.color === 'blue'
                   ? 'bg-blue-600/10 text-blue-600'
                   : 'bg-indigo-600/10 text-indigo-600'
               "
             >
-              <span class="material-icons-outlined">{{ group.icon }}</span>
+              <span class="material-icons-outlined text-lg">{{ group.icon }}</span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800">{{ group.title }}</h2>
+            <h2 class="text-base font-bold text-gray-800">{{ group.title }}</h2>
           </div>
 
-          <div class="p-8 md:p-10 space-y-10">
+          <div class="p-6 md:p-8 space-y-8">
             <div
               v-if="group.subtitle"
-              class="text-sm font-bold text-gray-400 uppercase tracking-wider -mb-4"
+              class="text-xs font-bold text-gray-400 uppercase tracking-widest -mb-2"
             >
               {{ group.subtitle }}
             </div>
 
-            <div v-for="q in group.questions" :key="q.id" class="space-y-6">
+            <div v-for="q in group.questions" :key="q.id" class="space-y-4">
               <div v-if="q.text" class="space-y-1">
-                <p class="text-lg font-bold text-[#0D1B3E]">{{ q.text }}</p>
-                <p v-if="q.subtitle" class="text-sm text-gray-400">
+                <p class="text-base font-bold text-[#0D1B3E]">{{ q.text }}</p>
+                <p v-if="q.subtitle" class="text-xs text-gray-400">
                   {{ q.subtitle }}
                 </p>
               </div>
@@ -286,13 +286,13 @@ async function submitPrerequis() {
               <!-- Radio Options -->
               <div
                 v-if="q.type === 'radio'"
-                class="grid grid-cols-1 md:grid-cols-3 gap-4"
+                class="grid grid-cols-1 md:grid-cols-3 gap-3"
               >
                 <button
                   v-for="opt in q.options"
                   :key="opt"
                   @click="responses[q.id] = opt"
-                  class="p-5 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group"
+                  class="p-4 rounded-2xl border-2 transition-all flex items-center gap-3 text-left group text-sm"
                   :class="
                     responses[q.id] === opt
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
@@ -300,7 +300,7 @@ async function submitPrerequis() {
                   "
                 >
                   <div
-                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                    class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                     :class="
                       responses[q.id] === opt
                         ? 'border-brand-primary bg-brand-primary'
@@ -309,20 +309,20 @@ async function submitPrerequis() {
                   >
                     <div
                       v-if="responses[q.id] === opt"
-                      class="w-2 h-2 rounded-full bg-white"
+                      class="w-1.5 h-1.5 rounded-full bg-white"
                     ></div>
                   </div>
-                  <span class="font-bold">{{ opt }}</span>
+                  <span class="font-medium">{{ opt }}</span>
                 </button>
               </div>
 
               <!-- Checkbox Options -->
-              <div v-if="q.type === 'checkbox'" class="space-y-3">
+              <div v-if="q.type === 'checkbox'" class="space-y-2">
                 <button
                   v-for="opt in q.options"
                   :key="opt.label"
                   @click="handleCheckbox(q.id, opt.label, opt.exclusive)"
-                  class="w-full p-5 rounded-2xl border-2 transition-all flex items-center gap-4 text-left group"
+                  class="w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 text-left group text-sm"
                   :class="
                     responses[q.id].includes(opt.label)
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
@@ -330,7 +330,7 @@ async function submitPrerequis() {
                   "
                 >
                   <div
-                    class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all"
+                    class="flex-shrink-0 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all"
                     :class="
                       responses[q.id].includes(opt.label)
                         ? 'border-brand-primary bg-brand-primary'
@@ -339,15 +339,15 @@ async function submitPrerequis() {
                   >
                     <span
                       v-if="responses[q.id].includes(opt.label)"
-                      class="material-icons-outlined text-white text-sm"
+                      class="material-icons-outlined text-white text-xs"
                       >check</span
                     >
                   </div>
-                  <div class="flex flex-col">
-                    <span class="font-bold">{{ opt.label }}</span>
+                  <div class="flex flex-col flex-1">
+                    <span class="font-medium">{{ opt.label }}</span>
                     <span
                       v-if="opt.extra"
-                      class="text-sm font-medium opacity-60"
+                      class="text-xs font-medium opacity-60"
                       >{{ opt.extra }}</span
                     >
                   </div>
@@ -359,11 +359,11 @@ async function submitPrerequis() {
 
         <!-- Footer Actions -->
         <div
-          class="pt-8 flex flex-col sm:flex-row justify-between items-center gap-6"
+          class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4"
         >
           <button
             @click="router.push('/')"
-            class="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors"
+            class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
           >
             <span class="material-icons-outlined">arrow_back</span>
             Précédent
@@ -372,10 +372,10 @@ async function submitPrerequis() {
           <button
             @click="submitPrerequis"
             :disabled="submitting"
-            class="w-full sm:w-auto px-12 py-5 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-50"
+            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
           >
             <span>Valider et continuer</span>
-            <span v-if="!submitting" class="material-icons-outlined text-2xl"
+            <span v-if="!submitting" class="material-icons-outlined text-xl"
               >arrow_forward</span
             >
             <div
@@ -389,9 +389,9 @@ async function submitPrerequis() {
 
     <!-- Global Footer -->
     <footer
-      class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-auto"
+      class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
     >
-      <div>© 2023 Wizzy Learn. Tous droits réservés.</div>
+      <div>© 2024 Wizzy Learn. Tous droits réservés.</div>
       <div class="flex gap-8">
         <a href="#" class="hover:text-brand-primary">Confidentialité</a>
         <a href="#" class="hover:text-brand-primary">Conditions</a>

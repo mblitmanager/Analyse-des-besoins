@@ -21,16 +21,30 @@ import { EmailModule } from './email/email.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: (configService.get<string>('DATABASE_TYPE') as any) || 'postgres',
-        host: configService.get<string>('DATABASE_HOST') || 'localhost',
-        port: configService.get<number>('DATABASE_PORT') || 5432,
-        username: configService.get<string>('DATABASE_USER') || 'user',
-        password: configService.get<string>('DATABASE_PASSWORD') || 'password',
-        database: configService.get<string>('DATABASE_NAME') || 'wizzylearn',
-        entities: [Formation, Level, Question, Session],
-        synchronize: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        
+        if (databaseUrl) {
+          return {
+            type: 'postgres',
+            url: databaseUrl,
+            entities: [Formation, Level, Question, Session],
+            synchronize: true,
+            ssl: true,
+          };
+        }
+        
+        return {
+          type: 'postgres',
+          host: configService.get<string>('DATABASE_HOST') || 'localhost',
+          port: configService.get<number>('DATABASE_PORT') || 5432,
+          username: configService.get<string>('DATABASE_USER') || 'user',
+          password: configService.get<string>('DATABASE_PASSWORD') || 'password',
+          database: configService.get<string>('DATABASE_NAME') || 'wizzylearn',
+          entities: [Formation, Level, Question, Session],
+          synchronize: true,
+        };
+      },
       inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([Formation, Level, Question, Session]),
