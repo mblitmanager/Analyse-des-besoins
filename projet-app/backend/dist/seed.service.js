@@ -29,15 +29,33 @@ let SeedService = class SeedService {
         this.questionRepo = questionRepo;
     }
     async onApplicationBootstrap() {
-        const formationCount = await this.formationRepo.count();
-        if (formationCount > 0)
-            return;
-        console.log('Seeding initial data...');
-        const toeic = await this.formationRepo.save({
-            slug: 'toeic',
-            label: 'Anglais (TOEIC)',
-            isActive: true,
+        console.log('Checking and seeding data...');
+        const formationsData = [
+            { slug: 'toeic', label: 'Anglais (TOEIC)' },
+            { slug: 'voltaire', label: 'Français (Voltaire)' },
+            { slug: 'word', label: 'Word' },
+            { slug: 'excel', label: 'Excel' },
+            { slug: 'outlook', label: 'Outlook' },
+            { slug: 'powerpoint', label: 'PowerPoint' },
+            { slug: 'sketchup', label: 'Sketchup' },
+            { slug: 'illustrator', label: 'Illustrator' },
+            { slug: 'wordpress', label: 'WordPress' },
+            { slug: 'digcomp', label: 'DigComp' },
+        ];
+        for (const fData of formationsData) {
+            const exists = await this.formationRepo.findOne({
+                where: { slug: fData.slug },
+            });
+            if (!exists) {
+                await this.formationRepo.save({ ...fData, isActive: true });
+                console.log(`Formation ${fData.label} created.`);
+            }
+        }
+        const toeic = await this.formationRepo.findOne({
+            where: { slug: 'toeic' },
         });
+        if (!toeic)
+            return;
         const levelsData = [
             {
                 label: 'A1',
@@ -71,20 +89,90 @@ let SeedService = class SeedService {
             },
         ];
         const levels = {};
-        for (const data of levelsData) {
-            levels[data.label] = await this.levelRepo.save({
-                ...data,
-                formation: toeic,
+        for (const lData of levelsData) {
+            let level = await this.levelRepo.findOne({
+                where: { label: lData.label, formation: { id: toeic.id } },
             });
+            if (!level) {
+                level = await this.levelRepo.save({ ...lData, formation: toeic });
+                console.log(`Level ${lData.label} for TOEIC created.`);
+            }
+            levels[lData.label] = level;
         }
-        const questions = [
+        const prerequisQuestions = [
+            {
+                text: 'Niveau numérique global',
+                options: ['Débutant', 'Intermédiaire', 'Avancé'],
+                type: 'prerequis',
+            },
+            {
+                text: "Fréquence d'utilisation d'un ordinateur",
+                options: ['Tous les jours', 'Occasionnelle', 'Jamais'],
+                type: 'prerequis',
+            },
+            {
+                text: 'Savoir allumer un ordinateur, utiliser le clavier et la souris',
+                options: ['Acquis', 'Moyen', 'Insuffisant'],
+                type: 'prerequis',
+            },
+            {
+                text: "Se repérer dans l'environnement Windows (bureau, menu démarrer, fenêtres, icônes...)",
+                options: ['Acquis', 'Moyen', 'Insuffisant'],
+                type: 'prerequis',
+            },
+            {
+                text: 'Savoir naviguer sur internet',
+                options: ['Acquis', 'Moyen', 'Insuffisant'],
+                type: 'prerequis',
+            },
+            {
+                text: 'Utilisez-vous les logiciels suivants :',
+                options: [
+                    'Traitement de texte',
+                    'Tableur',
+                    'Présentation',
+                    "Je n'utilise aucun de ces logiciels",
+                ],
+                type: 'prerequis',
+            },
+            {
+                text: 'Avez-vous déjà réalisé des démarches administratives en ligne ?',
+                options: ['Oui', 'Non'],
+                type: 'prerequis',
+            },
+            {
+                text: 'Sur votre ordinateur, savez-vous effectuer les manipulations suivantes ?',
+                options: [
+                    'Protéger votre ordinateur avec un antivirus',
+                    'Mettre à jour votre système d’exploitation et vos logiciels',
+                    'Changer vos mots de passe régulièrement',
+                    'Aucun des trois',
+                ],
+                type: 'prerequis',
+            },
+        ];
+        for (let i = 0; i < prerequisQuestions.length; i++) {
+            const qData = prerequisQuestions[i];
+            const exists = await this.questionRepo.findOne({
+                where: { text: qData.text, type: 'prerequis' },
+            });
+            if (!exists) {
+                await this.questionRepo.save({
+                    ...qData,
+                    order: i + 1,
+                    correctResponseIndex: -1,
+                    type: 'prerequis',
+                });
+                console.log(`Prerequisite question "${qData.text}" created.`);
+            }
+        }
+        const toeicQuestions = [
             {
                 text: 'Hello, my name ___ Sarah.',
                 options: ['am', 'is', 'are', 'Je ne sais pas'],
                 correctResponseIndex: 1,
                 level: levels['A1'],
                 order: 1,
-                type: 'positionnement',
             },
             {
                 text: 'We ___ English on Monday.',
@@ -92,7 +180,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['A1'],
                 order: 2,
-                type: 'positionnement',
             },
             {
                 text: 'She ___ 12 years old.',
@@ -100,7 +187,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['A1'],
                 order: 3,
-                type: 'positionnement',
             },
             {
                 text: 'There ___ a book on the table.',
@@ -108,7 +194,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['A1'],
                 order: 4,
-                type: 'positionnement',
             },
             {
                 text: 'She ___ TV right now.',
@@ -116,7 +201,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['A1'],
                 order: 5,
-                type: 'positionnement',
             },
             {
                 text: 'She ___ to the gym three times a week.',
@@ -124,7 +208,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['A1'],
                 order: 6,
-                type: 'positionnement',
             },
             {
                 text: 'We ___ tired, so we decided to go home.',
@@ -132,7 +215,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['A2'],
                 order: 7,
-                type: 'positionnement',
             },
             {
                 text: 'While I ___ TV, I heard a strange noise.',
@@ -145,7 +227,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['A2'],
                 order: 8,
-                type: 'positionnement',
             },
             {
                 text: 'There isn’t ___ milk left in the fridge.',
@@ -153,7 +234,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['A2'],
                 order: 9,
-                type: 'positionnement',
             },
             {
                 text: 'He’s the ___ student in the class.',
@@ -161,7 +241,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['A2'],
                 order: 10,
-                type: 'positionnement',
             },
             {
                 text: 'Mary is ___ her sister.',
@@ -174,7 +253,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['A2'],
                 order: 11,
-                type: 'positionnement',
             },
             {
                 text: 'We ___ to the supermarket yesterday.',
@@ -182,7 +260,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['A2'],
                 order: 12,
-                type: 'positionnement',
             },
             {
                 text: 'I’ve known her ___ we were children.',
@@ -190,7 +267,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['B1'],
                 order: 13,
-                type: 'positionnement',
             },
             {
                 text: 'If I ___ more time, I would travel around the world.',
@@ -198,7 +274,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['B1'],
                 order: 14,
-                type: 'positionnement',
             },
             {
                 text: 'The castle ___ in 1692.',
@@ -206,7 +281,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['B1'],
                 order: 15,
-                type: 'positionnement',
             },
             {
                 text: 'She ___ here for five years.',
@@ -214,7 +288,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['B1'],
                 order: 16,
-                type: 'positionnement',
             },
             {
                 text: 'He felt sick because he ___ too much chocolate.',
@@ -222,7 +295,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['B1'],
                 order: 17,
-                type: 'positionnement',
             },
             {
                 text: 'I ___ more water recently and I feel better.',
@@ -230,7 +302,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['B1'],
                 order: 18,
-                type: 'positionnement',
             },
             {
                 text: 'You ___ me about the problem earlier.',
@@ -238,7 +309,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['B2'],
                 order: 19,
-                type: 'positionnement',
             },
             {
                 text: 'If the baby had slept better, I ___ so tired.',
@@ -251,7 +321,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['B2'],
                 order: 20,
-                type: 'positionnement',
             },
             {
                 text: 'By this time next year, I ___ my studies.',
@@ -264,7 +333,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['B2'],
                 order: 21,
-                type: 'positionnement',
             },
             {
                 text: 'This time tomorrow, we ___ on the beach.',
@@ -272,7 +340,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['B2'],
                 order: 22,
-                type: 'positionnement',
             },
             {
                 text: 'The meeting was called ___ due to unexpected problems.',
@@ -280,7 +347,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['B2'],
                 order: 23,
-                type: 'positionnement',
             },
             {
                 text: '___ he was tired, he continued working.',
@@ -288,7 +354,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['B2'],
                 order: 24,
-                type: 'positionnement',
             },
             {
                 text: 'You ___ apologise now if you want to avoid further conflict.',
@@ -296,7 +361,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['C1'],
                 order: 25,
-                type: 'positionnement',
             },
             {
                 text: 'I’d rather you ___ this matter confidential.',
@@ -304,7 +368,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 0,
                 level: levels['C1'],
                 order: 26,
-                type: 'positionnement',
             },
             {
                 text: 'The committee demanded that the report ___ before Friday.',
@@ -317,7 +380,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['C1'],
                 order: 27,
-                type: 'positionnement',
             },
             {
                 text: '___ the circumstances, his reaction was surprisingly restrained.',
@@ -325,7 +387,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 2,
                 level: levels['C1'],
                 order: 28,
-                type: 'positionnement',
             },
             {
                 text: 'Rarely ___ such a compelling argument.',
@@ -333,7 +394,6 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['C1'],
                 order: 29,
-                type: 'positionnement',
             },
             {
                 text: 'Not only ___ late, but he also failed to apologise.',
@@ -346,27 +406,21 @@ let SeedService = class SeedService {
                 correctResponseIndex: 1,
                 level: levels['C1'],
                 order: 30,
-                type: 'positionnement',
-            },
-            {
-                text: 'Niveau numérique',
-                options: ['Débutant', 'Intermédiaire', 'Avancé'],
-                correctResponseIndex: -1,
-                order: 1,
-                type: 'prerequis',
-            },
-            {
-                text: 'Fréquence d’utilisation d’un ordinateur',
-                options: ['Tous les jours', 'Occasionnelle', 'Jamais'],
-                correctResponseIndex: -1,
-                order: 2,
-                type: 'prerequis',
             },
         ];
-        for (const q of questions) {
-            await this.questionRepo.save(q);
+        for (const qData of toeicQuestions) {
+            const exists = await this.questionRepo.findOne({
+                where: { text: qData.text, level: { id: qData.level.id } },
+            });
+            if (!exists) {
+                await this.questionRepo.save({
+                    ...qData,
+                    type: 'positionnement',
+                });
+                console.log(`Question "${qData.text.substring(0, 20)}..." for TOEIC added.`);
+            }
         }
-        console.log('Seeding complete!');
+        console.log('Seeding check complete!');
     }
 };
 exports.SeedService = SeedService;

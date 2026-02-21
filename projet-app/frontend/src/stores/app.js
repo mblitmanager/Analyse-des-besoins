@@ -3,10 +3,12 @@ import { ref, watch } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
   const brand = ref('aopia') // Default brand
+  const isDirectLink = ref(true)
 
   function setBrand(newBrand) {
-    if (['aopia', 'like'].includes(newBrand)) {
+    if (['aopia', 'like', 'nsconseil'].includes(newBrand)) {
       brand.value = newBrand
+      isDirectLink.value = false
     }
   }
 
@@ -15,5 +17,5 @@ export const useAppStore = defineStore('app', () => {
     document.documentElement.setAttribute('data-brand', newBrand)
   }, { immediate: true })
 
-  return { brand, setBrand }
+  return { brand, isDirectLink, setBrand }
 })

@@ -17,19 +17,38 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    const formationCount = await this.formationRepo.count();
-    if (formationCount > 0) return;
+    console.log('Checking and seeding data...');
 
-    console.log('Seeding initial data...');
+    // 1. Formations
+    const formationsData = [
+      { slug: 'toeic', label: 'Anglais (TOEIC)' },
+      { slug: 'voltaire', label: 'Français (Voltaire)' },
+      { slug: 'word', label: 'Word' },
+      { slug: 'excel', label: 'Excel' },
+      { slug: 'outlook', label: 'Outlook' },
+      { slug: 'powerpoint', label: 'PowerPoint' },
+      { slug: 'sketchup', label: 'Sketchup' },
+      { slug: 'illustrator', label: 'Illustrator' },
+      { slug: 'wordpress', label: 'WordPress' },
+      { slug: 'digcomp', label: 'DigComp' },
+    ];
 
-    // 1. Create TOEIC Formation
-    const toeic = await this.formationRepo.save({
-      slug: 'toeic',
-      label: 'Anglais (TOEIC)',
-      isActive: true,
+    for (const fData of formationsData) {
+      const exists = await this.formationRepo.findOne({
+        where: { slug: fData.slug },
+      });
+      if (!exists) {
+        await this.formationRepo.save({ ...fData, isActive: true });
+        console.log(`Formation ${fData.label} created.`);
+      }
+    }
+
+    const toeic = await this.formationRepo.findOne({
+      where: { slug: 'toeic' },
     });
+    if (!toeic) return;
 
-    // 2. Create Levels for TOEIC
+    // 2. Levels for TOEIC
     const levelsData = [
       {
         label: 'A1',
@@ -64,23 +83,96 @@ export class SeedService implements OnApplicationBootstrap {
     ];
 
     const levels: Record<string, Level> = {};
-    for (const data of levelsData) {
-      levels[data.label] = await this.levelRepo.save({
-        ...data,
-        formation: toeic,
+    for (const lData of levelsData) {
+      let level = await this.levelRepo.findOne({
+        where: { label: lData.label, formation: { id: toeic.id } },
       });
+      if (!level) {
+        level = await this.levelRepo.save({ ...lData, formation: toeic });
+        console.log(`Level ${lData.label} for TOEIC created.`);
+      }
+      levels[lData.label] = level;
     }
 
-    // 3. Create Questions (Simplified and hardcoded based on TOEIC - Test AB.md)
-    const questions = [
-      // A1 Questions
+    // 3. Prerequisite Questions
+    const prerequisQuestions = [
+      {
+        text: 'Niveau numérique global',
+        options: ['Débutant', 'Intermédiaire', 'Avancé'],
+        type: 'prerequis',
+      },
+      {
+        text: "Fréquence d'utilisation d'un ordinateur",
+        options: ['Tous les jours', 'Occasionnelle', 'Jamais'],
+        type: 'prerequis',
+      },
+      {
+        text: 'Savoir allumer un ordinateur, utiliser le clavier et la souris',
+        options: ['Acquis', 'Moyen', 'Insuffisant'],
+        type: 'prerequis',
+      },
+      {
+        text: "Se repérer dans l'environnement Windows (bureau, menu démarrer, fenêtres, icônes...)",
+        options: ['Acquis', 'Moyen', 'Insuffisant'],
+        type: 'prerequis',
+      },
+      {
+        text: 'Savoir naviguer sur internet',
+        options: ['Acquis', 'Moyen', 'Insuffisant'],
+        type: 'prerequis',
+      },
+      {
+        text: 'Utilisez-vous les logiciels suivants :',
+        options: [
+          'Traitement de texte',
+          'Tableur',
+          'Présentation',
+          "Je n'utilise aucun de ces logiciels",
+        ],
+        type: 'prerequis',
+      },
+      {
+        text: 'Avez-vous déjà réalisé des démarches administratives en ligne ?',
+        options: ['Oui', 'Non'],
+        type: 'prerequis',
+      },
+      {
+        text: 'Sur votre ordinateur, savez-vous effectuer les manipulations suivantes ?',
+        options: [
+          'Protéger votre ordinateur avec un antivirus',
+          'Mettre à jour votre système d’exploitation et vos logiciels',
+          'Changer vos mots de passe régulièrement',
+          'Aucun des trois',
+        ],
+        type: 'prerequis',
+      },
+    ];
+
+    for (let i = 0; i < prerequisQuestions.length; i++) {
+      const qData = prerequisQuestions[i];
+      const exists = await this.questionRepo.findOne({
+        where: { text: qData.text, type: 'prerequis' as any },
+      });
+      if (!exists) {
+        await this.questionRepo.save({
+          ...qData,
+          order: i + 1,
+          correctResponseIndex: -1,
+          type: 'prerequis' as any,
+        });
+        console.log(`Prerequisite question "${qData.text}" created.`);
+      }
+    }
+
+    // 4. TOEIC Positionnement Questions
+    const toeicQuestions = [
+      // A1
       {
         text: 'Hello, my name ___ Sarah.',
         options: ['am', 'is', 'are', 'Je ne sais pas'],
         correctResponseIndex: 1,
         level: levels['A1'],
         order: 1,
-        type: 'positionnement' as const,
       },
       {
         text: 'We ___ English on Monday.',
@@ -88,7 +180,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['A1'],
         order: 2,
-        type: 'positionnement' as const,
       },
       {
         text: 'She ___ 12 years old.',
@@ -96,7 +187,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['A1'],
         order: 3,
-        type: 'positionnement' as const,
       },
       {
         text: 'There ___ a book on the table.',
@@ -104,7 +194,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['A1'],
         order: 4,
-        type: 'positionnement' as const,
       },
       {
         text: 'She ___ TV right now.',
@@ -112,7 +201,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['A1'],
         order: 5,
-        type: 'positionnement' as const,
       },
       {
         text: 'She ___ to the gym three times a week.',
@@ -120,17 +208,14 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['A1'],
         order: 6,
-        type: 'positionnement' as const,
       },
-
-      // A2 Questions
+      // A2
       {
         text: 'We ___ tired, so we decided to go home.',
         options: ['was', 'were', 'are', 'Je ne sais pas'],
         correctResponseIndex: 1,
         level: levels['A2'],
         order: 7,
-        type: 'positionnement' as const,
       },
       {
         text: 'While I ___ TV, I heard a strange noise.',
@@ -143,7 +228,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['A2'],
         order: 8,
-        type: 'positionnement' as const,
       },
       {
         text: 'There isn’t ___ milk left in the fridge.',
@@ -151,7 +235,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['A2'],
         order: 9,
-        type: 'positionnement' as const,
       },
       {
         text: 'He’s the ___ student in the class.',
@@ -159,7 +242,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['A2'],
         order: 10,
-        type: 'positionnement' as const,
       },
       {
         text: 'Mary is ___ her sister.',
@@ -172,7 +254,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['A2'],
         order: 11,
-        type: 'positionnement' as const,
       },
       {
         text: 'We ___ to the supermarket yesterday.',
@@ -180,17 +261,14 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['A2'],
         order: 12,
-        type: 'positionnement' as const,
       },
-
-      // B1 Questions
+      // B1
       {
         text: 'I’ve known her ___ we were children.',
         options: ['for', 'since', 'during', 'Je ne sais pas'],
         correctResponseIndex: 1,
         level: levels['B1'],
         order: 13,
-        type: 'positionnement' as const,
       },
       {
         text: 'If I ___ more time, I would travel around the world.',
@@ -198,7 +276,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['B1'],
         order: 14,
-        type: 'positionnement' as const,
       },
       {
         text: 'The castle ___ in 1692.',
@@ -206,7 +283,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['B1'],
         order: 15,
-        type: 'positionnement' as const,
       },
       {
         text: 'She ___ here for five years.',
@@ -214,7 +290,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['B1'],
         order: 16,
-        type: 'positionnement' as const,
       },
       {
         text: 'He felt sick because he ___ too much chocolate.',
@@ -222,7 +297,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['B1'],
         order: 17,
-        type: 'positionnement' as const,
       },
       {
         text: 'I ___ more water recently and I feel better.',
@@ -230,17 +304,14 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['B1'],
         order: 18,
-        type: 'positionnement' as const,
       },
-
-      // B2 Questions
+      // B2
       {
         text: 'You ___ me about the problem earlier.',
         options: ['should have told', 'should told', 'must', 'Je ne sais pas'],
         correctResponseIndex: 0,
         level: levels['B2'],
         order: 19,
-        type: 'positionnement' as const,
       },
       {
         text: 'If the baby had slept better, I ___ so tired.',
@@ -253,7 +324,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['B2'],
         order: 20,
-        type: 'positionnement' as const,
       },
       {
         text: 'By this time next year, I ___ my studies.',
@@ -266,7 +336,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['B2'],
         order: 21,
-        type: 'positionnement' as const,
       },
       {
         text: 'This time tomorrow, we ___ on the beach.',
@@ -274,7 +343,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['B2'],
         order: 22,
-        type: 'positionnement' as const,
       },
       {
         text: 'The meeting was called ___ due to unexpected problems.',
@@ -282,7 +350,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['B2'],
         order: 23,
-        type: 'positionnement' as const,
       },
       {
         text: '___ he was tired, he continued working.',
@@ -290,17 +357,14 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['B2'],
         order: 24,
-        type: 'positionnement' as const,
       },
-
-      // C1 Questions
+      // C1
       {
         text: 'You ___ apologise now if you want to avoid further conflict.',
         options: ['would rather', 'had better', 'will', 'Je ne sais pas'],
         correctResponseIndex: 1,
         level: levels['C1'],
         order: 25,
-        type: 'positionnement' as const,
       },
       {
         text: 'I’d rather you ___ this matter confidential.',
@@ -308,7 +372,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 0,
         level: levels['C1'],
         order: 26,
-        type: 'positionnement' as const,
       },
       {
         text: 'The committee demanded that the report ___ before Friday.',
@@ -321,7 +384,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['C1'],
         order: 27,
-        type: 'positionnement' as const,
       },
       {
         text: '___ the circumstances, his reaction was surprisingly restrained.',
@@ -329,7 +391,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 2,
         level: levels['C1'],
         order: 28,
-        type: 'positionnement' as const,
       },
       {
         text: 'Rarely ___ such a compelling argument.',
@@ -337,7 +398,6 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['C1'],
         order: 29,
-        type: 'positionnement' as const,
       },
       {
         text: 'Not only ___ late, but he also failed to apologise.',
@@ -350,30 +410,24 @@ export class SeedService implements OnApplicationBootstrap {
         correctResponseIndex: 1,
         level: levels['C1'],
         order: 30,
-        type: 'positionnement' as const,
-      },
-
-      // Prerequisite Questions (Computer and Need Analysis)
-      {
-        text: 'Niveau numérique',
-        options: ['Débutant', 'Intermédiaire', 'Avancé'],
-        correctResponseIndex: -1,
-        order: 1,
-        type: 'prerequis' as const,
-      },
-      {
-        text: 'Fréquence d’utilisation d’un ordinateur',
-        options: ['Tous les jours', 'Occasionnelle', 'Jamais'],
-        correctResponseIndex: -1,
-        order: 2,
-        type: 'prerequis' as const,
       },
     ];
 
-    for (const q of questions) {
-      await this.questionRepo.save(q);
+    for (const qData of toeicQuestions) {
+      const exists = await this.questionRepo.findOne({
+        where: { text: qData.text, level: { id: qData.level.id } },
+      });
+      if (!exists) {
+        await this.questionRepo.save({
+          ...qData,
+          type: 'positionnement' as any,
+        });
+        console.log(
+          `Question "${qData.text.substring(0, 20)}..." for TOEIC added.`,
+        );
+      }
     }
 
-    console.log('Seeding complete!');
+    console.log('Seeding check complete!');
   }
 }

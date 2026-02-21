@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param, Get } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 
 export class CreateSessionDto {
@@ -19,6 +19,11 @@ export class UpdateSessionDto {
 @Controller('sessions')
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.sessionsService.findOne(id);
+  }
 
   @Post()
   create(@Body() data: CreateSessionDto) {

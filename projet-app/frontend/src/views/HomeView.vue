@@ -16,6 +16,13 @@ const form = ref({
 
 const loading = ref(false);
 
+const conseillers = [
+  "Sélectionnez votre conseiller...",
+  "Jean Dupont",
+  "Marie Curie",
+  "Albert Einstein",
+];
+
 async function startTest() {
   if (!form.value.nom || !form.value.prenom || !form.value.telephone) {
     alert("Veuillez remplir tous les champs obligatoires.");
@@ -51,124 +58,254 @@ async function startTest() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-      <!-- Header / Logo Area -->
-      <div class="bg-brand-primary p-8 text-center">
+  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit">
+    <!-- Header -->
+    <header
+      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-3">
         <div
-          class="bg-white/20 inline-block p-4 rounded-xl backdrop-blur-sm mb-4"
+          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl shadow-lg shadow-brand-primary/20"
         >
-          <h1 class="text-white text-3xl font-bold italic tracking-tighter">
-            {{ store.brand === "aopia" ? "AOPIA" : "LIKE FORMATION" }}
-          </h1>
+          W
         </div>
-        <p class="text-white/80 text-sm">
-          Analyse des besoins & Positionnement
-        </p>
+        <span class="font-bold text-gray-800 text-xl tracking-tight"
+          >Wizzy Learn</span
+        >
       </div>
 
-      <!-- Form Area -->
-      <div class="p-8">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-800">
-          Votre Identification
-        </h2>
-
-        <div class="space-y-4">
-          <div class="flex gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                v-model="form.civilite"
-                value="M."
-                class="text-brand-primary focus:ring-brand-primary"
-              />
-              <span>M.</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                v-model="form.civilite"
-                value="Mme"
-                class="text-brand-primary focus:ring-brand-primary"
-              />
-              <span>Mme</span>
-            </label>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Nom *</label
-            >
-            <input
-              v-model="form.nom"
-              type="text"
-              placeholder="Votre nom"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Prénom *</label
-            >
-            <input
-              v-model="form.prenom"
-              type="text"
-              placeholder="Votre prénom"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Téléphone *</label
-            >
-            <input
-              v-model="form.telephone"
-              type="tel"
-              placeholder="06 00 00 00 00"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >Conseiller en formation</label
-            >
-            <input
-              v-model="form.conseiller"
-              type="text"
-              placeholder="Nom de votre conseiller"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
-            />
-          </div>
-
-          <button
-            @click="startTest"
-            :disabled="loading"
-            class="w-full mt-6 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-3 rounded-xl shadow-lg transform active:scale-95 transition-all flex items-center justify-center gap-2"
+      <!-- Brand Logos Container -->
+      <div class="flex items-center gap-8">
+        <div
+          v-if="store.isDirectLink || store.brand === 'aopia'"
+          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
+        >
+          <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+          <span
+            class="text-xs font-black uppercase tracking-widest text-slate-400"
+            >Aopia</span
           >
-            <span>Démarrer le test</span>
-            <svg
-              v-if="!loading"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span
-              v-else
-              class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
-            ></span>
-          </button>
+        </div>
+        <div
+          v-if="store.isDirectLink || store.brand === 'like'"
+          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
+        >
+          <div class="w-2 h-2 rounded-full bg-red-500"></div>
+          <span
+            class="text-xs font-black uppercase tracking-widest text-slate-400"
+            >Like</span
+          >
+        </div>
+        <div
+          v-if="store.isDirectLink || store.brand === 'nsconseil'"
+          class="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity"
+        >
+          <div class="w-2 h-2 rounded-full bg-green-500"></div>
+          <span
+            class="text-xs font-black uppercase tracking-widest text-slate-400"
+            >NS Conseil</span
+          >
         </div>
       </div>
-    </div>
+
+      <div
+        class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100"
+      >
+        <span class="material-icons-outlined text-gray-400"
+          >account_circle</span
+        >
+        <span class="text-sm font-bold text-gray-500">Invité</span>
+      </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-4">
+      <div class="max-w-3xl w-full">
+        <!-- Progress Info -->
+        <div class="flex items-center justify-between mb-4 px-2">
+          <span
+            class="text-xs font-bold text-brand-primary uppercase tracking-widest"
+            >Étape 1 sur 5</span
+          >
+          <span
+            class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+            >Identification</span
+          >
+        </div>
+        <div
+          class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-10"
+        >
+          <div
+            class="w-1/5 h-full bg-brand-primary transition-all duration-500"
+          ></div>
+        </div>
+
+        <div
+          class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-12 md:p-16 relative"
+        >
+          <h1 class="text-4xl font-extrabold text-[#0D1B3E] mb-4">
+            Identification du bénéficiaire
+          </h1>
+          <p class="text-gray-400 text-lg mb-12">
+            Veuillez renseigner vos informations pour commencer le test de
+            positionnement.
+          </p>
+
+          <div class="space-y-8">
+            <!-- Civilité -->
+            <div class="space-y-3">
+              <label class="block text-sm font-bold text-gray-800"
+                >Civilité</label
+              >
+              <div class="flex gap-4">
+                <button
+                  @click="form.civilite = 'M.'"
+                  class="flex-1 py-4 px-6 rounded-2xl border-2 transition-all flex items-center justify-between font-bold"
+                  :class="
+                    form.civilite === 'M.'
+                      ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
+                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
+                  "
+                >
+                  <span>M.</span>
+                  <div
+                    v-if="form.civilite === 'M.'"
+                    class="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-white"
+                  >
+                    <span class="material-icons-outlined text-sm">check</span>
+                  </div>
+                </button>
+                <button
+                  @click="form.civilite = 'Mme'"
+                  class="flex-1 py-4 px-6 rounded-2xl border-2 transition-all flex items-center justify-between font-bold"
+                  :class="
+                    form.civilite === 'Mme'
+                      ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
+                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
+                  "
+                >
+                  <span>Mme</span>
+                  <div
+                    v-if="form.civilite === 'Mme'"
+                    class="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-white"
+                  >
+                    <span class="material-icons-outlined text-sm">check</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Nom -->
+              <div class="space-y-3">
+                <label class="block text-sm font-bold text-gray-800">Nom</label>
+                <input
+                  v-model="form.nom"
+                  type="text"
+                  placeholder="Votre nom"
+                  class="w-full px-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                />
+              </div>
+              <!-- Prénom -->
+              <div class="space-y-3">
+                <label class="block text-sm font-bold text-gray-800"
+                  >Prénom</label
+                >
+                <input
+                  v-model="form.prenom"
+                  type="text"
+                  placeholder="Votre prénom"
+                  class="w-full px-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                />
+              </div>
+            </div>
+
+            <!-- Téléphone -->
+            <div class="space-y-3">
+              <label class="block text-sm font-bold text-gray-800"
+                >Téléphone</label
+              >
+              <div class="relative group">
+                <span
+                  class="material-icons-outlined absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors"
+                  >phone</span
+                >
+                <input
+                  v-model="form.telephone"
+                  type="tel"
+                  placeholder="06 12 34 56 78"
+                  class="w-full pl-16 pr-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                />
+              </div>
+            </div>
+
+            <!-- Conseiller -->
+            <div class="space-y-3">
+              <label class="block text-sm font-bold text-gray-800"
+                >Conseiller en formation</label
+              >
+              <div class="relative group">
+                <span
+                  class="material-icons-outlined absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors"
+                  >badge</span
+                >
+                <select
+                  v-model="form.conseiller"
+                  class="w-full pl-16 pr-12 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 appearance-none cursor-pointer"
+                >
+                  <option
+                    v-for="c in conseillers"
+                    :key="c"
+                    :value="c === 'Sélectionnez votre conseiller...' ? '' : c"
+                  >
+                    {{ c }}
+                  </option>
+                </select>
+                <span
+                  class="material-icons-outlined absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
+                  >expand_more</span
+                >
+              </div>
+            </div>
+
+            <div class="pt-10">
+              <button
+                @click="startTest"
+                :disabled="loading"
+                class="w-full py-5 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                <span>Démarrer le test</span>
+                <span v-if="!loading" class="material-icons-outlined text-2xl"
+                  >arrow_forward</span
+                >
+                <div
+                  v-else
+                  class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
+                ></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer
+          class="mt-12 text-center text-[11px] text-gray-400 font-bold uppercase tracking-widest pb-8"
+        >
+          Wizzy Learn © 2024. Tous droits réservés. <br />
+          Besoin d'aide ?
+          <a href="#" class="text-brand-primary hover:underline"
+            >Contactez le support</a
+          >.
+        </footer>
+      </div>
+    </main>
   </div>
 </template>
+
+<style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
+
+.font-outfit {
+  font-family: "Outfit", sans-serif;
+}
+</style>
