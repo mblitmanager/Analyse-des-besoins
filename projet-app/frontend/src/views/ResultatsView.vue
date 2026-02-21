@@ -93,29 +93,29 @@ const formatDate = (date) => {
 
     <main
       v-else-if="session"
-      class="flex-1 max-w-4xl w-full mx-auto p-4 py-12 md:py-20"
+      class="flex-1 max-w-4xl w-full mx-auto p-4 py-12 md:py-16"
     >
       <!-- Success Banner -->
-      <div class="text-center mb-16 relative">
+      <div class="text-center mb-14 relative">
         <div
-          class="w-16 h-16 bg-[#E1F9EB] text-[#22C55E] rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce shadow-sm"
+          class="w-14 h-14 bg-[#E1F9EB] text-[#22C55E] rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce shadow-sm"
         >
-          <span class="material-icons-outlined text-3xl">celebration</span>
+          <span class="material-icons-outlined text-2xl">celebration</span>
         </div>
-        <h1 class="text-5xl font-black text-[#0D1B3E] mb-6 tracking-tight">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-4 tracking-tight">
           Bravo {{ session.prenom }} !
         </h1>
         <p
-          class="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed mb-10"
+          class="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8"
         >
           Félicitations, vous avez franchi la première étape vers votre nouvelle
           carrière. Nous avons analysé votre profil pour vous construire un
           parcours sur-mesure, simple et efficace.
         </p>
 
-        <div class="flex flex-wrap items-center justify-center gap-4">
+        <div class="flex flex-wrap items-center justify-center gap-3">
           <div
-            class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
           >
             <span class="material-icons-outlined text-sm text-gray-400"
               >calendar_today</span
@@ -123,7 +123,7 @@ const formatDate = (date) => {
             Bilan du {{ formatDate(session.createdAt) }}
           </div>
           <div
-            class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
           >
             <span class="material-icons-outlined text-sm text-[#22C55E]"
               >verified</span
@@ -134,34 +134,34 @@ const formatDate = (date) => {
       </div>
 
       <!-- Strengths Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="material-icons-outlined text-brand-primary"
+      <section class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-icons-outlined text-brand-primary text-lg"
             >auto_graph</span
           >
           <h2
-            class="text-xl font-black text-[#0D1B3E] uppercase tracking-widest"
+            class="text-base font-bold text-[#0D1B3E] uppercase tracking-widest"
           >
             Vos points forts
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div
-            class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
-            <div class="flex items-start justify-between mb-6">
+            <div class="flex items-start justify-between mb-5">
               <div
-                class="w-10 h-10 bg-indigo-600/10 text-indigo-600 rounded-xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all"
+                class="w-9 h-9 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all text-sm"
               >
                 <span class="material-icons-outlined">menu_book</span>
               </div>
               <span
-                class="px-3 py-1 bg-[#E1F9EB] text-[#22C55E] rounded-full text-[10px] font-black uppercase tracking-widest"
+                class="px-3 py-1 bg-[#E1F9EB] text-[#22C55E] rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Déjà Acquis</span
               >
             </div>
-            <h3 class="text-lg font-bold text-[#0D1B3E] mb-2">
+            <h3 class="text-base font-bold text-[#0D1B3E] mb-2">
               Bases Informatiques
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
@@ -172,20 +172,20 @@ const formatDate = (date) => {
 
           <div
             v-if="session.stopLevel"
-            class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
-            <div class="flex items-start justify-between mb-6">
+            <div class="flex items-start justify-between mb-5">
               <div
-                class="w-10 h-10 bg-orange-600/10 text-orange-600 rounded-xl flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-all"
+                class="w-9 h-9 bg-orange-600/10 text-orange-600 rounded-lg flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-all text-sm"
               >
                 <span class="material-icons-outlined">translate</span>
               </div>
               <span
-                class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest"
+                class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Niveau {{ session.stopLevel }}</span
               >
             </div>
-            <h3 class="text-lg font-bold text-[#0D1B3E] mb-2">
+            <h3 class="text-base font-bold text-[#0D1B3E] mb-2">
               Niveau d'{{ session.formationChoisie }}
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
@@ -197,32 +197,32 @@ const formatDate = (date) => {
       </section>
 
       <!-- Recommendation Section -->
-      <section class="mb-16">
-        <div class="flex items-center gap-3 mb-8">
-          <span class="material-icons-outlined text-brand-primary">map</span>
+      <section class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-icons-outlined text-brand-primary text-lg">map</span>
           <h2
-            class="text-xl font-black text-[#0D1B3E] uppercase tracking-widest"
+            class="text-base font-bold text-[#0D1B3E] uppercase tracking-widest"
           >
             Votre Parcours Personnalisé
           </h2>
         </div>
 
         <div
-          class="relative bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden"
+          class="relative bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
         >
           <!-- Pack Header -->
           <div
-            class="bg-brand-primary p-12 text-white relative overflow-hidden"
+            class="bg-brand-primary p-8 md:p-10 text-white relative overflow-hidden"
           >
             <div class="relative z-10">
               <span
-                class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest mb-4"
+                class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest mb-3"
                 >Offre Duo</span
               >
-              <h3 class="text-4xl font-black mb-4">
+              <h3 class="text-2xl md:text-3xl font-bold mb-3">
                 Parcours {{ session.formationChoisie }} : Immersion Totale
               </h3>
-              <p class="opacity-80 text-lg max-w-xl">
+              <p class="opacity-80 text-base md:text-lg max-w-xl">
                 Une solution complète combinant deux formations complémentaires
                 pour garantir votre montée en compétence.
               </p>
@@ -237,30 +237,30 @@ const formatDate = (date) => {
             </div>
           </div>
 
-          <div class="p-8 md:p-12 space-y-12">
+          <div class="p-6 md:p-8 space-y-10">
             <!-- Step 1 in Path -->
-            <div class="flex items-start gap-8 relative">
+            <div class="flex items-start gap-6 relative">
               <div
-                class="w-10 h-10 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-black relative z-10"
+                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center flex-shrink-0 font-bold text-sm relative z-10"
               >
                 1
               </div>
               <div class="flex-1">
                 <div
-                  class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2"
+                  class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
-                  <h4 class="text-xl font-extrabold text-[#0D1B3E]">
+                  <h4 class="text-lg font-bold text-[#0D1B3E]">
                     {{ session.formationChoisie }} - Niveau
                     {{ session.stopLevel || "A2" }} (Intermédiaire)
                   </h4>
                 </div>
-                <p class="text-gray-400 mb-6 font-medium">
+                <p class="text-gray-400 mb-4 font-medium text-sm">
                   Renforcez vos bases et commencez à échanger avec fluidité dans
                   des situations quotidiennes.
                 </p>
                 <div class="flex items-center gap-6">
                   <div
-                    class="flex items-center gap-2 text-xs font-bold text-gray-400"
+                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
                     <span class="material-icons-outlined text-sm"
                       >schedule</span
@@ -268,7 +268,7 @@ const formatDate = (date) => {
                     35h
                   </div>
                   <div
-                    class="flex items-center gap-2 text-xs font-bold text-gray-400"
+                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
                     <span class="material-icons-outlined text-sm"
                       >person_outline</span
@@ -280,41 +280,41 @@ const formatDate = (date) => {
 
               <!-- Connector Line -->
               <div
-                class="absolute left-5 top-10 bottom-[-2.5rem] w-px bg-dashed border-l border-dashed border-gray-200"
+                class="absolute left-[18px] top-9 bottom-[-2.2rem] w-px bg-gray-100"
               ></div>
             </div>
 
             <!-- Blue Plus -->
             <div class="ml-5 flex items-center justify-center">
               <div
-                class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/30 relative z-10"
+                class="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/30 relative z-10 text-sm"
               >
-                <span class="material-icons-outlined text-lg">add</span>
+                <span class="material-icons-outlined text-sm">add</span>
               </div>
             </div>
 
             <!-- Step 2 in Path -->
-            <div class="flex items-start gap-8">
+            <div class="flex items-start gap-6">
               <div
-                class="w-10 h-10 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-black"
+                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center flex-shrink-0 font-bold text-sm"
               >
                 2
               </div>
               <div class="flex-1">
                 <div
-                  class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2"
+                  class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
-                  <h4 class="text-xl font-extrabold text-[#0D1B3E]">
+                  <h4 class="text-lg font-bold text-[#0D1B3E]">
                     {{ session.formationChoisie }} - Niveau B1 (Avancé)
                   </h4>
                 </div>
-                <p class="text-gray-400 mb-6 font-medium">
+                <p class="text-gray-400 mb-4 font-medium text-sm">
                   Maîtrisez le vocabulaire professionnel et devenez autonome
                   pour vos futures missions.
                 </p>
                 <div class="flex items-center gap-6">
                   <div
-                    class="flex items-center gap-2 text-xs font-bold text-gray-400"
+                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
                     <span class="material-icons-outlined text-sm"
                       >schedule</span
@@ -322,7 +322,7 @@ const formatDate = (date) => {
                     40h
                   </div>
                   <div
-                    class="flex items-center gap-2 text-xs font-bold text-gray-400"
+                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
                     <span class="material-icons-outlined text-sm"
                       >verified_user</span
@@ -335,14 +335,14 @@ const formatDate = (date) => {
 
             <!-- Financement Box -->
             <div
-              class="bg-[#F8FAFC] p-6 rounded-2xl flex items-center gap-4 text-[#0D1B3E] border border-blue-50"
+              class="bg-[#F8FAFC] p-5 rounded-xl flex items-center gap-4 text-[#0D1B3E] border border-blue-50"
             >
               <div
-                class="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center shrink-0"
+                class="flex-shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
               >
                 <span class="material-icons-outlined">info</span>
               </div>
-              <p class="text-sm font-bold">
+              <p class="text-sm font-medium">
                 Ce parcours "Pack Duo" est entièrement finançable par votre CPF
                 (Mon Compte Formation).
               </p>
@@ -351,22 +351,22 @@ const formatDate = (date) => {
         </div>
 
         <!-- Final CTA -->
-        <div class="mt-16 text-center space-y-8">
-          <p class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed">
+        <div class="mt-12 text-center space-y-6">
+          <p class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm">
             Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous
             pour le valider. Un conseiller vous accompagnera pour les démarches
             administratives.
           </p>
 
           <button
-            class="px-16 py-6 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 mx-auto"
+            class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
           >
             <span>Valider ce parcours de formation</span>
-            <span class="material-icons-outlined text-xl">arrow_forward</span>
+            <span class="material-icons-outlined text-lg">arrow_forward</span>
           </button>
 
           <p
-            class="text-xs font-bold text-gray-300 uppercase tracking-widest italic"
+            class="text-xs font-medium text-gray-400 uppercase tracking-widest italic"
           >
             C'est gratuit et sans engagement de votre part à ce stade.
           </p>
@@ -374,14 +374,14 @@ const formatDate = (date) => {
       </section>
 
       <!-- Page Footer -->
-      <footer class="mt-32 text-center text-gray-400">
-        <div class="flex items-center justify-center gap-2 mb-4">
-          <span class="material-icons-outlined text-brand-primary">school</span>
-          <span class="font-black text-[#0D1B3E] tracking-tight"
+      <footer class="mt-20 text-center text-gray-400">
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <span class="material-icons-outlined text-brand-primary text-lg">school</span>
+          <span class="font-bold text-[#0D1B3E] tracking-tight text-base"
             >Wizzy Learn</span
           >
         </div>
-        <p class="text-[10px] font-black uppercase tracking-[0.2em]">
+        <p class="text-xs font-bold uppercase tracking-widest">
           © 2026 Wizzy Learn — Votre partenaire réussite.
         </p>
       </footer>

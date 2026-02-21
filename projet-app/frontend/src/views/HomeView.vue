@@ -55,6 +55,30 @@ async function startTest() {
     loading.value = false;
   }
 }
+
+const testingDb = ref(false);
+
+async function testDbConnection() {
+  testingDb.value = true;
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const response = await fetch(`${apiBaseUrl}/health/db`);
+    const data = await response.json();
+    if (data.status === "ok") {
+      alert("✅ " + data.message);
+    } else {
+      alert("❌ " + data.message + (data.error ? ": " + data.error : ""));
+    }
+  } catch (error) {
+    console.error("Health check failed:", error);
+    alert(
+      "❌ Erreur lors du test de connexion. Vérifiez que le backend est lancé.",
+    );
+  } finally {
+    testingDb.value = false;
+  }
+}
 </script>
 
 <template>
@@ -118,10 +142,10 @@ async function startTest() {
       </div>
     </header>
 
-    <main class="flex-1 flex items-center justify-center p-4">
-      <div class="max-w-3xl w-full">
+    <main class="flex-1 flex items-center justify-center p-4 py-12">
+      <div class="max-w-2xl w-full">
         <!-- Progress Info -->
-        <div class="flex items-center justify-between mb-4 px-2">
+        <div class="flex items-center justify-between mb-6 px-2">
           <span
             class="text-xs font-bold text-brand-primary uppercase tracking-widest"
             >Étape 1 sur 5</span
@@ -132,7 +156,7 @@ async function startTest() {
           >
         </div>
         <div
-          class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-10"
+          class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-16"
         >
           <div
             class="w-1/5 h-full bg-brand-primary transition-all duration-500"
@@ -140,26 +164,26 @@ async function startTest() {
         </div>
 
         <div
-          class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-12 md:p-16 relative"
+          class="bg-white rounded-2xl shadow-md border border-gray-100 p-10 md:p-14 relative"
         >
-          <h1 class="text-4xl font-extrabold text-[#0D1B3E] mb-4">
+          <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-3">
             Identification du bénéficiaire
           </h1>
-          <p class="text-gray-400 text-lg mb-12">
+          <p class="text-gray-400 text-base md:text-lg mb-10">
             Veuillez renseigner vos informations pour commencer le test de
             positionnement.
           </p>
 
-          <div class="space-y-8">
+          <div class="space-y-6">
             <!-- Civilité -->
-            <div class="space-y-3">
+            <div class="space-y-2">
               <label class="block text-sm font-bold text-gray-800"
                 >Civilité</label
               >
-              <div class="flex gap-4">
+              <div class="flex gap-3">
                 <button
                   @click="form.civilite = 'M.'"
-                  class="flex-1 py-4 px-6 rounded-2xl border-2 transition-all flex items-center justify-between font-bold"
+                  class="flex-1 py-3 px-4 rounded-2xl border-2 transition-all flex items-center justify-between font-bold text-sm"
                   :class="
                     form.civilite === 'M.'
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
@@ -169,14 +193,14 @@ async function startTest() {
                   <span>M.</span>
                   <div
                     v-if="form.civilite === 'M.'"
-                    class="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-white"
+                    class="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center text-white"
                   >
-                    <span class="material-icons-outlined text-sm">check</span>
+                    <span class="material-icons-outlined text-xs">check</span>
                   </div>
                 </button>
                 <button
                   @click="form.civilite = 'Mme'"
-                  class="flex-1 py-4 px-6 rounded-2xl border-2 transition-all flex items-center justify-between font-bold"
+                  class="flex-1 py-3 px-4 rounded-2xl border-2 transition-all flex items-center justify-between font-bold text-sm"
                   :class="
                     form.civilite === 'Mme'
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
@@ -186,27 +210,27 @@ async function startTest() {
                   <span>Mme</span>
                   <div
                     v-if="form.civilite === 'Mme'"
-                    class="w-6 h-6 rounded-full bg-brand-primary flex items-center justify-center text-white"
+                    class="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center text-white"
                   >
-                    <span class="material-icons-outlined text-sm">check</span>
+                    <span class="material-icons-outlined text-xs">check</span>
                   </div>
                 </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Nom -->
-              <div class="space-y-3">
+              <div class="space-y-2">
                 <label class="block text-sm font-bold text-gray-800">Nom</label>
                 <input
                   v-model="form.nom"
                   type="text"
                   placeholder="Votre nom"
-                  class="w-full px-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                  class="w-full px-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
                 />
               </div>
               <!-- Prénom -->
-              <div class="space-y-3">
+              <div class="space-y-2">
                 <label class="block text-sm font-bold text-gray-800"
                   >Prénom</label
                 >
@@ -214,43 +238,43 @@ async function startTest() {
                   v-model="form.prenom"
                   type="text"
                   placeholder="Votre prénom"
-                  class="w-full px-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                  class="w-full px-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
                 />
               </div>
             </div>
 
             <!-- Téléphone -->
-            <div class="space-y-3">
+            <div class="space-y-2">
               <label class="block text-sm font-bold text-gray-800"
                 >Téléphone</label
               >
               <div class="relative group">
                 <span
-                  class="material-icons-outlined absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors"
+                  class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors text-xl"
                   >phone</span
                 >
                 <input
                   v-model="form.telephone"
                   type="tel"
                   placeholder="06 12 34 56 78"
-                  class="w-full pl-16 pr-6 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 placeholder:text-gray-300"
+                  class="w-full pl-14 pr-4 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 placeholder:text-gray-300 text-sm"
                 />
               </div>
             </div>
 
             <!-- Conseiller -->
-            <div class="space-y-3">
+            <div class="space-y-2">
               <label class="block text-sm font-bold text-gray-800"
                 >Conseiller en formation</label
               >
               <div class="relative group">
                 <span
-                  class="material-icons-outlined absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors"
+                  class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-brand-primary transition-colors text-xl"
                   >badge</span
                 >
                 <select
                   v-model="form.conseiller"
-                  class="w-full pl-16 pr-12 py-5 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-bold text-gray-700 appearance-none cursor-pointer"
+                  class="w-full pl-14 pr-10 py-3 bg-[#F8FAFC] border border-gray-50 rounded-2xl focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary outline-none transition-all font-medium text-gray-700 appearance-none cursor-pointer text-sm"
                 >
                   <option
                     v-for="c in conseillers"
@@ -261,17 +285,17 @@ async function startTest() {
                   </option>
                 </select>
                 <span
-                  class="material-icons-outlined absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"
+                  class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none text-xl"
                   >expand_more</span
                 >
               </div>
             </div>
 
-            <div class="pt-10">
+            <div class="pt-6">
               <button
                 @click="startTest"
                 :disabled="loading"
-                class="w-full py-5 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                class="w-full py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
               >
                 <span>Démarrer le test</span>
                 <span v-if="!loading" class="material-icons-outlined text-2xl"
@@ -288,7 +312,7 @@ async function startTest() {
 
         <!-- Footer -->
         <footer
-          class="mt-12 text-center text-[11px] text-gray-400 font-bold uppercase tracking-widest pb-8"
+          class="mt-12 text-center text-xs text-gray-400 font-bold uppercase tracking-widest pb-8"
         >
           Wizzy Learn © 2024. Tous droits réservés. <br />
           Besoin d'aide ?

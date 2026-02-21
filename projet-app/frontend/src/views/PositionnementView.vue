@@ -124,44 +124,44 @@ async function nextStep() {
       </div>
     </header>
 
-    <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-12">
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-10">
       <!-- Title Area -->
-      <div class="mb-12 relative">
+      <div class="mb-10 relative">
         <div
-          class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
+          class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
         >
           <div>
-            <h1 class="text-4xl font-extrabold text-[#0D1B3E] mb-2">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-2">
               Test de positionnement - {{ formationLabel }}
             </h1>
-            <p class="text-gray-400 font-medium">
+            <p class="text-gray-400 font-medium text-sm md:text-base">
               Parcours adaptatif : Succès sur les premières questions validé.
             </p>
           </div>
           <div
-            class="flex items-center gap-2 px-6 py-3 bg-[#E1F9EB] text-[#22C55E] rounded-full text-xs font-black uppercase tracking-wider shadow-sm"
+            class="flex items-center gap-2 px-5 py-2 bg-[#E1F9EB] text-[#22C55E] rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
           >
-            <span class="material-icons-outlined">trending_up</span>
+            <span class="material-icons-outlined text-sm">trending_up</span>
             En bonne voie pour {{ levels[currentLevelIndex] }}
           </div>
         </div>
 
         <!-- Progress Bar -->
         <div
-          class="bg-white p-6 rounded-[1.5rem] shadow-sm border border-gray-100 mb-10"
+          class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8"
         >
-          <div class="flex items-center justify-between mb-3 px-1">
+          <div class="flex items-center justify-between mb-2 px-1">
             <span
-              class="text-[11px] font-black text-[#0D1B3E] uppercase tracking-widest"
+              class="text-xs font-bold text-[#0D1B3E] uppercase tracking-widest"
               >Progression globale</span
             >
             <span
-              class="text-[11px] font-black text-brand-primary uppercase tracking-widest"
+              class="text-xs font-bold text-brand-primary uppercase tracking-widest"
               >Étape 4 sur 5</span
             >
           </div>
           <div
-            class="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden border border-gray-50"
+            class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50"
           >
             <div
               class="h-full bg-brand-primary transition-all duration-700"
@@ -175,56 +175,56 @@ async function nextStep() {
 
       <div
         v-if="loading"
-        class="flex flex-col items-center justify-center py-32 gap-6 bg-white rounded-[2rem] shadow-sm border border-gray-100"
+        class="flex flex-col items-center justify-center py-32 gap-4 bg-white rounded-2xl shadow-sm border border-gray-100"
       >
         <div
           class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
         ></div>
-        <p class="text-gray-400 font-bold italic">
+        <p class="text-gray-400 font-medium italic text-sm">
           Préparation du module {{ levels[currentLevelIndex] }}...
         </p>
       </div>
 
-      <div v-else class="space-y-12">
+      <div v-else class="space-y-10">
         <div class="relative">
-          <div class="flex items-center gap-4 mb-10">
+          <div class="flex items-center gap-4 mb-8">
             <span
-              class="text-xs font-black text-gray-300 uppercase tracking-[0.2em] whitespace-nowrap"
-              >RÉVISION {{ levels[currentLevelIndex] }}</span
+              class="text-xs font-bold text-gray-300 uppercase tracking-widest whitespace-nowrap"
+              >Révision {{ levels[currentLevelIndex] }}</span
             >
             <div class="h-px w-full bg-gray-100"></div>
           </div>
 
-          <div class="space-y-6">
+          <div class="space-y-5">
             <div
               v-for="(q, idx) in questions"
               :key="q.id"
-              class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden group"
+              class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group"
             >
-              <div class="p-8 md:p-10">
-                <div class="flex items-start gap-6 mb-8">
+              <div class="p-6 md:p-8">
+                <div class="flex items-start gap-4 mb-6">
                   <div
-                    class="w-10 h-10 shrink-0 rounded-2xl bg-[#E1F9EB] flex items-center justify-center text-[#22C55E] font-black text-lg"
+                    class="flex-shrink-0 w-8 h-8 rounded-xl bg-[#E1F9EB] flex items-center justify-center text-[#22C55E] font-bold text-sm"
                   >
                     {{ idx + 1 }}
                   </div>
-                  <div class="pt-1">
+                  <div>
                     <h3
-                      class="text-xl font-bold text-[#0D1B3E] leading-snug mb-2"
+                      class="text-base md:text-lg font-bold text-[#0D1B3E] leading-snug mb-1"
                     >
                       {{ q.text }}
                     </h3>
-                    <p class="text-sm text-gray-400 font-medium">
+                    <p class="text-xs md:text-sm text-gray-400 font-medium">
                       Sélectionnez la réponse correcte pour valider ce point.
                     </p>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-1 gap-3">
                   <label
                     v-for="(option, oIdx) in q.options"
                     :key="oIdx"
-                    class="flex items-center justify-between p-5 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group/opt"
+                    class="flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group/opt"
                     :class="
                       currentResponses[q.id] === option
                         ? 'border-brand-primary bg-brand-primary/5'
@@ -238,9 +238,9 @@ async function nextStep() {
                       :value="option"
                       class="hidden"
                     />
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
                       <div
-                        class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                        class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                         :class="
                           currentResponses[q.id] === option
                             ? 'border-brand-primary bg-brand-primary'
@@ -253,7 +253,7 @@ async function nextStep() {
                         ></div>
                       </div>
                       <span
-                        class="text-lg font-bold"
+                        class="font-medium text-sm"
                         :class="
                           currentResponses[q.id] === option
                             ? 'text-brand-primary'
@@ -265,7 +265,7 @@ async function nextStep() {
                     </div>
                     <span
                       v-if="currentResponses[q.id] === option"
-                      class="material-icons-outlined text-brand-primary animate-scale-in"
+                      class="material-icons-outlined text-brand-primary text-sm animate-scale-in"
                       >check_circle</span
                     >
                   </label>
@@ -277,19 +277,19 @@ async function nextStep() {
 
         <!-- Sticky Footer Info -->
         <div
-          class="bg-white border border-gray-100 rounded-[1.5rem] p-6 flex flex-col md:flex-row items-center justify-between gap-6"
+          class="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4"
         >
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <div
-              class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white"
+              class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"
             >
               <span class="material-icons-outlined">auto_fix_high</span>
             </div>
             <div>
               <p
-                class="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1"
+                class="text-xs font-bold text-gray-300 uppercase tracking-widest mb-0.5"
               >
-                PROCHAINE ÉTAPE
+                Prochaine étape
               </p>
               <p class="text-sm font-bold text-[#0D1B3E]">
                 Finalisation du profil {{ levels[currentLevelIndex] }}
@@ -297,10 +297,10 @@ async function nextStep() {
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <button
               @click="router.push('/formations')"
-              class="px-6 py-3 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors"
+              class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
             >
               Précédent
             </button>
@@ -310,17 +310,17 @@ async function nextStep() {
                 submitting ||
                 Object.values(currentResponses).some((r) => r === null)
               "
-              class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-30 disabled:translate-y-0"
+              class="px-8 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-sm"
             >
               <span>{{
                 currentLevelIndex === levels.length - 1 ? "Terminer" : "Suivant"
               }}</span>
-              <span v-if="!submitting" class="material-icons-outlined text-xl"
+              <span v-if="!submitting" class="material-icons-outlined text-lg"
                 >arrow_forward</span
               >
               <div
                 v-else
-                class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
+                class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
               ></div>
             </button>
           </div>

@@ -14,4 +14,9 @@ export class AppController {
   healthCheck() {
     return { status: 'ok', timestamp: new Date().toISOString() };
   }
+
+  @Get('health/db')
+  healthCheckDb() {
+    return this.appService.checkDbConnection();
+  }
 }

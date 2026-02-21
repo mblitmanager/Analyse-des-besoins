@@ -168,31 +168,31 @@ async function selectFormation() {
       </div>
     </header>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-12">
-      <div class="text-center mb-12">
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
+      <div class="text-center mb-10">
         <div class="flex flex-col items-center gap-4 mb-6">
           <div class="flex items-center gap-2 mb-1">
             <span
-              class="text-[11px] text-gray-400 font-bold uppercase tracking-widest"
+              class="text-xs text-gray-400 font-bold uppercase tracking-widest"
               >Étape 3 sur 5</span
             >
             <span
-              class="text-[11px] text-brand-primary font-bold uppercase tracking-widest"
+              class="text-xs text-brand-primary font-bold uppercase tracking-widest"
               >60%</span
             >
           </div>
           <div
-            class="w-full max-w-md h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-100"
+            class="w-full max-w-md h-1.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100"
           >
             <div
               class="w-[60%] h-full bg-brand-primary transition-all duration-700"
             ></div>
           </div>
         </div>
-        <h1 class="text-5xl font-black text-[#0D1B3E] mb-4">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-3">
           Quelle formation souhaitez-vous suivre ?
         </h1>
-        <p class="text-gray-400 text-lg">
+        <p class="text-gray-400 text-base md:text-lg">
           Parcourez nos catégories et sélectionnez votre programme.
         </p>
       </div>
@@ -203,40 +203,40 @@ async function selectFormation() {
         ></div>
       </div>
 
-      <div v-else class="space-y-12 pb-24">
-        <div v-for="cat in categories" :key="cat.name" class="space-y-6">
+      <div v-else class="space-y-10 pb-24">
+        <div v-for="cat in categories" :key="cat.name" class="space-y-4">
           <div class="flex items-center gap-4">
             <span
-              class="text-sm font-black text-gray-300 uppercase tracking-[0.2em] whitespace-nowrap"
+              class="text-xs font-bold text-gray-300 uppercase tracking-widest whitespace-nowrap"
               >{{ cat.name }}</span
             >
             <div class="h-px w-full bg-gray-100"></div>
           </div>
 
-          <div class="space-y-3">
+          <div class="space-y-2">
             <button
               v-for="form in cat.formations"
               :key="form.id"
               @click="selectedFormation = form"
-              class="w-full p-6 bg-white border-2 rounded-2xl flex items-center justify-between transition-all group scale-100 active:scale-[0.98]"
+              class="w-full p-5 bg-white border-2 rounded-2xl flex items-center justify-between transition-all group scale-100 active:scale-[0.98]"
               :class="
                 selectedFormation?.id === form.id
-                  ? 'border-brand-primary shadow-xl shadow-brand-primary/10'
+                  ? 'border-brand-primary shadow-lg shadow-brand-primary/10'
                   : 'border-gray-50 hover:border-gray-200'
               "
             >
-              <div class="flex items-center gap-6">
+              <div class="flex items-center gap-5">
                 <span
                   class="material-icons-outlined text-2xl group-hover:scale-110 transition-transform"
                   :class="`text-${form.color}`"
                   >{{ form.icon }}</span
                 >
-                <span class="text-xl font-bold text-gray-800">{{
+                <span class="text-base font-bold text-gray-800">{{
                   form.label
                 }}</span>
               </div>
               <div
-                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                 :class="
                   selectedFormation?.id === form.id
                     ? 'border-brand-primary bg-brand-primary'
@@ -245,7 +245,7 @@ async function selectFormation() {
               >
                 <div
                   v-if="selectedFormation?.id === form.id"
-                  class="w-2 h-2 rounded-full bg-white"
+                  class="w-1.5 h-1.5 rounded-full bg-white"
                 ></div>
               </div>
             </button>
@@ -256,12 +256,12 @@ async function selectFormation() {
 
     <!-- Bottom Actions Sticky -->
     <div
-      class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-6 z-40"
+      class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40"
     >
-      <div class="max-w-4xl mx-auto flex items-center justify-between gap-6">
+      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
         <button
           @click="router.push('/prerequis')"
-          class="flex items-center gap-2 text-gray-400 font-bold hover:text-gray-600 transition-colors"
+          class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
         >
           <span class="material-icons-outlined">arrow_back</span>
           Retour
@@ -270,15 +270,15 @@ async function selectFormation() {
         <button
           @click="selectFormation"
           :disabled="submitting || !selectedFormation"
-          class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-4 disabled:opacity-30 disabled:translate-y-0"
+          class="px-10 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-base"
         >
           <span>Confirmer la sélection</span>
-          <span v-if="!submitting" class="material-icons-outlined text-xl"
+          <span v-if="!submitting" class="material-icons-outlined text-lg"
             >arrow_forward</span
           >
           <div
             v-else
-            class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
+            class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
           ></div>
         </button>
       </div>
