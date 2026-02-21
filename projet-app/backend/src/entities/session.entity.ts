@@ -51,6 +51,12 @@ export class Session {
   @Column({ nullable: true })
   emailSentAt: Date;
 
+  @Column('simple-json', { nullable: true })
+  complementaryQuestions: any;
+
+  @Column('simple-json', { nullable: true })
+  availabilities: any;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }

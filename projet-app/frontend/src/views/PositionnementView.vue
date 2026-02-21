@@ -80,9 +80,9 @@ async function nextStep() {
       percentage < 80 ||
       currentLevelIndex.value === levels.value.length - 1
     ) {
-      // Finalize
-      await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
-      router.push("/resultats");
+      // Finalize level and go to next workflow step
+      const nextRoute = store.getNextRoute("/positionnement");
+      router.push(nextRoute || "/resultats");
     } else {
       // Go to next level
       currentLevelIndex.value++;
@@ -157,7 +157,8 @@ async function nextStep() {
             >
             <span
               class="text-xs font-bold text-brand-primary uppercase tracking-widest"
-              >Étape 4 sur 5</span
+              >Étape {{ store.getProgress("/positionnement").current }} sur
+              {{ store.getProgress("/positionnement").total }}</span
             >
           </div>
           <div

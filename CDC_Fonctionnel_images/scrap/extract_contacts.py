@@ -42,6 +42,7 @@ def extract_contacts(file_path):
             # Nom, Prénom, Email, Actions
             contacts.append({
                 "ID": contact_id,
+                "Civilité": "",
                 "Nom": clean_cells[0],
                 "Prénom": clean_cells[1],
                 "Email": email

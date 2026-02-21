@@ -11,132 +11,64 @@ const sessionId = localStorage.getItem("session_id");
 const loading = ref(true);
 const submitting = ref(false);
 
-// Prerequisite structure based on Mockup Image 2
-const groups = ref([
-  {
-    title: "Votre niveau numérique global",
-    icon: "leaderboard",
-    color: "blue",
-    questions: [
-      {
-        id: "level_global",
-        type: "radio",
-        text: "",
-        options: ["Débutant", "Intermédiaire", "Avancé"],
-      },
-    ],
-  },
-  {
-    title: "Fréquence d'utilisation d'un ordinateur",
-    icon: "schedule",
-    color: "indigo",
-    questions: [
-      {
-        id: "freq_ordi",
-        type: "radio",
-        text: "",
-        options: ["Tous les jours", "Occasionnelle", "Jamais"],
-      },
-    ],
-  },
-  {
-    title: "Compétences techniques de base",
-    icon: "check_circle",
-    color: "blue",
-    questions: [
-      {
-        id: "skill_hardware",
-        type: "radio",
-        text: "Savoir allumer un ordinateur, utiliser le clavier et la souris",
-        options: ["Acquis", "Moyen", "Insuffisant"],
-      },
-      {
-        id: "skill_win",
-        type: "radio",
-        text: "Se repérer dans l'environnement Windows",
-        subtitle: "(bureau, menu démarrer, fenêtres, icônes...)",
-        options: ["Acquis", "Moyen", "Insuffisant"],
-      },
-      {
-        id: "skill_web",
-        type: "radio",
-        text: "Savoir naviguer sur internet",
-        options: ["Acquis", "Moyen", "Insuffisant"],
-      },
-    ],
-  },
-  {
-    title: "Utilisation de logiciels",
-    icon: "apps",
-    color: "indigo",
-    subtitle: "Cochez les logiciels que vous utilisez régulièrement :",
-    questions: [
-      {
-        id: "softwares",
-        type: "checkbox",
-        text: "",
-        options: [
-          {
-            label: "Traitement de texte",
-            extra: "(Word, Google Docs, Pages...)",
-          },
-          { label: "Tableur", extra: "(Excel, Google Sheets, Numbers...)" },
-          {
-            label: "Présentation",
-            extra: "(PowerPoint, Google Slides, Keynote...)",
-          },
-          { label: "Je n'utilise aucun de ces logiciels", exclusive: true },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Usages administratifs et sécurité",
-    icon: "verified_user",
-    color: "blue",
-    questions: [
-      {
-        id: "admin_online",
-        type: "radio",
-        text: "Avez-vous déjà réalisé des démarches administratives en ligne ?",
-        options: ["Oui", "Non"],
-      },
-      {
-        id: "security_skills",
-        type: "checkbox",
-        text: "Sur votre ordinateur, savez-vous effectuer les manipulations suivantes ?",
-        options: [
-          { label: "Protéger votre ordinateur avec un antivirus" },
-          {
-            label:
-              "Mettre à jour votre système d'exploitation et vos logiciels",
-          },
-          { label: "Changer vos mots de passe régulièrement" },
-          { label: "Aucun des trois", exclusive: true },
-        ],
-      },
-    ],
-  },
-]);
-
+const questions = ref([]);
 const responses = ref({});
+const loading = ref(true);
+const submitting = ref(false);
+const groups = ref([]);
 
-onMounted(() => {
+onMounted(async () => {
   if (!sessionId) {
     router.push("/");
     return;
   }
-  // Initialize responses
-  groups.value.forEach((g) => {
-    g.questions.forEach((q) => {
-      if (q.type === "checkbox") {
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
+    const session = sessionRes.data;
+
+    const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
+      params: { formation: session.formationChoisie },
+    });
+    questions.value = res.data;
+
+    // Group questions by category
+    const grouped = {};
+    questions.value.forEach((q) => {
+      if (!grouped[q.category]) {
+        grouped[q.category] = {
+          title: q.category,
+          icon: q.icon || "list",
+          color: q.metadata?.color || "blue",
+          questions: [],
+        };
+      }
+      grouped[q.category].questions.push({
+        id: q.id,
+        type: q.metadata?.type || "radio",
+        text: q.text,
+        subtitle: q.metadata?.subtitle || "",
+        options: q.options.map((opt) => {
+          if (typeof opt === "string") return opt;
+          return opt; // metadata might contain exclusive/extra, but for seeding we used simple strings for now
+        }),
+      });
+
+      // Initialize response
+      if (q.metadata?.type === "checkbox") {
         responses.value[q.id] = [];
       } else {
         responses.value[q.id] = null;
       }
     });
-  });
-  loading.value = false;
+
+    groups.value = Object.values(grouped);
+  } catch (error) {
+    console.error("Failed to fetch prerequisites:", error);
+  } finally {
+    loading.value = false;
+  }
 });
 
 function handleCheckbox(questionId, optionLabel, exclusive) {
@@ -171,7 +103,8 @@ async function submitPrerequis() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       prerequisiteScore: responses.value,
     });
-    router.push("/formations");
+    const nextRoute = store.getNextRoute("/prerequis");
+    router.push(nextRoute || "/formations");
   } catch (error) {
     console.error("Failed to submit prerequisites:", error);
     alert("Erreur lors de la validation des prérequis.");
@@ -206,12 +139,17 @@ async function submitPrerequis() {
               >Progression</span
             >
             <span class="text-[10px] text-brand-primary font-bold"
-              >Étape 2/5</span
+              >Étape {{ store.getProgress("/prerequis").current }}/{{
+                store.getProgress("/prerequis").total
+              }}</span
             >
           </div>
           <div class="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              class="w-2/5 h-full bg-brand-primary transition-all duration-700"
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{
+                width: store.getProgress('/prerequis').percentage + '%',
+              }"
             ></div>
           </div>
         </div>
@@ -262,7 +200,9 @@ async function submitPrerequis() {
                   : 'bg-indigo-600/10 text-indigo-600'
               "
             >
-              <span class="material-icons-outlined text-lg">{{ group.icon }}</span>
+              <span class="material-icons-outlined text-lg">{{
+                group.icon
+              }}</span>
             </div>
             <h2 class="text-base font-bold text-gray-800">{{ group.title }}</h2>
           </div>
@@ -320,11 +260,19 @@ async function submitPrerequis() {
               <div v-if="q.type === 'checkbox'" class="space-y-2">
                 <button
                   v-for="opt in q.options"
-                  :key="opt.label"
-                  @click="handleCheckbox(q.id, opt.label, opt.exclusive)"
+                  :key="typeof opt === 'string' ? opt : opt.label"
+                  @click="
+                    handleCheckbox(
+                      q.id,
+                      typeof opt === 'string' ? opt : opt.label,
+                      typeof opt === 'string' ? false : opt.exclusive,
+                    )
+                  "
                   class="w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-3 text-left group text-sm"
                   :class="
-                    responses[q.id].includes(opt.label)
+                    responses[q.id].includes(
+                      typeof opt === 'string' ? opt : opt.label,
+                    )
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
                       : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
                   "
@@ -332,21 +280,29 @@ async function submitPrerequis() {
                   <div
                     class="flex-shrink-0 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all"
                     :class="
-                      responses[q.id].includes(opt.label)
+                      responses[q.id].includes(
+                        typeof opt === 'string' ? opt : opt.label,
+                      )
                         ? 'border-brand-primary bg-brand-primary'
                         : 'border-gray-300 group-hover:border-brand-primary'
                     "
                   >
                     <span
-                      v-if="responses[q.id].includes(opt.label)"
+                      v-if="
+                        responses[q.id].includes(
+                          typeof opt === 'string' ? opt : opt.label,
+                        )
+                      "
                       class="material-icons-outlined text-white text-xs"
                       >check</span
                     >
                   </div>
                   <div class="flex flex-col flex-1">
-                    <span class="font-medium">{{ opt.label }}</span>
+                    <span class="font-medium">{{
+                      typeof opt === "string" ? opt : opt.label
+                    }}</span>
                     <span
-                      v-if="opt.extra"
+                      v-if="typeof opt !== 'string' && opt.extra"
                       class="text-xs font-medium opacity-60"
                       >{{ opt.extra }}</span
                     >

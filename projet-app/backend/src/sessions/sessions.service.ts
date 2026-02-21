@@ -92,13 +92,40 @@ export class SessionsService {
     const recommendation =
       finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
 
+    // Prepare extra sections for email
+    let extraContent = '';
+    if (session.complementaryQuestions) {
+      extraContent += '<h3>Questions Complémentaires</h3><ul>';
+      Object.entries(session.complementaryQuestions).forEach(([q, a]) => {
+        extraContent += `<li><strong>${q}:</strong> ${a}</li>`;
+      });
+      extraContent += '</ul>';
+    }
+
+    if (session.availabilities) {
+      extraContent += '<h3>Disponibilités</h3><ul>';
+      Object.entries(session.availabilities).forEach(([key, val]) => {
+        if (key === 'comments') return;
+        extraContent += `<li><strong>${key}:</strong> ${val}</li>`;
+      });
+      if (session.availabilities['comments']) {
+        extraContent += `<li><strong>Commentaires:</strong> ${session.availabilities['comments']}</li>`;
+      }
+      extraContent += '</ul>';
+    }
+
     // Send the email
     await this.emailService.sendReport(
-      session.brand, // Or another recipient if needed, for now using brand as placeholder or if session.brand is email
-      `Résultats de votre test: ${session.formationChoisie}`,
-      `<p>Bonjour ${session.prenom} ${session.nom},</p>
-       <p>Merci d'avoir passé le test de positionnement pour <strong>${session.formationChoisie}</strong>.</p>
-       <p>Votre recommandation finale est : <strong>${recommendation}</strong></p>`,
+      'contact@wizy-learn.fr', // In a real app, this would be the admin or brand email
+      `Nouvelle Évaluation: ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+      `<div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #0D8ABC;">Bilan d'évaluation Wizzy Learn</h2>
+        <p><strong>Candidat :</strong> ${session.prenom} ${session.nom}</p>
+        <p><strong>Formation :</strong> ${session.formationChoisie}</p>
+        <p><strong>Recommandation :</strong> <span style="color: #22C55E;">${recommendation}</span></p>
+        <hr />
+        ${extraContent}
+      </div>`,
     );
 
     return this.update(id, {

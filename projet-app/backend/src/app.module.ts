@@ -10,10 +10,12 @@ import { Question } from './entities/question.entity';
 import { Session } from './entities/session.entity';
 import { Contact } from './entities/contact.entity';
 import { Stagiaire } from './entities/stagiaire.entity';
+import { WorkflowStep } from './entities/workflow-step.entity';
 import { FormationsModule } from './formations/formations.module';
 import { QuestionsModule } from './questions/questions.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { ContactsModule } from './contacts/contacts.module';
+import { WorkflowModule } from './workflow/workflow.module';
 import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
 
@@ -31,7 +33,15 @@ import { EmailModule } from './email/email.module';
           return {
             type: 'postgres',
             url: databaseUrl,
-            entities: [Formation, Level, Question, Session, Contact, Stagiaire],
+            entities: [
+              Formation,
+              Level,
+              Question,
+              Session,
+              Contact,
+              Stagiaire,
+              WorkflowStep,
+            ],
             synchronize: false,
             ssl: true,
           };
@@ -45,7 +55,15 @@ import { EmailModule } from './email/email.module';
           password:
             configService.get<string>('DATABASE_PASSWORD') || 'password',
           database: configService.get<string>('DATABASE_NAME') || 'wizzylearn',
-          entities: [Formation, Level, Question, Session, Contact, Stagiaire],
+          entities: [
+            Formation,
+            Level,
+            Question,
+            Session,
+            Contact,
+            Stagiaire,
+            WorkflowStep,
+          ],
           synchronize: false,
         };
       },
@@ -58,12 +76,14 @@ import { EmailModule } from './email/email.module';
       Session,
       Contact,
       Stagiaire,
+      WorkflowStep,
     ]),
     FormationsModule,
     QuestionsModule,
     SessionsModule,
     EmailModule,
     ContactsModule,
+    WorkflowModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedService, EmailService],

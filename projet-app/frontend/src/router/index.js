@@ -30,6 +30,21 @@ const router = createRouter({
       component: () => import('../views/ResultatsView.vue')
     },
     {
+      path: '/complementary',
+      name: 'complementary',
+      component: () => import('../views/ComplementaryQuestionsView.vue')
+    },
+    {
+      path: '/availabilities',
+      name: 'availabilities',
+      component: () => import('../views/AvailabilitiesView.vue')
+    },
+    {
+      path: '/validation',
+      name: 'validation',
+      component: () => import('../views/FinalValidationView.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting

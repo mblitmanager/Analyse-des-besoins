@@ -131,7 +131,8 @@ async function selectFormation() {
       "selected_formation_label",
       selectedFormation.value.label,
     );
-    router.push("/positionnement");
+    const nextRoute = store.getNextRoute("/formations");
+    router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);
     alert("Erreur lors de la sélection de la formation.");
@@ -174,18 +175,24 @@ async function selectFormation() {
           <div class="flex items-center gap-2 mb-1">
             <span
               class="text-xs text-gray-400 font-bold uppercase tracking-widest"
-              >Étape 3 sur 5</span
+              >Étape {{ store.getProgress("/formations").current }} sur
+              {{ store.getProgress("/formations").total }}</span
             >
             <span
               class="text-xs text-brand-primary font-bold uppercase tracking-widest"
-              >60%</span
+              >{{
+                Math.round(store.getProgress("/formations").percentage)
+              }}%</span
             >
           </div>
           <div
             class="w-full max-w-md h-1.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100"
           >
             <div
-              class="w-[60%] h-full bg-brand-primary transition-all duration-700"
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{
+                width: store.getProgress('/formations').percentage + '%',
+              }"
             ></div>
           </div>
         </div>
