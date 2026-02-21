@@ -12,6 +12,24 @@ export class Formation {
   @Column()
   label: string;
 
+  @Column({ type: 'text', nullable: true })
+  objectifs: string;
+
+  @Column({ type: 'text', nullable: true })
+  prequis: string;
+
+  @Column({ type: 'text', nullable: true })
+  modaliteDuree: string;
+
+  @Column({ nullable: true })
+  dateEnregistrement: string;
+
+  @Column({ nullable: true })
+  certificateur: string;
+
+  @Column({ type: 'text', nullable: true })
+  programme: string;
+
   @Column({ default: true })
   isActive: boolean;
 

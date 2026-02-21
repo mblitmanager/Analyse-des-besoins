@@ -4,10 +4,11 @@ import { SessionsService } from './sessions.service';
 import { SessionsController } from './sessions.controller';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
+import { Stagiaire } from '../entities/stagiaire.entity';
 import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Session, Level]), EmailModule],
+  imports: [TypeOrmModule.forFeature([Session, Level, Stagiaire]), EmailModule],
   providers: [SessionsService],
   controllers: [SessionsController],
 })

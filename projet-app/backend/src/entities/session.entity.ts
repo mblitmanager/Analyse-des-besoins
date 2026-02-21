@@ -3,7 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Stagiaire } from './stagiaire.entity';
 
 @Entity('sessions')
 export class Session {
@@ -48,4 +50,7 @@ export class Session {
 
   @Column({ nullable: true })
   emailSentAt: Date;
+
+  @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
+  stagiaire: Stagiaire;
 }

@@ -1,0 +1,1610 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--favicon-->
+    <link rel="icon" href="https://api.wizi-learn.com/assets/images/logowizi.png" type="image/png" />
+    <!--plugins-->
+    <link href="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+    <!-- loader-->
+    <!-- <link href="https://api.wizi-learn.com/assets/css/pace.min.css" rel="stylesheet" />
+    <script src="https://api.wizi-learn.com/assets/js/pace.min.js"></script> -->
+    <!-- Bootstrap CSS -->
+    <link href="https://api.wizi-learn.com/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/bootstrap-extended.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sono:wght@200..800&display=swap"
+        rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/app.css" rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/icons.css" rel="stylesheet">
+    <!-- Theme Style CSS -->
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/dark-theme.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/semi-dark.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/header-colors.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/custom.css" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script>
+    <!-- Include Bootstrap and Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css"
+        integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <title>Wizi Learn</title>
+</head>
+
+<body>
+    <!--wrapper-->
+    <div class="wrapper">
+        <!--sidebar wrapper -->
+        <div class="sidebar-wrapper" data-simplebar="true">
+            <div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="https://api.wizi-learn.com/assets/images/logowizi.png" class="logo-icon" alt="logo icon">
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i></div>
+    </div>
+
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <!-- Tableau de bord -->
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-home-circle'></i></div>
+                <div class="menu-title">Tableau de bord</div>
+            </a>
+            <ul>
+                <li><a href="https://api.wizi-learn.com/dashboard"><i class="bx bx-right-arrow-alt"></i>Tableau de bord</a></li>
+
+                                    <li><a href="https://api.wizi-learn.com/administrateur/dashboard/activity"><i class="bx bx-right-arrow-alt"></i>Activité des
+                            utilisateurs</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/user-app-usages"><i class="bx bx-right-arrow-alt"></i>Usages
+                            mobiles</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/stats/stagiaires"><i class="bx bx-right-arrow-alt"></i>Stats
+                            stagiaires</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/inactivity"><i
+                                class="bx bx-right-arrow-alt"></i>Inactivité</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/achievements"><i class="bx bx-right-arrow-alt"></i>Gestion
+                            des Succès</a></li>
+                            </ul>
+        </li>
+
+        <!-- Stagiaires -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/stagiaires">
+                    <div class="parent-icon"><i class='lni lni-users'></i></div>
+                    <div class="menu-title">Stagiaires</div>
+                </a>
+            </li>
+        
+        <!-- Quiz (Admin seulement) -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/quiz">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-brain'></i></div>
+                    <div class="menu-title">Quiz</div>
+                </a>
+            </li>
+        
+        <!-- Contact (Admin seulement) -->
+                    <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-phone-outgoing'></i></div>
+                    <div class="menu-title">Contact</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/partenaires"><i class="bx bx-right-arrow-alt"></i>Partenaire</a>
+                    </li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/formateur"><i class="bx bx-right-arrow-alt"></i>Formateur</a>
+                    </li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/pole_relation_clients"><i class="bx bx-right-arrow-alt"></i>Pôle
+                            relation client</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/commercials"><i class="bx bx-right-arrow-alt"></i>Commercial</a>
+                    </li>
+                </ul>
+            </li>
+        
+        <!-- Classement (Admin seulement) -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/classements">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-list-ol'></i></div>
+                    <div class="menu-title">Classement</div>
+                </a>
+            </li>
+        
+        <!-- Formation -->
+                    <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class="lni lni-library"></i></div>
+                    <div class="menu-title">Formation</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/catalogue_formation"><i
+                                class="bx bx-right-arrow-alt"></i>Catalogue formation</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/formations"><i class="bx bx-right-arrow-alt"></i>Domaine
+                            formation</a></li>
+                </ul>
+            </li>
+        
+        <!-- Profil Formateur -->
+        
+        <!-- Menus Admin seulement -->
+                    <!-- Parrainage -->
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-git-branch'></i></div>
+                    <div class="menu-title">Parrainage</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parrainage"><i class="bx bx-right-arrow-alt"></i>Liste des
+                            parrains</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parrainage_events"><i class="bx bx-right-arrow-alt"></i>Événement
+                            parrainage</a></li>
+                </ul>
+            </li>
+
+            <!-- Media -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/medias">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-play-circle'></i></div>
+                    <div class="menu-title">Media</div>
+                </a>
+            </li>
+
+            <!-- Défis -->
+            <li>
+                <a href="javascript:;">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-target-lock'></i></div>
+                    <div class="menu-title">Défis</div>
+                </a>
+            </li>
+
+            <!-- Planning / Agenda -->
+            <li>
+                <a href="https://api.wizi-learn.com/agenda">
+                    <div class="parent-icon"><i class='bx bx-calendar'></i></div>
+                    <div class="menu-title">Agenda</div>
+                </a>
+            </li>
+
+            <!-- Statistiques -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/parametre/reset-data">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-line-chart'></i></div>
+                    <div class="menu-title">Statistiques</div>
+                </a>
+            </li>
+
+            <!-- Historique des demandes -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/demande/historique">
+                    <div class="parent-icon"><i class='bx bx-folder'></i></div>
+                    <div class="menu-title">Historique des demandes</div>
+                </a>
+            </li>
+
+            <!-- Paramètres -->
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='bx bx-cog bx-spin'></i></div>
+                    <div class="menu-title">Paramètres</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parametre"><i class="bx bx-right-arrow-alt"></i>Paramètres
+                            généraux</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/roles"><i class="bx bx-right-arrow-alt"></i>Rôles</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/permissions"><i
+                                class="bx bx-right-arrow-alt"></i>Permissions</a></li>
+                </ul>
+            </li>
+            </ul>
+    <!--end navigation-->
+</div>
+            
+        </div>
+        <!--end sidebar wrapper -->
+        <!--start header -->
+        <header>
+    <div class="topbar d-flex align-items-center">
+        <nav class="navbar navbar-expand">
+            <div class="mobile-toggle-menu"><i class='bx bx-menu'></i>
+            </div>
+            <div class="search-bar flex-grow-1">
+                <div class="position-relative search-bar-box">
+                </div>
+            </div>
+            <div class="top-menu ms-auto">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item mobile-search-icon">
+                        <a class="nav-link" href="#"> <i class='bx bx-search'></i>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false"> <i class='bx bx-category'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="row row-cols-3 g-3 p-3">
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-cosmic text-white"><i
+                                            class='bx bx-group'></i>
+                                    </div>
+                                    <div class="app-title">Équipes</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-burning text-white"><i
+                                            class='bx bx-atom'></i>
+                                    </div>
+                                    <div class="app-title">Projets</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-lush text-white"><i
+                                            class='bx bx-shield'></i>
+                                    </div>
+                                    <div class="app-title">Tâches</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-kyoto text-dark"><i
+                                            class='bx bx-notification'></i>
+                                    </div>
+                                    <div class="app-title">Flux</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-blues text-dark"><i class='bx bx-file'></i>
+                                    </div>
+                                    <div class="app-title">Fichiers</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-moonlit text-white"><i
+                                            class='bx bx-filter-alt'></i>
+                                    </div>
+                                    <div class="app-title">Alertes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
+                                class="alert-count">7</span>
+                            <i class='bx bx-bell'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:;">
+                                <div class="msg-header">
+                                    <p class="msg-header-title">Notifications</p>
+                                    <p class="msg-header-clear ms-auto">Tout marquer comme lu</p>
+                                </div>
+                            </a>
+                            <div class="header-notifications-list">
+
+                            </div>
+                            <a href="javascript:;">
+                                <div class="text-center msg-footer">Voir toutes les notifications</div>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
+                                class="alert-count">8</span>
+                            <i class='bx bx-comment'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:;">
+                                <div class="msg-header">
+                                    <p class="msg-header-title">Messages</p>
+                                    <p class="msg-header-clear ms-auto">Tout marquer comme lu</p>
+                                </div>
+                            </a>
+                            <div class="header-message-list">
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Daisy Anderson <span class="msg-time float-end">5 sec
+                                                    ago</span></h6>
+                                            <p class="msg-info">The standard chunk of lorem</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Althea Cabardo <span class="msg-time float-end">14
+                                                    sec ago</span></h6>
+                                            <p class="msg-info">Many desktop publishing packages</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Oscar Garner <span class="msg-time float-end">8
+                                                    min
+                                                    ago</span></h6>
+                                            <p class="msg-info">Various versions have evolved over</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Katherine Pechon <span class="msg-time float-end">15
+                                                    min ago</span></h6>
+                                            <p class="msg-info">Making this the first true generator</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Amelia Doe <span class="msg-time float-end">22
+                                                    min
+                                                    ago</span></h6>
+                                            <p class="msg-info">Duis aute irure dolor in reprehenderit</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Cristina Jhons <span class="msg-time float-end">2 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">The passage is attributed to an unknown</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">James Caviness <span class="msg-time float-end">4 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">The point of using Lorem</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Peter Costanzo <span class="msg-time float-end">6 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">It was popularised in the 1960s</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">David Buckley <span class="msg-time float-end">2 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">Various versions have evolved over</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Thomas Wheeler <span class="msg-time float-end">2 days
+                                                    ago</span></h6>
+                                            <p class="msg-info">If you are going to use a passage</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Johnny Seitz <span class="msg-time float-end">5
+                                                    days
+                                                    ago</span></h6>
+                                            <p class="msg-info">All the Lorem Ipsum generators</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <a href="javascript:;">
+                                <div class="text-center msg-footer">Voir tous les messages</div>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="user-box dropdown">
+                <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    
+                                        <div class="user-img">
+
+                        <img
+                            src="https://ui-avatars.com/api/?name=Administrateur&amp;background=0D8ABC&amp;color=fff&amp;size=128"
+
+                            alt="user avatar"
+                            class="rounded-circle" width="40" height="40">
+                    </div>
+
+                    <div class="user-info ps-3">
+                        <p class="user-name mb-0">Administrateur</p>
+                        <p class="designattion mb-0">administrateur</p>
+                    </div>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/administrateur/parametre/1">
+                            <i class="bx bx-user"></i><span>Profil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/administrateur/parametre">
+                            <i class="bx bx-cog"></i><span>Paramètres</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/dashboard">
+                            <i class='bx bx-home-circle'></i><span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider mb-0"></div>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/logout">
+                            <i class='bx bx-log-out-circle'></i><span>Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </nav>
+    </div>
+</header>
+        <!--end header -->
+        <!--start page wrapper -->
+        <div class="page-wrapper">
+            <div class="page-content">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-4">
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Total Stagiaire</p>
+                            <h3 class="stat-number">1515</h3>
+                        </div>
+                        <div class="card-icon">
+                            <i class='bx bxs-graduation'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Total commerciaux</p>
+                            <h3 class="stat-number">20</h3>
+                        </div>
+                        <div class="card-icon">
+                            <i class='bx bxs-user-voice'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Total formateurs</p>
+                            <h3 class="stat-number">32</h3>
+                        </div>
+                        <div class="card-icon">
+                            <i class='bx bxs-user-check'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Total pôle relation client</p>
+                            <h3 class="stat-number">20</h3>
+                        </div>
+                        <div class="card-icon">
+                            <i class='bx bxs-user-detail'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Android - Utilisateurs suivis</p>
+                            <h3 class="stat-number">1</h3>
+                            <div class="mt-2">
+                                <p class="mb-0 small text-muted"><i class='bx bx-user-plus me-1'></i>Premières utilisations:
+                                    1</p>
+                                <p class="mb-0 small text-muted"><i class='bx bx-trending-up me-1'></i>Actifs 30j:
+                                    0</p>
+                            </div>
+                        </div>
+                        <div class="card-icon bg-success">
+                            <i class='bx bxl-android'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">iOS - Utilisateurs suivis</p>
+                            <h3 class="stat-number">0</h3>
+                            <div class="mt-2">
+                                <p class="mb-0 small text-muted"><i class='bx bx-user-plus me-1'></i>Premières utilisations:
+                                    0</p>
+                                <p class="mb-0 small text-muted"><i class='bx bx-trending-up me-1'></i>Actifs 30j:
+                                    0</p>
+                            </div>
+                        </div>
+                        <div class="card-icon bg-dark">
+                            <i class='bx bxl-apple'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">App téléchargée</p>
+                            <h3 class="stat-number">0</h3>
+                        </div>
+                        <div class="card-icon bg-info">
+                            <i class='bx bx-download'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Première connexion</p>
+                            <h3 class="stat-number">0</h3>
+                        </div>
+                        <div class="card-icon bg-warning">
+                            <i class='bx bx-log-in'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="dashboard-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="stat-label mb-1">Quiz joués</p>
+                            <h3 class="stat-number">0</h3>
+                        </div>
+                        <div class="card-icon bg-success">
+                            <i class='bx bx-play-circle'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-bar-chart-alt-2 me-2'></i>Statistiques de quiz par jour
+                    </h5>
+
+                    <!-- Filtres supplémentaires -->
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-2">
+                            <label for="formateurFilterDaily" class="form-label small fw-bold">Formateur :</label>
+                            <select id="formateurFilterDaily" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="3">Formateur</option>
+                                                                    <option value="4">VALETTE</option>
+                                                                    <option value="5">PAOLI</option>
+                                                                    <option value="6">GUILLEMIN</option>
+                                                                    <option value="7">DUCHER</option>
+                                                                    <option value="8">MALTERRE</option>
+                                                                    <option value="9">LOISEAU</option>
+                                                                    <option value="10">DESLANDES</option>
+                                                                    <option value="11">POULBERE</option>
+                                                                    <option value="12">BEY</option>
+                                                                    <option value="13">LEBRE</option>
+                                                                    <option value="14">GUILLERD</option>
+                                                                    <option value="15">LEDOUX</option>
+                                                                    <option value="16">RENAUDEAU</option>
+                                                                    <option value="17">DELEMARRE</option>
+                                                                    <option value="18">OSES</option>
+                                                                    <option value="19">GUINOUARD</option>
+                                                                    <option value="20">COTTEAU</option>
+                                                                    <option value="21">PASTORÉ</option>
+                                                                    <option value="22">BEAUDROIT</option>
+                                                                    <option value="23">BERISTAIN</option>
+                                                                    <option value="24">FRICHOT</option>
+                                                                    <option value="26">Test 1</option>
+                                                                    <option value="27">BRAYLE</option>
+                                                                    <option value="28">ESTEVEZ</option>
+                                                                    <option value="29">DESBAS</option>
+                                                                    <option value="30">LE CALVÉ</option>
+                                                                    <option value="31">CLEMENT</option>
+                                                                    <option value="32">PEREIRA</option>
+                                                                    <option value="33">HARDUIN</option>
+                                                                    <option value="34">BENOIT</option>
+                                                                    <option value="35">GAILLARD</option>
+                                                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="commercialFilterDaily" class="form-label small fw-bold">Commercial :</label>
+                            <select id="commercialFilterDaily" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="2">Commercial</option>
+                                                                    <option value="3">BIRÉ</option>
+                                                                    <option value="5">BLIN</option>
+                                                                    <option value="9">BOYÉ</option>
+                                                                    <option value="10">CUBAUD</option>
+                                                                    <option value="11">DELABI</option>
+                                                                    <option value="12">DURAT</option>
+                                                                    <option value="13">GAUVILLE</option>
+                                                                    <option value="14">GAILLARD</option>
+                                                                    <option value="15">GRUAUD</option>
+                                                                    <option value="16">HÉRAULT</option>
+                                                                    <option value="17">HUARD</option>
+                                                                    <option value="18">JACQUART</option>
+                                                                    <option value="19">LANDAIS</option>
+                                                                    <option value="20">MINEAU</option>
+                                                                    <option value="21">THIBAUD</option>
+                                                                    <option value="22">SALGUEIRO</option>
+                                                                    <option value="23">VERGNE</option>
+                                                                    <option value="24">COLIN</option>
+                                                                    <option value="25">HUBERT</option>
+                                                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="poleFilterDaily" class="form-label small fw-bold">Pôle relation client :</label>
+                            <select id="poleFilterDaily" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="3">Pole relation</option>
+                                                                    <option value="4">FLOREK</option>
+                                                                    <option value="5">SIMON</option>
+                                                                    <option value="6">THIRE</option>
+                                                                    <option value="7">CONSTANT</option>
+                                                                    <option value="10">BENOÎT</option>
+                                                                    <option value="11">BROSSARD</option>
+                                                                    <option value="12">GANDREUIL</option>
+                                                                    <option value="13">CHARLES</option>
+                                                                    <option value="14">BOUTIN</option>
+                                                                    <option value="15">FAURY</option>
+                                                                    <option value="16">BIARDOUX</option>
+                                                                    <option value="17">BAILLOT</option>
+                                                                    <option value="18">PINO CORTES</option>
+                                                                    <option value="19">HUET</option>
+                                                                    <option value="20">RAYNAL</option>
+                                                                    <option value="21">SAVATIER</option>
+                                                                    <option value="22">DESAIVRE</option>
+                                                                    <option value="23">LECINA</option>
+                                                                    <option value="24">Teddy</option>
+                                                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quizSelectorDaily" class="form-label small fw-bold">Choisir un quiz :</label>
+                        <select id="quizSelectorDaily" class="form-select form-select-sm">
+                            <option value="" selected>-- Tous les quiz --</option>
+                        </select>
+                    </div>
+
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="filteredDailyChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button id="exportDailyCSV" class="btn btn-sm btn-outline-primary">
+                            <i class='bx bx-export me-1'></i>Exporter CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-bar-chart-alt-2 me-2'></i>Statistiques de quiz par mois
+                    </h5>
+
+                    <!-- Filtres supplémentaires -->
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-2">
+                            <label for="formateurFilterMonthly" class="form-label small fw-bold">Formateur :</label>
+                            <select id="formateurFilterMonthly" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="3">Formateur
+                                        Test</option>
+                                                                    <option value="4">VALETTE
+                                        Alexis</option>
+                                                                    <option value="5">PAOLI
+                                        Anne-Marie</option>
+                                                                    <option value="6">GUILLEMIN
+                                        Audrey</option>
+                                                                    <option value="7">DUCHER
+                                        Bastien</option>
+                                                                    <option value="8">MALTERRE
+                                        Camille</option>
+                                                                    <option value="9">LOISEAU
+                                        Cécile</option>
+                                                                    <option value="10">DESLANDES
+                                        Charlie</option>
+                                                                    <option value="11">POULBERE
+                                        Elodie</option>
+                                                                    <option value="12">BEY
+                                        Esteban</option>
+                                                                    <option value="13">LEBRE
+                                        Geoffrey</option>
+                                                                    <option value="14">GUILLERD
+                                        Julie</option>
+                                                                    <option value="15">LEDOUX
+                                        Justine</option>
+                                                                    <option value="16">RENAUDEAU
+                                        Kevin</option>
+                                                                    <option value="17">DELEMARRE
+                                        Lisa</option>
+                                                                    <option value="18">OSES
+                                        Ludiwine</option>
+                                                                    <option value="19">GUINOUARD
+                                        Manon</option>
+                                                                    <option value="20">COTTEAU
+                                        Manuel</option>
+                                                                    <option value="21">PASTORÉ
+                                        Marie-Josée</option>
+                                                                    <option value="22">BEAUDROIT
+                                        Marion</option>
+                                                                    <option value="23">BERISTAIN
+                                        Marion</option>
+                                                                    <option value="24">FRICHOT
+                                        Michelle</option>
+                                                                    <option value="26">Test 1
+                                        Test</option>
+                                                                    <option value="27">BRAYLE
+                                        Océane</option>
+                                                                    <option value="28">ESTEVEZ
+                                        Philippe</option>
+                                                                    <option value="29">DESBAS
+                                        Romane</option>
+                                                                    <option value="30">LE CALVÉ
+                                        Sonia</option>
+                                                                    <option value="31">CLEMENT
+                                        Sophie</option>
+                                                                    <option value="32">PEREIRA
+                                        Sylvie</option>
+                                                                    <option value="33">HARDUIN
+                                        Wilfried</option>
+                                                                    <option value="34">BENOIT
+                                        Laurie</option>
+                                                                    <option value="35">GAILLARD
+                                        Nathalie</option>
+                                                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="commercialFilterMonthly" class="form-label small fw-bold">Commercial :</label>
+                            <select id="commercialFilterMonthly" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="2">Commercial
+                                        Martine</option>
+                                                                    <option value="3">BIRÉ
+                                        Aurélie</option>
+                                                                    <option value="5">BLIN
+                                        Mélinda</option>
+                                                                    <option value="9">BOYÉ
+                                        Simon</option>
+                                                                    <option value="10">CUBAUD
+                                        Valérie</option>
+                                                                    <option value="11">DELABI
+                                        Cédric</option>
+                                                                    <option value="12">DURAT
+                                        Maxence</option>
+                                                                    <option value="13">GAUVILLE
+                                        Ghislaine</option>
+                                                                    <option value="14">GAILLARD
+                                        Nathalie</option>
+                                                                    <option value="15">GRUAUD
+                                        Sandrine</option>
+                                                                    <option value="16">HÉRAULT
+                                        Véronique</option>
+                                                                    <option value="17">HUARD
+                                        Christophe</option>
+                                                                    <option value="18">JACQUART
+                                        Marie-Hélène</option>
+                                                                    <option value="19">LANDAIS
+                                        Arnaud</option>
+                                                                    <option value="20">MINEAU
+                                        Isabelle</option>
+                                                                    <option value="21">THIBAUD
+                                        Françis</option>
+                                                                    <option value="22">SALGUEIRO
+                                        Élisabeth</option>
+                                                                    <option value="23">VERGNE
+                                        Thierry</option>
+                                                                    <option value="24">COLIN
+                                        Sophie</option>
+                                                                    <option value="25">HUBERT
+                                        Philippe</option>
+                                                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="poleFilterMonthly" class="form-label small fw-bold">Pôle relation client :</label>
+                            <select id="poleFilterMonthly" class="form-select form-select-sm">
+                                <option value="">Tous</option>
+                                                                    <option value="3">Pole relation Client
+                                    </option>
+                                                                    <option value="4">FLOREK Alexandre
+                                    </option>
+                                                                    <option value="5">SIMON Nicolas
+                                    </option>
+                                                                    <option value="6">THIRE Merryl
+                                    </option>
+                                                                    <option value="7">CONSTANT Emilie
+                                    </option>
+                                                                    <option value="10">BENOÎT Gwladys
+                                    </option>
+                                                                    <option value="11">BROSSARD Danila
+                                    </option>
+                                                                    <option value="12">GANDREUIL Chloé
+                                    </option>
+                                                                    <option value="13">CHARLES Loétitia
+                                    </option>
+                                                                    <option value="14">BOUTIN Séverine
+                                    </option>
+                                                                    <option value="15">FAURY Béatrice
+                                    </option>
+                                                                    <option value="16">BIARDOUX Bruno
+                                    </option>
+                                                                    <option value="17">BAILLOT Jade
+                                    </option>
+                                                                    <option value="18">PINO CORTES Franck
+                                    </option>
+                                                                    <option value="19">HUET Audrey
+                                    </option>
+                                                                    <option value="20">RAYNAL Cécile
+                                    </option>
+                                                                    <option value="21">SAVATIER Charlène
+                                    </option>
+                                                                    <option value="22">DESAIVRE Amandine
+                                    </option>
+                                                                    <option value="23">LECINA Estelle
+                                    </option>
+                                                                    <option value="24">Teddy Rinah
+                                    </option>
+                                                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quizSelectorMonthly" class="form-label small fw-bold">Choisir un quiz :</label>
+                        <select id="quizSelectorMonthly" class="form-select form-select-sm">
+                            <option value="" selected>-- Tous les quiz --</option>
+                        </select>
+                    </div>
+
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="filteredMonthlyChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button id="exportMonthlyCSV" class="btn btn-sm btn-outline-primary">
+                            <i class='bx bx-export me-1'></i>Exporter CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-pie-chart-alt-2 me-2'></i>Répartition des participations par quiz
+                    </h5>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="pieQuizParticipation"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-user-check me-2'></i>Utilisateurs connectés
+                    </h5>
+                    <div class="connected-users-container" style="max-height: 300px; overflow-y: auto;">
+                        <ul id="connectedUsersList" class="list-group list-group-flush">
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">Administrateur</span>
+                                            <small class="d-block text-muted">administrateur</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">COMPAGNIE</span>
+                                            <small class="d-block text-muted">stagiaire</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">Randria</span>
+                                            <small class="d-block text-muted">stagiaire</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">DEBAULIEU</span>
+                                            <small class="d-block text-muted">stagiaire</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">BEAUDROIT</span>
+                                            <small class="d-block text-muted">formatrice</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="status-indicator bg-success rounded-circle me-2"></span>
+                                        <div>
+                                            <span class="fw-medium">FLOREK</span>
+                                            <small class="d-block text-muted">pole relation client</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                                                                <i class="bx bx-globe text-primary me-1"></i>
+                                        <small class="text-capitalize">web</small>
+                                    </div>
+                                </li>
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-history me-2'></i>Quiz récemment joués
+                    </h5>
+                    <div class="recent-quizzes-container" style="max-height: 300px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush">
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <span class="fw-medium">Préparer à l’impression : option d&#039;impression</span>
+                                        <small class="d-block text-muted">par COMPAGNIE</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        16/02/2026 13:57
+                                    </span>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <span class="fw-medium">Préparer à l’impression : option d&#039;impression</span>
+                                        <small class="d-block text-muted">par COMPAGNIE</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        03/02/2026 08:59
+                                    </span>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <span class="fw-medium"> Excel : Imprimer un document</span>
+                                        <small class="d-block text-muted">par COMPAGNIE</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        03/02/2026 08:52
+                                    </span>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <span class="fw-medium">Excel : Découverte de l&#039;interface</span>
+                                        <small class="d-block text-muted">par COMPAGNIE</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        03/02/2026 08:50
+                                    </span>
+                                </li>
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <span class="fw-medium">Excel : Découverte de l&#039;interface</span>
+                                        <small class="d-block text-muted">par COMPAGNIE</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">
+                                        03/02/2026 07:07
+                                    </span>
+                                </li>
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="dashboard-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex align-items-center">
+                        <i class='bx bx-time-five me-2'></i>Quiz en cours
+                    </h5>
+                    <div class="active-quizzes-container" style="max-height: 300px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush">
+                                                            <li class="list-group-item text-center py-3 text-muted">
+                                    <i class='bx bx-time fs-4 mb-2'></i>
+                                    <div>Aucun quiz en cours</div>
+                                </li>
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+        <!--end page wrapper -->
+        <!--start overlay-->
+        <div class="overlay toggle-icon"></div>
+        <!--end overlay-->
+        <!--Start Back To Top Button-->
+        <a href="javaScript:;" class="back-to-top"><i class='bx bxs-up-arrow-alt'></i></a>
+        <!--End Back To Top Button-->
+        <footer class="page-footer">
+            <p class="mb-0">Copyright © 2025. Tous droits réservés.</p>
+        </footer>
+    </div>
+    <!--end wrapper-->
+        <!-- Bootstrap JS -->
+        <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gradient-start: #4361ee;
+            --gradient-end: #3a0ca3;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .dashboard-card {
+            border-radius: 16px;
+            border: none;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: white;
+            position: relative;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover);
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .card-icon.bg-success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+
+        .card-icon.bg-dark {
+            background: linear-gradient(135deg, #212529, #495057);
+        }
+
+        .card-icon.bg-info {
+            background: linear-gradient(135deg, #4895ef, #4361ee);
+        }
+
+        .card-icon.bg-warning {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 3px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+        }
+
+        .form-select-sm {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-outline-primary {
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.35em 0.65em;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Le code JavaScript reste identique à votre version originale
+        const dailyStats = [{"date":"2026-02-16","quiz_id":107,"titre":"Pr\u00e9parer \u00e0 l\u2019impression : option d\u0027impression","total":1},{"date":"2026-02-03","quiz_id":81,"titre":"Excel : D\u00e9couverte de l\u0027interface","total":2},{"date":"2026-02-03","quiz_id":88,"titre":" Excel : Imprimer un document","total":1},{"date":"2026-02-03","quiz_id":107,"titre":"Pr\u00e9parer \u00e0 l\u2019impression : option d\u0027impression","total":1}];
+        const monthlyStats = [{"month":"2026-02","quiz_id":81,"titre":"Excel : D\u00e9couverte de l\u0027interface","total":2},{"month":"2026-02","quiz_id":88,"titre":" Excel : Imprimer un document","total":1},{"month":"2026-02","quiz_id":107,"titre":"Pr\u00e9parer \u00e0 l\u2019impression : option d\u0027impression","total":2}];
+
+        const groupByQuiz = (data, labelKey) => {
+            const grouped = {};
+            data.forEach(item => {
+                if (!grouped[item.titre]) grouped[item.titre] = [];
+                grouped[item.titre].push({
+                    label: item[labelKey],
+                    total: item.total
+                });
+            });
+            return grouped;
+        };
+
+        const mergeDataByLabel = (groupedData) => {
+            const merged = {};
+            for (const [quiz, entries] of Object.entries(groupedData)) {
+                entries.forEach(entry => {
+                    if (!merged[entry.label]) merged[entry.label] = 0;
+                    merged[entry.label] += entry.total;
+                });
+            }
+            return Object.entries(merged).map(([label, total]) => ({
+                label,
+                total
+            }));
+        };
+
+        const dailyGrouped = groupByQuiz(dailyStats, 'date');
+        const monthlyGrouped = groupByQuiz(monthlyStats, 'month');
+
+        const dailySelect = document.getElementById('quizSelectorDaily');
+        const monthlySelect = document.getElementById('quizSelectorMonthly');
+
+        const fillSelect = (selectElement, quizTitles) => {
+            quizTitles.forEach(title => {
+                const opt = document.createElement('option');
+                opt.value = title;
+                opt.textContent = title;
+                selectElement.appendChild(opt);
+            });
+        };
+
+        fillSelect(dailySelect, Object.keys(dailyGrouped));
+        fillSelect(monthlySelect, Object.keys(monthlyGrouped));
+
+        let dailyChart = null;
+        let monthlyChart = null;
+
+        const createChart = (ctx, data, label) => {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.label),
+                    datasets: [{
+                        label: label,
+                        data: data.map(item => item.total),
+                        backgroundColor: '#FEB823',
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#000000'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => label,
+                                label: (context) => {
+                                    const dateOrMonth = context.label;
+                                    const value = context.formattedValue;
+                                    return `Date: ${dateOrMonth} — ${value} participations`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#000000'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Nombre de participations',
+                                color: '#000000'
+                            },
+                            ticks: {
+                                color: '#000000'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Ajout du filtrage et de l'export CSV
+        function filterStats(stats, filters) {
+            return stats.filter(item => {
+                let ok = true;
+                if (filters.formateur && item.formateur_id != filters.formateur) ok = false;
+                if (filters.commercial && item.commercial_id != filters.commercial) ok = false;
+                if (filters.pole && item.pole_id != filters.pole) ok = false;
+                return ok;
+            });
+        }
+
+        function exportToCSV(data, filename) {
+            if (!data.length) return;
+            const csvRows = [];
+            const headers = Object.keys(data[0]);
+            csvRows.push(headers.join(','));
+            data.forEach(row => {
+                csvRows.push(headers.map(field => '"' + (row[field] ?? '') + '"').join(','));
+            });
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], {
+                type: 'text/csv'
+            });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Gestion des filtres et export pour le graphique journalier
+        function updateDailyChart() {
+            if (dailyChart) dailyChart.destroy();
+            const filters = {
+                formateur: document.getElementById('formateurFilterDaily').value,
+                commercial: document.getElementById('commercialFilterDaily').value,
+                pole: document.getElementById('poleFilterDaily').value
+            };
+            let filtered = filterStats(dailyStats, filters);
+            const quiz = dailySelect.value;
+            if (quiz) filtered = filtered.filter(item => item.titre === quiz);
+            const grouped = groupByQuiz(filtered, 'date');
+            const data = quiz ? grouped[quiz] || [] : mergeDataByLabel(grouped);
+            dailyChart = createChart(
+                document.getElementById('filteredDailyChart'),
+                data,
+                quiz || 'Tous les quiz (par jour)'
+            );
+            // Stocker les données filtrées pour l'export
+            window._lastDailyExport = data;
+        }
+
+        document.getElementById('formateurFilterDaily').addEventListener('change', updateDailyChart);
+        document.getElementById('commercialFilterDaily').addEventListener('change', updateDailyChart);
+        document.getElementById('poleFilterDaily').addEventListener('change', updateDailyChart);
+        dailySelect.addEventListener('change', updateDailyChart);
+        document.getElementById('exportDailyCSV').addEventListener('click', function() {
+            exportToCSV(window._lastDailyExport || [], 'statistiques-quiz-jour.csv');
+        });
+
+        // Gestion des filtres et export pour le graphique mensuel
+        function updateMonthlyChart() {
+            if (monthlyChart) monthlyChart.destroy();
+            const filters = {
+                formateur: document.getElementById('formateurFilterMonthly').value,
+                commercial: document.getElementById('commercialFilterMonthly').value,
+                pole: document.getElementById('poleFilterMonthly').value
+            };
+            let filtered = filterStats(monthlyStats, filters);
+            const quiz = monthlySelect.value;
+            if (quiz) filtered = filtered.filter(item => item.titre === quiz);
+            const grouped = groupByQuiz(filtered, 'month');
+            const data = quiz ? grouped[quiz] || [] : mergeDataByLabel(grouped);
+            monthlyChart = createChart(
+                document.getElementById('filteredMonthlyChart'),
+                data,
+                quiz || 'Tous les quiz (par mois)'
+            );
+            window._lastMonthlyExport = data;
+        }
+
+        document.getElementById('formateurFilterMonthly').addEventListener('change', updateMonthlyChart);
+        document.getElementById('commercialFilterMonthly').addEventListener('change', updateMonthlyChart);
+        document.getElementById('poleFilterMonthly').addEventListener('change', updateMonthlyChart);
+        monthlySelect.addEventListener('change', updateMonthlyChart);
+        document.getElementById('exportMonthlyCSV').addEventListener('click', function() {
+            exportToCSV(window._lastMonthlyExport || [], 'statistiques-quiz-mois.csv');
+        });
+
+        // Initialisation
+        window.addEventListener('DOMContentLoaded', function() {
+            updateDailyChart();
+            updateMonthlyChart();
+            // Stockage initial pour l'export
+            window._lastDailyExport = mergeDataByLabel(dailyGrouped);
+            window._lastMonthlyExport = mergeDataByLabel(monthlyGrouped);
+        });
+
+        // Camembert de répartition des participations par quiz
+        document.addEventListener('DOMContentLoaded', function() {
+            const pieData = {};
+            (window.dailyStats || []).forEach(item => {
+                if (!pieData[item.titre]) pieData[item.titre] = 0;
+                pieData[item.titre] += item.total;
+            });
+            const pieLabels = Object.keys(pieData);
+            const pieValues = Object.values(pieData);
+            if (document.getElementById('pieQuizParticipation')) {
+                new Chart(document.getElementById('pieQuizParticipation'), {
+                    type: 'pie',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieValues,
+                            backgroundColor: [
+                                '#0d6efd', '#17a00e', '#f41127', '#ffc107', '#212529',
+                                '#FEB823', '#6c757d', '#20c997', '#6610f2', '#fd7e14'
+                            ],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            title: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="https://api.wizi-learn.com/assets/js/bootstrap.bundle.min.js"></script>
+<!--plugins-->
+<script src="https://api.wizi-learn.com/assets/plugins/simplebar/js/simplebar.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/metismenu/js/metisMenu.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/chartjs/js/Chart.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/chartjs/js/Chart.extension.js"></script>
+<script src="https://api.wizi-learn.com/assets/js/index.js"></script>
+<!--app JS-->
+<script src="https://api.wizi-learn.com/assets/js/app.js"></script>\
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script>
+    $(function() {
+        $('[data-bs-toggle="popover"]').popover();
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    })
+</script>
+<script>
+    const descriptionEl = document.querySelector('#description');
+
+    if (descriptionEl) {
+        ClassicEditor
+            .create(descriptionEl, {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote',
+                    'undo', 'redo', 'fontColor'
+                ],
+            })
+            .catch(error => {
+                console.error('Erreur CKEditor :', error);
+            });
+    } else {
+        console.warn("⚠️ Élément #description introuvable, CKEditor non initialisé.");
+    }
+</script>
+
+
+
+</script></body>
+
+</html>
