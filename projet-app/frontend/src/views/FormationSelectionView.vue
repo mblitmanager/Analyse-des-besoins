@@ -12,105 +12,38 @@ const loading = ref(true);
 const submitting = ref(false);
 const selectedFormation = ref(null);
 
-const categories = ref([
-  {
-    name: "LANGUES",
-    formations: [
-      {
-        id: 1,
-        slug: "anglais",
-        label: "Anglais TOEIC",
-        icon: "translate",
-        color: "blue-600",
-      },
-      {
-        id: 2,
-        slug: "francais",
-        label: "Français Voltaire",
-        icon: "spellcheck",
-        color: "blue-600",
-      },
-    ],
-  },
-  {
-    name: "BUREAUTIQUE",
-    formations: [
-      {
-        id: 3,
-        slug: "word",
-        label: "Word",
-        icon: "description",
-        color: "blue-600",
-      },
-      {
-        id: 4,
-        slug: "excel",
-        label: "Excel",
-        icon: "table_view",
-        color: "green-500",
-      },
-      {
-        id: 5,
-        slug: "outlook",
-        label: "Outlook",
-        icon: "mail",
-        color: "blue-500",
-      },
-      {
-        id: 6,
-        slug: "powerpoint",
-        label: "PowerPoint",
-        icon: "slideshow",
-        color: "orange-500",
-      },
-    ],
-  },
-  {
-    name: "CRÉATION & DESIGN",
-    formations: [
-      {
-        id: 7,
-        slug: "sketchup",
-        label: "Sketchup",
-        icon: "3d_rotation",
-        color: "red-500",
-      },
-      {
-        id: 8,
-        slug: "illustrator",
-        label: "Illustrator",
-        icon: "draw",
-        color: "orange-600",
-      },
-    ],
-  },
-  {
-    name: "DIGITAL & COMPÉTENCES",
-    formations: [
-      {
-        id: 9,
-        slug: "wordpress",
-        label: "WordPress",
-        icon: "web",
-        color: "blue-700",
-      },
-      {
-        id: 10,
-        slug: "digcomp",
-        label: "DigComp",
-        icon: "devices",
-        color: "purple-600",
-      },
-    ],
-  },
-]);
+const categories = ref([]);
+
+async function fetchFormations() {
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const res = await axios.get(`${apiBaseUrl}/formations`);
+
+    // Group by category
+    const grouped = res.data.reduce((acc, formation) => {
+      const catName = formation.category || "AUTRES";
+      if (!acc[catName]) {
+        acc[catName] = { name: catName, formations: [] };
+      }
+      acc[catName].formations.push(formation);
+      return acc;
+    }, {});
+
+    categories.value = Object.values(grouped);
+  } catch (error) {
+    console.error("Failed to fetch formations:", error);
+  } finally {
+    loading.value = false;
+  }
+}
 
 onMounted(() => {
   if (!sessionId) {
     router.push("/");
     return;
   }
-  loading.value = false;
+  fetchFormations();
 });
 
 async function selectFormation() {
@@ -196,7 +129,7 @@ async function selectFormation() {
             ></div>
           </div>
         </div>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-3">
+        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
           Quelle formation souhaitez-vous suivre ?
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
@@ -277,7 +210,7 @@ async function selectFormation() {
         <button
           @click="selectFormation"
           :disabled="submitting || !selectedFormation"
-          class="px-10 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-base"
+          class="px-10 py-3 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-base"
         >
           <span>Confirmer la sélection</span>
           <span v-if="!submitting" class="material-icons-outlined text-lg"

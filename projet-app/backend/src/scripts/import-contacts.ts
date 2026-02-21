@@ -7,7 +7,10 @@ import { Contact } from '../entities/contact.entity';
 async function main() {
   const csvPath = process.argv[2]
     ? path.resolve(process.argv[2])
-    : path.resolve(__dirname, '../../../../CDC_Fonctionnel_images/scrap/wizi_contacts.csv');
+    : path.resolve(
+        __dirname,
+        '../../../../CDC_Fonctionnel_images/scrap/wizi_contacts.csv',
+      );
 
   if (!fs.existsSync(csvPath)) {
     console.error('CSV file not found:', csvPath);
@@ -36,7 +39,9 @@ async function main() {
       ? {
           type: 'postgres',
           url: databaseUrl,
-          ssl: true,
+          ssl: databaseUrl.includes('localhost')
+            ? false
+            : { rejectUnauthorized: false },
           entities: [Contact],
         }
       : {
@@ -53,15 +58,21 @@ async function main() {
   await AppDataSource.initialize();
   const repo = AppDataSource.getRepository(Contact);
 
+  console.log('Clearing existing contacts...');
+  await repo.clear();
+
   let inserted = 0;
   for (const cols of rows) {
-    // Expecting: Catégorie;ID;Nom;Prénom;Email;Téléphone
-    const [categorie, id, nom, prenom, emailRaw, telephoneRaw] = cols;
-    const email = emailRaw && emailRaw.toUpperCase() !== 'N/A' ? emailRaw : null;
-    const telephone = telephoneRaw ? telephoneRaw.replace(/\s+/g, ' ').trim() : '';
+    // Actual: Catégorie;Civilité;ID;Nom;Prénom;Email;Téléphone
+    const [categorie, civilite, id, nom, prenom, emailRaw, telephoneRaw] = cols;
+    const email =
+      emailRaw && emailRaw.toUpperCase() !== 'N/A' ? emailRaw : null;
+    const telephone = telephoneRaw
+      ? telephoneRaw.replace(/\s+/g, ' ').trim()
+      : '';
 
     const contact = new Contact();
-    contact.civilite = '';
+    contact.civilite = civilite || '';
     contact.nom = nom || '';
     contact.prenom = prenom || '';
     contact.email = email;
@@ -73,7 +84,12 @@ async function main() {
       await repo.save(contact);
       inserted += 1;
     } catch (err) {
-      console.error('Failed to insert contact', nom, prenom, err.message || err);
+      console.error(
+        'Failed to insert contact',
+        nom,
+        prenom,
+        err.message || err,
+      );
     }
   }
 

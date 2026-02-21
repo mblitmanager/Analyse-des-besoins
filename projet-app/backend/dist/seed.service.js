@@ -19,28 +19,138 @@ const typeorm_2 = require("typeorm");
 const formation_entity_1 = require("./entities/formation.entity");
 const level_entity_1 = require("./entities/level.entity");
 const question_entity_1 = require("./entities/question.entity");
+const setting_entity_1 = require("./entities/setting.entity");
+const user_entity_1 = require("./entities/user.entity");
 let SeedService = class SeedService {
     formationRepo;
     levelRepo;
     questionRepo;
-    constructor(formationRepo, levelRepo, questionRepo) {
+    userRepo;
+    settingRepo;
+    constructor(formationRepo, levelRepo, questionRepo, userRepo, settingRepo) {
         this.formationRepo = formationRepo;
         this.levelRepo = levelRepo;
         this.questionRepo = questionRepo;
+        this.userRepo = userRepo;
+        this.settingRepo = settingRepo;
     }
     async onApplicationBootstrap() {
         console.log('Checking and seeding data...');
+        await this.seedFormations();
+        await this.seedWorkflow();
+        await this.seedAdmin();
+        await this.seedSettings();
+        console.log('Seeding check complete!');
+    }
+    async seedSettings() {
+        const settings = [
+            {
+                key: 'ADMIN_EMAIL',
+                value: 'contact@wizy-learn.com',
+                description: 'Email de réception des bilans',
+            },
+            {
+                key: 'SUPPORT_PHONE',
+                value: '01 23 45 67 89',
+                description: 'Téléphone de support affiché',
+            },
+            {
+                key: 'PLATFORM_NAME',
+                value: 'Wizy-Learn',
+                description: 'Nom de la plateforme',
+            },
+        ];
+        for (const s of settings) {
+            const exists = await this.settingRepo.findOne({ where: { key: s.key } });
+            if (!exists) {
+                await this.settingRepo.save(this.settingRepo.create(s));
+            }
+        }
+    }
+    async seedAdmin() {
+        const email = 'admin@wizy-learn.com';
+        const exists = await this.userRepo.findOne({ where: { email } });
+        if (!exists) {
+            const user = this.userRepo.create({
+                email,
+                password: 'admin123',
+                role: 'admin',
+            });
+            await this.userRepo.save(user);
+        }
+    }
+    async seedFormations() {
         const formationsData = [
-            { slug: 'toeic', label: 'Anglais (TOEIC)', category: 'LANGUES' },
-            { slug: 'voltaire', label: 'Français (Voltaire)', category: 'LANGUES' },
-            { slug: 'word', label: 'Word', category: 'BUREAUTIQUE' },
-            { slug: 'excel', label: 'Excel', category: 'BUREAUTIQUE' },
-            { slug: 'outlook', label: 'Outlook', category: 'BUREAUTIQUE' },
-            { slug: 'powerpoint', label: 'PowerPoint', category: 'BUREAUTIQUE' },
-            { slug: 'sketchup', label: 'Sketchup', category: 'CRÉATION & DESIGN' },
-            { slug: 'illustrator', label: 'Illustrator', category: 'CRÉATION & DESIGN' },
-            { slug: 'wordpress', label: 'WordPress', category: 'DIGITAL & COMPÉTENCES' },
-            { slug: 'digcomp', label: 'DigComp', category: 'DIGITAL & COMPÉTENCES' },
+            {
+                slug: 'toeic',
+                label: 'Anglais (TOEIC)',
+                category: 'LANGUES',
+                icon: 'translate',
+                color: 'blue-600',
+            },
+            {
+                slug: 'voltaire',
+                label: 'Français (Voltaire)',
+                category: 'LANGUES',
+                icon: 'spellcheck',
+                color: 'blue-600',
+            },
+            {
+                slug: 'word',
+                label: 'Word',
+                category: 'BUREAUTIQUE',
+                icon: 'description',
+                color: 'blue-600',
+            },
+            {
+                slug: 'excel',
+                label: 'Excel',
+                category: 'BUREAUTIQUE',
+                icon: 'table_view',
+                color: 'green-500',
+            },
+            {
+                slug: 'outlook',
+                label: 'Outlook',
+                category: 'BUREAUTIQUE',
+                icon: 'mail',
+                color: 'blue-500',
+            },
+            {
+                slug: 'powerpoint',
+                label: 'PowerPoint',
+                category: 'BUREAUTIQUE',
+                icon: 'slideshow',
+                color: 'orange-500',
+            },
+            {
+                slug: 'sketchup',
+                label: 'Sketchup',
+                category: 'CRÉATION & DESIGN',
+                icon: '3d_rotation',
+                color: 'red-500',
+            },
+            {
+                slug: 'illustrator',
+                label: 'Illustrator',
+                category: 'CRÉATION & DESIGN',
+                icon: 'draw',
+                color: 'orange-600',
+            },
+            {
+                slug: 'wordpress',
+                label: 'WordPress',
+                category: 'DIGITAL & COMPÉTENCES',
+                icon: 'web',
+                color: 'blue-700',
+            },
+            {
+                slug: 'digcomp',
+                label: 'DigComp',
+                category: 'DIGITAL & COMPÉTENCES',
+                icon: 'devices',
+                color: 'purple-600',
+            },
         ];
         for (const fData of formationsData) {
             const exists = await this.formationRepo.findOne({
@@ -51,6 +161,8 @@ let SeedService = class SeedService {
                 console.log(`Formation ${fData.label} created.`);
             }
         }
+    }
+    async seedWorkflow() {
         const toeic = await this.formationRepo.findOne({
             where: { slug: 'toeic' },
         });
@@ -94,10 +206,15 @@ let SeedService = class SeedService {
                 where: { label: lData.label, formation: { id: toeic.id } },
             });
             if (!level) {
-                level = await this.levelRepo.save({ ...lData, formation: toeic });
+                level = await this.levelRepo.save({
+                    ...lData,
+                    formation: toeic,
+                });
                 console.log(`Level ${lData.label} for TOEIC created.`);
             }
-            toeicLevels[lData.label] = level;
+            if (level) {
+                toeicLevels[lData.label] = level;
+            }
         }
         const genericLevelsData = [
             {
@@ -134,7 +251,10 @@ let SeedService = class SeedService {
                     where: { label: lData.label, formation: { id: formation.id } },
                 });
                 if (!level) {
-                    await this.levelRepo.save({ ...lData, formation: formation });
+                    await this.levelRepo.save({
+                        ...lData,
+                        formation: formation,
+                    });
                     console.log(`Level ${lData.label} for ${formation.label} created.`);
                 }
             }
@@ -449,6 +569,8 @@ let SeedService = class SeedService {
             },
         ];
         for (const qData of toeicQuestions) {
+            if (!qData.level)
+                continue;
             const exists = await this.questionRepo.findOne({
                 where: { text: qData.text, level: { id: qData.level.id } },
             });
@@ -460,7 +582,6 @@ let SeedService = class SeedService {
                 console.log(`Question "${qData.text.substring(0, 20)}..." for TOEIC added.`);
             }
         }
-        console.log('Seeding check complete!');
     }
 };
 exports.SeedService = SeedService;
@@ -469,7 +590,11 @@ exports.SeedService = SeedService = __decorate([
     __param(0, (0, typeorm_1.InjectRepository)(formation_entity_1.Formation)),
     __param(1, (0, typeorm_1.InjectRepository)(level_entity_1.Level)),
     __param(2, (0, typeorm_1.InjectRepository)(question_entity_1.Question)),
+    __param(3, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(4, (0, typeorm_1.InjectRepository)(setting_entity_1.Setting)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])
 ], SeedService);

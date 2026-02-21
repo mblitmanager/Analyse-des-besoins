@@ -3,6 +3,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 const store = useAppStore();
 const router = useRouter();
@@ -10,6 +12,8 @@ const sessionId = localStorage.getItem("session_id");
 
 const session = ref(null);
 const loading = ref(true);
+const pdfContent = ref(null);
+const downloadingPDF = ref(false);
 
 async function loadResultats() {
   if (!sessionId) {
@@ -38,14 +42,50 @@ const formatDate = (date) => {
     year: "numeric",
   });
 };
+
 const goNext = () => {
   const nextRoute = store.getNextRoute("/resultats");
   router.push(nextRoute || "/complementary");
 };
+
+const downloadPDF = async () => {
+  if (!pdfContent.value) return;
+  downloadingPDF.value = true;
+  try {
+    const element = pdfContent.value;
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(
+      `Bilan_WizzyLearn_${session.value.prenom}_${session.value.nom}.pdf`,
+    );
+  } catch (err) {
+    console.error("PDF generation failed:", err);
+    alert("Erreur lors de la génération du PDF.");
+  } finally {
+    downloadingPDF.value = false;
+  }
+};
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit">
     <!-- Header -->
     <header
       class="bg-white px-8 py-4 flex items-center justify-between sticky top-0 z-50"
@@ -62,6 +102,16 @@ const goNext = () => {
       </div>
 
       <div v-if="session" class="flex items-center gap-4">
+        <button
+          @click="downloadPDF"
+          :disabled="downloadingPDF"
+          class="flex items-center gap-2 px-4 py-2 btn-primary rounded-xl text-xs font-bold hover:bg-black transition-all disabled:opacity-50"
+        >
+          <span class="material-icons-outlined text-sm">{{
+            downloadingPDF ? "sync" : "picture_as_pdf"
+          }}</span>
+          {{ downloadingPDF ? "Génération..." : "Télécharger PDF" }}
+        </button>
         <div
           class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100"
         >
@@ -98,16 +148,17 @@ const goNext = () => {
     <main
       v-else-if="session"
       class="flex-1 max-w-4xl w-full mx-auto p-4 py-12 md:py-16"
+      ref="pdfContent"
     >
       <!-- Success Banner -->
       <div class="text-center mb-14 relative">
         <div
-          class="w-14 h-14 bg-[#E1F9EB] text-[#22C55E] rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce shadow-sm"
+          class="w-14 h-14 bg-success-soft text-success rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce shadow-sm"
         >
           <span class="material-icons-outlined text-2xl">celebration</span>
         </div>
         <h1
-          class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-4 tracking-tight"
+          class="text-3xl md:text-4xl font-extrabold heading-primary mb-4 tracking-tight"
         >
           Bravo {{ session.prenom }} !
         </h1>
@@ -131,7 +182,7 @@ const goNext = () => {
           <div
             class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
           >
-            <span class="material-icons-outlined text-sm text-[#22C55E]"
+            <span class="material-icons-outlined text-sm text-success"
               >verified</span
             >
             Évaluation complétée
@@ -145,7 +196,7 @@ const goNext = () => {
       >
         <div class="flex items-center justify-between mb-2 px-1">
           <span
-            class="text-xs font-bold text-[#0D1B3E] uppercase tracking-widest"
+            class="text-xs font-bold section-title uppercase tracking-widest"
             >Bilan Personnel</span
           >
           <span
@@ -171,7 +222,7 @@ const goNext = () => {
             >auto_graph</span
           >
           <h2
-            class="text-base font-bold text-[#0D1B3E] uppercase tracking-widest"
+            class="text-base font-bold section-title uppercase tracking-widest"
           >
             Vos points forts
           </h2>
@@ -188,11 +239,11 @@ const goNext = () => {
                 <span class="material-icons-outlined">menu_book</span>
               </div>
               <span
-                class="px-3 py-1 bg-[#E1F9EB] text-[#22C55E] rounded-full text-[10px] font-bold uppercase tracking-widest"
+                class="px-3 py-1 bg-success-soft text-success rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Déjà Acquis</span
               >
             </div>
-            <h3 class="text-base font-bold text-[#0D1B3E] mb-2">
+            <h3 class="text-base font-bold heading-primary mb-2">
               Bases Informatiques
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
@@ -216,7 +267,7 @@ const goNext = () => {
                 >Niveau {{ session.stopLevel }}</span
               >
             </div>
-            <h3 class="text-base font-bold text-[#0D1B3E] mb-2">
+            <h3 class="text-base font-bold heading-primary mb-2">
               Niveau d'{{ session.formationChoisie }}
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
@@ -234,7 +285,7 @@ const goNext = () => {
             >map</span
           >
           <h2
-            class="text-base font-bold text-[#0D1B3E] uppercase tracking-widest"
+            class="text-base font-bold section-title uppercase tracking-widest"
           >
             Votre Parcours Personnalisé
           </h2>
@@ -282,7 +333,7 @@ const goNext = () => {
                 <div
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
-                  <h4 class="text-lg font-bold text-[#0D1B3E]">
+                  <h4 class="text-lg font-bold heading-primary">
                     {{ session.formationChoisie }} - Niveau
                     {{ session.stopLevel || "A2" }} (Intermédiaire)
                   </h4>
@@ -337,7 +388,7 @@ const goNext = () => {
                 <div
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
-                  <h4 class="text-lg font-bold text-[#0D1B3E]">
+                  <h4 class="text-lg font-bold heading-primary">
                     {{ session.formationChoisie }} - Niveau B1 (Avancé)
                   </h4>
                 </div>
@@ -368,7 +419,7 @@ const goNext = () => {
 
             <!-- Financement Box -->
             <div
-              class="bg-[#F8FAFC] p-5 rounded-xl flex items-center gap-4 text-[#0D1B3E] border border-blue-50"
+              class="bg-white p-5 rounded-xl flex items-center gap-4 heading-primary border border-blue-50"
             >
               <div
                 class="flex-shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
@@ -395,7 +446,7 @@ const goNext = () => {
 
           <button
             @click="goNext"
-            class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
+            class="px-12 py-4 btn-primary font-bold shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
           >
             <span>Valider ce parcours et continuer</span>
             <span class="material-icons-outlined text-lg">arrow_forward</span>
@@ -415,7 +466,7 @@ const goNext = () => {
           <span class="material-icons-outlined text-brand-primary text-lg"
             >school</span
           >
-          <span class="font-bold text-[#0D1B3E] tracking-tight text-base"
+          <span class="font-bold heading-primary tracking-tight text-base"
             >Wizzy Learn</span
           >
         </div>

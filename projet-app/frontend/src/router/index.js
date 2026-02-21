@@ -47,12 +47,69 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
+    },
+    {
+      path: '/admin/login',
+      name: 'admin-login',
+      component: () => import('../views/admin/LoginView.vue')
+    },
+    {
+      path: '/admin',
+      component: () => import('../views/admin/AdminLayout.vue'), // I will create this
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'admin-dashboard',
+          component: () => import('../views/admin/DashboardView.vue')
+        },
+        {
+          path: 'sessions',
+          name: 'admin-sessions',
+          component: () => import('../views/admin/SessionsListView.vue')
+        },
+        {
+          path: 'questions',
+          name: 'admin-questions',
+          component: () => import('../views/admin/QuestionsManagerView.vue')
+        },
+        {
+          path: 'contacts',
+          name: 'admin-contacts',
+          component: () => import('../views/admin/ContactsManagerView.vue')
+        },
+        {
+          path: 'formations',
+          name: 'admin-formations',
+          component: () => import('../views/admin/FormationsManagerView.vue')
+        },
+        {
+          path: 'settings',
+          name: 'admin-settings',
+          component: () => import('../views/admin/SettingsManagerView.vue')
+        },
+        {
+          path: 'users',
+          name: 'admin-users',
+          component: () => import('../views/admin/AdminUsersView.vue')
+        }
+      ]
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('admin_token')
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!token) {
+      next('/admin/login')
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

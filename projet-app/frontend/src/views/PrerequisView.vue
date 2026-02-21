@@ -13,8 +13,6 @@ const submitting = ref(false);
 
 const questions = ref([]);
 const responses = ref({});
-const loading = ref(true);
-const submitting = ref(false);
 const groups = ref([]);
 
 onMounted(async () => {
@@ -115,7 +113,7 @@ async function submitPrerequis() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit">
     <!-- Header -->
     <header
       class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
@@ -168,7 +166,7 @@ async function submitPrerequis() {
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-2">
+        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
           Prérequis - Niveau Informatique
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
@@ -217,7 +215,7 @@ async function submitPrerequis() {
 
             <div v-for="q in group.questions" :key="q.id" class="space-y-4">
               <div v-if="q.text" class="space-y-1">
-                <p class="text-base font-bold text-[#0D1B3E]">{{ q.text }}</p>
+                <p class="text-base font-bold heading-primary">{{ q.text }}</p>
                 <p v-if="q.subtitle" class="text-xs text-gray-400">
                   {{ q.subtitle }}
                 </p>
@@ -236,7 +234,7 @@ async function submitPrerequis() {
                   :class="
                     responses[q.id] === opt
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
+                      : 'border-gray-50 bg-transparent text-gray-500 hover:border-gray-200'
                   "
                 >
                   <div
@@ -274,7 +272,7 @@ async function submitPrerequis() {
                       typeof opt === 'string' ? opt : opt.label,
                     )
                       ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                      : 'border-gray-50 bg-[#F8FAFC] text-gray-500 hover:border-gray-200'
+                      : 'border-gray-50 bg-transparent text-gray-500 hover:border-gray-200'
                   "
                 >
                   <div
@@ -328,7 +326,7 @@ async function submitPrerequis() {
           <button
             @click="submitPrerequis"
             :disabled="submitting"
-            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
+            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
           >
             <span>Valider et continuer</span>
             <span v-if="!submitting" class="material-icons-outlined text-xl"

@@ -39,7 +39,7 @@ async function validate() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC] flex flex-col font-outfit p-8">
+  <div class="min-h-screen flex flex-col font-outfit p-8">
     <div class="max-w-2xl mx-auto w-full">
       <div
         v-if="!loading && session"
@@ -52,7 +52,7 @@ async function validate() {
         </div>
 
         <h1
-          class="text-3xl font-black text-[#0D1B3E] mb-2 text-center italic uppercase tracking-tight"
+          class="text-3xl font-black heading-primary mb-2 text-center italic uppercase tracking-tight"
         >
           Validation Finale
         </h1>
@@ -95,7 +95,7 @@ async function validate() {
                 <span class="text-xs text-gray-500 font-bold"
                   >Bénéficiaire</span
                 >
-                <span class="text-sm font-black text-[#0D1B3E]"
+                <span class="text-sm font-black heading-primary"
                   >{{ session.prenom }} {{ session.nom }}</span
                 >
               </div>
@@ -126,7 +126,7 @@ async function validate() {
 
         <button
           @click="validate"
-          class="w-full py-5 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
+          class="w-full py-5 bg-brand-primary text-blue-500 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
         >
           <span>Découvrir mes résultats</span>
           <span class="material-icons-outlined">rocket_launch</span>

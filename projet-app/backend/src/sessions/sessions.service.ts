@@ -45,6 +45,13 @@ export class SessionsService {
     return this.sessionRepo.save(session);
   }
 
+  async findAll() {
+    return this.sessionRepo.find({
+      relations: ['stagiaire'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOne(id: string) {
     const session = await this.sessionRepo.findOne({ where: { id } });
     if (!session) throw new NotFoundException('Session not found');
