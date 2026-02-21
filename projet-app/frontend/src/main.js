@@ -12,6 +12,7 @@ app.use(router)
 
 import { useAppStore } from './stores/app'
 const store = useAppStore(pinia)
+store.fetchWorkflow()
 const params = new URLSearchParams(window.location.search)
 const brand = params.get('brand')
 if (brand) store.setBrand(brand)

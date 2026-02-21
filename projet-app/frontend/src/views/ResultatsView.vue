@@ -38,6 +38,10 @@ const formatDate = (date) => {
     year: "numeric",
   });
 };
+const goNext = () => {
+  const nextRoute = store.getNextRoute("/resultats");
+  router.push(nextRoute || "/complementary");
+};
 </script>
 
 <template>
@@ -102,7 +106,9 @@ const formatDate = (date) => {
         >
           <span class="material-icons-outlined text-2xl">celebration</span>
         </div>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-4 tracking-tight">
+        <h1
+          class="text-3xl md:text-4xl font-extrabold text-[#0D1B3E] mb-4 tracking-tight"
+        >
           Bravo {{ session.prenom }} !
         </h1>
         <p
@@ -130,6 +136,31 @@ const formatDate = (date) => {
             >
             Évaluation complétée
           </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div
+        class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8"
+      >
+        <div class="flex items-center justify-between mb-2 px-1">
+          <span
+            class="text-xs font-bold text-[#0D1B3E] uppercase tracking-widest"
+            >Bilan Personnel</span
+          >
+          <span
+            class="text-xs font-bold text-brand-primary uppercase tracking-widest"
+            >Étape {{ store.getProgress("/resultats").current }} sur
+            {{ store.getProgress("/resultats").total }}</span
+          >
+        </div>
+        <div
+          class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50"
+        >
+          <div
+            class="h-full bg-brand-primary transition-all duration-700"
+            :style="{ width: store.getProgress('/resultats').percentage + '%' }"
+          ></div>
         </div>
       </div>
 
@@ -199,7 +230,9 @@ const formatDate = (date) => {
       <!-- Recommendation Section -->
       <section class="mb-14">
         <div class="flex items-center gap-3 mb-6">
-          <span class="material-icons-outlined text-brand-primary text-lg">map</span>
+          <span class="material-icons-outlined text-brand-primary text-lg"
+            >map</span
+          >
           <h2
             class="text-base font-bold text-[#0D1B3E] uppercase tracking-widest"
           >
@@ -352,16 +385,19 @@ const formatDate = (date) => {
 
         <!-- Final CTA -->
         <div class="mt-12 text-center space-y-6">
-          <p class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm">
+          <p
+            class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm"
+          >
             Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous
             pour le valider. Un conseiller vous accompagnera pour les démarches
             administratives.
           </p>
 
           <button
+            @click="goNext"
             class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
           >
-            <span>Valider ce parcours de formation</span>
+            <span>Valider ce parcours et continuer</span>
             <span class="material-icons-outlined text-lg">arrow_forward</span>
           </button>
 
@@ -376,7 +412,9 @@ const formatDate = (date) => {
       <!-- Page Footer -->
       <footer class="mt-20 text-center text-gray-400">
         <div class="flex items-center justify-center gap-2 mb-3">
-          <span class="material-icons-outlined text-brand-primary text-lg">school</span>
+          <span class="material-icons-outlined text-brand-primary text-lg"
+            >school</span
+          >
           <span class="font-bold text-[#0D1B3E] tracking-tight text-base"
             >Wizzy Learn</span
           >

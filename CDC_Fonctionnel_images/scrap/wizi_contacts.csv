@@ -1,73 +1,73 @@
-﻿Catégorie;ID;Nom;Prénom;Email;Téléphone
-Formateurs;3;Formateur;Test;formateur@wizi-learn.com;06 00 00 00 00
-Formateurs;4;VALETTE;Alexis;alexis.valette@ns-conseil.com;07 64 71 44 72
-Formateurs;5;PAOLI;Anne-Marie;anne-marie.paoli@ns-conseil.com;06 68 60 22 86
-Formateurs;6;GUILLEMIN;Audrey;audrey.guillemin@ns-conseil.com;06 61 34 39 29
-Formateurs;7;DUCHER;Bastien;bastien.ducher@ns-conseil.com;06 62 76 79 10
-Formateurs;8;MALTERRE;Camille;camille.malterre@ns-conseil.com;06 62 63 09 30
-Formateurs;9;LOISEAU;Cécile;cecile.loiseau@ns-conseil.com;06 62 96 10 67
-Formateurs;10;DESLANDES;Charlie;charlie.deslandes@ns-conseil.com;06 98 07 75 30
-Formateurs;11;POULBERE;Elodie;elodie.poulbere@ns-conseil.com;07 60 27 25 81
-Formateurs;12;BEY;Esteban;esteban.bey@ns-conseil.com;07 64 71 44 78
-Formateurs;13;LEBRE;Geoffrey;geoffrey.lebre@ns-conseil.com;06 50 69 52 00
-Formateurs;14;GUILLERD;Julie;julie.guiller@ns-conseil.com;07 62 52 90 06
-Formateurs;15;LEDOUX;Justine;justine.ledoux@ns-conseil.com;07 62 60 68 25
-Formateurs;16;RENAUDEAU;Kevin;kevin.renaudeau@ns-conseil.com;07 64 71 44 60
-Formateurs;17;DELEMARRE;Lisa;lisa.delemarre@ns-conseil.com;07 65 18 84 95
-Formateurs;18;OSES;Ludiwine;ludiwine.oses@ns-conseil.com;06 21 87 95 68
-Formateurs;19;GUINOUARD;Manon;manon.guinouard@ns-conseil.com;07 60 83 97 90
-Formateurs;20;COTTEAU;Manuel;manuel.cotteau@ns-conseil.com;06 58 45 35 99
-Formateurs;21;PASTORÉ;Marie-Josée;marie-jo.pastore@ns-conseil.com;06 29 58 02 81
-Formateurs;22;BEAUDROIT;Marion;marion.beaudroit@ns-conseil.com;07 61 41 39 25
-Formateurs;23;BERISTAIN;Marion;marion.beristain@ns-conseil.com;06 61 72 94 20
-Formateurs;24;FRICHOT;Michelle;michelle.frichot@ns-conseil.com;06 63 52 70 55
-Formateurs;26;Test 1;Test;est@example.com;N/A
-Formateurs;27;BRAYLE;Océane;oceane.brayle@ns-conseil.com;06 58 92 16 19
-Formateurs;28;ESTEVEZ;Philippe;philippe.estevez@ns-conseil.com;07 64 73 00 04
-Formateurs;29;DESBAS;Romane;romane.desbas@ns-conseil.com;07 60 27 32 31
-Formateurs;30;LE CALVÉ;Sonia;sonia.lecalve@ns-conseil.com;07 62 59 43 74
-Formateurs;31;CLEMENT;Sophie;sophie.clement@ns-conseil.com;06 58 47 05 06
-Formateurs;32;PEREIRA;Sylvie;sylvie.pereira@ns-conseil.com;06 63 35 91 09
-Formateurs;33;HARDUIN;Wilfried;wilfried.harduin@ns-conseil.com;06 98 07 85 98
-Formateurs;34;BENOIT;Laurie;laurie.benoit@ns-conseil.com;N/A
-Formateurs;35;GAILLARD;Nathalie;nathalie.gaillard@ns-conseil.com;N/A
-Pole Relation Clients;3;Pole relation;Client;herizobm@gmail.com;06 00 00 00 00
-Pole Relation Clients;4;FLOREK;Alexandre;alexandre.florek@ns-conseil.com;06 03 67 59 24
-Pole Relation Clients;5;SIMON;Nicolas;nicolas.simon@ns-conseil.fr;01 696 03 93
-Pole Relation Clients;6;THIRE;Merryl;merryl.thire@ns-conseil.com;07 82 23 19 12
-Pole Relation Clients;7;CONSTANT;Emilie;emilie.constant@ns-conseil.com;06 69 38 36 18
-Pole Relation Clients;10;BENOÎT;Gwladys;glwadys.benoit@ns-conseil.com;06 68 17 88 68
-Pole Relation Clients;11;BROSSARD;Danila;danila.brossard@ns-conseil.com;06 68 17 88 68
-Pole Relation Clients;12;GANDREUIL;Chloé;chloe.gandreuil@ns-conseil.com;07 64 71 34 32
-Pole Relation Clients;13;CHARLES;Loétitia;loetitia.charles@ns-conseil.com;09 74 77 38 69
-Pole Relation Clients;14;BOUTIN;Séverine;severine.boutin@ns-conseil.com;07 64 22 56 56
-Pole Relation Clients;15;FAURY;Béatrice;beatrice.faury@ns-conseil.com;06 69 71 84 65
-Pole Relation Clients;16;BIARDOUX;Bruno;bruno.biardoux@ns-conseil.com;06 87 34 71 34
-Pole Relation Clients;17;BAILLOT;Jade;jade.baillot@ns-conseil.com;07 60 27 26 89
-Pole Relation Clients;18;PINO CORTES;Franck;franck.pino-cortes@ns-conseil.com;06 13 57 82 10
-Pole Relation Clients;19;HUET;Audrey;audrey.huet@ns-conseil.com;06 59 39 62 48
-Pole Relation Clients;20;RAYNAL;Cécile;cecile.raynal@ns-conseil.com;06 64 65 97 61
-Pole Relation Clients;21;SAVATIER;Charlène;charlene.savatier@ns-conseil.com;06 68 94 83 18
-Pole Relation Clients;22;DESAIVRE;Amandine;amandine.desaivre@ns-conseil.com;06 14 67 64 11
-Pole Relation Clients;23;LECINA;Estelle;estelle.lecina@ns-conseil.com;06 87 04 83 19
-Pole Relation Clients;24;Teddy;Rinah;rinah@gmail.com;+1 (429) 901-3175
-Commercials;2;Commercial;Martine;commercial@test.fr;+26409809
-Commercials;3;BIRÉ;Aurélie;aurelie.bire@ns-conseil.com;07 63 76 61 79
-Commercials;5;BLIN;Mélinda;melinda.blin@ns-conseil.com;06 63 87 30 03
-Commercials;9;BOYÉ;Simon;simon.boye@ns-conseil.com;06 84 44 76 36
-Commercials;10;CUBAUD;Valérie;valerie.cubaud@ns-conseil.com;06 16 42 41 58
-Commercials;11;DELABI;Cédric;cedric.delabi@ns-conseil.com;06 72 34 15 26
-Commercials;12;DURAT;Maxence;maxence.durat@ns-conseil.com;06 60 92 33 15
-Commercials;13;GAUVILLE;Ghislaine;ghislaine.gauville@ns-conseil.com;06 23 19 37 31
-Commercials;14;GAILLARD;Nathalie;contact@numenat.fr;06 30 01 22 83
-Commercials;15;GRUAUD;Sandrine;sandrine.gruaud@ns-conseil.com;06 86 94 93 51
-Commercials;16;HÉRAULT;Véronique;veronique.herault@ns-conseil.com;06 34 12 22 92
-Commercials;17;HUARD;Christophe;christophe.huard@ns-conseil.com;06 12 97 64 58
-Commercials;18;JACQUART;Marie-Hélène;marie-helene.jacquart@ns-conseil.com;06 16 92 21 95
-Commercials;19;LANDAIS;Arnaud;arnaud.landais@ns-conseil.com;06 19 65 88 10
-Commercials;20;MINEAU;Isabelle;isabelle.mineau@ns-conseil.com;06 79 46 39 61
-Commercials;21;THIBAUD;Françis;francis.thibaud@ns-conseil.com;06 65 65 24 88
-Commercials;22;SALGUEIRO;Élisabeth;elisabeth.salgueiro@ns-conseil.com;06 13 93 79 06
-Commercials;23;VERGNE;Thierry;thierry.vergne@ns-conseil.com;07 60 43 81 49
-Commercials;24;COLIN;Sophie;sophie.colin@ns-conseil.com;06 27 35 53 37
-Commercials;25;HUBERT;Philippe;philippe.hubert@ns-conseil.com;07 64 72 06 62
+﻿Catégorie;Civilité;ID;Nom;Prénom;Email;Téléphone
+Formateurs;;3;Formateur;Test;formateur@wizi-learn.com;06 00 00 00 00
+Formateurs;M.;4;VALETTE;Alexis;alexis.valette@ns-conseil.com;07 64 71 44 72
+Formateurs;Mme.;5;PAOLI;Anne-Marie;anne-marie.paoli@ns-conseil.com;06 68 60 22 86
+Formateurs;Mme.;6;GUILLEMIN;Audrey;audrey.guillemin@ns-conseil.com;06 61 34 39 29
+Formateurs;M.;7;DUCHER;Bastien;bastien.ducher@ns-conseil.com;06 62 76 79 10
+Formateurs;Mme.;8;MALTERRE;Camille;camille.malterre@ns-conseil.com;06 62 63 09 30
+Formateurs;Mme.;9;LOISEAU;Cécile;cecile.loiseau@ns-conseil.com;06 62 96 10 67
+Formateurs;M.;10;DESLANDES;Charlie;charlie.deslandes@ns-conseil.com;06 98 07 75 30
+Formateurs;Mme.;11;POULBERE;Elodie;elodie.poulbere@ns-conseil.com;07 60 27 25 81
+Formateurs;M.;12;BEY;Esteban;esteban.bey@ns-conseil.com;07 64 71 44 78
+Formateurs;M.;13;LEBRE;Geoffrey;geoffrey.lebre@ns-conseil.com;06 50 69 52 00
+Formateurs;Mme.;14;GUILLERD;Julie;julie.guiller@ns-conseil.com;07 62 52 90 06
+Formateurs;Mme.;15;LEDOUX;Justine;justine.ledoux@ns-conseil.com;07 62 60 68 25
+Formateurs;M.;16;RENAUDEAU;Kevin;kevin.renaudeau@ns-conseil.com;07 64 71 44 60
+Formateurs;Mme.;17;DELEMARRE;Lisa;lisa.delemarre@ns-conseil.com;07 65 18 84 95
+Formateurs;Mme.;18;OSES;Ludiwine;ludiwine.oses@ns-conseil.com;06 21 87 95 68
+Formateurs;Mme.;19;GUINOUARD;Manon;manon.guinouard@ns-conseil.com;07 60 83 97 90
+Formateurs;M.;20;COTTEAU;Manuel;manuel.cotteau@ns-conseil.com;06 58 45 35 99
+Formateurs;Mme.;21;PASTORÉ;Marie-Josée;marie-jo.pastore@ns-conseil.com;06 29 58 02 81
+Formateurs;Mme.;22;BEAUDROIT;Marion;marion.beaudroit@ns-conseil.com;07 61 41 39 25
+Formateurs;Mme.;23;BERISTAIN;Marion;marion.beristain@ns-conseil.com;06 61 72 94 20
+Formateurs;Mme.;24;FRICHOT;Michelle;michelle.frichot@ns-conseil.com;06 63 52 70 55
+Formateurs;;26;Test 1;Test;est@example.com;N/A
+Formateurs;Mme.;27;BRAYLE;Océane;oceane.brayle@ns-conseil.com;06 58 92 16 19
+Formateurs;M.;28;ESTEVEZ;Philippe;philippe.estevez@ns-conseil.com;07 64 73 00 04
+Formateurs;Mme.;29;DESBAS;Romane;romane.desbas@ns-conseil.com;07 60 27 32 31
+Formateurs;Mme.;30;LE CALVÉ;Sonia;sonia.lecalve@ns-conseil.com;07 62 59 43 74
+Formateurs;Mme.;31;CLEMENT;Sophie;sophie.clement@ns-conseil.com;06 58 47 05 06
+Formateurs;Mme.;32;PEREIRA;Sylvie;sylvie.pereira@ns-conseil.com;06 63 35 91 09
+Formateurs;M.;33;HARDUIN;Wilfried;wilfried.harduin@ns-conseil.com;06 98 07 85 98
+Formateurs;Mme.;34;BENOIT;Laurie;laurie.benoit@ns-conseil.com;N/A
+Formateurs;Mme.;35;GAILLARD;Nathalie;nathalie.gaillard@ns-conseil.com;N/A
+Pole Relation Clients;;3;Pole relation;Client;herizobm@gmail.com;06 00 00 00 00
+Pole Relation Clients;M.;4;FLOREK;Alexandre;alexandre.florek@ns-conseil.com;06 03 67 59 24
+Pole Relation Clients;M.;5;SIMON;Nicolas;nicolas.simon@ns-conseil.fr;01 696 03 93
+Pole Relation Clients;Mme.;6;THIRE;Merryl;merryl.thire@ns-conseil.com;07 82 23 19 12
+Pole Relation Clients;Mme.;7;CONSTANT;Emilie;emilie.constant@ns-conseil.com;06 69 38 36 18
+Pole Relation Clients;Mme.;10;BENOÎT;Gwladys;glwadys.benoit@ns-conseil.com;06 68 17 88 68
+Pole Relation Clients;Mme.;11;BROSSARD;Danila;danila.brossard@ns-conseil.com;06 68 17 88 68
+Pole Relation Clients;Mme.;12;GANDREUIL;Chloé;chloe.gandreuil@ns-conseil.com;07 64 71 34 32
+Pole Relation Clients;Mme.;13;CHARLES;Loétitia;loetitia.charles@ns-conseil.com;09 74 77 38 69
+Pole Relation Clients;Mme.;14;BOUTIN;Séverine;severine.boutin@ns-conseil.com;07 64 22 56 56
+Pole Relation Clients;Mme.;15;FAURY;Béatrice;beatrice.faury@ns-conseil.com;06 69 71 84 65
+Pole Relation Clients;M.;16;BIARDOUX;Bruno;bruno.biardoux@ns-conseil.com;06 87 34 71 34
+Pole Relation Clients;Mme.;17;BAILLOT;Jade;jade.baillot@ns-conseil.com;07 60 27 26 89
+Pole Relation Clients;M.;18;PINO CORTES;Franck;franck.pino-cortes@ns-conseil.com;06 13 57 82 10
+Pole Relation Clients;Mme.;19;HUET;Audrey;audrey.huet@ns-conseil.com;06 59 39 62 48
+Pole Relation Clients;Mme.;20;RAYNAL;Cécile;cecile.raynal@ns-conseil.com;06 64 65 97 61
+Pole Relation Clients;Mme.;21;SAVATIER;Charlène;charlene.savatier@ns-conseil.com;06 68 94 83 18
+Pole Relation Clients;Mme.;22;DESAIVRE;Amandine;amandine.desaivre@ns-conseil.com;06 14 67 64 11
+Pole Relation Clients;Mme.;23;LECINA;Estelle;estelle.lecina@ns-conseil.com;06 87 04 83 19
+Pole Relation Clients;;24;Teddy;Rinah;rinah@gmail.com;+1 (429) 901-3175
+Commercials;;2;Commercial;Martine;commercial@test.fr;+26409809
+Commercials;Mme.;3;BIRÉ;Aurélie;aurelie.bire@ns-conseil.com;07 63 76 61 79
+Commercials;Mme.;5;BLIN;Mélinda;melinda.blin@ns-conseil.com;06 63 87 30 03
+Commercials;M.;9;BOYÉ;Simon;simon.boye@ns-conseil.com;06 84 44 76 36
+Commercials;Mme.;10;CUBAUD;Valérie;valerie.cubaud@ns-conseil.com;06 16 42 41 58
+Commercials;M.;11;DELABI;Cédric;cedric.delabi@ns-conseil.com;06 72 34 15 26
+Commercials;M.;12;DURAT;Maxence;maxence.durat@ns-conseil.com;06 60 92 33 15
+Commercials;Mme.;13;GAUVILLE;Ghislaine;ghislaine.gauville@ns-conseil.com;06 23 19 37 31
+Commercials;Mme.;14;GAILLARD;Nathalie;contact@numenat.fr;06 30 01 22 83
+Commercials;Mme.;15;GRUAUD;Sandrine;sandrine.gruaud@ns-conseil.com;06 86 94 93 51
+Commercials;Mme.;16;HÉRAULT;Véronique;veronique.herault@ns-conseil.com;06 34 12 22 92
+Commercials;M.;17;HUARD;Christophe;christophe.huard@ns-conseil.com;06 12 97 64 58
+Commercials;Mme.;18;JACQUART;Marie-Hélène;marie-helene.jacquart@ns-conseil.com;06 16 92 21 95
+Commercials;M.;19;LANDAIS;Arnaud;arnaud.landais@ns-conseil.com;06 19 65 88 10
+Commercials;Mme.;20;MINEAU;Isabelle;isabelle.mineau@ns-conseil.com;06 79 46 39 61
+Commercials;;21;THIBAUD;Françis;francis.thibaud@ns-conseil.com;06 65 65 24 88
+Commercials;Mme.;22;SALGUEIRO;Élisabeth;elisabeth.salgueiro@ns-conseil.com;06 13 93 79 06
+Commercials;M.;23;VERGNE;Thierry;thierry.vergne@ns-conseil.com;07 60 43 81 49
+Commercials;Mme.;24;COLIN;Sophie;sophie.colin@ns-conseil.com;06 27 35 53 37
+Commercials;M.;25;HUBERT;Philippe;philippe.hubert@ns-conseil.com;07 64 72 06 62

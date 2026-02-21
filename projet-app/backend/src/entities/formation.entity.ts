@@ -35,4 +35,7 @@ export class Formation {
 
   @OneToMany(() => Level, (level) => level.formation)
   levels: Level[];
+
+  @OneToMany('Question', 'formation')
+  questions: any[];
 }

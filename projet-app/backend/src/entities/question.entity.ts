@@ -9,7 +9,7 @@ export class Question {
   @Column()
   text: string;
 
-  @Column('simple-json')
+  @Column({ type: 'simple-json' })
   options: string[];
 
   @Column()
@@ -22,8 +22,20 @@ export class Question {
   isActive: boolean;
 
   @Column({ type: 'varchar', length: 50 })
-  type: 'prerequis' | 'positionnement';
+  type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities';
+
+  @Column({ nullable: true })
+  category: string;
+
+  @Column({ nullable: true })
+  icon: string;
+
+  @Column({ type: 'simple-json', nullable: true })
+  metadata: Record<string, any>;
 
   @ManyToOne(() => Level, (level) => level.questions, { nullable: true })
   level: Level;
+
+  @ManyToOne('Formation', 'questions', { nullable: true })
+  formation: any;
 }

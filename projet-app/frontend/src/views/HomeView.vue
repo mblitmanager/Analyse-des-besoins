@@ -44,7 +44,8 @@ async function startTest() {
     const session = await response.json();
     if (session.id) {
       localStorage.setItem("session_id", session.id);
-      router.push("/prerequis");
+      const nextRoute = store.getNextRoute("/");
+      router.push(nextRoute || "/prerequis");
     } else {
       throw new Error("Session ID missing from response");
     }
@@ -148,18 +149,20 @@ async function testDbConnection() {
         <div class="flex items-center justify-between mb-6 px-2">
           <span
             class="text-xs font-bold text-brand-primary uppercase tracking-widest"
-            >Étape 1 sur 5</span
+            >Étape {{ store.getProgress("/").current }} sur
+            {{ store.getProgress("/").total }}</span
           >
           <span
             class="text-xs font-bold text-gray-400 uppercase tracking-widest"
-            >Identification</span
+            >{{ store.getProgress("/").label }}</span
           >
         </div>
         <div
           class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-16"
         >
           <div
-            class="w-1/5 h-full bg-brand-primary transition-all duration-500"
+            class="h-full bg-brand-primary transition-all duration-500"
+            :style="{ width: store.getProgress('/').percentage + '%' }"
           ></div>
         </div>
 

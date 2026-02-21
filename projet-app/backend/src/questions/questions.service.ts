@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { Question } from '../entities/question.entity';
 
 @Injectable()
@@ -10,11 +10,33 @@ export class QuestionsService {
     private questionRepo: Repository<Question>,
   ) {}
 
-  findPrerequisites() {
+  async findQuestions(
+    type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities',
+    formationSlug?: string,
+  ) {
+    const where: FindOptionsWhere<Question> = { type, isActive: true };
+
+    // If formationSlug is provided, we check for formation-specific questions
+    if (formationSlug) {
+      const specificQuestions = await this.questionRepo.find({
+        where: { ...where, formation: { slug: formationSlug } },
+        order: { order: 'ASC' },
+      });
+
+      if (specificQuestions.length > 0) {
+        return specificQuestions;
+      }
+    }
+
+    // Fallback to generic questions (formation is null)
     return this.questionRepo.find({
-      where: { type: 'prerequis', isActive: true },
+      where: { ...where, formation: null },
       order: { order: 'ASC' },
     });
+  }
+
+  findPrerequisites(formationSlug?: string) {
+    return this.findQuestions('prerequis', formationSlug);
   }
 
   findByLevel(formationSlug: string, levelLabel: string) {
