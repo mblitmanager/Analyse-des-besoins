@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
+import { Stagiaire } from '../entities/stagiaire.entity';
 import { EmailService } from '../email/email.service';
 
 @Injectable()
@@ -12,11 +13,35 @@ export class SessionsService {
     private sessionRepo: Repository<Session>,
     @InjectRepository(Level)
     private levelRepo: Repository<Level>,
+    @InjectRepository(Stagiaire)
+    private stagiaireRepo: Repository<Stagiaire>,
     private emailService: EmailService,
   ) {}
 
-  create(data: Partial<Session>) {
-    const session = this.sessionRepo.create(data);
+  async create(data: Partial<Session> & { email?: string }) {
+    let stagiaire: Stagiaire | undefined = undefined;
+    if (data.email) {
+      const found = await this.stagiaireRepo.findOne({
+        where: { email: data.email },
+      });
+      stagiaire = found ?? undefined;
+
+      if (!stagiaire) {
+        stagiaire = this.stagiaireRepo.create({
+          email: data.email,
+          nom: data.nom,
+          prenom: data.prenom,
+          civilite: data.civilite,
+          telephone: data.telephone,
+        });
+        await this.stagiaireRepo.save(stagiaire);
+      }
+    }
+
+    const session = this.sessionRepo.create({
+      ...data,
+      stagiaire: stagiaire || undefined,
+    });
     return this.sessionRepo.save(session);
   }
 
@@ -67,10 +92,19 @@ export class SessionsService {
     const recommendation =
       finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
 
+    // Send the email
+    await this.emailService.sendReport(
+      session.brand, // Or another recipient if needed, for now using brand as placeholder or if session.brand is email
+      `Résultats de votre test: ${session.formationChoisie}`,
+      `<p>Bonjour ${session.prenom} ${session.nom},</p>
+       <p>Merci d'avoir passé le test de positionnement pour <strong>${session.formationChoisie}</strong>.</p>
+       <p>Votre recommandation finale est : <strong>${recommendation}</strong></p>`,
+    );
+
     return this.update(id, {
       finalRecommendation: recommendation,
       stopLevel: finalLevel.label,
-      emailSentAt: new Date(), // Mocking email send for now
+      emailSentAt: new Date(),
     });
   }
 }

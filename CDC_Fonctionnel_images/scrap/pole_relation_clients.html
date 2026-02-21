@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--favicon-->
+    <link rel="icon" href="https://api.wizi-learn.com/assets/images/logowizi.png" type="image/png" />
+    <!--plugins-->
+    <link href="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+    <link href="https://api.wizi-learn.com/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+    <!-- loader-->
+    <!-- <link href="https://api.wizi-learn.com/assets/css/pace.min.css" rel="stylesheet" />
+    <script src="https://api.wizi-learn.com/assets/js/pace.min.js"></script> -->
+    <!-- Bootstrap CSS -->
+    <link href="https://api.wizi-learn.com/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/bootstrap-extended.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sono:wght@200..800&display=swap"
+        rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/app.css" rel="stylesheet">
+    <link href="https://api.wizi-learn.com/assets/css/icons.css" rel="stylesheet">
+    <!-- Theme Style CSS -->
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/dark-theme.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/semi-dark.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/header-colors.css" />
+    <link rel="stylesheet" href="https://api.wizi-learn.com/assets/css/custom.css" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.ckeditor.com/ckeditor5/23.0.0/classic/ckeditor.js"></script>
+    <!-- Include Bootstrap and Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css"
+        integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <title>Gestion des pôles relation clients</title>
+</head>
+
+<body>
+    <!--wrapper-->
+    <div class="wrapper">
+        <!--sidebar wrapper -->
+        <div class="sidebar-wrapper" data-simplebar="true">
+            <div class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+        <div>
+            <img src="https://api.wizi-learn.com/assets/images/logowizi.png" class="logo-icon" alt="logo icon">
+        </div>
+        <div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i></div>
+    </div>
+
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+        <!-- Tableau de bord -->
+        <li>
+            <a href="javascript:;" class="has-arrow">
+                <div class="parent-icon"><i class='bx bx-home-circle'></i></div>
+                <div class="menu-title">Tableau de bord</div>
+            </a>
+            <ul>
+                <li><a href="https://api.wizi-learn.com/dashboard"><i class="bx bx-right-arrow-alt"></i>Tableau de bord</a></li>
+
+                                    <li><a href="https://api.wizi-learn.com/administrateur/dashboard/activity"><i class="bx bx-right-arrow-alt"></i>Activité des
+                            utilisateurs</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/user-app-usages"><i class="bx bx-right-arrow-alt"></i>Usages
+                            mobiles</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/stats/stagiaires"><i class="bx bx-right-arrow-alt"></i>Stats
+                            stagiaires</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/inactivity"><i
+                                class="bx bx-right-arrow-alt"></i>Inactivité</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/achievements"><i class="bx bx-right-arrow-alt"></i>Gestion
+                            des Succès</a></li>
+                            </ul>
+        </li>
+
+        <!-- Stagiaires -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/stagiaires">
+                    <div class="parent-icon"><i class='lni lni-users'></i></div>
+                    <div class="menu-title">Stagiaires</div>
+                </a>
+            </li>
+        
+        <!-- Quiz (Admin seulement) -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/quiz">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-brain'></i></div>
+                    <div class="menu-title">Quiz</div>
+                </a>
+            </li>
+        
+        <!-- Contact (Admin seulement) -->
+                    <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-phone-outgoing'></i></div>
+                    <div class="menu-title">Contact</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/partenaires"><i class="bx bx-right-arrow-alt"></i>Partenaire</a>
+                    </li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/formateur"><i class="bx bx-right-arrow-alt"></i>Formateur</a>
+                    </li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/pole_relation_clients"><i class="bx bx-right-arrow-alt"></i>Pôle
+                            relation client</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/commercials"><i class="bx bx-right-arrow-alt"></i>Commercial</a>
+                    </li>
+                </ul>
+            </li>
+        
+        <!-- Classement (Admin seulement) -->
+                    <li>
+                <a href="https://api.wizi-learn.com/administrateur/classements">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-list-ol'></i></div>
+                    <div class="menu-title">Classement</div>
+                </a>
+            </li>
+        
+        <!-- Formation -->
+                    <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class="lni lni-library"></i></div>
+                    <div class="menu-title">Formation</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/catalogue_formation"><i
+                                class="bx bx-right-arrow-alt"></i>Catalogue formation</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/formations"><i class="bx bx-right-arrow-alt"></i>Domaine
+                            formation</a></li>
+                </ul>
+            </li>
+        
+        <!-- Profil Formateur -->
+        
+        <!-- Menus Admin seulement -->
+                    <!-- Parrainage -->
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-git-branch'></i></div>
+                    <div class="menu-title">Parrainage</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parrainage"><i class="bx bx-right-arrow-alt"></i>Liste des
+                            parrains</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parrainage_events"><i class="bx bx-right-arrow-alt"></i>Événement
+                            parrainage</a></li>
+                </ul>
+            </li>
+
+            <!-- Media -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/medias">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-play-circle'></i></div>
+                    <div class="menu-title">Media</div>
+                </a>
+            </li>
+
+            <!-- Défis -->
+            <li>
+                <a href="javascript:;">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-target-lock'></i></div>
+                    <div class="menu-title">Défis</div>
+                </a>
+            </li>
+
+            <!-- Planning / Agenda -->
+            <li>
+                <a href="https://api.wizi-learn.com/agenda">
+                    <div class="parent-icon"><i class='bx bx-calendar'></i></div>
+                    <div class="menu-title">Agenda</div>
+                </a>
+            </li>
+
+            <!-- Statistiques -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/parametre/reset-data">
+                    <div class="parent-icon"><i class='fadeIn animated bx bx-line-chart'></i></div>
+                    <div class="menu-title">Statistiques</div>
+                </a>
+            </li>
+
+            <!-- Historique des demandes -->
+            <li>
+                <a href="https://api.wizi-learn.com/administrateur/demande/historique">
+                    <div class="parent-icon"><i class='bx bx-folder'></i></div>
+                    <div class="menu-title">Historique des demandes</div>
+                </a>
+            </li>
+
+            <!-- Paramètres -->
+            <li>
+                <a href="javascript:;" class="has-arrow">
+                    <div class="parent-icon"><i class='bx bx-cog bx-spin'></i></div>
+                    <div class="menu-title">Paramètres</div>
+                </a>
+                <ul>
+                    <li><a href="https://api.wizi-learn.com/administrateur/parametre"><i class="bx bx-right-arrow-alt"></i>Paramètres
+                            généraux</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/roles"><i class="bx bx-right-arrow-alt"></i>Rôles</a></li>
+                    <li><a href="https://api.wizi-learn.com/administrateur/permissions"><i
+                                class="bx bx-right-arrow-alt"></i>Permissions</a></li>
+                </ul>
+            </li>
+            </ul>
+    <!--end navigation-->
+</div>
+            
+        </div>
+        <!--end sidebar wrapper -->
+        <!--start header -->
+        <header>
+    <div class="topbar d-flex align-items-center">
+        <nav class="navbar navbar-expand">
+            <div class="mobile-toggle-menu"><i class='bx bx-menu'></i>
+            </div>
+            <div class="search-bar flex-grow-1">
+                <div class="position-relative search-bar-box">
+                </div>
+            </div>
+            <div class="top-menu ms-auto">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item mobile-search-icon">
+                        <a class="nav-link" href="#"> <i class='bx bx-search'></i>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false"> <i class='bx bx-category'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="row row-cols-3 g-3 p-3">
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-cosmic text-white"><i
+                                            class='bx bx-group'></i>
+                                    </div>
+                                    <div class="app-title">Équipes</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-burning text-white"><i
+                                            class='bx bx-atom'></i>
+                                    </div>
+                                    <div class="app-title">Projets</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-lush text-white"><i
+                                            class='bx bx-shield'></i>
+                                    </div>
+                                    <div class="app-title">Tâches</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-kyoto text-dark"><i
+                                            class='bx bx-notification'></i>
+                                    </div>
+                                    <div class="app-title">Flux</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-blues text-dark"><i class='bx bx-file'></i>
+                                    </div>
+                                    <div class="app-title">Fichiers</div>
+                                </div>
+                                <div class="col text-center">
+                                    <div class="app-box mx-auto bg-gradient-moonlit text-white"><i
+                                            class='bx bx-filter-alt'></i>
+                                    </div>
+                                    <div class="app-title">Alertes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
+                                class="alert-count">7</span>
+                            <i class='bx bx-bell'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:;">
+                                <div class="msg-header">
+                                    <p class="msg-header-title">Notifications</p>
+                                    <p class="msg-header-clear ms-auto">Tout marquer comme lu</p>
+                                </div>
+                            </a>
+                            <div class="header-notifications-list">
+
+                            </div>
+                            <a href="javascript:;">
+                                <div class="text-center msg-footer">Voir toutes les notifications</div>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown dropdown-large" style="display: none">
+                        <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
+                                class="alert-count">8</span>
+                            <i class='bx bx-comment'></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:;">
+                                <div class="msg-header">
+                                    <p class="msg-header-title">Messages</p>
+                                    <p class="msg-header-clear ms-auto">Tout marquer comme lu</p>
+                                </div>
+                            </a>
+                            <div class="header-message-list">
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Daisy Anderson <span class="msg-time float-end">5 sec
+                                                    ago</span></h6>
+                                            <p class="msg-info">The standard chunk of lorem</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Althea Cabardo <span class="msg-time float-end">14
+                                                    sec ago</span></h6>
+                                            <p class="msg-info">Many desktop publishing packages</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Oscar Garner <span class="msg-time float-end">8
+                                                    min
+                                                    ago</span></h6>
+                                            <p class="msg-info">Various versions have evolved over</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Katherine Pechon <span class="msg-time float-end">15
+                                                    min ago</span></h6>
+                                            <p class="msg-info">Making this the first true generator</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Amelia Doe <span class="msg-time float-end">22
+                                                    min
+                                                    ago</span></h6>
+                                            <p class="msg-info">Duis aute irure dolor in reprehenderit</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Cristina Jhons <span class="msg-time float-end">2 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">The passage is attributed to an unknown</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">James Caviness <span class="msg-time float-end">4 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">The point of using Lorem</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Peter Costanzo <span class="msg-time float-end">6 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">It was popularised in the 1960s</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">David Buckley <span class="msg-time float-end">2 hrs
+                                                    ago</span></h6>
+                                            <p class="msg-info">Various versions have evolved over</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Thomas Wheeler <span class="msg-time float-end">2 days
+                                                    ago</span></h6>
+                                            <p class="msg-info">If you are going to use a passage</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="user-online">
+
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="msg-name">Johnny Seitz <span class="msg-time float-end">5
+                                                    days
+                                                    ago</span></h6>
+                                            <p class="msg-info">All the Lorem Ipsum generators</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <a href="javascript:;">
+                                <div class="text-center msg-footer">Voir tous les messages</div>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="user-box dropdown">
+                <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
+                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                    
+                                        <div class="user-img">
+
+                        <img
+                            src="https://ui-avatars.com/api/?name=Administrateur&amp;background=0D8ABC&amp;color=fff&amp;size=128"
+
+                            alt="user avatar"
+                            class="rounded-circle" width="40" height="40">
+                    </div>
+
+                    <div class="user-info ps-3">
+                        <p class="user-name mb-0">Administrateur</p>
+                        <p class="designattion mb-0">administrateur</p>
+                    </div>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/administrateur/parametre/1">
+                            <i class="bx bx-user"></i><span>Profil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/administrateur/parametre">
+                            <i class="bx bx-cog"></i><span>Paramètres</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/dashboard">
+                            <i class='bx bx-home-circle'></i><span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider mb-0"></div>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="https://api.wizi-learn.com/logout">
+                            <i class='bx bx-log-out-circle'></i><span>Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </nav>
+    </div>
+</header>
+        <!--end header -->
+        <!--start page wrapper -->
+        <div class="page-wrapper">
+            <div class="page-content">
+                    <div class="container-fluid">
+        <!-- En-tête de page -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body py-3">
+                <div
+                    class="page-breadcrumb d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+                    <div class="mb-3 mb-md-0">
+
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="https://api.wizi-learn.com/dashboard" class="text-decoration-none">
+                                        <i class="bx bx-home-alt"></i>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">
+                                    Pôles relation clients
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="btn-group">
+                        <a href="https://api.wizi-learn.com/administrateur/telecharger-modele-prc" class="btn btn-outline-success">
+                            <i class="bx bx-download me-1"></i> Modèle PRC
+                        </a>
+                        <button class="btn btn-info text-white ms-2" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="lni lni-cloud-download me-1"></i> Importer
+                        </button>
+                        <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/create" class="btn btn-primary ms-2">
+                            <i class="bx bx-plus me-1"></i> Nouveau PRC
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertes -->
+        
+        
+        
+        <!-- Modal d'import -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="importModalLabel">
+                            <i class="lni lni-cloud-download me-2"></i>Importer des pôles relation clients
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="https://api.wizi-learn.com/administrateur/import/prc" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="gvciUjRVEcywMMTjZhpASjefpoBqOQsGdSTUlgr4" autocomplete="off">                            <div class="mb-3">
+                                <label for="file" class="form-label fw-semibold text-dark">Fichier Excel (.xlsx,
+                                    .xls)</label>
+                                <input type="file" name="file" id="file" class="form-control" required
+                                    accept=".xlsx,.xls">
+                                <div class="form-text">Assurez-vous que le fichier suit le modèle fourni</div>
+                            </div>
+
+                            <div class="progress mb-3 d-none" id="progressBarWrapper">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                    style="width: 100%;" id="progressBar">
+                                    Importation en cours...
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-sm btn-secondary"
+                                    data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="lni lni-cloud-download me-1"></i> Importer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau des pôles relation clients -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom-0 py-3">
+                <h6 class="mb-0 text-dark fw-semibold">
+                    <i class="bx bx-list-ul me-2"></i>Liste des pôles relation clients
+                    <span class="badge bg-info text-dark ms-2">20</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="prcTable" class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="bg-primary text-white border-0">#</th>
+                                <th class="bg-primary text-white border-0">Nom</th>
+                                <th class="bg-primary text-white border-0">Prénom</th>
+                                <th class="bg-primary text-white border-0">Email</th>
+                                <th class="bg-primary text-white border-0 text-center">Actions</th>
+                            </tr>
+                            <tr class="filters">
+                                <th></th>
+                                <th><input type="text" class="form-control form-control-sm" placeholder="Filtrer...">
+                                </th>
+                                <th><input type="text" class="form-control form-control-sm" placeholder="Filtrer...">
+                                </th>
+                                <th><input type="text" class="form-control form-control-sm" placeholder="Filtrer...">
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">3</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">Pole relation</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Client</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:herizobm@gmail.com" class="text-decoration-none text-dark">
+                                            herizobm@gmail.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/3"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/3/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">4</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">FLOREK</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Alexandre</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:alexandre.florek@ns-conseil.com" class="text-decoration-none text-dark">
+                                            alexandre.florek@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/4"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/4/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">5</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">SIMON</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Nicolas</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:nicolas.simon@ns-conseil.fr" class="text-decoration-none text-dark">
+                                            nicolas.simon@ns-conseil.fr
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/5"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/5/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">6</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">THIRE</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Merryl</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:merryl.thire@ns-conseil.com" class="text-decoration-none text-dark">
+                                            merryl.thire@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/6"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/6/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">7</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">CONSTANT</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Emilie</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:emilie.constant@ns-conseil.com" class="text-decoration-none text-dark">
+                                            emilie.constant@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/7"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/7/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">10</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">BENOÎT</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Gwladys</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:glwadys.benoit@ns-conseil.com" class="text-decoration-none text-dark">
+                                            glwadys.benoit@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/10"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/10/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">11</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">BROSSARD</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Danila</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:danila.brossard@ns-conseil.com" class="text-decoration-none text-dark">
+                                            danila.brossard@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/11"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/11/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">12</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">GANDREUIL</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Chloé</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:chloe.gandreuil@ns-conseil.com" class="text-decoration-none text-dark">
+                                            chloe.gandreuil@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/12"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/12/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">13</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">CHARLES</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Loétitia</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:loetitia.charles@ns-conseil.com" class="text-decoration-none text-dark">
+                                            loetitia.charles@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/13"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/13/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">14</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">BOUTIN</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Séverine</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:severine.boutin@ns-conseil.com" class="text-decoration-none text-dark">
+                                            severine.boutin@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/14"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/14/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">15</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">FAURY</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Béatrice</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:beatrice.faury@ns-conseil.com" class="text-decoration-none text-dark">
+                                            beatrice.faury@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/15"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/15/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">16</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">BIARDOUX</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Bruno</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:bruno.biardoux@ns-conseil.com" class="text-decoration-none text-dark">
+                                            bruno.biardoux@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/16"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/16/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">17</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">BAILLOT</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Jade</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:jade.baillot@ns-conseil.com" class="text-decoration-none text-dark">
+                                            jade.baillot@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/17"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/17/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">18</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">PINO CORTES</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Franck</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:franck.pino-cortes@ns-conseil.com" class="text-decoration-none text-dark">
+                                            franck.pino-cortes@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/18"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/18/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">19</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">HUET</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Audrey</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:audrey.huet@ns-conseil.com" class="text-decoration-none text-dark">
+                                            audrey.huet@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/19"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/19/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">20</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">RAYNAL</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Cécile</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:cecile.raynal@ns-conseil.com" class="text-decoration-none text-dark">
+                                            cecile.raynal@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/20"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/20/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">21</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">SAVATIER</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Charlène</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:charlene.savatier@ns-conseil.com" class="text-decoration-none text-dark">
+                                            charlene.savatier@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/21"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/21/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">22</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">DESAIVRE</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Amandine</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:amandine.desaivre@ns-conseil.com" class="text-decoration-none text-dark">
+                                            amandine.desaivre@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/22"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/22/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">23</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">LECINA</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Estelle</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:estelle.lecina@ns-conseil.com" class="text-decoration-none text-dark">
+                                            estelle.lecina@ns-conseil.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/23"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/23/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                            <tr>
+                                    <td>
+                                        <span class="fw-semibold text-dark">24</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">Teddy</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark">Rinah</div>
+                                    </td>
+                                    <td>
+                                        <a href="mailto:rinah@gmail.com" class="text-decoration-none text-dark">
+                                            rinah@gmail.com
+                                        </a>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/24"
+                                                class="btn btn-info text-white">
+                                                Afficher
+                                            </a>
+                                            <a href="https://api.wizi-learn.com/administrateur/pole_relation_clients/24/edit"
+                                                class="btn btn-success">
+                                                Modifier
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+        <!--end page wrapper -->
+        <!--start overlay-->
+        <div class="overlay toggle-icon"></div>
+        <!--end overlay-->
+        <!--Start Back To Top Button-->
+        <a href="javaScript:;" class="back-to-top"><i class='bx bxs-up-arrow-alt'></i></a>
+        <!--End Back To Top Button-->
+        <footer class="page-footer">
+            <p class="mb-0">Copyright © 2025. Tous droits réservés.</p>
+        </footer>
+    </div>
+    <!--end wrapper-->
+        <!-- Bootstrap JS -->
+        <script>
+        $(document).ready(function() {
+            var hasData = true;
+
+            var table = $('#prcTable').DataTable({
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.5/i18n/fr-FR.json",
+                    emptyTable: "Aucun pôle relation client trouvé."
+                },
+                paging: true,
+                searching: true,
+                ordering: true,
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                dom: '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
+                buttons: [{
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-outline-secondary',
+                        text: '<i class="bx bx-copy me-1"></i>Copier'
+                    },
+                    {
+                        extend: 'csv',
+                        className: 'btn btn-sm btn-outline-primary',
+                        text: '<i class="bx bx-file me-1"></i>CSV'
+                    },
+                    {
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-outline-success',
+                        text: '<i class="bx bx-spreadsheet me-1"></i>Excel'
+                    },
+                    {
+                        extend: 'pdf',
+                        className: 'btn btn-sm btn-outline-danger',
+                        text: '<i class="bx bx-file me-1"></i>PDF'
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-outline-info',
+                        text: '<i class="bx bx-printer me-1"></i>Imprimer'
+                    }
+                ],
+                initComplete: function() {
+                    if (hasData) {
+                        this.api().columns().every(function() {
+                            var that = this;
+                            $('input', $('.filters').eq(0).children().eq(this.index()))
+                                .on('keyup change clear', function() {
+                                    if (that.search() !== this.value) {
+                                        that.search(this.value).draw();
+                                    }
+                                });
+                        });
+                    }
+                }
+            });
+
+            // Gestion de la barre de progression
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('#importModal form');
+                const progressBarWrapper = document.getElementById('progressBarWrapper');
+
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        progressBarWrapper.classList.remove('d-none');
+                    });
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .card {
+            border-radius: 12px;
+        }
+
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .table th {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-radius: 10px;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.04) !important;
+        }
+
+        .filters input {
+            font-size: 0.8rem;
+        }
+
+        .dataTables_empty {
+            text-align: center;
+            padding: 2rem !important;
+            color: #6c757d !important;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-group-sm>.btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+    <script src="https://api.wizi-learn.com/assets/js/bootstrap.bundle.min.js"></script>
+<!--plugins-->
+<script src="https://api.wizi-learn.com/assets/plugins/simplebar/js/simplebar.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/metismenu/js/metisMenu.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/chartjs/js/Chart.min.js"></script>
+<script src="https://api.wizi-learn.com/assets/plugins/chartjs/js/Chart.extension.js"></script>
+<script src="https://api.wizi-learn.com/assets/js/index.js"></script>
+<!--app JS-->
+<script src="https://api.wizi-learn.com/assets/js/app.js"></script>\
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script>
+    $(function() {
+        $('[data-bs-toggle="popover"]').popover();
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    })
+</script>
+<script>
+    const descriptionEl = document.querySelector('#description');
+
+    if (descriptionEl) {
+        ClassicEditor
+            .create(descriptionEl, {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote',
+                    'undo', 'redo', 'fontColor'
+                ],
+            })
+            .catch(error => {
+                console.error('Erreur CKEditor :', error);
+            });
+    } else {
+        console.warn("⚠️ Élément #description introuvable, CKEditor non initialisé.");
+    }
+</script>
+
+
+
+</script></body>
+
+</html>

@@ -31,16 +31,16 @@ let SeedService = class SeedService {
     async onApplicationBootstrap() {
         console.log('Checking and seeding data...');
         const formationsData = [
-            { slug: 'toeic', label: 'Anglais (TOEIC)' },
-            { slug: 'voltaire', label: 'Français (Voltaire)' },
-            { slug: 'word', label: 'Word' },
-            { slug: 'excel', label: 'Excel' },
-            { slug: 'outlook', label: 'Outlook' },
-            { slug: 'powerpoint', label: 'PowerPoint' },
-            { slug: 'sketchup', label: 'Sketchup' },
-            { slug: 'illustrator', label: 'Illustrator' },
-            { slug: 'wordpress', label: 'WordPress' },
-            { slug: 'digcomp', label: 'DigComp' },
+            { slug: 'toeic', label: 'Anglais (TOEIC)', category: 'LANGUES' },
+            { slug: 'voltaire', label: 'Français (Voltaire)', category: 'LANGUES' },
+            { slug: 'word', label: 'Word', category: 'BUREAUTIQUE' },
+            { slug: 'excel', label: 'Excel', category: 'BUREAUTIQUE' },
+            { slug: 'outlook', label: 'Outlook', category: 'BUREAUTIQUE' },
+            { slug: 'powerpoint', label: 'PowerPoint', category: 'BUREAUTIQUE' },
+            { slug: 'sketchup', label: 'Sketchup', category: 'CRÉATION & DESIGN' },
+            { slug: 'illustrator', label: 'Illustrator', category: 'CRÉATION & DESIGN' },
+            { slug: 'wordpress', label: 'WordPress', category: 'DIGITAL & COMPÉTENCES' },
+            { slug: 'digcomp', label: 'DigComp', category: 'DIGITAL & COMPÉTENCES' },
         ];
         for (const fData of formationsData) {
             const exists = await this.formationRepo.findOne({
@@ -88,7 +88,7 @@ let SeedService = class SeedService {
                 recommendationLabel: 'Parcours Expert (C1)',
             },
         ];
-        const levels = {};
+        const toeicLevels = {};
         for (const lData of levelsData) {
             let level = await this.levelRepo.findOne({
                 where: { label: lData.label, formation: { id: toeic.id } },
@@ -97,7 +97,47 @@ let SeedService = class SeedService {
                 level = await this.levelRepo.save({ ...lData, formation: toeic });
                 console.log(`Level ${lData.label} for TOEIC created.`);
             }
-            levels[lData.label] = level;
+            toeicLevels[lData.label] = level;
+        }
+        const genericLevelsData = [
+            {
+                label: 'Débutant',
+                order: 1,
+                successThreshold: 4,
+                recommendationLabel: 'Parcours Débutant',
+            },
+            {
+                label: 'Intermédiaire',
+                order: 2,
+                successThreshold: 4,
+                recommendationLabel: 'Parcours Intermédiaire',
+            },
+            {
+                label: 'Avancé',
+                order: 3,
+                successThreshold: 4,
+                recommendationLabel: 'Parcours Avancé',
+            },
+            {
+                label: 'Expert',
+                order: 4,
+                successThreshold: 4,
+                recommendationLabel: 'Parcours Expert',
+            },
+        ];
+        const allFormations = await this.formationRepo.find();
+        for (const formation of allFormations) {
+            if (formation.slug === 'toeic')
+                continue;
+            for (const lData of genericLevelsData) {
+                let level = await this.levelRepo.findOne({
+                    where: { label: lData.label, formation: { id: formation.id } },
+                });
+                if (!level) {
+                    await this.levelRepo.save({ ...lData, formation: formation });
+                    console.log(`Level ${lData.label} for ${formation.label} created.`);
+                }
+            }
         }
         const prerequisQuestions = [
             {
@@ -171,49 +211,49 @@ let SeedService = class SeedService {
                 text: 'Hello, my name ___ Sarah.',
                 options: ['am', 'is', 'are', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 1,
             },
             {
                 text: 'We ___ English on Monday.',
                 options: ['are', 'have', 'has', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 2,
             },
             {
                 text: 'She ___ 12 years old.',
                 options: ['is', 'are', 'has', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 3,
             },
             {
                 text: 'There ___ a book on the table.',
                 options: ['are', 'have', 'is', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 4,
             },
             {
                 text: 'She ___ TV right now.',
                 options: ['watches', 'watching', 'is watching', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 5,
             },
             {
                 text: 'She ___ to the gym three times a week.',
                 options: ['go', 'goes', 'is going', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A1'],
+                level: toeicLevels['A1'],
                 order: 6,
             },
             {
                 text: 'We ___ tired, so we decided to go home.',
                 options: ['was', 'were', 'are', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 7,
             },
             {
@@ -225,21 +265,21 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 2,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 8,
             },
             {
                 text: 'There isn’t ___ milk left in the fridge.',
                 options: ['many', 'much', 'a few', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 9,
             },
             {
                 text: 'He’s the ___ student in the class.',
                 options: ['more tall', 'taller', 'tallest', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 10,
             },
             {
@@ -251,63 +291,63 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 0,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 11,
             },
             {
                 text: 'We ___ to the supermarket yesterday.',
                 options: ['go', 'went', 'are going', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['A2'],
+                level: toeicLevels['A2'],
                 order: 12,
             },
             {
                 text: 'I’ve known her ___ we were children.',
                 options: ['for', 'since', 'during', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 13,
             },
             {
                 text: 'If I ___ more time, I would travel around the world.',
                 options: ['have', 'had', 'will have', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 14,
             },
             {
                 text: 'The castle ___ in 1692.',
                 options: ['was built', 'is built', 'was building', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 15,
             },
             {
                 text: 'She ___ here for five years.',
                 options: ['has worked', 'works', 'is working', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 16,
             },
             {
                 text: 'He felt sick because he ___ too much chocolate.',
                 options: ['ate', 'has eaten', 'had eaten', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 17,
             },
             {
                 text: 'I ___ more water recently and I feel better.',
                 options: ['have been drinking', 'had drunk', 'drank', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['B1'],
+                level: toeicLevels['B1'],
                 order: 18,
             },
             {
                 text: 'You ___ me about the problem earlier.',
                 options: ['should have told', 'should told', 'must', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 19,
             },
             {
@@ -319,7 +359,7 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 2,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 20,
             },
             {
@@ -331,42 +371,42 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 1,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 21,
             },
             {
                 text: 'This time tomorrow, we ___ on the beach.',
                 options: ['will lie', 'will be lying', 'lie', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 22,
             },
             {
                 text: 'The meeting was called ___ due to unexpected problems.',
                 options: ['off', 'up', 'out', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 23,
             },
             {
                 text: '___ he was tired, he continued working.',
                 options: ['Because', 'Despite', 'Although', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['B2'],
+                level: toeicLevels['B2'],
                 order: 24,
             },
             {
                 text: 'You ___ apologise now if you want to avoid further conflict.',
                 options: ['would rather', 'had better', 'will', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 25,
             },
             {
                 text: 'I’d rather you ___ this matter confidential.',
                 options: ['kept', 'keep', 'will keep', 'Je ne sais pas'],
                 correctResponseIndex: 0,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 26,
             },
             {
@@ -378,21 +418,21 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 2,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 27,
             },
             {
                 text: '___ the circumstances, his reaction was surprisingly restrained.',
                 options: ['Because', 'Although', 'Given', 'Je ne sais pas'],
                 correctResponseIndex: 2,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 28,
             },
             {
                 text: 'Rarely ___ such a compelling argument.',
                 options: ['I have heard', 'have I heard', 'I heard', 'Je ne sais pas'],
                 correctResponseIndex: 1,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 29,
             },
             {
@@ -404,7 +444,7 @@ let SeedService = class SeedService {
                     'Je ne sais pas',
                 ],
                 correctResponseIndex: 1,
-                level: levels['C1'],
+                level: toeicLevels['C1'],
                 order: 30,
             },
         ];

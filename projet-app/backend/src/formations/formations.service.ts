@@ -11,6 +11,6 @@ export class FormationsService {
   ) {}
 
   findAll() {
-    return this.formationRepo.find({ where: { isActive: true } });
+    return this.formationRepo.find({ where: { isActive: true }, order: { label: 'ASC' } });
   }
 }
