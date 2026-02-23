@@ -13,12 +13,12 @@ function cancel() {
 }
 </script>
 
-<!-- <template>
+<template>
   <div class="fixed bottom-6 right-6 z-50 flex gap-3">
     <button @click="goHome" class="btn-primary px-4 py-2">Accueil</button>
     <button @click="cancel" class="btn btn-outline px-4 py-2">Annuler</button>
   </div>
-</template> -->
+</template>
 
 <style scoped>
 .btn-outline { background: rgba(255,255,255,0.9); }

@@ -24,7 +24,7 @@ export class QuestionsService {
     return this.questionRepo.find({
       where: whereCondition as any,
       order: { order: 'ASC' },
-      relations: ['formation'],
+      relations: ['formation', 'level'],
     });
   }
 
@@ -57,27 +57,43 @@ export class QuestionsService {
 
     return this.questionRepo.find({
       where: whereCondition,
-      relations: ['formation'],
+      relations: ['formation', 'level'],
       order: { type: 'ASC', order: 'ASC' },
     });
   }
 
-  async create(data: Partial<Question> & { formationId?: number }) {
-    const { formationId, ...rest } = data;
+  async create(
+    data: Partial<Question> & { formationId?: number; levelId?: number },
+  ) {
+    const { formationId, levelId, ...rest } = data;
+    const isLevelScoped =
+      rest.type === 'prerequis' || rest.type === 'positionnement';
+
     const question = this.questionRepo.create({
       ...rest,
       formation: formationId ? ({ id: formationId } as any) : null,
+      level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
     });
     return this.questionRepo.save(question);
   }
 
-  async update(id: number, data: Partial<Question> & { formationId?: number }) {
-    const { formationId, ...rest } = data;
+  async update(
+    id: number,
+    data: Partial<Question> & { formationId?: number; levelId?: number },
+  ) {
+    const { formationId, levelId, ...rest } = data;
+    const isLevelScoped =
+      rest.type === 'prerequis' || rest.type === 'positionnement';
+
     await this.questionRepo.update(id, {
       ...rest,
       formation: formationId ? ({ id: formationId } as any) : null,
+      level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
     });
-    return this.questionRepo.findOne({ where: { id } });
+    return this.questionRepo.findOne({
+      where: { id },
+      relations: ['formation', 'level'],
+    });
   }
 
   async remove(id: number) {
