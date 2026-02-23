@@ -47,4 +47,19 @@ export class AuthService {
       console.log('Initial admin created');
     }
   }
+
+  async registerAdmin(email: string, pass: string, name?: string) {
+    const existing = await this.userRepo.findOne({ where: { email } });
+    if (existing) {
+      throw new Error('User already exists');
+    }
+    const hashedPassword = await bcrypt.hash(pass, 10);
+    const user = this.userRepo.create({
+      email,
+      password: hashedPassword,
+      role: 'admin',
+      name: name || '',
+    });
+    return this.userRepo.save(user);
+  }
 }

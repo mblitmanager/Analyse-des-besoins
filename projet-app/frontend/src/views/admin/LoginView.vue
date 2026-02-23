@@ -120,6 +120,9 @@ async function handleLogin() {
           <span class="material-icons-outlined text-sm">arrow_back</span>
           Retour au site
         </button>
+        <div class="mt-3">
+          <button @click="router.push('/admin/signup')" class="text-brand-primary text-sm font-bold underline">Créer un compte administrateur</button>
+        </div>
       </div>
     </div>
   </div>

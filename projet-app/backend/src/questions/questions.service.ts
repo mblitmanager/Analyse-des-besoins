@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Question } from '../entities/question.entity';
 
 @Injectable()
@@ -14,24 +14,17 @@ export class QuestionsService {
     type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities',
     formationSlug?: string,
   ) {
-    const where: FindOptionsWhere<Question> = { type, isActive: true };
+    const whereCondition = formationSlug
+      ? [
+          { type, isActive: true, formation: { slug: formationSlug } },
+          { type, isActive: true, formation: null },
+        ]
+      : { type, isActive: true, formation: null };
 
-    // If formationSlug is provided, we check for formation-specific questions
-    if (formationSlug) {
-      const specificQuestions = await this.questionRepo.find({
-        where: { ...where, formation: { slug: formationSlug } },
-        order: { order: 'ASC' },
-      });
-
-      if (specificQuestions.length > 0) {
-        return specificQuestions;
-      }
-    }
-
-    // Fallback to generic questions (formation is null)
     return this.questionRepo.find({
-      where: { ...where, formation: null },
+      where: whereCondition as any,
       order: { order: 'ASC' },
+      relations: ['formation'],
     });
   }
 
@@ -54,17 +47,36 @@ export class QuestionsService {
     });
   }
 
-  async findAll() {
-    return this.questionRepo.find({ order: { type: 'ASC', order: 'ASC' } });
+  async findAll(formationSlug?: string) {
+    const whereCondition = formationSlug
+      ? [
+          { formation: { slug: formationSlug } },
+          { formation: null }, // Include globals
+        ]
+      : {};
+
+    return this.questionRepo.find({
+      where: whereCondition,
+      relations: ['formation'],
+      order: { type: 'ASC', order: 'ASC' },
+    });
   }
 
-  async create(data: Partial<Question>) {
-    const question = this.questionRepo.create(data);
+  async create(data: Partial<Question> & { formationId?: number }) {
+    const { formationId, ...rest } = data;
+    const question = this.questionRepo.create({
+      ...rest,
+      formation: formationId ? ({ id: formationId } as any) : null,
+    });
     return this.questionRepo.save(question);
   }
 
-  async update(id: number, data: Partial<Question>) {
-    await this.questionRepo.update(id, data);
+  async update(id: number, data: Partial<Question> & { formationId?: number }) {
+    const { formationId, ...rest } = data;
+    await this.questionRepo.update(id, {
+      ...rest,
+      formation: formationId ? ({ id: formationId } as any) : null,
+    });
     return this.questionRepo.findOne({ where: { id } });
   }
 

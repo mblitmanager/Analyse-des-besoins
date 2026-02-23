@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import AppLogo from '../components/AppLogo.vue'
 
 const store = useAppStore();
 const router = useRouter();
@@ -124,9 +125,7 @@ async function submitPrerequis() {
         >
           W
         </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
+        <AppLogo />
       </div>
 
       <div class="flex items-center gap-6">
@@ -345,7 +344,9 @@ async function submitPrerequis() {
     <footer
       class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
     >
-      <div>© 2024 Wizzy Learn. Tous droits réservés.</div>
+      <div class="flex items-center justify-center">
+        <AppLogo />
+      </div>
       <div class="flex gap-8">
         <a href="#" class="hover:text-brand-primary">Confidentialité</a>
         <a href="#" class="hover:text-brand-primary">Conditions</a>

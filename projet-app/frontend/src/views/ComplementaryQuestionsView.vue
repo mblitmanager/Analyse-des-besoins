@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
+import AppLogo from '../components/AppLogo.vue'
 
 const store = useAppStore();
 const router = useRouter();
@@ -84,14 +85,8 @@ async function skipStep() {
       class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
     >
       <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
-        >
-          W
-        </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
+        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl">W</div>
+        <AppLogo />
       </div>
       <div class="hidden md:flex flex-col items-end">
         <div class="flex items-center gap-2 mb-1">
@@ -245,7 +240,9 @@ async function skipStep() {
     <footer
       class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
     >
-      <div>© 2024 Wizzy Learn. Tous droits réservés.</div>
+      <div class="flex items-center justify-center">
+        <AppLogo />
+      </div>
       <div class="flex gap-8">
         <a href="#" class="hover:text-brand-primary">Confidentialité</a>
         <a href="#" class="hover:text-brand-primary">Conditions</a>

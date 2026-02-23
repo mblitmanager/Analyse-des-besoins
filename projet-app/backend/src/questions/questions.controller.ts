@@ -39,7 +39,11 @@ export class QuestionsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll() {
+  findAll(@Query('formation') formationSlug?: string) {
+    if (formationSlug) {
+      // Return specific formation + globals to admin
+      return this.questionsService.findAll(formationSlug);
+    }
     return this.questionsService.findAll();
   }
 
