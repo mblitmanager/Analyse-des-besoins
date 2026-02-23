@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const questions = ref([]);
@@ -14,6 +14,7 @@ const form = ref({
   icon: "quiz",
   options: ["", ""],
   formationId: "",
+  levelId: "",
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -56,6 +57,7 @@ function openAddModal() {
     icon: "quiz",
     options: ["", ""],
     formationId: "",
+    levelId: "",
   };
   showModal.value = true;
 }
@@ -71,6 +73,7 @@ function openEditModal(q) {
       ? [...q.options.map((o) => (typeof o === "string" ? o : o.label))]
       : ["", ""],
     formationId: q.formation?.id || "",
+    levelId: q.level?.id || "",
   };
   showModal.value = true;
 }
@@ -131,6 +134,12 @@ const types = [
   { label: "Complémentaires", value: "complementary" },
   { label: "Disponibilités", value: "availabilities" },
 ];
+
+const availableLevels = computed(() => {
+  if (!form.value.formationId) return [];
+  const selectedFormation = formations.value.find(f => f.id === form.value.formationId);
+  return selectedFormation?.levels || [];
+});
 </script>
 
 <template>
@@ -238,6 +247,12 @@ const types = [
               class="px-3 py-1 bg-blue-50 text-[8px] font-black uppercase tracking-widest text-blue-500 rounded-full border border-blue-100"
               >{{ q.category }}</span
             >
+            <span
+              v-if="q.level"
+              class="px-3 py-1 bg-yellow-50 text-[8px] font-black uppercase tracking-widest text-yellow-600 rounded-full border border-yellow-100"
+            >
+              Niveau: {{ q.level.label }}
+            </span>
           </div>
           <p class="text-lg font-black heading-primary">{{ q.text }}</p>
           <div class="flex flex-wrap gap-2">
@@ -345,6 +360,21 @@ const types = [
                   <option value="availabilities">Disponibilités</option>
                 </select>
               </div>
+
+              <div class="space-y-2" v-if="(form.type === 'positionnement' || form.type === 'prerequis') && form.formationId">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Niveau Associé (Optionnel)</label
+                >
+                <select
+                  v-model="form.levelId"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="">-- Ignorer le niveau --</option>
+                  <option v-for="lvl in availableLevels" :key="lvl.id" :value="lvl.id">{{ lvl.label }} ({{ lvl.successThreshold }} Q.)</option>
+                </select>
+              </div>
+
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"

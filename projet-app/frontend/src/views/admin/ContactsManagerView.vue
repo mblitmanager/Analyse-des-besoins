@@ -7,6 +7,7 @@ const loading = ref(true);
 const showModal = ref(false);
 const editingContact = ref(null);
 const form = ref({
+  civilite: "Mr.",
   prenom: "",
   nom: "",
   email: "",
