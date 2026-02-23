@@ -13,8 +13,10 @@ export class FormationsService {
     private levelRepo: Repository<Level>,
   ) {}
 
-  findAll() {
+  findAll(activeOnly: boolean = false) {
+    const whereCondition = activeOnly ? { isActive: true } : {};
     return this.formationRepo.find({
+      where: whereCondition,
       order: { label: 'ASC' },
       relations: ['levels'],
     });
@@ -66,9 +68,19 @@ export class FormationsService {
   async remove(id: number) {
     const formation = await this.formationRepo.findOne({
       where: { id },
-      relations: ['levels'],
+      relations: ['levels', 'questions'],
     });
+
     if (formation) {
+      // Must detach questions to prevent Foreign Key constraints from failing
+      if (formation.questions && formation.questions.length > 0) {
+        for (const question of formation.questions) {
+          question.formation = null;
+          question.level = null; // Important: A globally scoped question cannot rely on a level from a deleted formation
+          await this.formationRepo.manager.save(question);
+        }
+      }
+
       // Must delete levels cascade first, or rely on onDelete: 'CASCADE'
       if (formation.levels && formation.levels.length > 0) {
         await this.levelRepo.remove(formation.levels);

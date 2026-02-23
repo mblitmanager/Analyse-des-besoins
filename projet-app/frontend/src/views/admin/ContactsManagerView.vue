@@ -35,6 +35,7 @@ async function fetchContacts() {
 function openAddModal() {
   editingContact.value = null;
   form.value = {
+    civilite: "Mr.",
     prenom: "",
     nom: "",
     email: "",
@@ -48,6 +49,7 @@ function openAddModal() {
 function openEditModal(contact) {
   editingContact.value = contact;
   form.value = {
+    civilite: contact.civilite || "Mr.",
     prenom: contact.prenom || "",
     nom: contact.nom || "",
     email: contact.email || "",
@@ -283,6 +285,20 @@ onMounted(fetchContacts);
           </div>
 
           <form @submit.prevent="saveContact" class="space-y-6">
+            <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Civilité</label
+                >
+                <select
+                  v-model="form.civilite"
+                   class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                  required
+                >
+                  <option value="Mr.">Monsieur</option>
+                  <option value="Mme.">Madame</option>
+                </select>
+            </div>
             <div class="grid grid-cols-2 gap-6">
               <div class="space-y-2">
                 <label

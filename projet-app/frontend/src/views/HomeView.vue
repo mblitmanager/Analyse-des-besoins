@@ -1,14 +1,11 @@
 <script setup>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import AppLogo from '../components/AppLogo.vue';
 
 const store = useAppStore();
 const router = useRouter();
-
-// Track visibility of logos (hide if image not found)
-const logosVisible = reactive({ aopia: true, like: true, nsconseil: true });
 
 const form = ref({
   civilite: "M.",
@@ -114,17 +111,13 @@ async function testDbConnection() {
           </div>
         </div>
 
-        <div class="flex items-center gap-6">
-          <!-- logos (if available) -->
-          <div class="flex items-center gap-4">
-            <img v-if="logosVisible.aopia" src="/logos/aopia.svg" alt="AOPIA" @error="logosVisible.aopia=false" class="h-8 object-contain" />
-            <img v-if="logosVisible.like" src="/logos/like.svg" alt="Like" @error="logosVisible.like=false" class="h-8 object-contain" />
-            <img v-if="logosVisible.nsconseil" src="/logos/nsconseil.svg" alt="NS Conseil" @error="logosVisible.nsconseil=false" class="h-8 object-contain" />
-          </div>
-
-          <div class="text-sm text-gray-500 hidden sm:block">
-            Besoin d'aide ? <a class="text-blue-600 hover:text-blue-500 font-medium" href="#">Contactez le support</a>
-          </div>
+        <div class="flex items-center">
+          <p class="text-sm text-gray-500 hidden sm:block">
+            Besoin d'aide ?
+            <a class="text-blue-600 hover:text-blue-500 font-medium" href="#">
+              Contactez le support
+            </a>
+          </p>
         </div>
       </div>
     </header>
@@ -182,7 +175,7 @@ async function testDbConnection() {
             </div>
 
             <div class="pt-4">
-              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-400 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                 Démarrer le test
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>
@@ -201,7 +194,47 @@ async function testDbConnection() {
           </div>
         </div>
 
-        <p class="text-center text-xs text-gray-400"><AppLogo /></p>
+        <div class="flex flex-col items-center gap-3 pt-4 text-xs text-gray-400">
+          <AppLogo />
+          <div
+            class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-bold uppercase tracking-widest"
+          >
+            <a
+              href="https://ns-conseil.com/reglement-interieur/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-brand-primary"
+            >
+              Règlement intérieur
+            </a>
+            <a
+              href="https://ns-conseil.com/cgv/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-brand-primary"
+            >
+              CGV
+            </a>
+            <router-link
+              to="/mentions-legales"
+              class="hover:text-brand-primary"
+            >
+              Mentions légales
+            </router-link>
+            <router-link
+              to="/respect-vie-privee"
+              class="hover:text-brand-primary"
+            >
+              Respect de la vie privée
+            </router-link>
+            <router-link
+              to="/politique-confidentialite"
+              class="hover:text-brand-primary"
+            >
+              Politique de confidentialité
+            </router-link>
+          </div>
+        </div>
       </div>
     </main>
 

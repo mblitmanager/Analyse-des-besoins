@@ -15,12 +15,14 @@ const form = ref({
   options: ["", ""],
   formationId: "",
   levelId: "",
+  correctResponseIndex: 0,
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 const formations = ref([]);
 const formationFilter = ref("");
+const levelFilter = ref("");
 
 async function fetchQuestions() {
   loading.value = true;
@@ -58,6 +60,7 @@ function openAddModal() {
     options: ["", ""],
     formationId: "",
     levelId: "",
+    correctResponseIndex: 0,
   };
   showModal.value = true;
 }
@@ -74,6 +77,7 @@ function openEditModal(q) {
       : ["", ""],
     formationId: q.formation?.id || "",
     levelId: q.level?.id || "",
+    correctResponseIndex: q.correctResponseIndex || 0,
   };
   showModal.value = true;
 }
@@ -120,6 +124,11 @@ function addOption() {
 
 function removeOption(index) {
   form.value.options.splice(index, 1);
+  if (form.value.correctResponseIndex === index) {
+    form.value.correctResponseIndex = 0;
+  } else if (form.value.correctResponseIndex > index) {
+    form.value.correctResponseIndex--;
+  }
 }
 
 onMounted(() => {
@@ -137,8 +146,77 @@ const types = [
 
 const availableLevels = computed(() => {
   if (!form.value.formationId) return [];
-  const selectedFormation = formations.value.find(f => f.id === form.value.formationId);
+  const selectedFormation = formations.value.find(
+    (f) => f.id === form.value.formationId,
+  );
   return selectedFormation?.levels || [];
+});
+
+// Options de filtre par niveau (basées sur les questions chargées)
+const levelFilterOptions = computed(() => {
+  const labels = new Set();
+  questions.value.forEach((q) => {
+    // Si une formation est sélectionnée, ignorer les autres formations et Global
+    if (
+      formationFilter.value &&
+      (!q.formation || q.formation.slug !== formationFilter.value)
+    ) {
+      return;
+    }
+    const label = q.level?.label || "Sans niveau";
+    labels.add(label);
+  });
+  return Array.from(labels);
+});
+
+// Vue admin : regroupement par formation puis par niveau, avec filtres
+const groupedQuestions = computed(() => {
+  const map = new Map();
+
+  questions.value.forEach((q) => {
+    // Filtre formation : si une formation est choisie, ne garder que celle-ci (et pas Global)
+    if (
+      formationFilter.value &&
+      (!q.formation || q.formation.slug !== formationFilter.value)
+    ) {
+      return;
+    }
+
+    const levelLabel = q.level?.label || "Sans niveau";
+    if (levelFilter.value && levelLabel !== levelFilter.value) {
+      return;
+    }
+
+    const formationKey = q.formation?.id || "global";
+    const formationLabel = q.formation?.label || "Global";
+
+    if (!map.has(formationKey)) {
+      map.set(formationKey, {
+        id: formationKey,
+        label: formationLabel,
+        levels: new Map(),
+      });
+    }
+
+    const formationGroup = map.get(formationKey);
+    const levelKey = q.level?.id || "no-level";
+
+    if (!formationGroup.levels.has(levelKey)) {
+      formationGroup.levels.set(levelKey, {
+        id: levelKey,
+        label: levelLabel,
+        questions: [],
+      });
+    }
+
+    formationGroup.levels.get(levelKey).questions.push(q);
+  });
+
+  return Array.from(map.values()).map((fg) => ({
+    id: fg.id,
+    label: fg.label,
+    levels: Array.from(fg.levels.values()),
+  }));
 });
 </script>
 
@@ -187,11 +265,27 @@ const availableLevels = computed(() => {
 
       <select
         v-model="formationFilter"
-        @change="fetchQuestions"
+        @change="() => { levelFilter = ''; fetchQuestions(); }"
         class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
       >
         <option value="">Toutes les formations</option>
-        <option v-for="f in formations" :key="f.id" :value="f.slug">{{ f.label }}</option>
+        <option v-for="f in formations" :key="f.id" :value="f.slug">
+          {{ f.label }}
+        </option>
+      </select>
+
+      <select
+        v-model="levelFilter"
+        class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
+      >
+        <option value="">Tous les niveaux</option>
+        <option
+          v-for="lvl in levelFilterOptions"
+          :key="lvl"
+          :value="lvl"
+        >
+          {{ lvl }}
+        </option>
       </select>
     </div>
 
@@ -203,84 +297,119 @@ const availableLevels = computed(() => {
         class="h-32 bg-white rounded-[32px] animate-pulse"
       ></div>
 
+      <!-- Vue regroupée par formation puis par niveau -->
       <div
         v-else
-        v-for="q in questions"
-        :key="q.id"
-        class="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all border border-transparent hover:border-blue-50 group flex items-start gap-6"
+        v-for="fg in groupedQuestions"
+        :key="fg.id"
+        class="space-y-4"
       >
-        <div
-          class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-blue-400 transition-all shadow-inner"
-        >
-          <span class="material-icons-outlined text-2xl">{{
-            q.icon || "quiz"
-          }}</span>
+        <div class="flex items-center gap-3 px-2">
+          <span
+            class="px-4 py-2 bg-purple-50 text-[9px] font-black uppercase tracking-widest text-purple-600 rounded-full border border-purple-100 flex items-center gap-1"
+          >
+            <span class="material-icons-outlined text-[12px]">school</span>
+            {{ fg.label }}
+          </span>
+          <span
+            class="text-[10px] font-bold text-gray-300 uppercase tracking-widest"
+          >
+            {{ fg.levels.length }} niveau(x)
+          </span>
         </div>
 
-        <div class="flex-1 space-y-2">
-          <div class="flex flex-wrap items-center gap-3">
-            <span
-              v-if="q.formation"
-              class="px-3 py-1 bg-purple-50 text-[8px] font-black uppercase tracking-widest text-purple-600 rounded-full border border-purple-100"
-            >
-              <span class="material-icons-outlined text-[10px] align-text-bottom mr-1"
-                >school</span
-              >
-              {{ q.formation.label }}
-            </span>
-            <span
-              v-else
-              class="px-3 py-1 bg-emerald-50 text-[8px] font-black uppercase tracking-widest text-emerald-600 rounded-full border border-emerald-100"
-            >
-              <span class="material-icons-outlined text-[10px] align-text-bottom mr-1"
-                >public</span
-              >
-              Global
-            </span>
-
-            <span
-              class="px-3 py-1 bg-gray-50 text-[8px] font-black uppercase tracking-widest text-gray-400 rounded-full border border-gray-100"
-              >{{ q.type }}</span
-            >
-            <span
-              v-if="q.category"
-              class="px-3 py-1 bg-blue-50 text-[8px] font-black uppercase tracking-widest text-blue-500 rounded-full border border-blue-100"
-              >{{ q.category }}</span
-            >
-            <span
-              v-if="q.level"
-              class="px-3 py-1 bg-yellow-50 text-[8px] font-black uppercase tracking-widest text-yellow-600 rounded-full border border-yellow-100"
-            >
-              Niveau: {{ q.level.label }}
-            </span>
-          </div>
-          <p class="text-lg font-black heading-primary">{{ q.text }}</p>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="opt in q.options"
-              :key="opt"
-              class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-lg"
-            >
-              {{ typeof opt === "string" ? opt : opt.label }}
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <button
-            @click="openEditModal(q)"
-            class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center"
+        <div class="space-y-3">
+          <div
+            v-for="lg in fg.levels"
+            :key="lg.id"
+            class="bg-white rounded-[32px] border border-gray-100 shadow-sm"
           >
-            <span class="material-icons-outlined text-sm">edit</span>
-          </button>
-          <button
-            @click="deleteQuestion(q.id)"
-            class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center"
-          >
-            <span class="material-icons-outlined text-sm">delete</span>
-          </button>
+            <div
+              class="px-6 py-3 border-b border-gray-50 flex items-center justify-between"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-full bg-yellow-50 text-yellow-700 flex items-center justify-center text-[11px] font-black uppercase tracking-widest"
+                >
+                  {{ lg.label === 'Sans niveau' ? '?' : lg.label }}
+                </span>
+                <span
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
+                >
+                  {{ lg.questions.length }} question(s)
+                </span>
+              </div>
+            </div>
+
+            <div class="divide-y divide-gray-50">
+              <div
+                v-for="q in lg.questions"
+                :key="q.id"
+                class="p-6 flex items-start gap-6 hover:bg-gray-50/60 transition-colors group"
+              >
+                <div
+                  class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-blue-400 transition-all shadow-inner"
+                >
+                  <span class="material-icons-outlined text-xl">{{
+                    q.icon || "quiz"
+                  }}</span>
+                </div>
+
+                <div class="flex-1 space-y-2">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span
+                      class="px-3 py-1 bg-gray-50 text-[8px] font-black uppercase tracking-widest text-gray-400 rounded-full border border-gray-100"
+                      >{{ q.type }}</span
+                    >
+                    <span
+                      v-if="q.category"
+                      class="px-3 py-1 bg-blue-50 text-[8px] font-black uppercase tracking-widest text-blue-500 rounded-full border border-blue-100"
+                      >{{ q.category }}</span
+                    >
+                  </div>
+                  <p class="text-sm font-black heading-primary">
+                    {{ q.text }}
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <span
+                      v-for="(opt, idx) in q.options"
+                      :key="idx"
+                      class="text-[10px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 border border-transparent"
+                      :class="
+                        idx === q.correctResponseIndex
+                          ? 'bg-green-50 text-green-600 border-green-200'
+                          : 'text-gray-400 bg-gray-50 border-gray-100'
+                      "
+                    >
+                      {{ typeof opt === 'string' ? opt : opt.label }}
+                      <span
+                        v-if="idx === q.correctResponseIndex"
+                        class="material-icons-outlined text-[10px]"
+                        >check_circle</span
+                      >
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    @click="openEditModal(q)"
+                    class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center"
+                  >
+                    <span class="material-icons-outlined text-sm">edit</span>
+                  </button>
+                  <button
+                    @click="deleteQuestion(q.id)"
+                    class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center"
+                  >
+                    <span class="material-icons-outlined text-sm">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -428,8 +557,11 @@ const availableLevels = computed(() => {
                 <div
                   v-for="(opt, idx) in form.options"
                   :key="idx"
-                  class="flex gap-2"
+                  class="flex gap-2 items-center group relative"
                 >
+                  <label class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
+                    <input type="radio" :value="idx" v-model="form.correctResponseIndex" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 cursor-pointer" />
+                  </label>
                   <input
                     v-model="form.options[idx]"
                     class="flex-1 px-6 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm"

@@ -45,6 +45,21 @@ const router = createRouter({
       component: () => import('../views/FinalValidationView.vue')
     },
     {
+      path: '/mentions-legales',
+      name: 'legal-mentions',
+      component: () => import('../views/LegalMentionsView.vue')
+    },
+    {
+      path: '/respect-vie-privee',
+      name: 'privacy-policy',
+      component: () => import('../views/PrivacyPolicyView.vue')
+    },
+    {
+      path: '/politique-confidentialite',
+      name: 'confidentiality-policy',
+      component: () => import('../views/ConfidentialityPolicyView.vue')
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue')

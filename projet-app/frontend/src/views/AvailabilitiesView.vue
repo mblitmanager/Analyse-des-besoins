@@ -249,9 +249,41 @@ async function skipStep() {
       <div class="flex items-center justify-center">
         <AppLogo />
       </div>
-      <div class="flex gap-8">
-        <a href="#" class="hover:text-brand-primary">Confidentialité</a>
-        <a href="#" class="hover:text-brand-primary">Conditions</a>
+      <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <a
+          href="https://ns-conseil.com/reglement-interieur/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-brand-primary"
+        >
+          Règlement intérieur
+        </a>
+        <a
+          href="https://ns-conseil.com/cgv/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-brand-primary"
+        >
+          CGV
+        </a>
+        <router-link
+          to="/mentions-legales"
+          class="hover:text-brand-primary"
+        >
+          Mentions légales
+        </router-link>
+        <router-link
+          to="/respect-vie-privee"
+          class="hover:text-brand-primary"
+        >
+          Respect de la vie privée
+        </router-link>
+        <router-link
+          to="/politique-confidentialite"
+          class="hover:text-brand-primary"
+        >
+          Politique de confidentialité
+        </router-link>
       </div>
     </footer>
   </div>
