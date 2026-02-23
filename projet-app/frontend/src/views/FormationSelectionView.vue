@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import AppLogo from '../components/AppLogo.vue'
 
 const store = useAppStore();
 const router = useRouter();
@@ -81,15 +82,9 @@ async function selectFormation() {
     <header
       class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
     >
-      <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
-        >
-          W
-        </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
+        <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl">W</div>
+        <AppLogo />
       </div>
 
       <div class="flex items-center gap-4">

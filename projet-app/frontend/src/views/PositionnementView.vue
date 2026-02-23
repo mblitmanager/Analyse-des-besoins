@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import AppLogo from '../components/AppLogo.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -174,9 +175,8 @@ async function saveAndExit() {
         >
           W
         </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
+          <AppLogo />
+        
       </div>
 
       <div class="flex items-center gap-4">

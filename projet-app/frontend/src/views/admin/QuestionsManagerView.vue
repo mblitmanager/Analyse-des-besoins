@@ -13,9 +13,13 @@ const form = ref({
   category: "",
   icon: "quiz",
   options: ["", ""],
+  formationId: "",
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const formations = ref([]);
+const formationFilter = ref("");
 
 async function fetchQuestions() {
   loading.value = true;
@@ -23,12 +27,23 @@ async function fetchQuestions() {
     const url = filterType.value
       ? `${apiBaseUrl}/questions/workflow/${filterType.value}`
       : `${apiBaseUrl}/questions`;
-    const res = await axios.get(url);
+    const res = await axios.get(url, {
+      params: { ...(formationFilter.value ? { formation: formationFilter.value } : {}) }
+    });
     questions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
   } finally {
     loading.value = false;
+  }
+}
+
+async function fetchFormations() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/formations`);
+    formations.value = res.data;
+  } catch (error) {
+    console.error("Failed to fetch formations:", error);
   }
 }
 
@@ -40,6 +55,7 @@ function openAddModal() {
     category: "",
     icon: "quiz",
     options: ["", ""],
+    formationId: "",
   };
   showModal.value = true;
 }
@@ -54,6 +70,7 @@ function openEditModal(q) {
     options: q.options
       ? [...q.options.map((o) => (typeof o === "string" ? o : o.label))]
       : ["", ""],
+    formationId: q.formation?.id || "",
   };
   showModal.value = true;
 }
@@ -102,7 +119,10 @@ function removeOption(index) {
   form.value.options.splice(index, 1);
 }
 
-onMounted(fetchQuestions);
+onMounted(() => {
+  fetchQuestions();
+  fetchFormations();
+});
 
 const types = [
   { label: "Tous", value: "" },
@@ -136,23 +156,34 @@ const types = [
     </div>
 
     <!-- Filters -->
-    <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl w-fit">
-      <button
-        v-for="t in types"
-        :key="t.value"
-        @click="
-          filterType = t.value;
-          fetchQuestions();
-        "
-        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-        :class="
-          filterType === t.value
-            ? 'bg-white text-[var(--title-color)] shadow-md'
-            : 'text-gray-400 hover:text-gray-600'
-        "
+    <div class="flex flex-wrap gap-4 items-center">
+      <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl w-fit">
+        <button
+          v-for="t in types"
+          :key="t.value"
+          @click="
+            filterType = t.value;
+            fetchQuestions();
+          "
+          class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+          :class="
+            filterType === t.value
+              ? 'bg-white text-[var(--title-color)] shadow-md'
+              : 'text-gray-400 hover:text-gray-600'
+          "
+        >
+          {{ t.label }}
+        </button>
+      </div>
+
+      <select
+        v-model="formationFilter"
+        @change="fetchQuestions"
+        class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
       >
-        {{ t.label }}
-      </button>
+        <option value="">Toutes les formations</option>
+        <option v-for="f in formations" :key="f.id" :value="f.slug">{{ f.label }}</option>
+      </select>
     </div>
 
     <div class="grid grid-cols-1 gap-6">
@@ -178,7 +209,26 @@ const types = [
         </div>
 
         <div class="flex-1 space-y-2">
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <span
+              v-if="q.formation"
+              class="px-3 py-1 bg-purple-50 text-[8px] font-black uppercase tracking-widest text-purple-600 rounded-full border border-purple-100"
+            >
+              <span class="material-icons-outlined text-[10px] align-text-bottom mr-1"
+                >school</span
+              >
+              {{ q.formation.label }}
+            </span>
+            <span
+              v-else
+              class="px-3 py-1 bg-emerald-50 text-[8px] font-black uppercase tracking-widest text-emerald-600 rounded-full border border-emerald-100"
+            >
+              <span class="material-icons-outlined text-[10px] align-text-bottom mr-1"
+                >public</span
+              >
+              Global
+            </span>
+
             <span
               class="px-3 py-1 bg-gray-50 text-[8px] font-black uppercase tracking-widest text-gray-400 rounded-full border border-gray-100"
               >{{ q.type }}</span
@@ -266,6 +316,20 @@ const types = [
 
           <form @submit.prevent="saveQuestion" class="space-y-6">
             <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Formation Associée (Optionnel)</label
+                >
+                <select
+                  v-model="form.formationId"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="">-- Toutes les formations (Global) --</option>
+                  <option v-for="f in formations" :key="f.id" :value="f.id">{{ f.label }}</option>
+                </select>
+              </div>
+
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"

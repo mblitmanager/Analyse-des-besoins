@@ -154,7 +154,6 @@ function formatDate(date) {
           <option value="pending">En cours</option>
         </select>
       </div>
-    </div>
 
     <div class="bg-white rounded-[40px] shadow-sm overflow-hidden">
       <table class="w-full text-left">

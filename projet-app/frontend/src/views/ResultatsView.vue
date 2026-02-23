@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import AppLogo from '../components/AppLogo.vue'
 
 const store = useAppStore();
 const router = useRouter();
@@ -91,14 +92,10 @@ const downloadPDF = async () => {
       class="bg-white px-8 py-4 flex items-center justify-between sticky top-0 z-50"
     >
       <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
-        >
+        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl">
           W
         </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
-        >
+        <AppLogo />
       </div>
 
       <div v-if="session" class="flex items-center gap-4">
@@ -471,7 +468,7 @@ const downloadPDF = async () => {
           >
         </div>
         <p class="text-xs font-bold uppercase tracking-widest">
-          © 2026 Wizzy Learn — Votre partenaire réussite.
+          <AppLogo />
         </p>
       </footer>
     </main>

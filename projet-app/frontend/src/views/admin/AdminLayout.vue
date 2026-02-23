@@ -32,7 +32,7 @@ const navItems = [
           <div
             class="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20"
           >
-            <span class="material-icons-outlined text-white text-xl">bolt</span>
+            <span class="material-icons-outlined text-blue-500 text-xl">bolt</span>
           </div>
           <div>
             <h1 class="text-xl font-black heading-primary">
@@ -54,7 +54,7 @@ const navItems = [
             class="flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all group"
             :class="
               $route.path === item.route
-                ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30'
+                ? 'bg-brand-primary text-blue-500 shadow-lg shadow-brand-primary/30'
                 : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
             "
           >

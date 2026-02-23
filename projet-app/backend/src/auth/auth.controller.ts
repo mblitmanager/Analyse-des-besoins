@@ -11,6 +11,16 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Post('signup')
+  async signup(@Body() body: any) {
+    const { email, password, name } = body;
+    if (!email || !password) {
+      return { message: 'Missing email or password' };
+    }
+    const user = await this.authService.registerAdmin(email, password, name);
+    return { id: user.id, email: user.email };
+  }
+
   @Post('login')
   async login(@Body() body: any) {
     const user = await this.authService.validateUser(body.email, body.password);

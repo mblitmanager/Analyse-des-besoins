@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
+import AppLogo from '../components/AppLogo.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -109,7 +110,7 @@ async function testDbConnection() {
         <div class="flex-shrink-0 flex items-center">
           <div class="h-8 w-auto flex items-center space-x-2">
             <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">W</div>
-            <span class="font-bold text-xl text-gray-900 tracking-tight">Wizzy Learn</span>
+            <AppLogo />
           </div>
         </div>
 
@@ -200,7 +201,7 @@ async function testDbConnection() {
           </div>
         </div>
 
-        <p class="text-center text-xs text-gray-400">© 2024 Wizzy Learn. Tous droits réservés.</p>
+        <p class="text-center text-xs text-gray-400"><AppLogo /></p>
       </div>
     </main>
 
