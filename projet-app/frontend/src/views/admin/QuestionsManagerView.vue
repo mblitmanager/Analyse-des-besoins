@@ -148,7 +148,7 @@ const types = [
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="px-8 py-4 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Question
@@ -201,7 +201,7 @@ const types = [
         class="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all border border-transparent hover:border-blue-50 group flex items-start gap-6"
       >
         <div
-          class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-white transition-all shadow-inner"
+          class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-blue-400 transition-all shadow-inner"
         >
           <span class="material-icons-outlined text-2xl">{{
             q.icon || "quiz"
@@ -422,7 +422,7 @@ const types = [
             <div class="pt-4">
               <button
                 type="submit"
-                class="w-full py-5 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                class="w-full py-5 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Enregistrer la Question
               </button>

@@ -171,7 +171,7 @@ async function saveAndExit() {
     >
       <div class="flex items-center gap-3">
         <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
+          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
         >
           W
         </div>
@@ -201,7 +201,7 @@ async function saveAndExit() {
           class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-2xl shadow-brand-primary/10 border border-brand-primary/5 text-center"
         >
           <div
-            class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white mx-auto mb-8 shadow-xl shadow-green-500/30"
+            class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-blue-400 mx-auto mb-8 shadow-xl shadow-green-500/30"
           >
             <span class="material-icons-outlined text-5xl">task_alt</span>
           </div>
@@ -423,7 +423,7 @@ async function saveAndExit() {
           >
             <div class="flex items-center gap-3">
               <div
-                class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"
+                class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-blue-400 text-sm"
               >
                 <span class="material-icons-outlined">auto_fix_high</span>
               </div>

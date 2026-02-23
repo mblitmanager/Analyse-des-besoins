@@ -19,6 +19,7 @@ const form = ref({
   certificateur: "",
   programme: "",
   isActive: true,
+  levels: [],
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
@@ -53,13 +54,28 @@ function openAddModal() {
     certificateur: "",
     programme: "",
     isActive: true,
+    levels: [],
   };
   showModal.value = true;
 }
 
+function addLevel() {
+  form.value.levels.push({
+    label: "",
+    order: form.value.levels.length,
+    successThreshold: 0,
+  });
+}
+
+function removeLevel(index) {
+  form.value.levels.splice(index, 1);
+}
+
+
+
 function openEditModal(f) {
   editingFormation.value = f;
-  form.value = { ...f };
+  form.value = { ...f, levels: f.levels ? [...f.levels] : [] };
   showModal.value = true;
 }
 
@@ -139,7 +155,7 @@ onMounted(fetchFormations);
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="px-8 py-4 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Formation
@@ -419,10 +435,94 @@ onMounted(fetchFormations);
               ></textarea>
             </div>
 
+            <div class="space-y-4 pt-4 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-black heading-primary">Niveaux de Compétences</h4>
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Définissez les paliers et le nombre de questions à valider</p>
+                </div>
+                <button
+                  type="button"
+                  @click="addLevel"
+                  class="px-4 py-2 bg-blue-50 text-brand-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-primary hover:text-blue-400 transition-all flex items-center gap-2"
+                >
+                  <span class="material-icons-outlined text-sm">add</span> Niveau
+                </button>
+              </div>
+
+              <div v-if="form.levels && form.levels.length === 0" class="p-6 bg-gray-50 rounded-2xl text-center border-2 border-dashed border-gray-200">
+                <p class="text-xs font-bold text-gray-400">Aucun niveau défini pour cette formation. Cliquez sur + Niveau pour en ajouter un.</p>
+              </div>
+
+              <div class="space-y-3">
+                <div v-for="(lvl, index) in form.levels" :key="index" class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl group border border-transparent hover:border-blue-100 transition-all">
+                  <div class="w-20">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Ordre</label>
+                    <input type="number" v-model="lvl.order" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" />
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Nom du Niveau (Ex: A1, Débutant)</label>
+                    <input type="text" v-model="lvl.label" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary" placeholder="ex: B2" required />
+                  </div>
+                  <div class="w-32">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Objectif (Q.)</label>
+                    <input type="number" v-model="lvl.successThreshold" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" title="Nombre de questions à valider" />
+                  </div>
+                  <div class="pt-4">
+                    <button type="button" @click="removeLevel(index)" class="w-10 h-10 flex items-center justify-center bg-white text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm">
+                      <span class="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4 pt-4 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-black heading-primary">Niveaux de Compétences</h4>
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Définissez les paliers et le nombre de questions à valider</p>
+                </div>
+                <button
+                  type="button"
+                  @click="addLevel"
+                  class="px-4 py-2 bg-blue-50 text-brand-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-primary hover:text-blue-400 transition-all flex items-center gap-2"
+                >
+                  <span class="material-icons-outlined text-sm">add</span> Niveau
+                </button>
+              </div>
+
+              <div v-if="form.levels && form.levels.length === 0" class="p-6 bg-gray-50 rounded-2xl text-center border-2 border-dashed border-gray-200">
+                <p class="text-xs font-bold text-gray-400">Aucun niveau défini pour cette formation. Cliquez sur + Niveau pour en ajouter un.</p>
+              </div>
+
+              <div class="space-y-3">
+                <div v-for="(lvl, index) in form.levels" :key="index" class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl group border border-transparent hover:border-blue-100 transition-all">
+                  <div class="w-20">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Ordre</label>
+                    <input type="number" v-model="lvl.order" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" />
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Nom du Niveau (Ex: A1, Débutant)</label>
+                    <input type="text" v-model="lvl.label" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary" placeholder="ex: B2" required />
+                  </div>
+                  <div class="w-32">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Objectif (Q.)</label>
+                    <input type="number" v-model="lvl.successThreshold" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" title="Nombre de questions à valider" />
+                  </div>
+                  <div class="pt-4">
+                    <button type="button" @click="removeLevel(index)" class="w-10 h-10 flex items-center justify-center bg-white text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm">
+                      <span class="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="pt-4">
               <button
                 type="submit"
-                class="w-full py-5 bg-brand-primary text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                class="w-full py-5 bg-brand-primary text-blue-400 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Enregistrer la Formation
               </button>

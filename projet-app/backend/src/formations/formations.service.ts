@@ -14,7 +14,10 @@ export class FormationsService {
   ) {}
 
   findAll() {
-    return this.formationRepo.find({ order: { label: 'ASC' } });
+    return this.formationRepo.find({
+      order: { label: 'ASC' },
+      relations: ['levels'],
+    });
   }
 
   async findLevelsBySlug(slug: string) {
@@ -24,15 +27,54 @@ export class FormationsService {
     });
   }
 
-  create(data: Partial<Formation>) {
-    return this.formationRepo.save(data as Formation);
+  async create(data: any) {
+    const formation = this.formationRepo.create(data);
+    return this.formationRepo.save(formation);
   }
 
-  update(id: number, data: Partial<Formation>) {
-    return this.formationRepo.update(id, data);
+  async update(id: number, data: any) {
+    const formation = await this.formationRepo.findOne({
+      where: { id },
+      relations: ['levels'],
+    });
+
+    if (!formation) {
+      throw new Error('Formation not found');
+    }
+
+    // Process levels array if passed in the payload
+    if (data.levels) {
+      const incomingLevelIds = data.levels
+        .map((l: any) => l.id)
+        .filter((id: any) => id != null);
+
+      // Remove levels that are no longer in the array
+      const levelsToRemove = formation.levels.filter(
+        (existingLevel) => !incomingLevelIds.includes(existingLevel.id),
+      );
+
+      if (levelsToRemove.length > 0) {
+        await this.levelRepo.remove(levelsToRemove);
+      }
+    }
+
+    // TypeORM save() handles updates and new inserts via cascade
+    const updatedFormation = this.formationRepo.merge(formation, data);
+    return this.formationRepo.save(updatedFormation);
   }
 
-  remove(id: number) {
-    return this.formationRepo.delete(id);
+  async remove(id: number) {
+    const formation = await this.formationRepo.findOne({
+      where: { id },
+      relations: ['levels'],
+    });
+    if (formation) {
+      // Must delete levels cascade first, or rely on onDelete: 'CASCADE'
+      if (formation.levels && formation.levels.length > 0) {
+        await this.levelRepo.remove(formation.levels);
+      }
+      return this.formationRepo.remove(formation);
+    }
+    return null;
   }
 }

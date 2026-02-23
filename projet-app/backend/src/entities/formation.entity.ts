@@ -42,7 +42,7 @@ export class Formation {
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToMany(() => Level, (level) => level.formation)
+  @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 
   @OneToMany('Question', 'formation')

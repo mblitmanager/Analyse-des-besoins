@@ -109,7 +109,7 @@ async function testDbConnection() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex-shrink-0 flex items-center">
           <div class="h-8 w-auto flex items-center space-x-2">
-            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-lg">W</div>
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg">W</div>
             <AppLogo />
           </div>
         </div>
@@ -182,7 +182,7 @@ async function testDbConnection() {
             </div>
 
             <div class="pt-4">
-              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-400 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                 Démarrer le test
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>
