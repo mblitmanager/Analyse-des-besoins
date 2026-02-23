@@ -8,7 +8,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { FormationsService } from './formations.service';
-import { Formation } from '../entities/formation.entity';
 
 @Controller('formations')
 export class FormationsController {
@@ -25,12 +24,12 @@ export class FormationsController {
   }
 
   @Post()
-  create(@Body() data: Partial<Formation>) {
+  create(@Body() data: any) {
     return this.formationsService.create(data);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: Partial<Formation>) {
+  update(@Param('id') id: string, @Body() data: any) {
     return this.formationsService.update(+id, data);
   }
 

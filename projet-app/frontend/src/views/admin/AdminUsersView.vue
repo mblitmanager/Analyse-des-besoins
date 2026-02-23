@@ -69,7 +69,7 @@ onMounted(fetchUsers);
       </div>
       <button
         @click="showAddModal = true"
-        class="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-2xl font-bold hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
+        class="flex items-center gap-2 px-6 py-3 bg-brand-primary text-blue-400 rounded-2xl font-bold hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
       >
         <span class="material-icons-outlined">add</span>
         Nouvel Admin
@@ -214,7 +214,7 @@ onMounted(fetchUsers);
             </button>
             <button
               type="submit"
-              class="flex-1 py-4 bg-brand-primary text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
+              class="flex-1 py-4 bg-brand-primary text-blue-400 font-bold rounded-2xl hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
             >
               Créer le compte
             </button>

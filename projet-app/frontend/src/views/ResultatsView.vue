@@ -92,7 +92,7 @@ const downloadPDF = async () => {
       class="bg-white px-8 py-4 flex items-center justify-between sticky top-0 z-50"
     >
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl">
+        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl">
           W
         </div>
         <AppLogo />
@@ -231,7 +231,7 @@ const downloadPDF = async () => {
           >
             <div class="flex items-start justify-between mb-5">
               <div
-                class="w-9 h-9 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all text-sm"
+                class="w-9 h-9 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-blue-400 transition-all text-sm"
               >
                 <span class="material-icons-outlined">menu_book</span>
               </div>
@@ -255,7 +255,7 @@ const downloadPDF = async () => {
           >
             <div class="flex items-start justify-between mb-5">
               <div
-                class="w-9 h-9 bg-orange-600/10 text-orange-600 rounded-lg flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-all text-sm"
+                class="w-9 h-9 bg-orange-600/10 text-orange-600 rounded-lg flex items-center justify-center group-hover:bg-orange-600 group-hover:text-blue-400 transition-all text-sm"
               >
                 <span class="material-icons-outlined">translate</span>
               </div>
@@ -293,7 +293,7 @@ const downloadPDF = async () => {
         >
           <!-- Pack Header -->
           <div
-            class="bg-brand-primary p-8 md:p-10 text-white relative overflow-hidden"
+            class="bg-brand-primary p-8 md:p-10 text-blue-400 relative overflow-hidden"
           >
             <div class="relative z-10">
               <span
@@ -368,7 +368,7 @@ const downloadPDF = async () => {
             <!-- Blue Plus -->
             <div class="ml-5 flex items-center justify-center">
               <div
-                class="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/30 relative z-10 text-sm"
+                class="w-7 h-7 rounded-full bg-brand-primary text-blue-400 flex items-center justify-center shadow-lg shadow-brand-primary/30 relative z-10 text-sm"
               >
                 <span class="material-icons-outlined text-sm">add</span>
               </div>

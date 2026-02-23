@@ -121,7 +121,7 @@ async function submitPrerequis() {
     >
       <div class="flex items-center gap-3">
         <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white font-black italic text-xl"
+          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
         >
           W
         </div>
@@ -290,7 +290,7 @@ async function submitPrerequis() {
                           typeof opt === 'string' ? opt : opt.label,
                         )
                       "
-                      class="material-icons-outlined text-white text-xs"
+                      class="material-icons-outlined text-blue-400 text-xs"
                       >check</span
                     >
                   </div>
