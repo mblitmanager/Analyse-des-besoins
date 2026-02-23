@@ -7,6 +7,13 @@ const loading = ref(true);
 const searchQuery = ref("");
 const statusFilter = ref("all");
 const formationFilter = ref("all");
+const selectedSession = ref(null);
+const showModal = ref(false);
+
+function viewSession(session) {
+  selectedSession.value = session;
+  showModal.value = true;
+}
 
 const uniqueFormations = computed(() => {
   const forms = new Set(
@@ -259,12 +266,16 @@ function formatDate(date) {
                 >
               </div>
             </td>
-            <td class="px-8 py-6 text-right">
-              <button
-                class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
-              >
-                <span class="material-icons-outlined text-sm">visibility</span>
-              </button>
+            <td class="px-8 py-6">
+              <div class="flex gap-2 justify-end">
+                <button
+                  @click="viewSession(session)"
+                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
+                  title="Voir le dossier"
+                >
+                  <span class="material-icons-outlined text-sm">visibility</span>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -280,6 +291,90 @@ function formatDate(date) {
         <p class="font-bold uppercase tracking-widest text-xs">
           Aucune session enregistrée
         </p>
+      </div>
+    </div>
+
+    <!-- Modal Détails Session -->
+    <div v-if="showModal && selectedSession" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showModal = false"></div>
+      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-3xl relative overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
+        <div class="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
+          <div>
+            <h3 class="text-2xl font-black heading-primary">
+              Dossier de {{ selectedSession.stagiaire?.prenom }} {{ selectedSession.stagiaire?.nom }}
+            </h3>
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
+              Formation : {{ selectedSession.formationChoisie }}
+            </p>
+          </div>
+          <button @click="showModal = false" class="text-gray-300 hover:text-gray-600 transition-colors bg-gray-50 rounded-xl p-2">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="p-8 overflow-y-auto space-y-8 flex-1 custom-scrollbar">
+          <!-- Infos Candidat -->
+          <section>
+            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Informations Candidat</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50 p-6 rounded-[24px]">
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
+                <p class="font-bold text-sm">{{ selectedSession.stagiaire?.email }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Téléphone</p>
+                <p class="font-bold text-sm">{{ selectedSession.telephone || "N/A" }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Date de création</p>
+                <p class="font-bold text-sm">{{ formatDate(selectedSession.createdAt) }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Conseiller</p>
+                <p class="font-bold text-sm">{{ selectedSession.conseiller || "N/A" }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Marque</p>
+                <p class="font-bold text-sm">{{ selectedSession.brand || "N/A" }}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Bilan Niveau -->
+          <section>
+            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Résultats du Bilan</h4>
+            <div class="bg-blue-50/50 p-6 rounded-[24px] border border-blue-50 flex items-center justify-between">
+              <div>
+                <p class="font-black text-xl text-blue-900 mb-1">Score Global : {{ selectedSession.scorePretest || 0 }}%</p>
+                <p class="text-xs font-bold text-blue-600">
+                  Statut : {{ selectedSession.isCompleted ? "Terminé" : "En cours" }}
+                </p>
+              </div>
+              <div v-if="selectedSession.stopLevel" class="text-right">
+                 <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Niveau Atteint</p>
+                 <span class="inline-block mt-1 px-4 py-2 bg-white text-brand-primary font-black rounded-xl shadow-sm border border-blue-100">
+                   {{ selectedSession.stopLevel }}
+                 </span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Détails additionnels JSON -->
+          <section v-if="selectedSession.prerequisiteScore || selectedSession.complementaryQuestions">
+            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Données Complémentaires</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div v-if="selectedSession.prerequisiteScore" class="bg-gray-50 p-6 rounded-[24px]">
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Score Pré-requis</p>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(selectedSession.prerequisiteScore, null, 2) }}</pre>
+               </div>
+               <div v-if="selectedSession.complementaryQuestions" class="bg-gray-50 p-6 rounded-[24px]">
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Questions Complémentaires</p>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(selectedSession.complementaryQuestions, null, 2) }}</pre>
+               </div>
+            </div>
+          </section>
+
+        </div>
       </div>
     </div>
   </div>

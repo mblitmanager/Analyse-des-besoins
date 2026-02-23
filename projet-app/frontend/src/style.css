@@ -30,6 +30,7 @@
   }
 }
 
+/* CSS variables for theming */
 :root {
   --brand-primary: #3b82f6;
   --brand-secondary: #0D1B3E;

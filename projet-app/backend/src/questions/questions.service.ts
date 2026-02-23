@@ -69,8 +69,31 @@ export class QuestionsService {
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
+    // Calcul automatique de l'ordre (dernier + 1 dans le même contexte)
+    const whereForOrder: any = {
+      type: rest.type,
+    };
+
+    if (formationId) {
+      whereForOrder.formation = { id: formationId } as any;
+    } else {
+      whereForOrder.formation = null;
+    }
+
+    if (isLevelScoped && levelId) {
+      whereForOrder.level = { id: levelId } as any;
+    }
+
+    const lastInScope = await this.questionRepo.findOne({
+      where: whereForOrder,
+      order: { order: 'DESC' },
+    });
+
+    const nextOrder = (lastInScope?.order ?? 0) + 1;
+
     const question = this.questionRepo.create({
       ...rest,
+      order: rest.order ?? nextOrder,
       formation: formationId ? ({ id: formationId } as any) : null,
       level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
     });

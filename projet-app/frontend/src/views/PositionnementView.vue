@@ -48,6 +48,47 @@ async function loadLevels() {
   }
 }
 
+async function restoreProgressFromSession() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
+    const session = res.data;
+
+    if (session.levelsScores) {
+      levelsScores.value = session.levelsScores;
+    }
+
+    // Si la session est déjà terminée côté backend, afficher directement le résultat
+    if (session.finalRecommendation && session.stopLevel) {
+      finalRecommendation.value = session.finalRecommendation;
+      showResults.value = true;
+      return;
+    }
+
+    // Sinon, déterminer à quel niveau reprendre en fonction des niveaux validés
+    if (session.levelsScores && Array.isArray(levels.value) && levels.value.length) {
+      let lastValidatedIndex = -1;
+      levels.value.forEach((lvl, idx) => {
+        const entry = session.levelsScores[lvl.label];
+        if (entry && entry.validated) {
+          lastValidatedIndex = idx;
+        }
+      });
+
+      if (lastValidatedIndex >= 0) {
+        // On reprend au niveau suivant celui qui a été validé
+        if (lastValidatedIndex < levels.value.length - 1) {
+          currentLevelIndex.value = lastValidatedIndex + 1;
+        } else {
+          // Tous les niveaux définis sont déjà validés : on reste sur le dernier
+          currentLevelIndex.value = lastValidatedIndex;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Failed to restore positioning progress from session:", error);
+  }
+}
+
 async function loadLevelQuestions() {
   loading.value = true;
   try {
@@ -75,7 +116,10 @@ onMounted(async () => {
     return;
   }
   await loadLevels();
-  await loadLevelQuestions();
+  await restoreProgressFromSession();
+  if (!showResults.value) {
+    await loadLevelQuestions();
+  }
 });
 
 async function nextStep() {

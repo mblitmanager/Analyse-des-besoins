@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { FormationsService } from './formations.service';
 
@@ -14,8 +15,9 @@ export class FormationsController {
   constructor(private readonly formationsService: FormationsService) {}
 
   @Get()
-  findAll() {
-    return this.formationsService.findAll();
+  findAll(@Query('activeOnly') activeOnly?: string) {
+    const isClientContext = activeOnly === 'true';
+    return this.formationsService.findAll(isClientContext);
   }
 
   @Get(':slug/levels')

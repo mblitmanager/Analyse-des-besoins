@@ -53,28 +53,46 @@ const downloadPDF = async () => {
   if (!pdfContent.value) return;
   downloadingPDF.value = true;
   try {
-    const element = pdfContent.value;
+    const element = document.createElement("div");
+    element.innerHTML = pdfContent.value.outerHTML;
+    // Copy the original styles to the cloned element to ensure rendering is precise
+    element.style.width = pdfContent.value.offsetWidth + "px";
+    element.style.padding = "20px";
+    element.style.background = "#ffffff";
+    element.style.position = "absolute";
+    element.style.left = "-9999px";
+    element.style.top = "0";
+    document.body.appendChild(element);
+
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,
       logging: false,
       backgroundColor: "#ffffff",
+      ignoreElements: (node) => {
+        return node.nodeName === "BUTTON"; // Exclude buttons from PDF
+      }
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    document.body.removeChild(element);
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
 
-    const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    // Add white background specifically for JS PDF (helps with transparent pngs if any creep in)
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(0, 0, pdfWidth, pdfHeight, "F");
+
+    pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(
-      `Bilan_WizzyLearn_${session.value.prenom}_${session.value.nom}.pdf`,
+      `Bilan_WizzyLearn_${session.value.prenom}_${session.value.nom}.pdf`
     );
   } catch (err) {
     console.error("PDF generation failed:", err);
@@ -470,6 +488,44 @@ const downloadPDF = async () => {
         <p class="text-xs font-bold uppercase tracking-widest">
           <AppLogo />
         </p>
+        <div
+          class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-widest"
+        >
+          <a
+            href="https://ns-conseil.com/reglement-interieur/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-brand-primary"
+          >
+            Règlement intérieur
+          </a>
+          <a
+            href="https://ns-conseil.com/cgv/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:text-brand-primary"
+          >
+            CGV
+          </a>
+          <router-link
+            to="/mentions-legales"
+            class="hover:text-brand-primary"
+          >
+            Mentions légales
+          </router-link>
+          <router-link
+            to="/respect-vie-privee"
+            class="hover:text-brand-primary"
+          >
+            Respect de la vie privée
+          </router-link>
+          <router-link
+            to="/politique-confidentialite"
+            class="hover:text-brand-primary"
+          >
+            Politique de confidentialité
+          </router-link>
+        </div>
       </footer>
     </main>
   </div>

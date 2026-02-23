@@ -19,7 +19,7 @@ async function fetchFormations() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-    const res = await axios.get(`${apiBaseUrl}/formations`);
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
 
     // Group by category
     const grouped = res.data.reduce((acc, formation) => {

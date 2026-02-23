@@ -7,9 +7,27 @@ const logosVisible = reactive({ aopia: true, like: true, nsconseil: true })
 
 <template>
   <div class="flex items-center gap-3">
-    <img v-if="logosVisible.aopia" src="/logos/aopia.svg" alt="AOPIA" @error="logosVisible.aopia=false" class="h-8 object-contain" />
-    <img v-if="logosVisible.like" src="/logos/like.svg" alt="Like" @error="logosVisible.like=false" class="h-8 object-contain" />
-    <img v-if="logosVisible.nsconseil" src="/logos/nsconseil.svg" alt="NS Conseil" @error="logosVisible.nsconseil=false" class="h-8 object-contain" />
+    <img
+      v-if="logosVisible.aopia"
+      src="/logos/Logo-AOPIA.png"
+      alt="AOPIA"
+      @error="logosVisible.aopia=false"
+      class="h-8 object-contain"
+    />
+    <img
+      v-if="logosVisible.like"
+      src="/logos/Logo_Like_Formation.png"
+      alt="Like Formation"
+      @error="logosVisible.like=false"
+      class="h-8 object-contain"
+    />
+    <img
+      v-if="logosVisible.nsconseil"
+      src="/logos/logo_nsconseil.png"
+      alt="NS Conseil"
+      @error="logosVisible.nsconseil=false"
+      class="h-8 object-contain"
+    />
   </div>
 </template>
 
