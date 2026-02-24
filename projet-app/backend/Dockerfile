@@ -3,7 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+# use npx to invoke the local nest CLI (avoids executable permission issues)
+RUN npx --yes nest build
 
 FROM node:18-alpine
 WORKDIR /app
