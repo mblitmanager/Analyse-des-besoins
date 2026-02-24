@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import marked from 'marked'
+import { marked } from 'marked'
 
 const route = useRoute()
 const docKey = route.query.file || 'Presentation'
