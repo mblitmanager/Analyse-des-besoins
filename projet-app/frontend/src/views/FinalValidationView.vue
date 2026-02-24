@@ -65,13 +65,22 @@ async function validate() {
 
 async function sendNotificationEmail() {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-  const payload = {
-    to: 'mblitmanager@gmail.com',
-    subject: `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`,
-    body: `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`,
-  };
-
+  // Retrieve configured admin email from settings so notification goes to same recipient as bilan d'évaluation
   try {
+    const settingsRes = await fetch(`${apiBaseUrl}/settings/ADMIN_EMAIL`);
+    let to = 'mblitmanager@gmail.com';
+    if (settingsRes.ok) {
+      const s = await settingsRes.json();
+      // settings controller returns the setting object { key, value }
+      if (s && s.value) to = s.value;
+    }
+
+    const payload = {
+      to,
+      subject: `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`,
+      body: `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`,
+    };
+
     const res = await fetch(`${apiBaseUrl}/send-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -79,8 +88,17 @@ async function sendNotificationEmail() {
     });
     if (!res.ok) throw new Error('Email API returned error');
   } catch (err) {
-    // Fallback: open user's mail client with prefilled mail
-    const mailto = `mailto:mblitmanager@gmail.com?subject=${encodeURIComponent(payload.subject)}&body=${encodeURIComponent(payload.body)}`;
+    // Fallback: open user's mail client with prefilled mail (use ADMIN_EMAIL if available)
+    const fallbackTo = (await (async () => {
+      try {
+        const r = await fetch(`${apiBaseUrl}/settings/ADMIN_EMAIL`);
+        if (r.ok) { const j = await r.json(); return j?.value || 'mblitmanager@gmail.com'; }
+      } catch (e) {}
+      return 'mblitmanager@gmail.com';
+    })());
+    const subject = `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`;
+    const body = `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`;
+    const mailto = `mailto:${encodeURIComponent(fallbackTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
   }
 }
