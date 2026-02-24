@@ -1,0 +1,102 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Archive artifacts
+        run: |
+          mkdir -p ./build_artifacts
+          tar -czf ./build_artifacts/frontend_dist.tar.gz -C frontend dist
+          tar -czf ./build_artifacts/backend_dist.tar.gz -C backend dist
+          cp backend/package*.json ./build_artifacts/ || true
+
+      - name: Copy artifacts to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "./build_artifacts/frontend_dist.tar.gz,./build_artifacts/backend_dist.tar.gz,./build_artifacts/package.json,./build_artifacts/package-lock.json"
+          target: "/tmp/deploy"
+
+      - name: Deploy on VPS (extract, move, restart)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            mkdir -p /tmp/deploy
+            # Prepare frontend
+            tar -xzf /tmp/deploy/frontend_dist.tar.gz -C /tmp/deploy
+            sudo mkdir -p /var/www/analyse/projet-app/frontend/dist
+            sudo rm -rf /var/www/analyse/projet-app/frontend/dist/* || true
+            sudo cp -r /tmp/deploy/dist/* /var/www/analyse/projet-app/frontend/dist/
+            sudo chown -R www-data:www-data /var/www/analyse/projet-app/frontend/dist
+
+            # Prepare backend
+            tar -xzf /tmp/deploy/backend_dist.tar.gz -C /tmp/deploy
+            sudo mkdir -p /var/www/analyse/projet-app/backend/dist
+            sudo rm -rf /var/www/analyse/projet-app/backend/dist/* || true
+            sudo cp -r /tmp/deploy/dist/* /var/www/analyse/projet-app/backend/dist/
+            sudo chown -R www-data:www-data /var/www/analyse/projet-app/backend/dist
+
+            # Install production deps and restart PM2
+            cd /var/www/analyse/projet-app/backend
+            # ensure package files are present (copied earlier) before installing
+            if [ -f /tmp/deploy/package.json ]; then sudo cp /tmp/deploy/package.json /var/www/analyse/projet-app/backend/package.json; fi
+            if [ -f /tmp/deploy/package-lock.json ]; then sudo cp /tmp/deploy/package-lock.json /var/www/analyse/projet-app/backend/package-lock.json; fi
+            sudo npm ci --production --prefix /var/www/analyse/projet-app/backend
+            # restart or start with pm2 (ecosystem.config.js should be present in repo on server)
+            if pm2 describe aopia-backend >/dev/null 2>&1; then
+              pm2 restart aopia-backend || true
+            else
+              pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production || true
+            fi
+            pm2 save || true
+
+            # cleanup
+            rm -rf /tmp/deploy
+
+            # optional: reload apache to pick static changes
+            sudo systemctl reload apache2 || true
+
+          timeout: 120000
+
+      - name: Success
+        run: echo "Deployment finished"
+
+# Required secrets:
+# - VPS_HOST
+# - VPS_USER
+# - SSH_PRIVATE_KEY (private key for VPS_USER)
+# - SSH_PORT (optional, default 22)
