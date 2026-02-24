@@ -30,14 +30,10 @@ const uniqueFormations = computed(() => {
 
 const filteredSessions = computed(() => {
   return sessions.value.filter((s) => {
-    const matchesSearch =
-      !searchQuery.value ||
-      `${s.stagiaire?.prenom} ${s.stagiaire?.nom}`
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase()) ||
-      s.stagiaire?.email
-        ?.toLowerCase()
-        .includes(searchQuery.value.toLowerCase());
+    const name = `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`.toLowerCase();
+    const email = (s.stagiaire?.email || s.email || "").toLowerCase();
+    const q = (searchQuery.value || "").toLowerCase();
+    const matchesSearch = !q || name.includes(q) || email.includes(q);
 
     const matchesStatus =
       statusFilter.value === "all" ||
@@ -126,7 +122,7 @@ async function saveSessionEdits() {
 async function deleteSession(session) {
   if (
     !confirm(
-      `Supprimer définitivement la session de ${session.stagiaire?.prenom || ""} ${session.stagiaire?.nom || ""} ?`,
+      `Supprimer définitivement la session de ${session.prenom || session.stagiaire?.prenom || ""} ${session.nom || session.stagiaire?.nom || ""} ?`,
     )
   ) {
     return;
@@ -162,8 +158,8 @@ function exportToCSV() {
   ];
   const rows = filteredSessions.value.map((s) => [
     s.id,
-    `${s.stagiaire?.prenom} ${s.stagiaire?.nom}`,
-    s.stagiaire?.email,
+    `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
+    s.stagiaire?.email || s.email || "",
     s.telephone,
     s.conseiller,
     s.brand,
@@ -361,15 +357,14 @@ function toggleExpandedLevel(level) {
                 <div
                   class="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-[10px]"
                 >
-                  {{ session.stagiaire?.prenom?.[0]
-                  }}{{ session.stagiaire?.nom?.[0] }}
+                  {{ (session.prenom || session.stagiaire?.prenom)?.[0] }}{{ (session.nom || session.stagiaire?.nom)?.[0] }}
                 </div>
                 <div>
-                  <p class="text-sm font-black heading-primary">
-                    {{ session.stagiaire?.prenom }} {{ session.stagiaire?.nom }}
+                    <p class="text-sm font-black heading-primary">
+                    {{ session.prenom || session.stagiaire?.prenom }} {{ session.nom || session.stagiaire?.nom }}
                   </p>
                   <p class="text-[10px] font-bold text-gray-400">
-                    {{ session.stagiaire?.email }}
+                    {{ session.stagiaire?.email || session.email }}
                   </p>
                 </div>
               </div>
