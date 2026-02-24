@@ -6,6 +6,7 @@ import {
   Param,
   Get,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
@@ -58,5 +59,11 @@ export class SessionsController {
   @Post(':id/submit')
   submit(@Param('id') id: string) {
     return this.sessionsService.submit(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.sessionsService.remove(id);
   }
 }

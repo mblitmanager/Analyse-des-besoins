@@ -9,9 +9,9 @@ import AppLogo from '../components/AppLogo.vue'
         <div
           class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
         >
-          W
+          <AppLogo />
         </div>
-        <AppLogo />
+        
       </div>
       <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">
         Politique de confidentialité

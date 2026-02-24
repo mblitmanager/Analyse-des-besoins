@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
@@ -15,6 +15,55 @@ const session = ref(null);
 const loading = ref(true);
 const pdfContent = ref(null);
 const downloadingPDF = ref(false);
+const levels = ref([]);
+
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const recommendedLabel = computed(() => {
+  if (!session.value) return "";
+  if (session.value.finalRecommendation)
+    return session.value.finalRecommendation;
+
+  const level =
+    session.value.lastValidatedLevel || session.value.stopLevel || "";
+
+  if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
+
+  return `${session.value.formationChoisie || ""}${
+    level ? " - " + level : ""
+  }`.trim();
+});
+
+const currentLevel = computed(() => {
+  if (!session.value || !levels.value.length) return null;
+  const label =
+    session.value.lastValidatedLevel || session.value.stopLevel || null;
+  if (!label) return null;
+  return levels.value.find((l) => l.label === label) || null;
+});
+
+const nextLevel = computed(() => {
+  if (!levels.value.length) return null;
+  const current = currentLevel.value;
+  if (!current) return null;
+  const sorted = levels.value.slice().sort((a, b) => a.order - b.order);
+  const idx = sorted.findIndex((l) => l.id === current.id);
+  if (idx === -1 || idx === sorted.length - 1) return null;
+  return sorted[idx + 1];
+});
+
+async function loadLevelsForFormation() {
+  try {
+    const formationSlug = localStorage.getItem("selected_formation_slug");
+    if (!formationSlug) return;
+    const res = await axios.get(
+      `${apiBaseUrl}/formations/${formationSlug}/levels`,
+    );
+    levels.value = (res.data || []).slice().sort((a, b) => a.order - b.order);
+  } catch (error) {
+    console.error("Failed to load levels for result view:", error);
+  }
+}
 
 async function loadResultats() {
   if (!sessionId) {
@@ -22,10 +71,9 @@ async function loadResultats() {
     return;
   }
   try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const response = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = response.data;
+    await loadLevelsForFormation();
   } catch (error) {
     console.error("Failed to load results:", error);
   } finally {
@@ -64,17 +112,43 @@ const downloadPDF = async () => {
     element.style.top = "0";
     document.body.appendChild(element);
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-      ignoreElements: (node) => {
-        return node.nodeName === "BUTTON"; // Exclude buttons from PDF
+    // Certains styles Tailwind utilisent oklch(), non supporté par html2canvas.
+    // On désactive temporairement les feuilles de style qui contiennent "oklch("
+    // pour éviter l'erreur, puis on les réactive après la capture.
+    const disabledSheets = [];
+    const styleSheets = Array.from(document.styleSheets || []);
+    styleSheets.forEach((sheet) => {
+      try {
+        const rules = sheet.cssRules;
+        if (!rules) return;
+        for (let i = 0; i < rules.length; i++) {
+          const cssText = rules[i].cssText || "";
+          if (cssText.includes("oklch(")) {
+            sheet.disabled = true;
+            disabledSheets.push(sheet);
+            break;
+          }
+        }
+      } catch (e) {
+        // Certaines feuilles peuvent être cross-origin : on les ignore
       }
     });
 
-    document.body.removeChild(element);
+    let canvas;
+    try {
+      canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        ignoreElements: (node) => {
+          return node.nodeName === "BUTTON"; // Exclure les boutons du PDF
+        }
+      });
+    } finally {
+      disabledSheets.forEach((sheet) => (sheet.disabled = false));
+      document.body.removeChild(element);
+    }
 
     const imgData = canvas.toDataURL("image/jpeg", 1.0);
     const pdf = new jsPDF({
@@ -111,9 +185,9 @@ const downloadPDF = async () => {
     >
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl">
-          W
+          <AppLogo />
         </div>
-        <AppLogo />
+        <!-- <AppLogo /> -->
       </div>
 
       <div v-if="session" class="flex items-center gap-4">
@@ -316,14 +390,18 @@ const downloadPDF = async () => {
             <div class="relative z-10">
               <span
                 class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest mb-3"
-                >Offre Duo</span
               >
+                Niveau recommandé :
+                {{ session.lastValidatedLevel || session.stopLevel || "À définir" }}
+              </span>
               <h3 class="text-2xl md:text-3xl font-bold mb-3">
-                Parcours {{ session.formationChoisie }} : Immersion Totale
+                {{ recommendedLabel || 'Parcours personnalisé' }}
               </h3>
               <p class="opacity-80 text-base md:text-lg max-w-xl">
-                Une solution complète combinant deux formations complémentaires
-                pour garantir votre montée en compétence.
+                Ce parcours est construit à partir de vos réponses aux
+                prérequis, au test de positionnement et aux questions
+                complémentaires, afin d'adapter la formation à votre niveau
+                actuel.
               </p>
             </div>
 
@@ -340,7 +418,7 @@ const downloadPDF = async () => {
             <!-- Step 1 in Path -->
             <div class="flex items-start gap-6 relative">
               <div
-                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center flex-shrink-0 font-bold text-sm relative z-10"
+                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-bold text-sm relative z-10"
               >
                 1
               </div>
@@ -350,7 +428,7 @@ const downloadPDF = async () => {
                 >
                   <h4 class="text-lg font-bold heading-primary">
                     {{ session.formationChoisie }} - Niveau
-                    {{ session.stopLevel || "A2" }} (Intermédiaire)
+                    {{ session.lastValidatedLevel || session.stopLevel || "personnalisé" }}
                   </h4>
                 </div>
                 <p class="text-gray-400 mb-4 font-medium text-sm">
@@ -392,10 +470,10 @@ const downloadPDF = async () => {
               </div>
             </div>
 
-            <!-- Step 2 in Path -->
-            <div class="flex items-start gap-6">
+            <!-- Step 2 in Path : niveau suivant dans l'ordre de la formation -->
+            <div v-if="nextLevel" class="flex items-start gap-6">
               <div
-                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center flex-shrink-0 font-bold text-sm"
+                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-bold text-sm"
               >
                 2
               </div>
@@ -404,7 +482,8 @@ const downloadPDF = async () => {
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
                   <h4 class="text-lg font-bold heading-primary">
-                    {{ session.formationChoisie }} - Niveau B1 (Avancé)
+                    {{ session.formationChoisie }} - Objectif :
+                    {{ nextLevel ? nextLevel.label : "niveau supérieur" }}
                   </h4>
                 </div>
                 <p class="text-gray-400 mb-4 font-medium text-sm">
@@ -437,7 +516,7 @@ const downloadPDF = async () => {
               class="bg-white p-5 rounded-xl flex items-center gap-4 heading-primary border border-blue-50"
             >
               <div
-                class="flex-shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
+                class="shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
               >
                 <span class="material-icons-outlined">info</span>
               </div>
@@ -485,9 +564,7 @@ const downloadPDF = async () => {
             >Wizzy Learn</span
           >
         </div>
-        <p class="text-xs font-bold uppercase tracking-widest">
-          <AppLogo />
-        </p>
+        <!-- logo retiré du footer -->
         <div
           class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-widest"
         >

@@ -14,15 +14,26 @@ export class QuestionsService {
     type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities',
     formationSlug?: string,
   ) {
-    const whereCondition = formationSlug
-      ? [
-          { type, isActive: true, formation: { slug: formationSlug } },
-          { type, isActive: true, formation: null },
-        ]
-      : { type, isActive: true, formation: null };
+    // Si une formation est fournie, on privilégie ses questions dédiées.
+    if (formationSlug) {
+      const specific = await this.questionRepo.find({
+        where: {
+          type,
+          isActive: true,
+          formation: { slug: formationSlug },
+        } as any,
+        order: { order: 'ASC' },
+        relations: ['formation', 'level'],
+      });
 
+      if (specific.length > 0) {
+        return specific;
+      }
+    }
+
+    // Sinon (ou si aucune question spécifique n'existe), on retombe sur les questions globales
     return this.questionRepo.find({
-      where: whereCondition as any,
+      where: { type, isActive: true, formation: null } as any,
       order: { order: 'ASC' },
       relations: ['formation', 'level'],
     });
