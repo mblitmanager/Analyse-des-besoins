@@ -17,7 +17,7 @@ const pdfContent = ref(null);
 const downloadingPDF = ref(false);
 const levels = ref([]);
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
