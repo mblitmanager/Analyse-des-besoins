@@ -12,5 +12,5 @@ COPY package*.json ./
 RUN npm ci --production --silent
 COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
-EXPOSE 3001
+EXPOSE 3000
 CMD ["node", "dist/main.js"]

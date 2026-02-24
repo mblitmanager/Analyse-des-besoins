@@ -123,7 +123,7 @@ const scoresTrend = computed(() => {
 async function fetchStats() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const [statsRes, sessionsRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/admin/stats`),
       axios.get(`${apiBaseUrl}/sessions`),

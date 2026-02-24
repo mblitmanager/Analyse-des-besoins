@@ -22,7 +22,7 @@ const conseillers = ref(["Sélectionnez votre conseiller..."]);
 async function fetchConseillers() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const response = await fetch(`${apiBaseUrl}/contacts`);
     const data = await response.json();
 
@@ -50,7 +50,7 @@ async function startTest() {
   loading.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const response = await fetch(`${apiBaseUrl}/sessions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +81,7 @@ async function testDbConnection() {
   testingDb.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const response = await fetch(`${apiBaseUrl}/health/db`);
     const data = await response.json();
     if (data.status === "ok") {
