@@ -106,6 +106,25 @@ async function saveSessionEdits() {
   }
 }
 
+async function deleteSession(session) {
+  if (
+    !confirm(
+      `Supprimer définitivement la session de ${session.stagiaire?.prenom || ""} ${session.stagiaire?.nom || ""} ?`,
+    )
+  ) {
+    return;
+  }
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    await axios.delete(`${apiBaseUrl}/sessions/${session.id}`);
+    await fetchSessions();
+  } catch (error) {
+    console.error("Failed to delete session:", error);
+    alert("Erreur lors de la suppression de la session.");
+  }
+}
+
 function exportToCSV() {
   if (filteredSessions.value.length === 0) return;
 
@@ -113,19 +132,31 @@ function exportToCSV() {
     "ID",
     "Stagiaire",
     "Email",
+    "Téléphone",
+    "Conseiller",
+    "Marque",
     "Formation",
     "Date",
     "Statut",
     "Score %",
+    "Dernier niveau validé",
+    "Niveau d'arrêt",
+    "Recommandation finale",
   ];
   const rows = filteredSessions.value.map((s) => [
     s.id,
     `${s.stagiaire?.prenom} ${s.stagiaire?.nom}`,
     s.stagiaire?.email,
+    s.telephone,
+    s.conseiller,
+    s.brand,
     s.formationChoisie,
     new Date(s.createdAt).toLocaleString(),
     s.isCompleted ? "Terminé" : "En cours",
     s.scorePretest || 0,
+    s.lastValidatedLevel || "",
+    s.stopLevel || "",
+    s.finalRecommendation || "",
   ]);
 
   const csvContent = [
@@ -144,6 +175,45 @@ function exportToCSV() {
   link.setAttribute(
     "download",
     `sessions_export_${new Date().toISOString().split("T")[0]}.csv`,
+  );
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function exportSessionDetails(session) {
+  const payload = {
+    id: session.id,
+    createdAt: session.createdAt,
+    emailSentAt: session.emailSentAt,
+    brand: session.brand,
+    civilite: session.civilite,
+    nom: session.nom,
+    prenom: session.prenom,
+    telephone: session.telephone,
+    conseiller: session.conseiller,
+    formationChoisie: session.formationChoisie,
+    isCompleted: session.isCompleted,
+    scorePretest: session.scorePretest,
+    stopLevel: session.stopLevel,
+    lastValidatedLevel: session.lastValidatedLevel,
+    finalRecommendation: session.finalRecommendation,
+    prerequisiteScore: session.prerequisiteScore,
+    levelsScores: session.levelsScores,
+    complementaryQuestions: session.complementaryQuestions,
+    availabilities: session.availabilities,
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8;",
+  });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute(
+    "download",
+    `session_${session.id}_${new Date(session.createdAt).toISOString().split("T")[0]}.json`,
   );
   link.style.visibility = "hidden";
   document.body.appendChild(link);
@@ -321,6 +391,20 @@ function formatDate(date) {
                   title="Voir le dossier"
                 >
                   <span class="material-icons-outlined text-sm">visibility</span>
+                </button>
+                <button
+                  @click="exportSessionDetails(session)"
+                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-emerald-200 hover:text-emerald-500 transition-all flex items-center justify-center"
+                  title="Exporter en JSON"
+                >
+                  <span class="material-icons-outlined text-sm">download</span>
+                </button>
+                <button
+                  @click="deleteSession(session)"
+                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
+                  title="Supprimer la session"
+                >
+                  <span class="material-icons-outlined text-sm">delete</span>
                 </button>
               </div>
             </td>
