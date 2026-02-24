@@ -64,6 +64,11 @@ let SeedService = class SeedService {
                 value: 'false',
                 description: 'Afficher le positionnement question par question',
             },
+            {
+                key: 'PREREQUIS_PAGINATED',
+                value: 'false',
+                description: 'Afficher les prérequis question par question',
+            },
         ];
         for (const s of settings) {
             const exists = await this.settingRepo.findOne({ where: { key: s.key } });

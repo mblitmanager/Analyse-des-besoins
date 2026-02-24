@@ -54,6 +54,11 @@ export class SeedService implements OnApplicationBootstrap {
         value: 'false',
         description: 'Afficher le positionnement question par question',
       },
+      {
+        key: 'PREREQUIS_PAGINATED',
+        value: 'false',
+        description: 'Afficher les prérequis question par question',
+      },
     ];
 
     for (const s of settings) {

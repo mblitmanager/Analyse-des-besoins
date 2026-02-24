@@ -380,7 +380,7 @@ const groupedQuestions = computed(() => {
                   :disabled="savingOrder"
                   class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
                 >
-                  <span class="material-icons-outlined text-sm">auto_fix_high</span>
+                  <!-- <span class="material-icons-outlined text-sm">auto_fix_high</span> -->
                   Appliquer l'ordre
                 </button>
               </div>
