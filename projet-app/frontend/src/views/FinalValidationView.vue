@@ -14,19 +14,11 @@ const levelsEntries = computed(() => {
   return Object.entries(session.value.levelsScores);
 });
 
+// Global score is computed only from the positionnement (pretest) score
 const globalScore = computed(() => {
   if (!session.value) return 0;
-  const entries = levelsEntries.value;
-  if (!entries.length) return session.value.scorePretest || 0;
-  let total = 0;
-  let correct = 0;
-  for (const [, val] of entries) {
-    const e = val || {};
-    total += Number(e.total || 0);
-    correct += Number(e.score || 0);
-  }
-  if (total === 0) return session.value.scorePretest || 0;
-  return Math.round((correct / total) * 100);
+  // use explicit pretest/positionnement score provided by the backend
+  return Number(session.value.scorePretest || 0);
 });
 
 const validatedLevelsCount = computed(() => {

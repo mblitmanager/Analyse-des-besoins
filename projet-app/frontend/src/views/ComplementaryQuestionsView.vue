@@ -31,7 +31,12 @@ onMounted(async () => {
           : { scope: "global" },
       },
     );
-    questions.value = res.data;
+    // remove duplicate questions (prefer unique id, fallback to text)
+    questions.value = Array.from(
+      new Map(
+        (res.data || []).map((q) => [q.id ?? q.text, q]),
+      ).values(),
+    );
 
     // Initialize responses keyed by q.id
     questions.value.forEach((q) => {

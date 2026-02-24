@@ -37,7 +37,10 @@ onMounted(async () => {
         ? { formation: formationSlug, scope: "auto" }
         : { scope: "global" },
     });
-    questions.value = res.data;
+    // deduplicate fetched questions by id or text
+    questions.value = Array.from(
+      new Map((res.data || []).map((q) => [q.id ?? q.text, q])).values(),
+    );
 
     // Group questions by category
     const grouped = {};
