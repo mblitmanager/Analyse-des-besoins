@@ -13,7 +13,7 @@ npm run dev
 Le frontend tente d'appeler `/api/health` pour vérifier le backend. Adaptez l'URL si nécessaire.
 
 Proxy et backend
- - Le dev server Vite proxie `/api` vers `http://localhost:3000` par défaut. Si votre backend écoute sur un autre port, modifiez `vite.config.js`.
+ - Le dev server Vite proxie `/api` vers `http://localhost:3001` par défaut. Si votre backend écoute sur un autre port, modifiez `vite.config.js`.
 
 Dépendances ajoutées:
  - `react-router-dom` pour le routage
@@ -43,7 +43,7 @@ npm run preview
 ```
 
 Variables d'environnement
-- Le dev server proxie `/api` vers `http://localhost:3000` par défaut (configurable dans `vite.config.js`).
+- Le dev server proxie `/api` vers `http://localhost:3001` par défaut (configurable dans `vite.config.js`).
 - En production, configurez votre reverse-proxy ou `VITE_API_BASE` si vous souhaitez surcharger l'URL de base (ajoutez la logique dans `src/api.js` si nécessaire).
 
 .env.example

@@ -21,7 +21,7 @@ onMounted(async () => {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const formationSlug = localStorage.getItem("selected_formation_slug");
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/complementary`,
@@ -57,7 +57,7 @@ async function nextStep() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       complementaryQuestions: responses.value,
     });
