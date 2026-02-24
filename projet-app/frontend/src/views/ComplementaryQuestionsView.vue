@@ -26,7 +26,9 @@ onMounted(async () => {
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/complementary`,
       {
-        params: formationSlug ? { formation: formationSlug } : {},
+        params: formationSlug
+          ? { formation: formationSlug, scope: "auto" }
+          : { scope: "global" },
       },
     );
     questions.value = res.data;

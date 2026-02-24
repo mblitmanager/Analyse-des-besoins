@@ -25,7 +25,11 @@ onMounted(async () => {
     const formationSlug = localStorage.getItem("selected_formation_slug");
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/availabilities`,
-      { params: formationSlug ? { formation: formationSlug } : {} },
+      {
+        params: formationSlug
+          ? { formation: formationSlug, scope: "auto" }
+          : { scope: "global" },
+      },
     );
     questions.value = res.data;
 

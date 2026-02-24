@@ -11,6 +11,8 @@ const selectedSession = ref(null);
 const editableSession = ref(null);
 const showModal = ref(false);
 const savingSession = ref(false);
+const expandedLevel = ref(null);
+const questionsIndex = ref({});
 
 function viewSession(session) {
   selectedSession.value = session;
@@ -60,6 +62,21 @@ async function fetchSessions() {
     console.error("Failed to fetch sessions:", error);
   } finally {
     loading.value = false;
+  }
+}
+
+async function fetchQuestionsIndex() {
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const res = await axios.get(`${apiBaseUrl}/questions`);
+    const index = {};
+    res.data.forEach((q) => {
+      index[q.id] = { text: q.text, type: q.type };
+    });
+    questionsIndex.value = index;
+  } catch (error) {
+    console.error("Failed to fetch questions index:", error);
   }
 }
 
@@ -221,7 +238,9 @@ function exportSessionDetails(session) {
   document.body.removeChild(link);
 }
 
-onMounted(fetchSessions);
+onMounted(async () => {
+  await Promise.all([fetchSessions(), fetchQuestionsIndex()]);
+});
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString("fr-FR", {
@@ -230,6 +249,15 @@ function formatDate(date) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function getQuestionLabel(id) {
+  const meta = questionsIndex.value[id];
+  return meta?.text || `Question ${id}`;
+}
+
+function toggleExpandedLevel(level) {
+  expandedLevel.value = expandedLevel.value === level ? null : level;
 }
 </script>
 
@@ -432,7 +460,9 @@ function formatDate(date) {
         <div class="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
             <h3 class="text-2xl font-black heading-primary">
-              Dossier de {{ editableSession.stagiaire?.prenom }} {{ editableSession.stagiaire?.nom }}
+              Dossier de
+              {{ editableSession.prenom || editableSession.stagiaire?.prenom }}
+              {{ editableSession.nom || editableSession.stagiaire?.nom }}
             </h3>
             <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
               Formation : {{ editableSession.formationChoisie }}
@@ -458,6 +488,13 @@ function formatDate(date) {
           <section>
             <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Informations Candidat</h4>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50 p-6 rounded-[24px]">
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Bénéficiaire</p>
+                <p class="font-bold text-sm">
+                  {{ editableSession.prenom || editableSession.stagiaire?.prenom }}
+                  {{ editableSession.nom || editableSession.stagiaire?.nom }}
+                </p>
+              </div>
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
                 <p class="font-bold text-sm">{{ editableSession.stagiaire?.email }}</p>
@@ -532,7 +569,7 @@ function formatDate(date) {
             </div>
           </section>
 
-          <!-- Détails additionnels JSON -->
+          <!-- Détails additionnels (tableaux) -->
           <section
             v-if="editableSession.prerequisiteScore || editableSession.levelsScores || editableSession.complementaryQuestions || editableSession.availabilities"
           >
@@ -540,19 +577,144 @@ function formatDate(date) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div v-if="editableSession.prerequisiteScore" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Score Pré-requis</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.prerequisiteScore, null, 2) }}</pre>
+                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-for="(val, key) in editableSession.prerequisiteScore" :key="key">
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
+                            {{ getQuestionLabel(Number(key)) }}
+                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ Array.isArray(val) ? val.join(', ') : val }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                </div>
                <div v-if="editableSession.levelsScores" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Scores par niveau</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.levelsScores, null, 2) }}</pre>
+                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Niveau</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Score</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Seuil</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Validé</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr
+                          v-for="(entry, level) in editableSession.levelsScores"
+                          :key="level"
+                          class="cursor-pointer hover:bg-gray-50/80"
+                          @click="toggleExpandedLevel(level)"
+                        >
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">{{ level }}</td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ entry?.score }}/{{ entry?.total }}
+                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ entry?.requiredCorrect ?? '—' }}
+                          </td>
+                          <td class="px-4 py-3 text-xs">
+                            <span
+                              class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+                              :class="entry?.validated ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400'"
+                            >
+                              <span class="material-icons-outlined text-[12px]">
+                                {{ entry?.validated ? 'check_circle' : 'cancel' }}
+                              </span>
+                              {{ entry?.validated ? 'OK' : 'NON' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div
+                    v-if="editableSession.positionnementAnswers && expandedLevel && editableSession.positionnementAnswers[expandedLevel]"
+                    class="mt-4 bg-white rounded-xl border border-gray-100 overflow-hidden"
+                  >
+                    <p class="px-4 pt-4 pb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Réponses détaillées - Niveau {{ expandedLevel }}
+                    </p>
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr
+                          v-for="(val, key) in editableSession.positionnementAnswers[expandedLevel]"
+                          :key="key"
+                        >
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
+                            {{ getQuestionLabel(Number(key)) }}
+                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ Array.isArray(val) ? val.join(', ') : val }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                </div>
                <div v-if="editableSession.complementaryQuestions" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Questions Complémentaires</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.complementaryQuestions, null, 2) }}</pre>
+                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-for="(val, key) in editableSession.complementaryQuestions" :key="key">
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
+                            {{ getQuestionLabel(Number(key)) }}
+                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ Array.isArray(val) ? val.join(', ') : val }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                </div>
                <div v-if="editableSession.availabilities" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Disponibilités</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.availabilities, null, 2) }}</pre>
+                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-for="(val, key) in editableSession.availabilities" :key="key">
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
+                            {{ getQuestionLabel(Number(key)) }}
+                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600">
+                            {{ Array.isArray(val) ? val.join(', ') : val }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                </div>
             </div>
           </section>

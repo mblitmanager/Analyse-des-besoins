@@ -19,6 +19,9 @@ const form = ref({
   certificateur: "",
   programme: "",
   isActive: true,
+  prerequisQuestionsScope: "auto",
+  complementaryQuestionsScope: "auto",
+  availabilitiesQuestionsScope: "auto",
   levels: [],
 });
 
@@ -54,6 +57,9 @@ function openAddModal() {
     certificateur: "",
     programme: "",
     isActive: true,
+    prerequisQuestionsScope: "auto",
+    complementaryQuestionsScope: "auto",
+    availabilitiesQuestionsScope: "auto",
     levels: [],
   };
   showModal.value = true;
@@ -436,6 +442,48 @@ onMounted(fetchFormations);
             </div>
 
             <div class="space-y-4 pt-4 border-t border-gray-100">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                <div class="space-y-1">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                    Prérequis · Source des questions
+                  </label>
+                  <select
+                    v-model="form.prerequisQuestionsScope"
+                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <option value="auto">Auto (formation si dispo, sinon global)</option>
+                    <option value="formation">Uniquement formation</option>
+                    <option value="global">Uniquement global</option>
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                    Complémentaires · Source des questions
+                  </label>
+                  <select
+                    v-model="form.complementaryQuestionsScope"
+                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <option value="auto">Auto (formation si dispo, sinon global)</option>
+                    <option value="formation">Uniquement formation</option>
+                    <option value="global">Uniquement global</option>
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                    Disponibilités · Source des questions
+                  </label>
+                  <select
+                    v-model="form.availabilitiesQuestionsScope"
+                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <option value="auto">Auto (formation si dispo, sinon global)</option>
+                    <option value="formation">Uniquement formation</option>
+                    <option value="global">Uniquement global</option>
+                  </select>
+                </div>
+              </div>
+
               <div class="flex items-center justify-between">
                 <div>
                   <h4 class="text-sm font-black heading-primary">Niveaux de Compétences</h4>

@@ -17,16 +17,27 @@ export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @Get('prerequisites')
-  findPrerequisites(@Query('formation') formation?: string) {
-    return this.questionsService.findPrerequisites(formation);
+  findPrerequisites(
+    @Query('formation') formation?: string,
+    @Query('scope') scope?: 'auto' | 'global' | 'formation',
+  ) {
+    return this.questionsService.findPrerequisites(
+      formation,
+      scope || 'auto',
+    );
   }
 
   @Get('workflow/:type')
   findWorkflowQuestions(
     @Param('type') type: string,
     @Query('formation') formation?: string,
+    @Query('scope') scope?: 'auto' | 'global' | 'formation',
   ) {
-    return this.questionsService.findQuestions(type as any, formation);
+    return this.questionsService.findQuestions(
+      type as any,
+      formation,
+      scope || 'auto',
+    );
   }
 
   @Get('positionnement')

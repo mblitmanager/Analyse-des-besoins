@@ -33,7 +33,9 @@ onMounted(async () => {
       undefined;
 
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
-      params: formationSlug ? { formation: formationSlug } : {},
+      params: formationSlug
+        ? { formation: formationSlug, scope: "auto" }
+        : { scope: "global" },
     });
     questions.value = res.data;
 

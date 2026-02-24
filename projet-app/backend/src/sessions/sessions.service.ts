@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
 import { EmailService } from '../email/email.service';
+import { Question } from '../entities/question.entity';
 
 @Injectable()
 export class SessionsService {
@@ -15,6 +16,8 @@ export class SessionsService {
     private levelRepo: Repository<Level>,
     @InjectRepository(Stagiaire)
     private stagiaireRepo: Repository<Stagiaire>,
+    @InjectRepository(Question)
+    private questionRepo: Repository<Question>,
     private emailService: EmailService,
   ) {}
 
@@ -53,7 +56,10 @@ export class SessionsService {
   }
 
   async findOne(id: string) {
-    const session = await this.sessionRepo.findOne({ where: { id } });
+    const session = await this.sessionRepo.findOne({
+      where: { id },
+      relations: ['stagiaire'],
+    });
     if (!session) throw new NotFoundException('Session not found');
     return session;
   }
@@ -87,11 +93,16 @@ export class SessionsService {
       return this.update(id, { finalRecommendation: 'Formation non reconnue' });
     }
 
-    const scores = (session.levelsScores as Record<string, number>) || {};
+    const scores =
+      (session.levelsScores as Record<string, number | { score?: number }>) ||
+      {};
     let finalLevel = levels[0]; // Default to first level
 
     for (const level of levels) {
-      const userScore = scores[level.label];
+      const raw = scores[level.label];
+      const userScore =
+        typeof raw === 'number' ? raw : (raw as any)?.score ?? undefined;
+
       if (userScore !== undefined) {
         if (userScore >= level.successThreshold) {
           finalLevel = level;
@@ -108,27 +119,163 @@ export class SessionsService {
     const recommendation =
       finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
 
-    // Prepare extra sections for email
-    let extraContent = '';
-    if (session.complementaryQuestions) {
-      extraContent += '<h3>Questions Complémentaires</h3><ul>';
-      Object.entries(session.complementaryQuestions).forEach(([q, a]) => {
-        extraContent += `<li><strong>${q}:</strong> ${a}</li>`;
-      });
-      extraContent += '</ul>';
-    }
+    const safe = (v: any) =>
+      String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 
-    if (session.availabilities) {
-      extraContent += '<h3>Disponibilités</h3><ul>';
-      Object.entries(session.availabilities).forEach(([key, val]) => {
-        if (key === 'comments') return;
-        extraContent += `<li><strong>${key}:</strong> ${val}</li>`;
+    const renderAnswersTable = (
+      title: string,
+      answers: Record<string, any> | null | undefined,
+      qTextById: Record<number, string>,
+    ) => {
+      if (!answers) return '';
+      const rows = Object.entries(answers)
+        .map(([key, val]) => {
+          const idNum = Number(key);
+          const label = qTextById[idNum] || `Question ${key}`;
+          const display = Array.isArray(val) ? val.join(', ') : val;
+          return `<tr>
+            <td style="padding:10px;border-top:1px solid #eee;font-weight:700;vertical-align:top;">${safe(
+              label,
+            )}</td>
+            <td style="padding:10px;border-top:1px solid #eee;color:#374151;vertical-align:top;">${safe(
+              display,
+            )}</td>
+          </tr>`;
+        })
+        .join('');
+
+      return `
+        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">${safe(title)}</h3>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+          <thead style="background:#f8fafc;">
+            <tr>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Question</th>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Réponse</th>
+            </tr>
+          </thead>
+          <tbody>${rows || ''}</tbody>
+        </table>
+      `;
+    };
+
+    // Index texte des questions (pré-requis + complémentaires + disponibilités)
+    const ids = new Set<number>();
+    const addIds = (obj: any) => {
+      if (!obj) return;
+      Object.keys(obj).forEach((k) => {
+        const n = Number(k);
+        if (!Number.isNaN(n)) ids.add(n);
       });
-      if (session.availabilities['comments']) {
-        extraContent += `<li><strong>Commentaires:</strong> ${session.availabilities['comments']}</li>`;
-      }
-      extraContent += '</ul>';
-    }
+    };
+    addIds(session.prerequisiteScore);
+    addIds(session.complementaryQuestions);
+    addIds(session.availabilities);
+    addIds(session.positionnementAnswers);
+
+    const questions = ids.size
+      ? await this.questionRepo.find({ where: { id: In([...ids]) } })
+      : [];
+    const qTextById: Record<number, string> = {};
+    questions.forEach((q) => {
+      qTextById[q.id] = q.text;
+    });
+
+    // Score final global (si possible)
+    const levelsEntries = session.levelsScores
+      ? Object.values(session.levelsScores as any)
+      : [];
+    const totalAnswered = levelsEntries.reduce(
+      (acc: number, e: any) => acc + (Number(e?.total) || 0),
+      0,
+    );
+    const totalCorrect = levelsEntries.reduce(
+      (acc: number, e: any) => acc + (Number(e?.score) || 0),
+      0,
+    );
+    const scoreFinal =
+      totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+    const levelsTable = session.levelsScores
+      ? `
+        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+          <thead style="background:#f8fafc;">
+            <tr>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.entries(session.levelsScores as any)
+              .map(([lvl, e]: any) => {
+                const ok = e?.validated ? 'Oui' : 'Non';
+                const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
+                return `<tr>
+                  <td style=\"padding:10px;border-top:1px solid #eee;font-weight:700;\">${safe(
+                    lvl,
+                  )}</td>
+                  <td style=\"padding:10px;border-top:1px solid #eee;\">${safe(
+                    score,
+                  )}</td>
+                  <td style=\"padding:10px;border-top:1px solid #eee;\">${safe(
+                    ok,
+                  )}</td>
+                </tr>`;
+              })
+              .join('')}
+          </tbody>
+        </table>
+      `
+      : '';
+
+    const beneficiaryEmail = session.stagiaire?.email || '';
+
+    const extraContent = `
+      <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations du bénéficiaire</h3>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+        <tbody>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Bénéficiaire</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            `${session.civilite || ''} ${session.prenom || ''} ${session.nom || ''}`.trim(),
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            beneficiaryEmail,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.telephone,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.conseiller,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Marque</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.brand,
+          )}</td></tr>
+        </tbody>
+      </table>
+
+      ${levelsTable}
+
+      ${renderAnswersTable(
+        'Pré-requis (réponses)',
+        session.prerequisiteScore,
+        qTextById,
+      )}
+      ${renderAnswersTable(
+        'Questions complémentaires (réponses)',
+        session.complementaryQuestions,
+        qTextById,
+      )}
+      ${renderAnswersTable(
+        'Disponibilités (réponses)',
+        session.availabilities,
+        qTextById,
+      )}
+    `;
 
     // Send the email
     await this.emailService.sendReport(
@@ -136,9 +283,12 @@ export class SessionsService {
       `Nouvelle Évaluation: ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
       `<div style="font-family: Arial, sans-serif; color: #333;">
         <h2 style="color: #0D8ABC;">Bilan d'évaluation Wizzy Learn</h2>
-        <p><strong>Candidat :</strong> ${session.prenom} ${session.nom}</p>
+        <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
+        <p><strong>Email :</strong> ${session.stagiaire?.email || ''}</p>
+        <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
         <p><strong>Formation :</strong> ${session.formationChoisie}</p>
         <p><strong>Recommandation :</strong> <span style="color: #22C55E;">${recommendation}</span></p>
+        <p><strong>Score final :</strong> <span style="color: #2563eb;">${scoreFinal}%</span></p>
         <hr />
         ${extraContent}
       </div>`,
@@ -147,6 +297,7 @@ export class SessionsService {
     return this.update(id, {
       finalRecommendation: recommendation,
       stopLevel: finalLevel.label,
+      scorePretest: scoreFinal,
       emailSentAt: new Date(),
       isCompleted: true,
     });
