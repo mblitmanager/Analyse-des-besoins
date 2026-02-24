@@ -17,4 +17,3 @@ export class EmailController {
     return this.emailService.sendReport(to, subject, body);
   }
 }
-

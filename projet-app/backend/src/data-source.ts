@@ -13,8 +13,8 @@ export const AppDataSource = new DataSource(
         type: 'postgres',
         url: databaseUrl,
         // entities and migrations refer to compiled JS in dist when running runner after build
-        entities: ["dist/**/*.entity.js"],
-        migrations: ["dist/migrations/*.js"],
+        entities: ['dist/**/*.entity.js'],
+        migrations: ['dist/migrations/*.js'],
         synchronize: false,
         ssl: true,
       }
@@ -25,8 +25,8 @@ export const AppDataSource = new DataSource(
         username: process.env.DATABASE_USER || 'user',
         password: process.env.DATABASE_PASSWORD || 'password',
         database: process.env.DATABASE_NAME || 'Wizilearn',
-        entities: ["dist/**/*.entity.js"],
-        migrations: ["dist/migrations/*.js"],
+        entities: ['dist/**/*.entity.js'],
+        migrations: ['dist/migrations/*.js'],
         synchronize: false,
       },
 );

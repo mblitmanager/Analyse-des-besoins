@@ -3,7 +3,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
-import AppLogo from '../components/AppLogo.vue'
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -13,7 +14,7 @@ const loading = ref(true);
 const submitting = ref(false);
 const selectedFormation = ref(null);
 
-const categories = ref([]);
+const formations = ref([]);
 
 async function fetchFormations() {
   try {
@@ -21,17 +22,7 @@ async function fetchFormations() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
 
-    // Group by category
-    const grouped = res.data.reduce((acc, formation) => {
-      const catName = formation.category || "AUTRES";
-      if (!acc[catName]) {
-        acc[catName] = { name: catName, formations: [] };
-      }
-      acc[catName].formations.push(formation);
-      return acc;
-    }, {});
-
-    categories.value = Object.values(grouped);
+    formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
   } finally {
@@ -78,24 +69,16 @@ async function selectFormation() {
 
 <template>
   <div class="min-h-screen bg-white flex flex-col font-outfit">
-    <!-- Header -->
-    <header
-      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
-    >
-        <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"><AppLogo /></div>
-        
-      </div>
-
-      <div class="flex items-center gap-4">
+    <SiteHeader>
+      <template #actions>
         <button
-          class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all font-bold text-sm text-gray-600 border border-gray-100"
+          class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all font-bold text-sm text-blue-900 border border-white/30"
         >
           <span class="material-icons-outlined text-lg">save</span>
           Sauvegarder et quitter
         </button>
-      </div>
-    </header>
+      </template>
+    </SiteHeader>
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
@@ -128,7 +111,7 @@ async function selectFormation() {
           Quelle formation souhaitez-vous suivre ?
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
-          Parcourez nos catégories et sélectionnez votre programme.
+          Sélectionnez votre programme de formation.
         </p>
       </div>
 
@@ -138,54 +121,33 @@ async function selectFormation() {
         ></div>
       </div>
 
-      <div v-else class="space-y-10 pb-24">
-        <div v-for="cat in categories" :key="cat.name" class="space-y-4">
-          <div class="flex items-center gap-4">
-            <span
-              class="text-xs font-bold text-gray-300 uppercase tracking-widest whitespace-nowrap"
-              >{{ cat.name }}</span
-            >
-            <div class="h-px w-full bg-gray-100"></div>
+      <div v-else class="formations-grid pb-24">
+        <button
+          v-for="form in formations"
+          :key="form.id"
+          @click="selectedFormation = form"
+          class="formation-card"
+          :class="
+            selectedFormation?.id === form.id
+              ? 'formation-card--selected'
+              : 'formation-card--default'
+          "
+        >
+          <span class="formation-card__label">{{ form.label }}</span>
+          <div
+            class="formation-card__radio"
+            :class="
+              selectedFormation?.id === form.id
+                ? 'formation-card__radio--selected'
+                : 'formation-card__radio--default'
+            "
+          >
+            <div
+              v-if="selectedFormation?.id === form.id"
+              class="formation-card__radio-dot"
+            ></div>
           </div>
-
-          <div class="space-y-2">
-            <button
-              v-for="form in cat.formations"
-              :key="form.id"
-              @click="selectedFormation = form"
-              class="w-full p-5 bg-white border-2 rounded-2xl flex items-center justify-between transition-all group scale-100 active:scale-[0.98]"
-              :class="
-                selectedFormation?.id === form.id
-                  ? 'border-brand-primary shadow-lg shadow-brand-primary/10'
-                  : 'border-gray-50 hover:border-gray-200'
-              "
-            >
-              <div class="flex items-center gap-5">
-                <span
-                  class="material-icons-outlined text-2xl group-hover:scale-110 transition-transform"
-                  :class="`text-${form.color}`"
-                  >{{ form.icon }}</span
-                >
-                <span class="text-base font-bold text-gray-800">{{
-                  form.label
-                }}</span>
-              </div>
-              <div
-                class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                :class="
-                  selectedFormation?.id === form.id
-                    ? 'border-brand-primary bg-brand-primary'
-                    : 'border-gray-200'
-                "
-              >
-                <div
-                  v-if="selectedFormation?.id === form.id"
-                  class="w-1.5 h-1.5 rounded-full bg-white"
-                ></div>
-              </div>
-            </button>
-          </div>
-        </div>
+        </button>
       </div>
     </main>
 
@@ -218,14 +180,101 @@ async function selectFormation() {
         </button>
       </div>
     </div>
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;
+}
+
+.formations-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .formations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .formations-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Formation card */
+.formation-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 4.5rem;
+  background: #f3f4f6;
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.formation-card:active {
+  transform: scale(0.98);
+}
+
+.formation-card--default {
+  border-color: #e5e7eb;
+}
+
+.formation-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.formation-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.formation-card__label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.formation-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.formation-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.formation-card__radio--default {
+  border-color: #d1d5db;
+}
+
+.formation-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
 }
 </style>

@@ -3,7 +3,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
-import AppLogo from '../components/AppLogo.vue';
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -23,6 +24,8 @@ const levelsScores = ref({});
 const positionnementAnswers = ref({});
 const showResults = ref(false);
 const finalRecommendation = ref("");
+const isPaginated = ref(false);
+const currentQuestionIndex = ref(0);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -97,11 +100,20 @@ async function loadLevelQuestions() {
     const response = await axios.get(
       `${apiBaseUrl}/questions/positionnement?formation=${formationSlug}&niveau=${levelLabel}`,
     );
-    questions.value = response.data;
+    const allQuestions = response.data || [];
+    // Deduplicate by text (case-insensitive) just in case
+    const seen = new Set();
+    questions.value = allQuestions.filter((q) => {
+      const key = q.text.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     currentResponses.value = {};
     questions.value.forEach((q) => {
-      currentResponses.value[q.id] = null;
+      currentResponses.value[q.id] = q.responseType === 'text' ? "" : null;
     });
+    currentQuestionIndex.value = 0; // Reset question index for new level
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error) {
     console.error("Failed to load level questions:", error);
@@ -118,10 +130,21 @@ onMounted(async () => {
   }
   await loadLevels();
   await restoreProgressFromSession();
+  await fetchPaginationSetting();
   if (!showResults.value) {
     await loadLevelQuestions();
   }
 });
+
+async function fetchPaginationSetting() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/settings/POSITIONNEMENT_PAGINATED`);
+    isPaginated.value = res.data?.value === 'true';
+  } catch (error) {
+    console.error("Failed to fetch pagination setting:", error);
+    isPaginated.value = false;
+  }
+}
 
 async function nextStep() {
   submitting.value = true;
@@ -179,12 +202,34 @@ async function nextStep() {
     const canProgress = correctCount >= requiredCorrect;
 
     if (!canProgress || currentLevelIndex.value === levels.value.length - 1) {
-      finalRecommendation.value = `${formationLabel} - ${finalLevel}`;
+      // Pack Duo logic: recommend failed level and the next one (or last two if at end)
+      let rec1 = currentLevel.label;
+      let rec2 = null;
+
+      if (!canProgress) {
+        // Failed this level
+        const nextIdx = currentLevelIndex.value + 1;
+        if (nextIdx < levels.value.length) {
+          rec2 = levels.value[nextIdx].label;
+        } else if (currentLevelIndex.value > 0) {
+          // Last level failed, recommend previous and this one
+          rec2 = rec1;
+          rec1 = levels.value[currentLevelIndex.value - 1].label;
+        }
+      } else {
+        // Validated last level
+        rec1 = currentLevel.label;
+      }
+
+      finalRecommendation.value = rec2 
+        ? `${formationLabel} - ${rec1} & ${rec2}`
+        : `${formationLabel} - ${rec1}`;
 
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
         levelsScores: levelsScores.value,
         finalRecommendation: finalRecommendation.value,
         stopLevel: currentLevel.label,
+        lastValidatedLevel: finalLevel,
         positionnementAnswers: positionnementAnswers.value,
       });
 
@@ -228,31 +273,18 @@ async function saveAndExit() {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit bg-gray-50/50">
-    <!-- Header -->
-    <header
-      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
-        >
-           <AppLogo />
-        </div>
-          
-        
-      </div>
-
-      <div class="flex items-center gap-4">
+    <SiteHeader>
+      <template #actions>
         <button
           @click="saveAndExit"
           :disabled="submitting"
-          class="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all font-bold text-sm text-gray-600 border border-gray-100"
+          class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all font-bold text-sm text-blue-900 border border-white/30"
         >
           <span class="material-icons-outlined text-lg">save</span>
           {{ submitting ? "Sauvegarde..." : "Enregistrer et quitter" }}
         </button>
-      </div>
-    </header>
+      </template>
+    </SiteHeader>
 
     <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-12 md:py-20">
       <!-- Section Résultats -->
@@ -337,14 +369,35 @@ async function saveAndExit() {
                 Test de positionnement - {{ formationLabel }}
               </h1>
               <p class="text-gray-400 font-medium text-sm md:text-base">
-                Parcours adaptatif : Succès sur les premières questions validé.
+                {{ currentLevelIndex === 0 ? "Bienvenue dans votre évaluation adaptive." : "Niveau suivant débloqué !" }}
               </p>
             </div>
             <div
-              class="flex items-center gap-2 px-5 py-2 bg-success-soft text-success rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
+              class="flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
             >
               <span class="material-icons-outlined text-sm">trending_up</span>
-              En bonne voie pour {{ levels[currentLevelIndex]?.label }}
+              Évaluation du niveau {{ levels[currentLevelIndex]?.label }}
+            </div>
+          </div>
+
+          <!-- Adaptive Introduction -->
+          <div class="bg-blue-600 rounded-3xl p-8 mb-8 text-white shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+              <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
+                <span class="material-icons-outlined text-3xl">info</span>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl font-bold mb-2">
+                  {{ currentLevelIndex === 0 ? "Comment fonctionne ce test ?" : "Bravo, vous progressez !" }}
+                </h3>
+                <p class="text-blue-50 text-sm leading-relaxed" v-if="currentLevelIndex === 0">
+                  Ce test est adaptatif. Il commence par le niveau <strong>{{ levels[0]?.label }}</strong>. Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
+                </p>
+                <p class="text-blue-50 text-sm leading-relaxed" v-else>
+                  Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau <strong>{{ levels[currentLevelIndex]?.label }}</strong> afin d'affiner votre programme de formation.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -395,88 +448,159 @@ async function saveAndExit() {
             <div class="flex items-center gap-4 mb-8">
               <span
                 class="text-xs font-bold text-gray-300 uppercase tracking-widest whitespace-nowrap"
-                >Révision {{ levels[currentLevelIndex]?.label }}</span
+                >Parcours {{ levels[currentLevelIndex]?.label }}</span
               >
               <div class="h-px w-full bg-gray-100"></div>
             </div>
 
             <div class="space-y-5">
-              <div
-                v-for="(q, idx) in questions"
-                :key="q.id"
-                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group"
-              >
-                <div class="p-6 md:p-8">
-                  <div class="flex items-start gap-4 mb-6">
-                    <div
-                    class="shrink-0 w-8 h-8 rounded-xl bg-success-soft flex items-center justify-center text-success font-bold text-sm"
-                    >
-                      {{ idx + 1 }}
-                    </div>
-                    <div>
-                      <h3
-                        class="text-base md:text-lg font-bold heading-primary leading-snug mb-1"
+              <!-- MODE LISTE (CLASSIQUE) -->
+              <template v-if="!isPaginated">
+                <div
+                  v-for="(q, idx) in questions"
+                  :key="q.id"
+                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group animate-in fade-in slide-in-from-bottom-2 duration-500"
+                >
+                  <div class="p-6 md:p-8">
+                    <div class="flex items-start gap-4 mb-6">
+                      <div
+                      class="shrink-0 w-8 h-8 rounded-xl bg-success-soft flex items-center justify-center text-success font-bold text-sm"
                       >
-                        {{ q.text }}
-                      </h3>
-                      <p class="text-xs md:text-sm text-gray-400 font-medium">
-                        Sélectionnez la réponse correcte pour valider ce point.
-                      </p>
+                        {{ idx + 1 }}
+                      </div>
+                      <div>
+                        <h3
+                          class="text-base md:text-lg font-bold heading-primary leading-snug mb-1"
+                        >
+                          {{ q.text }}
+                        </h3>
+                        <p class="text-xs md:text-sm text-gray-400 font-medium">
+                          Sélectionnez la réponse correcte pour valider ce point.
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="grid grid-cols-1 gap-3">
-                    <label
-                      v-for="(option, oIdx) in q.options"
-                      :key="oIdx"
-                      class="flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group/opt"
-                      :class="
-                        currentResponses[q.id] === option
-                          ? 'border-brand-primary bg-brand-primary/5'
-                          : 'border-gray-50 bg-transparent hover:border-brand-primary/30 hover:bg-white'
-                      "
-                    >
-                      <input
-                        type="radio"
-                        :name="'q-' + q.id"
+                    <div v-if="q.responseType === 'text'" class="mt-4">
+                      <textarea
                         v-model="currentResponses[q.id]"
-                        :value="option"
-                        class="hidden"
-                      />
-                      <div class="flex items-center gap-3">
+                        rows="3"
+                        class="w-full px-5 py-4 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                        placeholder="Saisissez votre réponse..."
+                      ></textarea>
+                    </div>
+
+                    <div v-else class="grid grid-cols-1 gap-3">
+                      <label
+                        v-for="(option, oIdx) in q.options"
+                        :key="oIdx"
+                        class="option-card"
+                        :class="
+                          currentResponses[q.id] === option
+                            ? 'option-card--selected'
+                            : 'option-card--default'
+                        "
+                      >
+                        <input
+                          type="radio"
+                          :name="'q-' + q.id"
+                          v-model="currentResponses[q.id]"
+                          :value="option"
+                          class="hidden"
+                        />
+                        <span class="option-card__label">{{ option }}</span>
                         <div
-                          class="shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                          class="option-card__radio"
                           :class="
                             currentResponses[q.id] === option
-                              ? 'border-brand-primary bg-brand-primary'
-                              : 'border-gray-300 group-hover/opt:border-brand-primary'
+                              ? 'option-card__radio--selected'
+                              : 'option-card__radio--default'
                           "
                         >
                           <div
                             v-if="currentResponses[q.id] === option"
-                            class="w-1.5 h-1.5 rounded-full bg-white"
+                            class="option-card__radio-dot"
                           ></div>
                         </div>
-                        <span
-                          class="font-medium text-sm"
-                          :class="
-                            currentResponses[q.id] === option
-                              ? 'text-brand-primary'
-                              : 'text-gray-700'
-                          "
-                        >
-                          {{ option }}
-                        </span>
-                      </div>
-                      <span
-                        v-if="currentResponses[q.id] === option"
-                        class="material-icons-outlined text-brand-primary text-sm animate-scale-in"
-                        >check_circle</span
-                      >
-                    </label>
+                      </label>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </template>
+
+              <!-- MODE PAGINÉ (QUESTION PAR QUESTION) -->
+              <template v-else>
+                <div 
+                  v-if="questions[currentQuestionIndex]"
+                  :key="questions[currentQuestionIndex].id"
+                  class="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-primary/5 border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500"
+                >
+                  <div class="p-8 md:p-12">
+                    <div class="flex items-center justify-between mb-8">
+                      <span class="px-5 py-2 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Question {{ currentQuestionIndex + 1 }} sur {{ questions.length }}
+                      </span>
+                      <div class="flex gap-2">
+                        <div 
+                          v-for="(_, i) in questions" 
+                          :key="i"
+                          class="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                          :class="i === currentQuestionIndex ? 'bg-brand-primary w-4' : (currentResponses[questions[i].id] ? 'bg-green-300' : 'bg-gray-200')"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div class="space-y-8">
+                      <h3 class="text-xl md:text-2xl font-black heading-primary leading-tight">
+                        {{ questions[currentQuestionIndex].text }}
+                      </h3>
+
+                      <div v-if="questions[currentQuestionIndex].responseType === 'text'">
+                        <textarea
+                          v-model="currentResponses[questions[currentQuestionIndex].id]"
+                          rows="4"
+                          class="w-full px-6 py-5 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-[2rem] outline-none transition-all font-bold text-base"
+                          placeholder="Saisissez votre réponse..."
+                        ></textarea>
+                      </div>
+
+                      <div v-else class="grid grid-cols-1 gap-4">
+                        <label
+                          v-for="(option, oIdx) in questions[currentQuestionIndex].options"
+                          :key="oIdx"
+                          class="option-card !rounded-[1.5rem] !p-6 !min-height-[4.5rem]"
+                          :class="
+                            currentResponses[questions[currentQuestionIndex].id] === option
+                              ? 'option-card--selected'
+                              : 'option-card--default'
+                          "
+                        >
+                          <input
+                            type="radio"
+                            :name="'q-paginated'"
+                            v-model="currentResponses[questions[currentQuestionIndex].id]"
+                            :value="option"
+                            class="hidden"
+                          />
+                          <span class="option-card__label !text-base">{{ option }}</span>
+                          <div
+                            class="option-card__radio !w-6 !h-6"
+                            :class="
+                              currentResponses[questions[currentQuestionIndex].id] === option
+                                ? 'option-card__radio--selected'
+                                : 'option-card__radio--default'
+                            "
+                          >
+                            <div
+                              v-if="currentResponses[questions[currentQuestionIndex].id] === option"
+                              class="option-card__radio-dot !w-2 !h-2"
+                            ></div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
 
@@ -503,44 +627,80 @@ async function saveAndExit() {
             </div>
 
             <div class="flex items-center gap-3">
-              <button
-                @click="router.push('/formations')"
-                class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
-              >
-                Précédent
-              </button>
-              <button
-                @click="nextStep"
-                :disabled="
-                  submitting ||
-                  Object.values(currentResponses).some((r) => r === null)
-                "
-                class="px-8 py-3 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-sm"
-              >
-                <span>{{
-                  currentLevelIndex === levels.length - 1
-                    ? "Terminer"
-                    : "Suivant"
-                }}</span>
-                <span v-if="!submitting" class="material-icons-outlined text-lg"
-                  >arrow_forward</span
+              <template v-if="isPaginated">
+                <button
+                  @click="currentQuestionIndex--"
+                  :disabled="currentQuestionIndex === 0"
+                  class="px-6 py-3 text-sm font-bold text-gray-400 hover:text-brand-primary transition-all flex items-center gap-2 disabled:opacity-20"
                 >
-                <div
+                  <span class="material-icons-outlined text-lg">arrow_back</span>
+                  Question précédente
+                </button>
+                
+                <button
+                  v-if="currentQuestionIndex < questions.length - 1"
+                  @click="currentQuestionIndex++"
+                  :disabled="!currentResponses[questions[currentQuestionIndex].id]"
+                  class="px-8 py-3 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl hover:bg-brand-primary hover:text-white transition-all flex items-center gap-2 disabled:opacity-30"
+                >
+                  Suivant
+                  <span class="material-icons-outlined text-lg">arrow_forward</span>
+                </button>
+
+                <button
                   v-else
-                  class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
-                ></div>
-              </button>
+                  @click="nextStep"
+                  :disabled="submitting || !currentResponses[questions[currentQuestionIndex].id]"
+                  class="px-8 py-3 bg-brand-primary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-30"
+                >
+                  <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
+                  <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
+                  <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
+                </button>
+              </template>
+
+              <template v-else>
+                <button
+                  @click="router.push('/formations')"
+                  class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
+                >
+                  Précédent
+                </button>
+                <button
+                  @click="nextStep"
+                  :disabled="
+                    submitting ||
+                    Object.entries(currentResponses).some(([id, r]) => {
+                      const q = questions.find(qv => qv.id == id);
+                      return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
+                    })
+                  "
+                  class="px-8 py-3 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-sm"
+                >
+                  <span>{{
+                    currentLevelIndex === levels.length - 1
+                      ? "Terminer"
+                      : "Suivant"
+                  }}</span>
+                  <span v-if="!submitting" class="material-icons-outlined text-lg"
+                    >arrow_forward</span
+                  >
+                  <div
+                    v-else
+                    class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
+                  ></div>
+                </button>
+              </template>
             </div>
           </div>
         </div>
       </div>
     </main>
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;
@@ -559,5 +719,67 @@ async function saveAndExit() {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* Option card */
+.option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  min-height: 3.5rem;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.option-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.option-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.option-card--selected .option-card__label {
+  color: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
 }
 </style>

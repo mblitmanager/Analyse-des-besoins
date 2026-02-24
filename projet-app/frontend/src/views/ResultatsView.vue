@@ -5,7 +5,9 @@ import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import AppLogo from '../components/AppLogo.vue'
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
+import AppLogo from '../components/AppLogo.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -34,22 +36,29 @@ const recommendedLabel = computed(() => {
   }`.trim();
 });
 
-const currentLevel = computed(() => {
+const recommendedLevel1 = computed(() => {
   if (!session.value || !levels.value.length) return null;
-  const label =
-    session.value.lastValidatedLevel || session.value.stopLevel || null;
-  if (!label) return null;
-  return levels.value.find((l) => l.label === label) || null;
+  const rec = session.value.finalRecommendation || "";
+  if (!rec.includes("&")) {
+    const label = session.value.lastValidatedLevel || session.value.stopLevel;
+    return levels.value.find(l => l.label === label) || null;
+  }
+  // Format: "Formation - Level1 & Level2"
+  const parts = rec.split("-")[1]?.trim().split("&");
+  if (!parts) return null;
+  const l1Label = parts[0].trim();
+  return levels.value.find(l => l.label === l1Label) || null;
 });
 
-const nextLevel = computed(() => {
-  if (!levels.value.length) return null;
-  const current = currentLevel.value;
-  if (!current) return null;
-  const sorted = levels.value.slice().sort((a, b) => a.order - b.order);
-  const idx = sorted.findIndex((l) => l.id === current.id);
-  if (idx === -1 || idx === sorted.length - 1) return null;
-  return sorted[idx + 1];
+const recommendedLevel2 = computed(() => {
+  if (!session.value || !levels.value.length) return null;
+  const rec = session.value.finalRecommendation || "";
+  if (!rec.includes("&")) return null;
+  
+  const parts = rec.split("-")[1]?.trim().split("&");
+  if (!parts || parts.length < 2) return null;
+  const l2Label = parts[1].trim();
+  return levels.value.find(l => l.label === l2Label) || null;
 });
 
 async function loadLevelsForFormation() {
@@ -260,48 +269,37 @@ const downloadPDF = async () => {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit">
-    <!-- Header -->
-    <header
-      class="bg-white px-8 py-4 flex items-center justify-between sticky top-0 z-50"
-    >
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl">
-          <AppLogo />
-        </div>
-        <!-- <AppLogo /> -->
-      </div>
-
-      <div v-if="session" class="flex items-center gap-4">
-        <button
-          @click="downloadPDF"
-          :disabled="downloadingPDF"
-          class="flex items-center gap-2 px-4 py-2 btn-primary rounded-xl text-xs font-bold hover:bg-black transition-all disabled:opacity-50"
-        >
-          <span class="material-icons-outlined text-sm">{{
-            downloadingPDF ? "sync" : "picture_as_pdf"
-          }}</span>
-          {{ downloadingPDF ? "Génération..." : "Télécharger PDF" }}
-        </button>
-        <div
-          class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100"
-        >
+    <SiteHeader>
+      <template #actions>
+        <div v-if="session" class="flex items-center gap-4">
+          <button
+            @click="downloadPDF"
+            :disabled="downloadingPDF"
+            class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all font-bold text-sm text-blue-900 border border-white/30 disabled:opacity-50"
+          >
+            <span class="material-icons-outlined text-sm">{{
+              downloadingPDF ? "sync" : "picture_as_pdf"
+            }}</span>
+            {{ downloadingPDF ? "PDF" : "Télécharger PDF" }}
+          </button>
           <div
-            class="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm"
+            class="hidden md:flex items-center gap-3 bg-white/40 px-3 py-1.5 rounded-xl backdrop-blur-sm border border-white/30"
           >
-            <img
-              src="https://ui-avatars.com/api/?name=Alex+Dupont&background=0D8ABC&color=fff"
-              alt="Avatar"
-            />
+            <div
+              class="w-7 h-7 rounded-full overflow-hidden border-2 border-white/50 shadow-sm"
+            >
+              <img
+                src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff"
+                :alt="session.prenom"
+              />
+            </div>
+            <span class="text-xs font-bold text-blue-900"
+              >{{ session.prenom }} {{ session.nom }}</span
+            >
           </div>
-          <span class="text-sm font-bold text-gray-800"
-            >{{ session.prenom }} {{ session.nom }}</span
-          >
         </div>
-        <button class="text-gray-400 hover:text-gray-600 transition-colors">
-          <span class="material-icons-outlined text-xl">logout</span>
-        </button>
-      </div>
-    </header>
+      </template>
+    </SiteHeader>
 
     <main
       v-if="loading"
@@ -472,8 +470,7 @@ const downloadPDF = async () => {
               <span
                 class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest mb-3"
               >
-                Niveau recommandé :
-                {{ session.lastValidatedLevel || session.stopLevel || "À définir" }}
+                {{ recommendedLevel2 ? "Programme Pack Duo" : "Niveau recommandé" }} :
               </span>
               <h3 class="text-2xl md:text-3xl font-bold mb-3">
                 {{ recommendedLabel || 'Parcours personnalisé' }}
@@ -508,13 +505,11 @@ const downloadPDF = async () => {
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
                   <h4 class="text-lg font-bold heading-primary">
-                    {{ session.formationChoisie }} - Niveau
-                    {{ session.lastValidatedLevel || session.stopLevel || "personnalisé" }}
+                    {{ session.formationChoisie }} - {{ recommendedLevel1?.label }}
                   </h4>
                 </div>
                 <p class="text-gray-400 mb-4 font-medium text-sm">
-                  Renforcez vos bases et commencez à échanger avec fluidité dans
-                  des situations quotidiennes.
+                  {{ recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
                 </p>
                 <div class="flex items-center gap-6">
                   <div
@@ -563,13 +558,11 @@ const downloadPDF = async () => {
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
                   <h4 class="text-lg font-bold heading-primary">
-                    {{ session.formationChoisie }} - Objectif :
-                    {{ nextLevel ? nextLevel.label : "niveau supérieur" }}
+                    {{ session.formationChoisie }} - {{ recommendedLevel2?.label }}
                   </h4>
                 </div>
                 <p class="text-gray-400 mb-4 font-medium text-sm">
-                  Maîtrisez le vocabulaire professionnel et devenez autonome
-                  pour vos futures missions.
+                  {{ recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
                 </p>
                 <div class="flex items-center gap-6">
                   <div
@@ -590,6 +583,11 @@ const downloadPDF = async () => {
                   </div>
                 </div>
               </div>
+            </div>
+            
+            <!-- Fallback if only 1 level (unlikely with Pack Duo but safer) -->
+            <div v-else class="text-center py-4 text-gray-400 italic text-sm">
+              Parcours de formation complet.
             </div>
 
             <!-- Financement Box -->
@@ -635,63 +633,13 @@ const downloadPDF = async () => {
         </div>
       </section>
 
-      <!-- Page Footer -->
-      <footer class="mt-20 text-center text-gray-400">
-        <div class="flex items-center justify-center gap-2 mb-3">
-          <span class="material-icons-outlined text-brand-primary text-lg"
-            >school</span
-          >
-          <span class="font-bold heading-primary tracking-tight text-base"
-            >Wizi Learn</span
-          >
-        </div>
-        <!-- logo retiré du footer -->
-        <div
-          class="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] font-bold uppercase tracking-widest"
-        >
-          <a
-            href="https://ns-conseil.com/reglement-interieur/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:text-brand-primary"
-          >
-            Règlement intérieur
-          </a>
-          <a
-            href="https://ns-conseil.com/cgv/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:text-brand-primary"
-          >
-            CGV
-          </a>
-          <router-link
-            to="/mentions-legales"
-            class="hover:text-brand-primary"
-          >
-            Mentions légales
-          </router-link>
-          <router-link
-            to="/respect-vie-privee"
-            class="hover:text-brand-primary"
-          >
-            Respect de la vie privée
-          </router-link>
-          <router-link
-            to="/politique-confidentialite"
-            class="hover:text-brand-primary"
-          >
-            Politique de confidentialité
-          </router-link>
-        </div>
-      </footer>
     </main>
+
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;

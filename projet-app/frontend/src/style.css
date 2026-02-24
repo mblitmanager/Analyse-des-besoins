@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 
 @layer components {
   .Wizi-label {
@@ -201,7 +201,7 @@ button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .
 
 /* Header (bandeau) and footer styling per requested palette */
 header, .site-header {
-  background-color: var(--accent-color); /* #eab973 */
+  background-color: #eae2d6; /* #eab973 */
   color: var(--section-color); /* #428496 */
 }
 
@@ -215,7 +215,7 @@ header .Wizi-label, header .heading-primary, header h1, header h2, header h3 {
 }
 
 footer, .site-footer {
-  background-color: var(--accent-color); /* #eab973 */
+  background-color: #eae2d6; /* #eab973 */
   color: var(--title-color); /* #315264 */
 }
 

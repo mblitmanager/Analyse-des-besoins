@@ -21,10 +21,7 @@ export class QuestionsController {
     @Query('formation') formation?: string,
     @Query('scope') scope?: 'auto' | 'global' | 'formation',
   ) {
-    return this.questionsService.findPrerequisites(
-      formation,
-      scope || 'auto',
-    );
+    return this.questionsService.findPrerequisites(formation, scope || 'auto');
   }
 
   @Get('workflow/:type')
@@ -68,6 +65,12 @@ export class QuestionsController {
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: number, @Body() data: any) {
     return this.questionsService.update(id, data);
+  }
+
+  @Patch('order')
+  @UseGuards(JwtAuthGuard)
+  updateOrder(@Body() orders: { id: number; order: number }[]) {
+    return this.questionsService.updateOrder(orders);
   }
 
   @Delete(':id')

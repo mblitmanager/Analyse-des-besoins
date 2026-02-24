@@ -49,6 +49,11 @@ export class SeedService implements OnApplicationBootstrap {
         value: 'Wizy-Learn',
         description: 'Nom de la plateforme',
       },
+      {
+        key: 'POSITIONNEMENT_PAGINATED',
+        value: 'false',
+        description: 'Afficher le positionnement question par question',
+      },
     ];
 
     for (const s of settings) {
@@ -248,7 +253,7 @@ export class SeedService implements OnApplicationBootstrap {
       if (formation.slug === 'toeic') continue;
 
       for (const lData of genericLevelsData) {
-        let level = await this.levelRepo.findOne({
+        const level = await this.levelRepo.findOne({
           where: { label: lData.label, formation: { id: formation.id } },
         });
         if (!level) {
