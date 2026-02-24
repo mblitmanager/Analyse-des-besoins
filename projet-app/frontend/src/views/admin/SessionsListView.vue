@@ -51,7 +51,7 @@ async function fetchSessions() {
   loading.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const res = await axios.get(`${apiBaseUrl}/sessions`);
     sessions.value = res.data;
   } catch (error) {
@@ -64,7 +64,7 @@ async function fetchSessions() {
 async function fetchQuestionsIndex() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const res = await axios.get(`${apiBaseUrl}/questions`);
     const index = {};
     res.data.forEach((q) => {
@@ -81,7 +81,7 @@ async function saveSessionEdits() {
   savingSession.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
     const payload = {
       // Champs administratifs modifiables
@@ -129,7 +129,7 @@ async function deleteSession(session) {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.delete(`${apiBaseUrl}/sessions/${session.id}`);
     await fetchSessions();
   } catch (error) {

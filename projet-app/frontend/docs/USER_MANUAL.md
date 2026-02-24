@@ -42,7 +42,7 @@ Ce manuel décrit l'utilisation de l'interface web côté utilisateur et les op�
 - Build frontend: `npm ci && npm run build` dans `projet-app/frontend`.
 - Copier le contenu `dist` vers `/var/www/analyse/projet-app/frontend/dist`.
 - Backend: `npm ci && npm run build` puis `pm2 restart aopia-backend`.
-- Apache doit proxy `/api` vers le backend (ex: `127.0.0.1:3001`). Voir `projet-app/apache-vhost.conf`.
+- Apache doit proxy `/api` vers le backend (ex: `127.0.0.1:3000`). Voir `projet-app/apache-vhost.conf`.
 
 ## 6. Résolution des problèmes courants
 - Erreur CORS: utiliser `VITE_API_BASE_URL=/api` et rebuild frontend, ou autoriser l'origine côté backend.

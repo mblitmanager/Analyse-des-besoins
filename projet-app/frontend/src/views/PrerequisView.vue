@@ -23,7 +23,7 @@ onMounted(async () => {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const session = sessionRes.data;
 
@@ -108,7 +108,7 @@ async function submitPrerequis() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       prerequisiteScore: responses.value,
     });

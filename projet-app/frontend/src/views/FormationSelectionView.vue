@@ -18,7 +18,7 @@ const categories = ref([]);
 async function fetchFormations() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
 
     // Group by category
@@ -53,7 +53,7 @@ async function selectFormation() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       formationChoisie: selectedFormation.value.label,
     });

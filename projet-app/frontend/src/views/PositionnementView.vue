@@ -24,7 +24,7 @@ const positionnementAnswers = ref({});
 const showResults = ref(false);
 const finalRecommendation = ref("");
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 async function loadLevels() {
   try {
@@ -168,7 +168,7 @@ async function nextStep() {
     });
 
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
@@ -211,7 +211,7 @@ async function saveAndExit() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       positionnementAnswers: positionnementAnswers.value,

@@ -20,7 +20,7 @@ export const useAppStore = defineStore('app', () => {
 
   async function fetchWorkflow() {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
       const response = await fetch(`${apiBaseUrl}/workflow`);
       workflowSteps.value = await response.json();
     } catch (error) {
