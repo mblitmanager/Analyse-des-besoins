@@ -20,6 +20,7 @@ const formationLabel = localStorage.getItem("selected_formation_label");
 const sessionId = localStorage.getItem("session_id");
 
 const levelsScores = ref({});
+const positionnementAnswers = ref({});
 const showResults = ref(false);
 const finalRecommendation = ref("");
 
@@ -127,20 +128,34 @@ async function nextStep() {
   try {
     // 1. Calculate score for current level
     let correctCount = 0;
+    const currentLevel = levels.value[currentLevelIndex.value];
+    const percentage = (correctCount / questions.value.length) * 100;
+
+    // Stocker les réponses de ce niveau dans un objet par niveau
+    if (!positionnementAnswers.value[currentLevel.label]) {
+      positionnementAnswers.value[currentLevel.label] = {};
+    }
     questions.value.forEach((q) => {
-      if (currentResponses.value[q.id] === q.options[q.correctResponseIndex]) {
+      const answer = currentResponses.value[q.id];
+      positionnementAnswers.value[currentLevel.label][q.id] = answer;
+      if (answer === q.options[q.correctResponseIndex]) {
         correctCount++;
       }
     });
 
-    const currentLevel = levels.value[currentLevelIndex.value];
-    const percentage = (correctCount / questions.value.length) * 100;
+    // Sécurise le seuil : si le niveau demande plus de bonnes réponses que le nombre
+    // de questions chargées, on considère le maximum possible.
+    const requiredCorrect = Math.min(
+      Number(currentLevel.successThreshold ?? questions.value.length),
+      questions.value.length,
+    );
 
     levelsScores.value[currentLevel.label] = {
       score: correctCount,
       total: questions.value.length,
       percentage: percentage,
-      validated: correctCount >= currentLevel.successThreshold,
+      requiredCorrect,
+      validated: correctCount >= requiredCorrect,
     };
 
     // 2. Update session with scores so far
@@ -156,10 +171,11 @@ async function nextStep() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
+      positionnementAnswers: positionnementAnswers.value,
     });
 
     // 3. Adaptive logic: check if transition to next level is allowed
-    const canProgress = correctCount >= currentLevel.successThreshold;
+    const canProgress = correctCount >= requiredCorrect;
 
     if (!canProgress || currentLevelIndex.value === levels.value.length - 1) {
       finalRecommendation.value = `${formationLabel} - ${finalLevel}`;
@@ -168,6 +184,7 @@ async function nextStep() {
         levelsScores: levelsScores.value,
         finalRecommendation: finalRecommendation.value,
         stopLevel: currentLevel.label,
+        positionnementAnswers: positionnementAnswers.value,
       });
 
       showResults.value = true;
@@ -196,6 +213,7 @@ async function saveAndExit() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
+      positionnementAnswers: positionnementAnswers.value,
     });
     router.push("/");
   } catch (error) {
@@ -390,7 +408,7 @@ async function saveAndExit() {
                 <div class="p-6 md:p-8">
                   <div class="flex items-start gap-4 mb-6">
                     <div
-                      class="flex-shrink-0 w-8 h-8 rounded-xl bg-success-soft flex items-center justify-center text-success font-bold text-sm"
+                    class="shrink-0 w-8 h-8 rounded-xl bg-success-soft flex items-center justify-center text-success font-bold text-sm"
                     >
                       {{ idx + 1 }}
                     </div>
@@ -426,7 +444,7 @@ async function saveAndExit() {
                       />
                       <div class="flex items-center gap-3">
                         <div
-                          class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                          class="shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                           :class="
                             currentResponses[q.id] === option
                               ? 'border-brand-primary bg-brand-primary'
@@ -467,7 +485,7 @@ async function saveAndExit() {
           >
             <div class="flex items-center gap-3">
               <div
-                class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-blue-400 text-sm"
+                class="shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-blue-400 text-sm"
               >
                 <span class="material-icons-outlined">auto_fix_high</span>
               </div>

@@ -13,10 +13,20 @@ export class QuestionsService {
   async findQuestions(
     type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities',
     formationSlug?: string,
+    scope: 'auto' | 'global' | 'formation' = 'auto',
   ) {
-    // Si une formation est fournie, on privilégie ses questions dédiées.
-    if (formationSlug) {
-      const specific = await this.questionRepo.find({
+    // 1) Forcer global
+    if (!formationSlug || scope === 'global') {
+      return this.questionRepo.find({
+        where: { type, isActive: true, formation: null } as any,
+        order: { order: 'ASC' },
+        relations: ['formation', 'level'],
+      });
+    }
+
+    // 2) Forcer uniquement la formation
+    if (scope === 'formation') {
+      return this.questionRepo.find({
         where: {
           type,
           isActive: true,
@@ -25,13 +35,23 @@ export class QuestionsService {
         order: { order: 'ASC' },
         relations: ['formation', 'level'],
       });
-
-      if (specific.length > 0) {
-        return specific;
-      }
     }
 
-    // Sinon (ou si aucune question spécifique n'existe), on retombe sur les questions globales
+    // 3) Mode auto (défaut) : utiliser la formation si elle a des questions, sinon basculer sur global
+    const specific = await this.questionRepo.find({
+      where: {
+        type,
+        isActive: true,
+        formation: { slug: formationSlug },
+      } as any,
+      order: { order: 'ASC' },
+      relations: ['formation', 'level'],
+    });
+
+    if (specific.length > 0) {
+      return specific;
+    }
+
     return this.questionRepo.find({
       where: { type, isActive: true, formation: null } as any,
       order: { order: 'ASC' },
@@ -39,8 +59,11 @@ export class QuestionsService {
     });
   }
 
-  findPrerequisites(formationSlug?: string) {
-    return this.findQuestions('prerequis', formationSlug);
+  findPrerequisites(
+    formationSlug?: string,
+    scope: 'auto' | 'global' | 'formation' = 'auto',
+  ) {
+    return this.findQuestions('prerequis', formationSlug, scope);
   }
 
   findByLevel(formationSlug: string, levelLabel: string) {

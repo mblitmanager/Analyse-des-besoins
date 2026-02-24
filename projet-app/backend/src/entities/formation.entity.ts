@@ -42,6 +42,15 @@ export class Formation {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ type: 'varchar', length: 12, default: 'auto' })
+  prerequisQuestionsScope: 'auto' | 'global' | 'formation';
+
+  @Column({ type: 'varchar', length: 12, default: 'auto' })
+  complementaryQuestionsScope: 'auto' | 'global' | 'formation';
+
+  @Column({ type: 'varchar', length: 12, default: 'auto' })
+  availabilitiesQuestionsScope: 'auto' | 'global' | 'formation';
+
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 

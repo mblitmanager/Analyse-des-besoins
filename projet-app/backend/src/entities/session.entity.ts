@@ -39,6 +39,9 @@ export class Session {
   @Column('simple-json', { nullable: true })
   levelsScores: any;
 
+  @Column('simple-json', { nullable: true })
+  positionnementAnswers: any;
+
   @Column({ type: 'int', nullable: true })
   scorePretest: number;
 
