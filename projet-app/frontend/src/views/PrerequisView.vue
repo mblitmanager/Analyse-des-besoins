@@ -17,7 +17,8 @@ const questions = ref([]);
 const responses = ref({});
 const groups = ref([]);
 const QUESTIONS_PER_PAGE = 5;
-const isPaginated = ref(true);
+const isPaginated = ref(false);
+const currentPage = ref(0);
 
 const allQuestions = computed(() =>
   groups.value.flatMap((g) => g.questions)
