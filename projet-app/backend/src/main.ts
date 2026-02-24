@@ -13,6 +13,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Expose all API routes under /api so frontend can call /api/* without CORS issues
+  app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('WiziLearn API')
     .setDescription("Documentation technique de l'API WiziLearn (AOPIA/LIKE)")
