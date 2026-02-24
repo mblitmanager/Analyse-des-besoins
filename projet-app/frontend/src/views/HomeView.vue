@@ -17,28 +17,8 @@ const form = ref({
 
 const loading = ref(false);
 
-const conseillers = ref(["Sélectionnez votre conseiller..."]);
-
-async function fetchConseillers() {
-  try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const response = await fetch(`${apiBaseUrl}/contacts`);
-    const data = await response.json();
-
-    // Filter active contacts and extract names
-    const activeNames = data
-      .filter((c) => c.isActive !== false)
-      .map((c) => `${c.prenom} ${c.nom}`);
-
-    conseillers.value = ["Sélectionnez votre conseiller...", ...activeNames];
-  } catch (error) {
-    console.error("Failed to fetch conseillers:", error);
-  }
-}
-
 onMounted(() => {
-  fetchConseillers();
+  // fetchConseillers supprimé car on utilise désormais un champ libre
 });
 
 async function startTest() {
@@ -168,10 +148,7 @@ async function testDbConnection() {
 
             <div>
               <label class="Wizi-label" for="conseiller">Conseiller en formation</label>
-              <select v-model="form.conseiller" class="Wizi-input bg-white" id="conseiller" name="conseiller">
-                <option disabled value="">Sélectionnez votre conseiller</option>
-                <option v-for="c in conseillers" :key="c" :value="c === 'Sélectionnez votre conseiller...' ? '' : c">{{ c }}</option>
-              </select>
+              <input v-model="form.conseiller" class="Wizi-input" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller (optionnel)" type="text" />
             </div>
 
             <div class="pt-4">
