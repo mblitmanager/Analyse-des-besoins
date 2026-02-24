@@ -7,8 +7,20 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  const allowedOrigins = [
+    configService.get<string>('FRONTEND_URL'),
+    'https://api-nsconseil.solara-seaview.com',
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ].filter(Boolean) as string[];
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL') || '*',
+    origin: (origin, callback) => {
+      // allow non-browser or curl requests with no origin
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('CORS policy: Origin not allowed'), false);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
