@@ -4,7 +4,7 @@
 
 *Outil Web d'Analyse des Besoins et de Positionnement*
 
-**Plateforme Wizzy Learn**
+**Plateforme Wizi Learn**
 
 |  |  |
 | --- | --- |
@@ -18,7 +18,7 @@
 
 ## **1.1 Vue d'ensemble**
 
-L'application Wizzy Learn est une Single Page Application (SPA) web, responsive mobile-first, accessible via une URL discrète hébergée sur les domaines Aopia et Like. Elle est composée de trois couches :
+L'application Wizi Learn est une Single Page Application (SPA) web, responsive mobile-first, accessible via une URL discrète hébergée sur les domaines Aopia et Like. Elle est composée de trois couches :
 
 * Frontend : Interface utilisateur responsive (HTML5 / CSS3 / JavaScript ou framework moderne)
 * Backend : API RESTful gérant la logique des tests, les résultats et les envois d'e-mails

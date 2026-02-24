@@ -64,7 +64,7 @@ onMounted(fetchUsers);
           Gestion des Administrateurs
         </h2>
         <p class="text-gray-400 font-medium">
-          Gérez les accès à la plateforme WizzyAdmin.
+          Gérez les accès à la plateforme WiziAdmin.
         </p>
       </div>
       <button
@@ -184,22 +184,22 @@ onMounted(fetchUsers);
 
         <form @submit.prevent="createUser" class="space-y-6">
           <div class="space-y-2">
-            <label class="wizzy-label">Email</label>
+            <label class="Wizi-label">Email</label>
             <input
               v-model="newUser.email"
               type="email"
               required
-              class="wizzy-input"
+              class="Wizi-input"
               placeholder="ex: jean@wizy-learn.com"
             />
           </div>
           <div class="space-y-2">
-            <label class="wizzy-label">Mot de passe</label>
+            <label class="Wizi-label">Mot de passe</label>
             <input
               v-model="newUser.password"
               type="password"
               required
-              class="wizzy-input"
+              class="Wizi-input"
               placeholder="••••••••"
             />
           </div>

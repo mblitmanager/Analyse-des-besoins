@@ -186,16 +186,16 @@ export class SessionsService {
     });
 
     // Score final global (si possible)
-    const levelsEntries = session.levelsScores
-      ? Object.values(session.levelsScores as any)
+    const levelsEntries: any[] = session.levelsScores
+      ? (Object.values(session.levelsScores as any) as any[])
       : [];
-    const totalAnswered = levelsEntries.reduce(
+    const totalAnswered: number = levelsEntries.reduce(
       (acc: number, e: any) => acc + (Number(e?.total) || 0),
-      0,
+      0 as number,
     );
-    const totalCorrect = levelsEntries.reduce(
+    const totalCorrect: number = levelsEntries.reduce(
       (acc: number, e: any) => acc + (Number(e?.score) || 0),
-      0,
+      0 as number,
     );
     const scoreFinal =
       totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
@@ -279,10 +279,11 @@ export class SessionsService {
 
     // Send the email
     await this.emailService.sendReport(
-      'contact@wizy-learn.fr', // In a real app, this would be the admin or brand email
-      `Nouvelle Évaluation: ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+      // 'contact@wizi-learn.fr', // In a real app, this would be the admin or brand email
+      'herizo.randrianiaina@mbl-service.com', // In a real app, this would be the admin or brand email
+      `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
       `<div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #0D8ABC;">Bilan d'évaluation Wizzy Learn</h2>
+        <h2 style="color: #0D8ABC;">Bilan d'évaluation</h2>
         <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
         <p><strong>Email :</strong> ${session.stagiaire?.email || ''}</p>
         <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>

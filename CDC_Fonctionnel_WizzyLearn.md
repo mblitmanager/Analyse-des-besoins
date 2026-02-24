@@ -4,7 +4,7 @@
 
 *Outil Web d'Analyse des Besoins et de Positionnement*
 
-**Plateforme Wizzy Learn**
+**Plateforme Wizi Learn**
 
 |  |  |
 | --- | --- |
@@ -35,7 +35,7 @@ La réforme impose également que l'analyse des besoins soit réalisée, documen
 
 ## **1.4 Enjeux business**
 
-Sans adaptation dans les prochains jours, l'entreprise se retrouvera dans l'incapacité de vendre ses formations. Le risque est la fermeture dans un délai de 4 à 6 mois. L'outil Wizzy Learn est une réponse directe et prioritaire à cette contrainte.
+Sans adaptation dans les prochains jours, l'entreprise se retrouvera dans l'incapacité de vendre ses formations. Le risque est la fermeture dans un délai de 4 à 6 mois. L'outil Wizi Learn est une réponse directe et prioritaire à cette contrainte.
 
 # **2. Objectifs du Projet**
 

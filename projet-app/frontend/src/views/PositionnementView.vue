@@ -129,7 +129,6 @@ async function nextStep() {
     // 1. Calculate score for current level
     let correctCount = 0;
     const currentLevel = levels.value[currentLevelIndex.value];
-    const percentage = (correctCount / questions.value.length) * 100;
 
     // Stocker les réponses de ce niveau dans un objet par niveau
     if (!positionnementAnswers.value[currentLevel.label]) {
@@ -142,6 +141,8 @@ async function nextStep() {
         correctCount++;
       }
     });
+
+    const percentage = (correctCount / questions.value.length) * 100;
 
     // Sécurise le seuil : si le niveau demande plus de bonnes réponses que le nombre
     // de questions chargées, on considère le maximum possible.

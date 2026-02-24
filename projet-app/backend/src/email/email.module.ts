@@ -19,7 +19,7 @@ import { EmailController } from './email.controller';
           },
         },
         defaults: {
-          from: `"Wizzy Learn" <${configService.get<string>('MAIL_USERNAME')}>`,
+          from: `"Wizi Learn" <${configService.get<string>('MAIL_USERNAME')}>`,
         },
       }),
       inject: [ConfigService],

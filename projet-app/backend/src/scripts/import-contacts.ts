@@ -50,7 +50,7 @@ async function main() {
           port: +(process.env.DATABASE_PORT || 5432),
           username: process.env.DATABASE_USER || 'user',
           password: process.env.DATABASE_PASSWORD || 'password',
-          database: process.env.DATABASE_NAME || 'wizzylearn',
+          database: process.env.DATABASE_NAME || 'Wizilearn',
           entities: [Contact],
         },
   );

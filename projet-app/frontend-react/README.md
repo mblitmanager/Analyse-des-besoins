@@ -1,4 +1,4 @@
-# Frontend React (WizzyLearn)
+# Frontend React (WiziLearn)
 
 Scaffold minimal Vite + React pour le projet.
 

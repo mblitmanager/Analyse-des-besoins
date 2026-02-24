@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @layer components {
-  .wizzy-label {
+  .Wizi-label {
     display: block;
     font-size: .875rem;
     font-weight: 600;
@@ -10,7 +10,7 @@
     margin-bottom: .375rem;
   }
   
-  .wizzy-input {
+  .Wizi-input {
     background-color: #f9fafb; /* gray-50 fallback */
     border-color: #e5e7eb; /* gray-200 */
     border-radius: 0.75rem; /* rounded-xl */
@@ -21,7 +21,7 @@
     transition: all 0.2s;
   }
 
-  .wizzy-card {
+  .Wizi-card {
     background-color: #ffffff;
     padding: 1.5rem;
     border-radius: 1rem;

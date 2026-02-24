@@ -7,7 +7,7 @@ export default function NavBar() {
   return (
     <div className="flex items-center justify-between">
       <div>
-        <Link to="/" className="text-lg font-semibold text-blue-600">WizzyLearn</Link>
+        <Link to="/" className="text-lg font-semibold text-blue-600">WiziLearn</Link>
       </div>
       <nav className="flex items-center gap-4">
         <Link to="/contacts" className="text-sm">Contacts</Link>
