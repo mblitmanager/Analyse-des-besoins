@@ -25,7 +25,7 @@ const form = ref({
   levels: [],
 });
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const token = localStorage.getItem("admin_token");
 
 async function fetchFormations() {

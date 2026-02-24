@@ -1,0 +1,126 @@
+name: Deploy to VPS (no Docker)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache frontend/node_modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: Cache backend/node_modules
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Install & Build frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install & Build backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Archive artifacts
+        run: |
+          mkdir -p build_artifacts
+          tar -czf build_artifacts/frontend_dist.tar.gz -C frontend dist
+          tar -czf build_artifacts/backend_dist.tar.gz -C backend dist
+          cp backend/package*.json build_artifacts/ || true
+
+      - name: Prepare SSH known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy artifacts to VPS (rsync)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          rsync -az -e "ssh -i /tmp/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=yes" \
+            build_artifacts/frontend_dist.tar.gz build_artifacts/backend_dist.tar.gz build_artifacts/package*.json \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/deploy/
+
+      - name: Deploy on VPS (SSH commands)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '/var/www/analyse/projet-app' }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          ssh -i /tmp/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            mkdir -p /tmp/deploy
+            rm -rf /tmp/deploy/*
+            mv /tmp/deploy/frontend_dist.tar.gz /tmp/deploy/backend_dist.tar.gz /tmp/deploy/ 2>/dev/null || true
+            cd /tmp/deploy
+            tar -xzf frontend_dist.tar.gz || true
+            tar -xzf backend_dist.tar.gz || true
+
+            # Deploy frontend
+            sudo mkdir -p $DEPLOY_PATH/frontend/dist
+            sudo rm -rf $DEPLOY_PATH/frontend/dist/* || true
+            sudo cp -r dist/* $DEPLOY_PATH/frontend/dist/ || true
+            sudo chown -R www-data:www-data $DEPLOY_PATH/frontend/dist || true
+
+            # Deploy backend
+            sudo mkdir -p $DEPLOY_PATH/backend/dist
+            sudo rm -rf $DEPLOY_PATH/backend/dist/* || true
+            sudo cp -r dist/* $DEPLOY_PATH/backend/dist/ || true
+            sudo chown -R www-data:www-data $DEPLOY_PATH/backend/dist || true
+
+            # Ensure package files present for installing production deps
+            if [ -f package.json ]; then sudo cp package.json $DEPLOY_PATH/backend/ || true; fi
+            if [ -f package-lock.json ]; then sudo cp package-lock.json $DEPLOY_PATH/backend/ || true; fi
+
+            # Install production deps and restart pm2
+            cd $DEPLOY_PATH/backend
+            sudo npm ci --production || true
+            if pm2 describe aopia-backend >/dev/null 2>&1; then
+              pm2 restart aopia-backend --update-env || true
+            else
+              pm2 start ecosystem.config.js --env production || true
+            fi
+            pm2 save || true
+
+            # Reload apache
+            sudo systemctl reload apache2 || true
+
+            # cleanup temp
+            rm -rf /tmp/deploy/* || true
+          EOF
+
+      - name: Cleanup
+        run: rm -rf build_artifacts /tmp/deploy_key || true
+
+    env:
+      # required secrets:
+      # VPS_HOST, VPS_USER, SSH_PRIVATE_KEY
+      # optional: SSH_PORT, DEPLOY_PATH

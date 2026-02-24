@@ -35,7 +35,7 @@ const answeredPrereqCount = computed(() => {
 onMounted(async () => {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = await response.json();
   } catch (error) {
@@ -48,7 +48,7 @@ onMounted(async () => {
 async function validate() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, {
       method: "POST",
     });
@@ -64,7 +64,7 @@ async function validate() {
 }
 
 async function sendNotificationEmail() {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
   const payload = {
     to: 'mblitmanager@gmail.com',
     subject: `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`,

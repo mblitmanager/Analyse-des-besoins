@@ -13,7 +13,7 @@ async function handleSignup() {
   error.value = ''
   loading.value = true
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
     const res = await fetch(`${apiBaseUrl}/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
