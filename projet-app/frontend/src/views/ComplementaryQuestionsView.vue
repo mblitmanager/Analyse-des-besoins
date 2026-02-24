@@ -3,7 +3,8 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
-import AppLogo from '../components/AppLogo.vue'
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -42,6 +43,8 @@ onMounted(async () => {
     questions.value.forEach((q) => {
       if (q.metadata?.type === "radio_toggle") {
         responses.value[q.id] = "Non";
+      } else if (q.metadata?.type === "qcm") {
+        responses.value[q.id] = null;
       } else {
         responses.value[q.id] = "";
       }
@@ -91,37 +94,24 @@ async function skipStep() {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit">
-    <!-- Header -->
-    <header
-      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
-    >
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"><AppLogo />
+    <SiteHeader>
+      <template #actions>
+        <div class="hidden md:flex flex-col items-end mr-4">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Progression</span>
+            <span class="text-[10px] text-brand-primary font-bold">
+              Étape {{ store.getProgress("/complementary").current }}/{{ store.getProgress("/complementary").total }}
+            </span>
+          </div>
+          <div class="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/complementary').percentage + '%' }"
+            ></div>
+          </div>
         </div>
-        
-      </div>
-      <div class="hidden md:flex flex-col items-end">
-        <div class="flex items-center gap-2 mb-1">
-          <span
-            class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"
-            >Progression</span
-          >
-          <span class="text-[10px] text-brand-primary font-bold">
-            Étape {{ store.getProgress("/complementary").current }}/{{
-              store.getProgress("/complementary").total
-            }}
-          </span>
-        </div>
-        <div class="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-brand-primary transition-all duration-700"
-            :style="{
-              width: store.getProgress('/complementary').percentage + '%',
-            }"
-          ></div>
-        </div>
-      </div>
-    </header>
+      </template>
+    </SiteHeader>
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
@@ -145,10 +135,10 @@ async function skipStep() {
           class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
         >
           <div
-            class="px-6 py-5 border-b border-gray-50 flex items-center gap-3 bg-gray-50/30"
+            class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
-              class="w-9 h-9 rounded-lg bg-blue-600/10 flex items-center justify-center"
+              class="w-9 h-9 rounded-lg bg-blue-600/5 flex items-center justify-center"
             >
               <span class="material-icons-outlined text-blue-600 text-lg"
                 >person_search</span
@@ -179,14 +169,42 @@ async function skipStep() {
                     v-for="opt in q.options"
                     :key="opt"
                     @click="responses[q.id] = opt"
-                    class="flex-1 py-4 rounded-2xl border-2 font-bold text-sm transition-all"
+                    class="flex-1 py-4 rounded-2xl border transition-all font-bold text-sm"
                     :class="
                       responses[q.id] === opt
-                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                        : 'border-gray-100 text-gray-400 hover:border-brand-primary/30'
+                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary shadow-sm scale-[1.02]'
+                        : 'border-gray-100 bg-white text-gray-300 hover:border-gray-200'
                     "
                   >
                     {{ opt }}
+                  </button>
+                </div>
+
+                <!-- QCM Type (Multiple Choice) -->
+                <div
+                  v-else-if="q.metadata?.type === 'qcm'"
+                  class="grid grid-cols-1 gap-3"
+                >
+                  <button
+                    v-for="(opt, oIdx) in q.options"
+                    :key="oIdx"
+                    @click="responses[q.id] = opt"
+                    type="button"
+                    class="w-full p-4 rounded-2xl border text-left font-medium text-sm transition-all shadow-sm"
+                    :class="
+                      responses[q.id] === opt
+                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
+                        : 'border-gray-100 bg-white text-gray-400 hover:border-gray-200'
+                    "
+                  >
+                    <div class="flex items-center justify-between gap-3">
+                      <span>{{ opt }}</span>
+                      <span
+                        v-if="responses[q.id] === opt"
+                        class="material-icons-outlined text-brand-primary text-sm"
+                        >check_circle</span
+                      >
+                    </div>
                   </button>
                 </div>
 
@@ -196,16 +214,16 @@ async function skipStep() {
                   v-model="responses[q.id]"
                   :rows="q.metadata.rows || 3"
                   :placeholder="q.metadata.placeholder || ''"
-                  class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                  class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
                 ></textarea>
 
-                <!-- Default Text Type -->
+                <!-- Default Text Type (texte libre) -->
                 <input
                   v-else
                   v-model="responses[q.id]"
                   type="text"
-                  :placeholder="q.metadata?.placeholder || ''"
-                  class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                  :placeholder="q.metadata?.placeholder || 'Votre réponse...'"
+                  class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
                 />
               </div>
             </div>
@@ -224,12 +242,12 @@ async function skipStep() {
             Précédent
           </button>
           <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button
+            <!-- <button
               @click="skipStep"
               class="px-6 py-4 text-gray-400 hover:text-gray-600 font-bold text-sm transition-all border-2 border-transparent hover:border-gray-100 rounded-2xl"
             >
               Passer cette étape
-            </button>
+            </button> -->
             <button
               @click="nextStep"
               :disabled="submitting"
@@ -249,52 +267,11 @@ async function skipStep() {
       </div>
     </main>
 
-    <footer
-      class="bg-white border-t border-gray-100 px-8 py-8 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
-    >
-      <nav class="mx-auto max-w-5xl flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
-        <a
-          href="https://ns-conseil.com/reglement-interieur/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:text-brand-primary"
-        >
-          Règlement intérieur
-        </a>
-        <a
-          href="https://ns-conseil.com/cgv/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:text-brand-primary"
-        >
-          CGV
-        </a>
-        <router-link
-          to="/mentions-legales"
-          class="hover:text-brand-primary"
-        >
-          Mentions légales
-        </router-link>
-        <router-link
-          to="/respect-vie-privee"
-          class="hover:text-brand-primary"
-        >
-          Respect de la vie privée
-        </router-link>
-        <router-link
-          to="/politique-confidentialite"
-          class="hover:text-brand-primary"
-        >
-          Politique de confidentialité
-        </router-link>
-      </nav>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;

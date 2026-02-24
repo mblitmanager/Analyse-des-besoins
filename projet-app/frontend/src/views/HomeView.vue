@@ -2,7 +2,8 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
-import AppLogo from '../components/AppLogo.vue';
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -82,27 +83,9 @@ async function testDbConnection() {
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <header class="bg-white shadow-sm border-b border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex-shrink-0 flex items-center">
-          <div class="h-8 w-auto flex items-center space-x-2">
-            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg"><AppLogo /></div>
-            
-          </div>
-        </div>
+    <SiteHeader />
 
-        <div class="flex items-center">
-          <p class="text-sm text-gray-500 hidden sm:block">
-            Besoin d'aide ?
-            <a class="text-blue-600 hover:text-blue-500 font-medium" href="#">
-              Contactez le support
-            </a>
-          </p>
-        </div>
-      </div>
-    </header>
-
-    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <main class="grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
           <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Identification</h2>
@@ -153,67 +136,24 @@ async function testDbConnection() {
 
             <div class="pt-4">
               <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                Démarrer le test
+                Démarrer
+                 <!-- le test -->
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>
             </div>
           </form>
 
           <div class="mt-6">
-            <div class="relative">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300"></div>
-              </div>
-              <div class="relative flex justify-center text-sm">
-                <span class="px-2 bg-white text-gray-500">Sécurisé et confidentiel</span>
-              </div>
+            <div class="flex items-center justify-center gap-2 text-xs text-gray-400 font-medium">
+              <span class="material-icons-outlined text-sm">lock</span>
+              Sécurisé et confidentiel
             </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col items-center gap-3 pt-4 text-xs text-gray-400">
-          <!-- <AppLogo /> -->
-          <div
-            class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-bold uppercase tracking-widest"
-          >
-            <a
-              href="https://ns-conseil.com/reglement-interieur/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:text-brand-primary"
-            >
-              Règlement intérieur
-            </a>
-            <a
-              href="https://ns-conseil.com/cgv/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:text-brand-primary"
-            >
-              CGV
-            </a>
-            <router-link
-              to="/mentions-legales"
-              class="hover:text-brand-primary"
-            >
-              Mentions légales
-            </router-link>
-            <router-link
-              to="/respect-vie-privee"
-              class="hover:text-brand-primary"
-            >
-              Respect de la vie privée
-            </router-link>
-            <router-link
-              to="/politique-confidentialite"
-              class="hover:text-brand-primary"
-            >
-              Politique de confidentialité
-            </router-link>
           </div>
         </div>
       </div>
     </main>
+
+    <SiteFooter />
 
     <!-- decorative blobs -->
     <div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -224,8 +164,6 @@ async function testDbConnection() {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;

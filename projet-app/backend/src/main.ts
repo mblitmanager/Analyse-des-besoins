@@ -12,7 +12,9 @@ async function bootstrap() {
     'https://api-nsconseil.solara-seaview.com',
   ].filter(Boolean) as string[];
 
-  const isProd = configService.get<string>('NODE_ENV') === 'production' || process.env.NODE_ENV === 'production';
+  const isProd =
+    configService.get<string>('NODE_ENV') === 'production' ||
+    process.env.NODE_ENV === 'production';
 
   app.enableCors({
     origin: (origin, callback) => {

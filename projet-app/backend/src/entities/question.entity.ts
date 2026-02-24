@@ -24,6 +24,9 @@ export class Question {
   @Column({ type: 'varchar', length: 50 })
   type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities';
 
+  @Column({ type: 'varchar', length: 20, default: 'qcm' })
+  responseType: 'qcm' | 'text';
+
   @Column({ nullable: true })
   category: string;
 

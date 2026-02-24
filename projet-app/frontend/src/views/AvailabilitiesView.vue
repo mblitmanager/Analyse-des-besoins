@@ -2,7 +2,8 @@
 import { ref, onMounted } from "vue"; // Fixed: was missing onMounted
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
-import AppLogo from '../components/AppLogo.vue'
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 import axios from "axios";
 
 const store = useAppStore();
@@ -84,42 +85,24 @@ async function skipStep() {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit">
-    <!-- Header -->
-    <header
-      class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50"
-    >
-      <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
-        >
-          <AppLogo />
+    <SiteHeader>
+      <template #actions>
+        <div class="hidden md:flex flex-col items-end mr-4">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Progression</span>
+            <span class="text-[10px] text-brand-primary font-bold">
+              Étape {{ store.getProgress("/availabilities").current }}/{{ store.getProgress("/availabilities").total }}
+            </span>
+          </div>
+          <div class="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/availabilities').percentage + '%' }"
+            ></div>
+          </div>
         </div>
-        <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizi Learn</span
-        >
-      </div>
-      <div class="hidden md:flex flex-col items-end">
-        <div class="flex items-center gap-2 mb-1">
-          <span
-            class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"
-            >Progression</span
-          >
-          <span class="text-[10px] text-brand-primary font-bold">
-            Étape {{ store.getProgress("/availabilities").current }}/{{
-              store.getProgress("/availabilities").total
-            }}
-          </span>
-        </div>
-        <div class="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-brand-primary transition-all duration-700"
-            :style="{
-              width: store.getProgress('/availabilities').percentage + '%',
-            }"
-          ></div>
-        </div>
-      </div>
-    </header>
+      </template>
+    </SiteHeader>
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
@@ -142,10 +125,10 @@ async function skipStep() {
           class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
         >
           <div
-            class="px-6 py-5 border-b border-gray-50 flex items-center gap-3 bg-gray-50/30"
+            class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
-              class="w-9 h-9 rounded-lg bg-indigo-600/10 flex items-center justify-center"
+              class="w-9 h-9 rounded-lg bg-indigo-600/5 flex items-center justify-center"
             >
               <span class="material-icons-outlined text-indigo-600 text-lg"
                 >event_available</span
@@ -174,11 +157,11 @@ async function skipStep() {
                   v-for="(opt, idx) in q.options"
                   :key="opt"
                   @click="toggleMultiSelect(q.id, opt)"
-                  class="py-4 px-3 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all group"
+                  class="py-4 px-3 rounded-2xl border transition-all group flex flex-col items-center gap-2"
                   :class="
                     responses[q.id].includes(opt)
-                      ? 'bg-brand-primary/5 text-brand-primary border-brand-primary shadow-sm'
-                      : 'bg-transparent text-gray-400 border-gray-100 hover:border-brand-primary/30'
+                      ? 'bg-brand-primary text-blue-500 border-brand-primary shadow-md scale-[1.02]'
+                      : 'bg-white text-gray-300 border-gray-100 hover:border-gray-200'
                   "
                 >
                   <span
@@ -186,8 +169,8 @@ async function skipStep() {
                     class="material-icons-outlined text-2xl"
                     :class="
                       responses[q.id].includes(opt)
-                        ? 'text-brand-primary'
-                        : 'text-gray-300 group-hover:text-brand-primary'
+                        ? 'text-blue-500'
+                        : 'text-gray-200 group-hover:text-brand-primary/40'
                     "
                   >
                     {{ q.metadata.icons[idx] }}
@@ -202,7 +185,7 @@ async function skipStep() {
                 v-model="responses[q.id]"
                 :rows="q.metadata.rows || 3"
                 :placeholder="q.metadata.placeholder || ''"
-                class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
               ></textarea>
 
               <!-- Default Text Type -->
@@ -211,7 +194,7 @@ async function skipStep() {
                 v-model="responses[q.id]"
                 type="text"
                 :placeholder="q.metadata?.placeholder || ''"
-                class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:border-brand-primary focus:bg-white outline-none transition-all text-sm text-gray-700 shadow-sm"
+                class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
               />
             </div>
           </div>
@@ -229,12 +212,12 @@ async function skipStep() {
             Précédent
           </button>
           <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button
+            <!-- <button
               @click="skipStep"
               class="px-6 py-4 text-gray-400 hover:text-gray-600 font-bold text-sm transition-all border-2 border-transparent hover:border-gray-100 rounded-2xl"
             >
               Passer cette étape
-            </button>
+            </button> -->
             <button
               @click="nextStep"
               :disabled="submitting"
@@ -254,52 +237,11 @@ async function skipStep() {
       </div>
     </main>
 
-    <footer
-      class="bg-white border-t border-gray-100 px-8 py-8 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
-    >
-      <nav class="mx-auto max-w-5xl flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
-        <a
-          href="https://ns-conseil.com/reglement-interieur/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:text-brand-primary"
-        >
-          Règlement intérieur
-        </a>
-        <a
-          href="https://ns-conseil.com/cgv/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:text-brand-primary"
-        >
-          CGV
-        </a>
-        <router-link
-          to="/mentions-legales"
-          class="hover:text-brand-primary"
-        >
-          Mentions légales
-        </router-link>
-        <router-link
-          to="/respect-vie-privee"
-          class="hover:text-brand-primary"
-        >
-          Respect de la vie privée
-        </router-link>
-        <router-link
-          to="/politique-confidentialite"
-          class="hover:text-brand-primary"
-        >
-          Politique de confidentialité
-        </router-link>
-      </nav>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons+Outlined");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;

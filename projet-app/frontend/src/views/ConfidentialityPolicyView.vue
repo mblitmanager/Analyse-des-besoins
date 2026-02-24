@@ -1,22 +1,11 @@
 <script setup>
-import AppLogo from '../components/AppLogo.vue'
+import SiteHeader from '../components/SiteHeader.vue';
+import SiteFooter from '../components/SiteFooter.vue';
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50 font-outfit">
-    <header class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div
-          class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
-        >
-          <AppLogo />
-        </div>
-        
-      </div>
-      <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest">
-        Politique de confidentialité
-      </p>
-    </header>
+    <SiteHeader />
 
     <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-10 md:py-14">
       <div class="flex items-center justify-between gap-4 mb-6">
@@ -157,11 +146,11 @@ import AppLogo from '../components/AppLogo.vue'
         </div>
       </section>
     </main>
+    <SiteFooter />
   </div>
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
 .font-outfit {
   font-family: "Outfit", sans-serif;

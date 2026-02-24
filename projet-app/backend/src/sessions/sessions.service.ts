@@ -6,6 +6,7 @@ import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
 import { EmailService } from '../email/email.service';
 import { SettingsService } from '../settings/settings.service';
+import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class SessionsService {
     private questionRepo: Repository<Question>,
     private emailService: EmailService,
     private settingsService: SettingsService,
+    private pdfService: PdfService,
   ) {}
 
   async create(data: Partial<Session> & { email?: string }) {
@@ -103,7 +105,7 @@ export class SessionsService {
     for (const level of levels) {
       const raw = scores[level.label];
       const userScore =
-        typeof raw === 'number' ? raw : (raw as any)?.score ?? undefined;
+        typeof raw === 'number' ? raw : ((raw as any)?.score ?? undefined);
 
       if (userScore !== undefined) {
         if (userScore >= level.successThreshold) {
@@ -189,7 +191,7 @@ export class SessionsService {
 
     // Score final global (si possible)
     const levelsEntries: any[] = session.levelsScores
-      ? (Object.values(session.levelsScores as any) as any[])
+      ? Object.values(session.levelsScores)
       : [];
     const totalAnswered: number = levelsEntries.reduce(
       (acc: number, e: any) => acc + (Number(e?.total) || 0),
@@ -214,7 +216,7 @@ export class SessionsService {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(session.levelsScores as any)
+            ${Object.entries(session.levelsScores)
               .map(([lvl, e]: any) => {
                 const ok = e?.validated ? 'Oui' : 'Non';
                 const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
@@ -285,21 +287,70 @@ export class SessionsService {
       'herizo.randrianiaina@mbl-service.com',
     );
 
-    // Send the email to configured admin(s)
+    // Generate PDF attachment
+    const pdfBuffer = await this.pdfService.generateSessionPdf({
+      civilite: session.civilite,
+      prenom: session.prenom,
+      nom: session.nom,
+      email: beneficiaryEmail,
+      telephone: session.telephone,
+      conseiller: session.conseiller,
+      brand: session.brand,
+      formationChoisie: session.formationChoisie,
+      finalRecommendation: recommendation,
+      scoreFinal: scoreFinal,
+      levelsScores: session.levelsScores as Record<string, any>,
+      prerequisiteAnswers: session.prerequisiteScore as Record<string, any>,
+      complementaryAnswers: session.complementaryQuestions as Record<
+        string,
+        any
+      >,
+      availabilityAnswers: session.availabilities as Record<string, any>,
+      qTextById,
+    });
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const filenameTimestamp = now
+      .toISOString()
+      .replace(/T/, '_')
+      .replace(/:/g, '-')
+      .slice(0, 16);
+
+    const pdfFilename =
+      `Analyse - ${session.prenom || ''} ${session.nom || ''} - ${filenameTimestamp}.pdf`.trim();
+
+    // Send the email with PDF attachment to configured admin(s)
     await this.emailService.sendReport(
       adminEmail,
       `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
-      `<div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #0D8ABC;">Bilan d'évaluation</h2>
+      `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
+        <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        
         <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
         <p><strong>Email :</strong> ${session.stagiaire?.email || ''}</p>
         <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
         <p><strong>Formation :</strong> ${session.formationChoisie}</p>
-        <p><strong>Recommandation :</strong> <span style="color: #22C55E;">${recommendation}</span></p>
-        <p><strong>Score final :</strong> <span style="color: #2563eb;">${scoreFinal}%</span></p>
-        <hr />
-        ${extraContent}
+        <p><strong>Recommandation :</strong> <span style="color: #22C55E; font-weight: bold;">${recommendation}</span></p>
+        <p><strong>Score final :</strong> <span style="color: #2563eb; font-weight: bold;">${scoreFinal}%</span></p>
+        
+        <div style="margin-top: 30px;">
+          ${extraContent}
+        </div>
+        
+        <p style="font-size: 11px; color: #999; margin-top: 40px;">
+          Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
+        </p>
       </div>`,
+      [{ filename: pdfFilename, content: pdfBuffer }],
     );
 
     return this.update(id, {

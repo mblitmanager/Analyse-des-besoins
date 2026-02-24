@@ -10,6 +10,7 @@ const editingQuestion = ref(null);
 const form = ref({
   text: "",
   type: "prerequis",
+  responseType: "qcm",
   category: "",
   icon: "quiz",
   options: ["", ""],
@@ -23,6 +24,8 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const formations = ref([]);
 const formationFilter = ref("");
 const levelFilter = ref("");
+const savingOrder = ref(false);
+const token = localStorage.getItem("token");
 
 async function fetchQuestions() {
   loading.value = true;
@@ -58,6 +61,7 @@ function openAddModal() {
   form.value = {
     text: "",
     type: "prerequis",
+    responseType: "qcm",
     category: "",
     icon: "quiz",
     options: ["", ""],
@@ -73,6 +77,7 @@ function openEditModal(q) {
   form.value = {
     text: q.text,
     type: q.type,
+    responseType: q.responseType || "qcm",
     category: q.category || "",
     icon: q.icon || "quiz",
     options: q.options
@@ -90,7 +95,7 @@ async function saveQuestion() {
     // Filter out empty options
     const payload = {
       ...form.value,
-      options: form.value.options.filter((o) => o.trim() !== ""),
+      options: form.value.responseType === 'text' ? [] : form.value.options.filter((o) => o.trim() !== ""),
     };
 
     if (editingQuestion.value) {
@@ -138,6 +143,35 @@ onMounted(() => {
   fetchQuestions();
   fetchFormations();
 });
+
+function moveQuestion(levelGroup, index, direction) {
+  const list = levelGroup.questions;
+  if (direction === -1 && index > 0) {
+    [list[index], list[index - 1]] = [list[index - 1], list[index]];
+  } else if (direction === 1 && index < list.length - 1) {
+    [list[index], list[index + 1]] = [list[index + 1], list[index]];
+  }
+}
+
+async function saveOrder(questionsList) {
+  savingOrder.value = true;
+  try {
+    const payload = questionsList.map((q, idx) => ({
+      id: q.id,
+      order: idx + 1
+    }));
+    await axios.patch(`${apiBaseUrl}/questions/order`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    alert("Ordre mis à jour");
+    await fetchQuestions();
+  } catch (error) {
+    console.error("Failed to save order", error);
+    alert("Erreur lors de la sauvegarde de l'ordre");
+  } finally {
+    savingOrder.value = false;
+  }
+}
 
 const types = [
   { label: "Tous", value: "" },
@@ -341,15 +375,42 @@ const groupedQuestions = computed(() => {
                 >
                   {{ lg.questions.length }} question(s)
                 </span>
+                <button 
+                  @click="saveOrder(lg.questions)"
+                  :disabled="savingOrder"
+                  class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
+                >
+                  <span class="material-icons-outlined text-sm">auto_fix_high</span>
+                  Appliquer l'ordre
+                </button>
               </div>
             </div>
 
             <div class="divide-y divide-gray-50">
               <div
-                v-for="q in lg.questions"
+                v-for="(q, idx) in lg.questions"
                 :key="q.id"
-                class="p-6 flex items-start gap-6 hover:bg-gray-50/60 transition-colors group"
+                class="p-6 flex items-start gap-6 hover:bg-gray-50/60 transition-colors group relative"
               >
+                <!-- REORDER CONTROLS -->
+                <div class="flex flex-col gap-1 mt-1">
+                  <button 
+                    @click="moveQuestion(lg, idx, -1)" 
+                    :disabled="idx === 0"
+                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-white disabled:opacity-10 transition-all border border-gray-50"
+                  >
+                    <span class="material-icons-outlined text-sm">expand_less</span>
+                  </button>
+                  <div class="text-[9px] font-black text-gray-300 text-center">{{ idx + 1 }}</div>
+                  <button 
+                    @click="moveQuestion(lg, idx, 1)" 
+                    :disabled="idx === lg.questions.length - 1"
+                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-white disabled:opacity-10 transition-all border border-gray-50"
+                  >
+                    <span class="material-icons-outlined text-sm">expand_more</span>
+                  </button>
+                </div>
+
                 <div
                   class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-blue-400 transition-all shadow-inner"
                 >
@@ -360,6 +421,10 @@ const groupedQuestions = computed(() => {
 
                 <div class="flex-1 space-y-2">
                   <div class="flex flex-wrap items-center gap-2">
+                    <span
+                      class="px-3 py-1 bg-indigo-50 text-[8px] font-black uppercase tracking-widest text-indigo-500 rounded-full border border-indigo-100"
+                      >{{ q.responseType || 'qcm' }}</span
+                    >
                     <span
                       class="px-3 py-1 bg-gray-50 text-[8px] font-black uppercase tracking-widest text-gray-400 rounded-full border border-gray-100"
                       >{{ q.type }}</span
@@ -373,7 +438,7 @@ const groupedQuestions = computed(() => {
                   <p class="text-sm font-black heading-primary">
                     {{ q.text }}
                   </p>
-                  <div class="flex flex-wrap gap-2">
+                  <div v-if="q.responseType !== 'text'" class="flex flex-wrap gap-2">
                     <span
                       v-for="(opt, idx) in q.options"
                       :key="idx"
@@ -493,6 +558,20 @@ const groupedQuestions = computed(() => {
                 </select>
               </div>
 
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Type de réponse</label
+                >
+                <select
+                  v-model="form.responseType"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="qcm">Multiple (QCM)</option>
+                  <option value="text">Texte libre</option>
+                </select>
+              </div>
+
               <div class="space-y-2" v-if="(form.type === 'positionnement' || form.type === 'prerequis') && form.formationId">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
@@ -540,7 +619,7 @@ const groupedQuestions = computed(() => {
               ></textarea>
             </div>
 
-            <div class="space-y-4">
+            <div v-if="form.responseType === 'qcm'" class="space-y-4">
               <div class="flex items-center justify-between px-1">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
