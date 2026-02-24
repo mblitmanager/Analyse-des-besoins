@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "marked": "^5.1.1",
     "axios": "^1.13.5",
     "chart.js": "^4.5.1",
     "html2canvas": "^1.4.1",
