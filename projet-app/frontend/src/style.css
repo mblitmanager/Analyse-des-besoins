@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 @layer components {
   .Wizi-label {
@@ -36,11 +37,10 @@
   --brand-secondary: #0D1B3E;
   --brand-accent: #60a5fa;
   /* Palette personnalisée */
-  --title-color: #315263;
+  --title-color: #315264;
   --section-color: #428496;
-  --accent-color: #ebb973;
-  --accent-color-soft: rgba(235, 185, 115, 0.14);
-  font-family: 'Outfit', system-ui, sans-serif;
+  --accent-color: #eab973;
+  --accent-color-soft: rgba(234, 185, 115, 0.14);
 }
 
 [data-brand="aopia"] {
@@ -67,6 +67,8 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  /* Paragraph / body font */
+  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 #app {
@@ -76,6 +78,8 @@ body {
 /* Utility classes for headings and section titles using provided palette */
 .heading-primary {
   color: var(--title-color);
+  /* Title font: Segoe UI preferred */
+  font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .section-title {
@@ -96,6 +100,11 @@ body {
   color: var(--title-color);
 }
 
+/* Ensure headings (h1..h6) use Segoe UI */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
 .muted-heading {
   color: rgba(49,82,99,0.8);
 }
@@ -113,10 +122,12 @@ body {
   background-color: rgba(34,197,94,0.12);
 }
 
-/* Primary button helper using brand secondary for better contrast */
-.btn-primary {
-  background-color: var(--brand-primary);
-  color: white;
+/* Make all primary buttons use the shared accent palette as requested
+   Background: var(--accent-color) (#eab973)
+   Text: var(--title-color) (#315264) */
+button, input[type="button"], input[type="submit"], .btn, .btn-primary {
+  background-color: var(--accent-color);
+  color: var(--title-color);
   padding: 0.6rem 1rem;
   border-radius: 0.75rem;
   font-weight: 700;
@@ -124,13 +135,41 @@ body {
   align-items: center;
   justify-content: center;
   border: 0;
-  box-shadow: 0 6px 18px rgba(59,130,246,0.08);
+  box-shadow: 0 6px 18px rgba(234,185,115,0.12);
   transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 
-.btn-primary:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 10px 22px rgba(59,130,246,0.12); }
+button:hover, input[type="button"]:hover, input[type="submit"]:hover, .btn:hover, .btn-primary:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(234,185,115,0.18);
+}
 
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .btn:disabled, .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Accent button using the provided palette
+   Background: #eab973  Text: #315264 */
+.btn-accent {
+  background-color: var(--accent-color);
+  color: var(--title-color);
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  box-shadow: 0 6px 18px rgba(234,185,115,0.12);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+.btn-accent:hover { filter: brightness(0.98); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(234,185,115,0.18); }
+.btn-accent:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* Generic button helpers */
 .btn {
@@ -158,4 +197,28 @@ body {
 .bg-brand-secondary {
   background-color: var(--brand-secondary);
   color: white;
+}
+
+/* Header (bandeau) and footer styling per requested palette */
+header, .site-header {
+  background-color: var(--accent-color); /* #eab973 */
+  color: var(--section-color); /* #428496 */
+}
+
+header a, header a:visited, .site-header a {
+  color: var(--section-color);
+}
+
+/* Ensure headings/labels inside header use the header text color */
+header .Wizi-label, header .heading-primary, header h1, header h2, header h3 {
+  color: var(--section-color);
+}
+
+footer, .site-footer {
+  background-color: var(--accent-color); /* #eab973 */
+  color: var(--title-color); /* #315264 */
+}
+
+footer a, .site-footer a {
+  color: var(--section-color);
 }
