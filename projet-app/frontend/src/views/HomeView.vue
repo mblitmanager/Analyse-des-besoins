@@ -106,7 +106,7 @@ async function testDbConnection() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex-shrink-0 flex items-center">
           <div class="h-8 w-auto flex items-center space-x-2">
-            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg">W</div>
+            <!-- <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg">W</div> -->
             <AppLogo />
           </div>
         </div>
@@ -126,7 +126,7 @@ async function testDbConnection() {
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
           <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Identification</h2>
-          <p class="mt-2 text-sm text-gray-600">Veuillez renseigner vos informations pour accéder à votre test de positionnement.</p>
+          <p class="mt-2 text-sm text-gray-600">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
         </div>
 
         <div class="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
@@ -195,7 +195,7 @@ async function testDbConnection() {
         </div>
 
         <div class="flex flex-col items-center gap-3 pt-4 text-xs text-gray-400">
-          <AppLogo />
+          <!-- <AppLogo /> -->
           <div
             class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-bold uppercase tracking-widest"
           >

@@ -217,9 +217,9 @@ async function saveAndExit() {
         <div
           class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
         >
-          W
+           <AppLogo />
         </div>
-          <AppLogo />
+          
         
       </div>
 

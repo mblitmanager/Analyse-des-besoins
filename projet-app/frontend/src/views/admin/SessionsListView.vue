@@ -8,10 +8,14 @@ const searchQuery = ref("");
 const statusFilter = ref("all");
 const formationFilter = ref("all");
 const selectedSession = ref(null);
+const editableSession = ref(null);
 const showModal = ref(false);
+const savingSession = ref(false);
 
 function viewSession(session) {
   selectedSession.value = session;
+  // Deep copy pour édition locale sans toucher la liste tant que ce n'est pas sauvegardé
+  editableSession.value = JSON.parse(JSON.stringify(session));
   showModal.value = true;
 }
 
@@ -56,6 +60,49 @@ async function fetchSessions() {
     console.error("Failed to fetch sessions:", error);
   } finally {
     loading.value = false;
+  }
+}
+
+async function saveSessionEdits() {
+  if (!editableSession.value) return;
+  savingSession.value = true;
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+    const payload = {
+      // Champs administratifs modifiables
+      conseiller: editableSession.value.conseiller,
+      formationChoisie: editableSession.value.formationChoisie,
+      scorePretest: editableSession.value.scorePretest,
+      finalRecommendation: editableSession.value.finalRecommendation,
+      lastValidatedLevel: editableSession.value.lastValidatedLevel,
+      stopLevel: editableSession.value.stopLevel,
+      // Au besoin, l'admin peut aussi corriger les blocs JSON complets
+      prerequisiteScore: editableSession.value.prerequisiteScore,
+      levelsScores: editableSession.value.levelsScores,
+      complementaryQuestions: editableSession.value.complementaryQuestions,
+      availabilities: editableSession.value.availabilities,
+    };
+
+    await axios.patch(
+      `${apiBaseUrl}/sessions/${editableSession.value.id}`,
+      payload,
+    );
+
+    await fetchSessions();
+    const updated = sessions.value.find(
+      (s) => s.id === editableSession.value.id,
+    );
+    if (updated) {
+      selectedSession.value = updated;
+      editableSession.value = JSON.parse(JSON.stringify(updated));
+    }
+  } catch (error) {
+    console.error("Failed to save session edits:", error);
+    alert("Erreur lors de la sauvegarde de la session.");
+  } finally {
+    savingSession.value = false;
   }
 }
 
@@ -295,21 +342,31 @@ function formatDate(date) {
     </div>
 
     <!-- Modal Détails Session -->
-    <div v-if="showModal && selectedSession" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div v-if="showModal && editableSession" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showModal = false"></div>
       <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-3xl relative overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
         <div class="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
             <h3 class="text-2xl font-black heading-primary">
-              Dossier de {{ selectedSession.stagiaire?.prenom }} {{ selectedSession.stagiaire?.nom }}
+              Dossier de {{ editableSession.stagiaire?.prenom }} {{ editableSession.stagiaire?.nom }}
             </h3>
             <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
-              Formation : {{ selectedSession.formationChoisie }}
+              Formation : {{ editableSession.formationChoisie }}
             </p>
           </div>
-          <button @click="showModal = false" class="text-gray-300 hover:text-gray-600 transition-colors bg-gray-50 rounded-xl p-2">
-            <span class="material-icons-outlined">close</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              @click="saveSessionEdits"
+              :disabled="savingSession"
+              class="px-4 py-2 mr-2 bg-brand-primary text-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-brand-secondary disabled:opacity-60 flex items-center gap-2"
+            >
+              <span class="material-icons-outlined text-sm">save</span>
+              {{ savingSession ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+            <button @click="showModal = false" class="text-gray-300 hover:text-gray-600 transition-colors bg-gray-50 rounded-xl p-2">
+              <span class="material-icons-outlined">close</span>
+            </button>
+          </div>
         </div>
 
         <div class="p-8 overflow-y-auto space-y-8 flex-1 custom-scrollbar">
@@ -319,23 +376,33 @@ function formatDate(date) {
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50 p-6 rounded-[24px]">
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
-                <p class="font-bold text-sm">{{ selectedSession.stagiaire?.email }}</p>
+                <p class="font-bold text-sm">{{ editableSession.stagiaire?.email }}</p>
               </div>
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Téléphone</p>
-                <p class="font-bold text-sm">{{ selectedSession.telephone || "N/A" }}</p>
+                <p class="font-bold text-sm">{{ editableSession.telephone || "N/A" }}</p>
               </div>
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Date de création</p>
-                <p class="font-bold text-sm">{{ formatDate(selectedSession.createdAt) }}</p>
+                <p class="font-bold text-sm">{{ formatDate(editableSession.createdAt) }}</p>
               </div>
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Conseiller</p>
-                <p class="font-bold text-sm">{{ selectedSession.conseiller || "N/A" }}</p>
+                <input
+                  v-model="editableSession.conseiller"
+                  class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
+                />
               </div>
               <div>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Marque</p>
-                <p class="font-bold text-sm">{{ selectedSession.brand || "N/A" }}</p>
+                <p class="font-bold text-sm">{{ editableSession.brand || "N/A" }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Formation choisie</p>
+                <input
+                  v-model="editableSession.formationChoisie"
+                  class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
+                />
               </div>
             </div>
           </section>
@@ -345,31 +412,63 @@ function formatDate(date) {
             <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Résultats du Bilan</h4>
             <div class="bg-blue-50/50 p-6 rounded-[24px] border border-blue-50 flex items-center justify-between">
               <div>
-                <p class="font-black text-xl text-blue-900 mb-1">Score Global : {{ selectedSession.scorePretest || 0 }}%</p>
+                <p class="font-black text-xl text-blue-900 mb-1">
+                  Score Global :
+                  <input
+                    v-model.number="editableSession.scorePretest"
+                    type="number"
+                    min="0"
+                    max="100"
+                    class="w-20 inline-block ml-2 px-2 py-1 text-sm font-black rounded-lg border border-blue-200 bg-white focus:outline-none focus:border-brand-primary"
+                  />%
+                </p>
                 <p class="text-xs font-bold text-blue-600">
-                  Statut : {{ selectedSession.isCompleted ? "Terminé" : "En cours" }}
+                  Statut : {{ editableSession.isCompleted ? "Terminé" : "En cours" }}
                 </p>
               </div>
-              <div v-if="selectedSession.stopLevel" class="text-right">
+              <div class="text-right space-y-2">
                  <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Niveau Atteint</p>
-                 <span class="inline-block mt-1 px-4 py-2 bg-white text-brand-primary font-black rounded-xl shadow-sm border border-blue-100">
-                   {{ selectedSession.stopLevel }}
-                 </span>
+                 <input
+                   v-model="editableSession.stopLevel"
+                   class="inline-block mt-1 px-4 py-2 bg-white text-brand-primary font-black rounded-xl shadow-sm border border-blue-100 focus:outline-none focus:border-brand-primary"
+                 />
+                 <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mt-3">Dernier niveau validé</p>
+                 <input
+                   v-model="editableSession.lastValidatedLevel"
+                   class="inline-block mt-1 px-4 py-2 bg-white text-blue-900 font-black rounded-xl shadow-sm border border-blue-100 focus:outline-none focus:border-brand-primary"
+                 />
               </div>
+            </div>
+            <div class="mt-4">
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Recommandation finale</p>
+              <input
+                v-model="editableSession.finalRecommendation"
+                class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
+              />
             </div>
           </section>
 
           <!-- Détails additionnels JSON -->
-          <section v-if="selectedSession.prerequisiteScore || selectedSession.complementaryQuestions">
+          <section
+            v-if="editableSession.prerequisiteScore || editableSession.levelsScores || editableSession.complementaryQuestions || editableSession.availabilities"
+          >
             <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Données Complémentaires</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div v-if="selectedSession.prerequisiteScore" class="bg-gray-50 p-6 rounded-[24px]">
+               <div v-if="editableSession.prerequisiteScore" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Score Pré-requis</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(selectedSession.prerequisiteScore, null, 2) }}</pre>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.prerequisiteScore, null, 2) }}</pre>
                </div>
-               <div v-if="selectedSession.complementaryQuestions" class="bg-gray-50 p-6 rounded-[24px]">
+               <div v-if="editableSession.levelsScores" class="bg-gray-50 p-6 rounded-[24px]">
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Scores par niveau</p>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.levelsScores, null, 2) }}</pre>
+               </div>
+               <div v-if="editableSession.complementaryQuestions" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Questions Complémentaires</p>
-                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(selectedSession.complementaryQuestions, null, 2) }}</pre>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.complementaryQuestions, null, 2) }}</pre>
+               </div>
+               <div v-if="editableSession.availabilities" class="bg-gray-50 p-6 rounded-[24px]">
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Disponibilités</p>
+                  <pre class="text-xs text-gray-600 bg-white p-3 rounded-xl border border-gray-100 overflow-x-auto">{{ JSON.stringify(editableSession.availabilities, null, 2) }}</pre>
                </div>
             </div>
           </section>

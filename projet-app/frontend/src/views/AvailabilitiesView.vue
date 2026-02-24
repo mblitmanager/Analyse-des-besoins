@@ -22,8 +22,10 @@ onMounted(async () => {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const formationSlug = localStorage.getItem("selected_formation_slug");
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/availabilities`,
+      { params: formationSlug ? { formation: formationSlug } : {} },
     );
     questions.value = res.data;
 
@@ -81,7 +83,7 @@ async function skipStep() {
         <div
           class="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-blue-400 font-black italic text-xl"
         >
-          W
+          <AppLogo />
         </div>
         <span class="font-bold text-gray-800 text-xl tracking-tight"
           >Wizzy Learn</span
@@ -244,12 +246,9 @@ async function skipStep() {
     </main>
 
     <footer
-      class="bg-white border-t border-gray-100 px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
+      class="bg-white border-t border-gray-100 px-8 py-8 text-xs text-gray-400 font-bold uppercase tracking-widest mt-auto"
     >
-      <div class="flex items-center justify-center">
-        <AppLogo />
-      </div>
-      <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <nav class="mx-auto max-w-5xl flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
         <a
           href="https://ns-conseil.com/reglement-interieur/"
           target="_blank"
@@ -284,7 +283,7 @@ async function skipStep() {
         >
           Politique de confidentialité
         </router-link>
-      </div>
+      </nav>
     </footer>
   </div>
 </template>

@@ -63,6 +63,15 @@ export class SessionsService {
     return this.findOne(id);
   }
 
+  async remove(id: string) {
+    const session = await this.sessionRepo.findOne({ where: { id } });
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+    await this.sessionRepo.remove(session);
+    return { success: true };
+  }
+
   async submit(id: string) {
     const session = await this.findOne(id);
 
@@ -139,6 +148,7 @@ export class SessionsService {
       finalRecommendation: recommendation,
       stopLevel: finalLevel.label,
       emailSentAt: new Date(),
+      isCompleted: true,
     });
   }
 }

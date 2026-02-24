@@ -42,6 +42,9 @@ export class Session {
   @Column({ type: 'int', nullable: true })
   scorePretest: number;
 
+  @Column({ default: false })
+  isCompleted: boolean;
+
   @Column({ nullable: true })
   stopLevel: string;
 
