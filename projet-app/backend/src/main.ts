@@ -10,14 +10,16 @@ async function bootstrap() {
   const allowedOrigins = [
     configService.get<string>('FRONTEND_URL'),
     'https://api-nsconseil.solara-seaview.com',
-    'http://localhost:5173',
-    'http://localhost:3001',
   ].filter(Boolean) as string[];
+
+  const isProd = configService.get<string>('NODE_ENV') === 'production' || process.env.NODE_ENV === 'production';
 
   app.enableCors({
     origin: (origin, callback) => {
       // allow non-browser or curl requests with no origin
       if (!origin) return callback(null, true);
+      // in development allow any localhost origin for convenience
+      if (!isProd && origin.includes('localhost')) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error('CORS policy: Origin not allowed'), false);
     },
