@@ -11,10 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 18
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Cache frontend/node_modules
         uses: actions/cache@v4
@@ -35,13 +35,13 @@ jobs:
       - name: Install & Build frontend
         working-directory: ./projet-app/frontend
         run: |
-          npm ci
+          npm ci || npm install
           npm run build
 
       - name: Install & Build backend
         working-directory: ./projet-app/backend
         run: |
-          npm ci
+          npm ci || npm install
           npm run build
 
       - name: Archive artifacts
