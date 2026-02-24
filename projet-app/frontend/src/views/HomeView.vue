@@ -86,8 +86,8 @@ async function testDbConnection() {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex-shrink-0 flex items-center">
           <div class="h-8 w-auto flex items-center space-x-2">
-            <!-- <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg">W</div> -->
-            <AppLogo />
+            <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-blue-400 font-bold text-lg"><AppLogo /></div>
+            
           </div>
         </div>
 
