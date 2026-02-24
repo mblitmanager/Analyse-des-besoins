@@ -120,7 +120,4 @@ jobs:
       - name: Cleanup
         run: rm -rf build_artifacts /tmp/deploy_key || true
 
-    env:
-      # required secrets:
-      # VPS_HOST, VPS_USER, SSH_PRIVATE_KEY
-      # optional: SSH_PORT, DEPLOY_PATH
+
