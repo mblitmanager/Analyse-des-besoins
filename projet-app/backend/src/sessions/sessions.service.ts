@@ -5,6 +5,7 @@ import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
 import { EmailService } from '../email/email.service';
+import { SettingsService } from '../settings/settings.service';
 import { Question } from '../entities/question.entity';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class SessionsService {
     @InjectRepository(Question)
     private questionRepo: Repository<Question>,
     private emailService: EmailService,
+    private settingsService: SettingsService,
   ) {}
 
   async create(data: Partial<Session> & { email?: string }) {
@@ -277,10 +279,15 @@ export class SessionsService {
       )}
     `;
 
-    // Send the email
+    // Determine admin recipients from settings (can be comma-separated)
+    const adminEmail = await this.settingsService.getValue(
+      'ADMIN_EMAIL',
+      'herizo.randrianiaina@mbl-service.com',
+    );
+
+    // Send the email to configured admin(s)
     await this.emailService.sendReport(
-      // 'contact@wizi-learn.fr', // In a real app, this would be the admin or brand email
-      'herizo.randrianiaina@mbl-service.com', // In a real app, this would be the admin or brand email
+      adminEmail,
       `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
       `<div style="font-family: Arial, sans-serif; color: #333;">
         <h2 style="color: #0D8ABC;">Bilan d'évaluation</h2>
