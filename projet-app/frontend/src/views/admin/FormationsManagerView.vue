@@ -95,16 +95,37 @@ async function saveFormation() {
         .replace(/[^\w-]/g, "");
     }
 
+    // Préparer un payload propre pour l'API (éviter d'envoyer des relations inutiles
+    // et forcer les champs numériques des niveaux)
+    const sanitizedLevels = (form.value.levels || []).map((lvl, index) => {
+      return {
+        ...(lvl.id ? { id: lvl.id } : {}),
+        label: lvl.label,
+        order:
+          typeof lvl.order === "number" && !isNaN(lvl.order)
+            ? lvl.order
+            : index + 1,
+        successThreshold: Number(lvl.successThreshold) || 0,
+      };
+    });
+
+    const payload = {
+      ...form.value,
+      levels: sanitizedLevels,
+    };
+    // Ne pas renvoyer d'éventuelles relations chargées depuis le backend
+    delete payload.questions;
+
     if (editingFormation.value) {
       await axios.patch(
         `${apiBaseUrl}/formations/${editingFormation.value.id}`,
-        form.value,
+        payload,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
     } else {
-      await axios.post(`${apiBaseUrl}/formations`, form.value, {
+      await axios.post(`${apiBaseUrl}/formations`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
     }

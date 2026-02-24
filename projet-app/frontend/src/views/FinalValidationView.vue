@@ -74,7 +74,7 @@ async function validate() {
 async function sendNotificationEmail() {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
   const payload = {
-    to: 'mblitmanger@gmail.com',
+    to: 'mblitmanager@gmail.com',
     subject: `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`,
     body: `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`,
   };
@@ -88,7 +88,7 @@ async function sendNotificationEmail() {
     if (!res.ok) throw new Error('Email API returned error');
   } catch (err) {
     // Fallback: open user's mail client with prefilled mail
-    const mailto = `mailto:mblitmanger@gmail.com?subject=${encodeURIComponent(payload.subject)}&body=${encodeURIComponent(payload.body)}`;
+    const mailto = `mailto:mblitmanager@gmail.com?subject=${encodeURIComponent(payload.subject)}&body=${encodeURIComponent(payload.body)}`;
     window.location.href = mailto;
   }
 }
