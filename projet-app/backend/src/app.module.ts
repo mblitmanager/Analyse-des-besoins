@@ -60,7 +60,7 @@ import { SettingsModule } from './settings/settings.module';
           username: configService.get<string>('DATABASE_USER') || 'user',
           password:
             configService.get<string>('DATABASE_PASSWORD') || 'password',
-          database: configService.get<string>('DATABASE_NAME') || 'wizzylearn',
+          database: configService.get<string>('DATABASE_NAME') || 'Wizilearn',
           entities: [
             Formation,
             Level,

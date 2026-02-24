@@ -42,7 +42,7 @@ function HeaderLinks() {
   const { token, logout, user } = useContext(AuthContext)
   return (
     <>
-      <h1>WizzyLearn — Front React</h1>
+      <h1>WiziLearn — Front React</h1>
       <nav style={{ marginTop: 8 }}>
         <Link to="/" style={{ marginRight: 12 }}>
           Accueil

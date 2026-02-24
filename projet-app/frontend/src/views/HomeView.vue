@@ -132,7 +132,7 @@ async function testDbConnection() {
         <div class="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
           <form @submit.prevent="startTest" class="space-y-6">
             <div>
-              <span class="wizzy-label">Civilité</span>
+              <span class="Wizi-label">Civilité</span>
               <div class="mt-2 flex space-x-6">
                 <div class="flex items-center">
                   <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="monsieur" name="civilite" type="radio" value="M." />
@@ -147,28 +147,28 @@ async function testDbConnection() {
 
             <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
               <div class="col-span-1">
-                <label class="wizzy-label" for="last-name">Nom</label>
-                <input v-model="form.nom" autocomplete="family-name" class="wizzy-input" id="last-name" name="last-name" placeholder="Dupont" required type="text" />
+                <label class="Wizi-label" for="last-name">Nom</label>
+                <input v-model="form.nom" autocomplete="family-name" class="Wizi-input" id="last-name" name="last-name" placeholder="Dupont" required type="text" />
               </div>
               <div class="col-span-1">
-                <label class="wizzy-label" for="first-name">Prénom</label>
-                <input v-model="form.prenom" autocomplete="given-name" class="wizzy-input" id="first-name" name="first-name" placeholder="Jean" required type="text" />
+                <label class="Wizi-label" for="first-name">Prénom</label>
+                <input v-model="form.prenom" autocomplete="given-name" class="Wizi-input" id="first-name" name="first-name" placeholder="Jean" required type="text" />
               </div>
             </div>
 
             <div>
-              <label class="wizzy-label" for="phone">Téléphone</label>
+              <label class="Wizi-label" for="phone">Téléphone</label>
               <div class="relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-icons-outlined text-gray-400 text-[20px]">call</span>
                 </div>
-                <input v-model="form.telephone" autocomplete="tel" class="wizzy-input pl-10" id="phone" name="phone" placeholder="06 12 34 56 78" required type="tel" />
+                <input v-model="form.telephone" autocomplete="tel" class="Wizi-input pl-10" id="phone" name="phone" placeholder="06 12 34 56 78" required type="tel" />
               </div>
             </div>
 
             <div>
-              <label class="wizzy-label" for="conseiller">Conseiller en formation</label>
-              <select v-model="form.conseiller" class="wizzy-input bg-white" id="conseiller" name="conseiller">
+              <label class="Wizi-label" for="conseiller">Conseiller en formation</label>
+              <select v-model="form.conseiller" class="Wizi-input bg-white" id="conseiller" name="conseiller">
                 <option disabled value="">Sélectionnez votre conseiller</option>
                 <option v-for="c in conseillers" :key="c" :value="c === 'Sélectionnez votre conseiller...' ? '' : c">{{ c }}</option>
               </select>

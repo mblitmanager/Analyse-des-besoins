@@ -5,7 +5,7 @@ async function test() {
   const client = new Client({
     user: 'postgres',
     host: 'localhost',
-    database: 'wizzylearn',
+    database: 'Wizilearn',
     password: 'Test',
     port: 5432,
   });

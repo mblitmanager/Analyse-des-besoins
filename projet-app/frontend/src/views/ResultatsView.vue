@@ -97,6 +97,82 @@ const goNext = () => {
   router.push(nextRoute || "/complementary");
 };
 
+const generateSimplePdf = () => {
+  if (!session.value) return;
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  let y = 20;
+  pdf.setFontSize(16);
+  pdf.text("Bilan de positionnement", 105, y, { align: "center" });
+  y += 10;
+
+  pdf.setFontSize(12);
+  pdf.text(
+    `Bénéficiaire : ${session.value.civilite || ""} ${session.value.prenom} ${session.value.nom}`.trim(),
+    20,
+    y,
+  );
+  y += 7;
+  pdf.text(`Formation : ${session.value.formationChoisie || ""}`, 20, y);
+  y += 7;
+  if (session.value.finalRecommendation) {
+    pdf.text(
+      `Recommandation : ${session.value.finalRecommendation}`,
+      20,
+      y,
+    );
+    y += 7;
+  }
+
+  if (session.value.levelsScores) {
+    y += 5;
+    pdf.setFontSize(13);
+    pdf.text("Scores par niveau", 20, y);
+    y += 6;
+    pdf.setFontSize(10);
+    pdf.text("Niveau", 20, y);
+    pdf.text("Score", 70, y);
+    pdf.text("Seuil", 100, y);
+    pdf.text("Validé", 130, y);
+    y += 4;
+    pdf.line(20, y, 180, y);
+    y += 4;
+
+    Object.entries(session.value.levelsScores).forEach(([level, e]) => {
+      if (y > 270) {
+        pdf.addPage();
+        y = 20;
+      }
+      const entry = e || {};
+      pdf.text(String(level), 20, y);
+      pdf.text(
+        `${entry.score || 0}/${entry.total || 0}`,
+        70,
+        y,
+      );
+      pdf.text(
+        `${entry.requiredCorrect ?? "-"}`,
+        100,
+        y,
+      );
+      pdf.text(
+        entry.validated ? "Oui" : "Non",
+        130,
+        y,
+      );
+      y += 5;
+    });
+  }
+
+  pdf.save(
+    `Bilan_WiziLearn_${session.value.prenom}_${session.value.nom}.pdf`,
+  );
+};
+
 const downloadPDF = async () => {
   if (!pdfContent.value) return;
   downloadingPDF.value = true;
@@ -166,11 +242,16 @@ const downloadPDF = async () => {
 
     pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(
-      `Bilan_WizzyLearn_${session.value.prenom}_${session.value.nom}.pdf`
+      `Bilan_WiziLearn_${session.value.prenom}_${session.value.nom}.pdf`
     );
   } catch (err) {
-    console.error("PDF generation failed:", err);
-    alert("Erreur lors de la génération du PDF.");
+    console.error("PDF generation failed (html2canvas):", err);
+    try {
+      generateSimplePdf();
+    } catch (fallbackError) {
+      console.error("Fallback PDF generation failed:", fallbackError);
+      alert("Erreur lors de la génération du PDF.");
+    }
   } finally {
     downloadingPDF.value = false;
   }
@@ -561,7 +642,7 @@ const downloadPDF = async () => {
             >school</span
           >
           <span class="font-bold heading-primary tracking-tight text-base"
-            >Wizzy Learn</span
+            >Wizi Learn</span
           >
         </div>
         <!-- logo retiré du footer -->

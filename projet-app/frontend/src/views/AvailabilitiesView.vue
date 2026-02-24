@@ -90,7 +90,7 @@ async function skipStep() {
           <AppLogo />
         </div>
         <span class="font-bold text-gray-800 text-xl tracking-tight"
-          >Wizzy Learn</span
+          >Wizi Learn</span
         >
       </div>
       <div class="hidden md:flex flex-col items-end">

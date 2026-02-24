@@ -3,7 +3,7 @@ const { Client } = require('pg');
 const localConfig = {
   user: 'postgres',
   host: 'localhost',
-  database: 'wizzylearn',
+  database: 'Wizilearn',
   password: 'root', // I noticed earlier it was 'root' in my scripts, but .env had 'Test'. Using 'root' based on previous success.
   port: 5432,
 };

@@ -24,6 +24,7 @@ export class CreateSessionDto {
 export class UpdateSessionDto {
   prerequisiteScore?: any;
   levelsScores?: any;
+  positionnementAnswers?: any;
   lastValidatedLevel?: string;
   stopLevel?: string;
   finalRecommendation?: string;

@@ -46,7 +46,7 @@ let SeedService = class SeedService {
         const settings = [
             {
                 key: 'ADMIN_EMAIL',
-                value: 'contact@wizy-learn.com',
+                value: 'contact@wizi-learn.com',
                 description: 'Email de réception des bilans',
             },
             {

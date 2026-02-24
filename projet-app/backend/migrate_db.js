@@ -3,7 +3,7 @@ const { Client } = require('pg');
 const localConfig = {
   user: 'postgres',
   host: 'localhost',
-  database: 'wizzylearn',
+  database: 'Wizilearn',
   password: 'root',
   port: 5432,
 };

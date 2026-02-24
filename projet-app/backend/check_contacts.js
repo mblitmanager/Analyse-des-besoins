@@ -3,7 +3,7 @@ const { Client } = require('pg');
 
 async function check() {
   const client = new Client({
-    connectionString: 'postgresql://postgres:Test@localhost:5432/wizzylearn'
+    connectionString: 'postgresql://postgres:Test@localhost:5432/Wizilearn'
   });
 
   try {
