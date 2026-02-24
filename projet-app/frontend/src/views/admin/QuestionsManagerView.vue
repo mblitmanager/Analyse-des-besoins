@@ -33,7 +33,10 @@ async function fetchQuestions() {
     const res = await axios.get(url, {
       params: { ...(formationFilter.value ? { formation: formationFilter.value } : {}) }
     });
-    questions.value = res.data;
+    // deduplicate fetched questions by id or text
+    questions.value = Array.from(
+      new Map((res.data || []).map((q) => [q.id ?? q.text, q])).values(),
+    );
   } catch (error) {
     console.error("Failed to fetch questions:", error);
   } finally {
