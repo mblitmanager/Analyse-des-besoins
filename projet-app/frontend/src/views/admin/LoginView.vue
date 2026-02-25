@@ -37,7 +37,7 @@ async function handleLogin() {
           <div
             class="w-16 h-16 bg-brand-primary rounded-2xl flex items-center justify-center shadow-lg shadow-brand-primary/30"
           >
-            <span class="material-icons-outlined text-blue-400 text-3xl"
+            <span class="material-icons-outlined text-[#428496] text-3xl"
               >admin_panel_settings</span
             >
           </div>

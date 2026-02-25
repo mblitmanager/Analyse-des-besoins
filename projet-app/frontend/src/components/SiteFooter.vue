@@ -51,7 +51,7 @@ const router = useRouter();
       <div class="text-center">
         <p class="text-sm text-gray-500">
           Besoin d'aide ? 
-          <a hred="mailto:contact@ns-conseil.com" class="text-brand-primary font-bold hover:underline ml-1">
+          <a href="mailto:contact@ns-conseil.com" class="text-brand-primary font-bold hover:underline ml-1">
             Contactez le support
           </a>
         </p>

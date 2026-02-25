@@ -73,9 +73,14 @@ export class PdfService {
       // ─── Formation + Recommendation ───
       doc.moveDown(0.5);
       this.sectionTitle(doc, 'Formation et Résultat');
+
+      const recommendations = (data.finalRecommendation || '').split(' | ');
       const formationInfo = [
         ['Formation choisie', data.formationChoisie || 'N/A'],
-        ['Recommandation', data.finalRecommendation || 'N/A'],
+        ...recommendations.map((r, i) => [
+          i === 0 ? 'Recommandation(s)' : '',
+          r,
+        ]),
         [
           'Score final',
           data.scoreFinal !== undefined ? `${data.scoreFinal}%` : 'N/A',

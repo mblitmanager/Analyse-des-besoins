@@ -181,7 +181,7 @@ onMounted(fetchSettings);
           :key="step.id"
           class="flex items-center gap-4 bg-white p-5 rounded-2xl border border-gray-100 hover:border-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/5 transition-all group"
         >
-          <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 font-black text-xs group-hover:bg-brand-primary group-hover:text-white transition-colors">
+          <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 font-black text-xs group-hover:bg-brand-primary group-hover:text-[#428496] transition-colors">
             {{ index + 1 }}
           </div>
 
@@ -201,14 +201,14 @@ onMounted(fetchSettings);
             <button 
               @click="moveStep(index, -1)" 
               :disabled="index === 0"
-              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
             >
               <span class="material-icons-outlined text-lg">arrow_upward</span>
             </button>
             <button 
               @click="moveStep(index, 1)" 
               :disabled="index === workflowSteps.length - 1"
-              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
             >
               <span class="material-icons-outlined text-lg">arrow_downward</span>
             </button>
@@ -219,7 +219,7 @@ onMounted(fetchSettings);
           <button
             @click="saveWorkflowOrder"
             :disabled="savingWorkflow"
-            class="px-10 py-5 bg-black text-white rounded-[24px] font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-2xl hover:bg-brand-primary ring-offset-2 focus:ring-2 focus:ring-brand-primary transition-all disabled:opacity-50"
+            class="px-10 py-5 bg-black text-[#428496] rounded-[24px] font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-2xl hover:bg-brand-primary ring-offset-2 focus:ring-2 focus:ring-brand-primary transition-all disabled:opacity-50"
           >
             <span v-if="savingWorkflow" class="material-icons-outlined animate-spin text-sm">refresh</span>
             <span v-else class="material-icons-outlined text-sm">auto_fix_high</span>

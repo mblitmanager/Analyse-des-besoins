@@ -107,7 +107,7 @@ onMounted(fetchUsers);
       </div>
       <button
         @click="showAddModal = true"
-        class="flex items-center gap-2 px-6 py-3 bg-brand-primary text-blue-400 rounded-2xl font-bold hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
+        class="flex items-center gap-2 px-6 py-3 bg-brand-primary text-[#428496] rounded-2xl font-bold hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
       >
         <span class="material-icons-outlined">add</span>
         Nouvel Admin
@@ -115,7 +115,7 @@ onMounted(fetchUsers);
     </div>
 
     <!-- Users List -->
-    <div class="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden p-4">
+    <div class="bg-white rounded-4xl border border-gray-100 shadow-sm overflow-hidden p-4">
       <!-- Toolbar: search + filter + page size -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div class="flex items-center gap-3 w-full md:w-1/2">
@@ -243,7 +243,7 @@ onMounted(fetchUsers);
                 v-for="p in pageNumbers"
                 :key="p"
                 @click="page = p"
-                :class="['px-3 py-1 rounded-2xl', { 'bg-brand-primary text-white': page === p, 'bg-white': page !== p }]"
+                :class="['px-3 py-1 rounded-2xl', { 'bg-brand-primary text-[#428496]': page === p, 'bg-white': page !== p }]"
               >
                 {{ p }}
               </button>
@@ -262,7 +262,7 @@ onMounted(fetchUsers);
     <!-- Add Modal -->
     <div
       v-if="showAddModal"
-      class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      class="fixed inset-0 z-100 flex items-center justify-center p-4"
     >
       <div
         class="absolute inset-0 overlay-dark backdrop-blur-sm"
@@ -310,7 +310,7 @@ onMounted(fetchUsers);
             </button>
             <button
               type="submit"
-              class="flex-1 py-4 bg-brand-primary text-blue-400 font-bold rounded-2xl hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
+              class="flex-1 py-4 bg-brand-primary text-[#428496] font-bold rounded-2xl hover:shadow-lg hover:shadow-brand-primary/30 transition-all active:scale-95"
             >
               Créer le compte
             </button>

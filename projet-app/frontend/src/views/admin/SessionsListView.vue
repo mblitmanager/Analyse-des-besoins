@@ -467,7 +467,7 @@ function toggleExpandedLevel(level) {
             <button
               @click="saveSessionEdits"
               :disabled="savingSession"
-              class="px-4 py-2 mr-2 bg-brand-primary text-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-brand-secondary disabled:opacity-60 flex items-center gap-2"
+              class="px-4 py-2 mr-2 bg-brand-primary text-[#428496] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-brand-secondary disabled:opacity-60 flex items-center gap-2"
             >
               <span class="material-icons-outlined text-sm">save</span>
               {{ savingSession ? 'Enregistrement...' : 'Enregistrer' }}

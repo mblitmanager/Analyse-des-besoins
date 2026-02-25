@@ -381,7 +381,7 @@ async function saveAndExit() {
           </div>
 
           <!-- Adaptive Introduction -->
-          <div class="bg-blue-600 rounded-3xl p-8 mb-8 text-white shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+          <div class="bg-blue-600 rounded-3xl p-8 mb-8 text-[#428496] shadow-xl shadow-blue-600/20 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
               <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
@@ -558,7 +558,7 @@ async function saveAndExit() {
                         <textarea
                           v-model="currentResponses[questions[currentQuestionIndex].id]"
                           rows="4"
-                          class="w-full px-6 py-5 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-[2rem] outline-none transition-all font-bold text-base"
+                          class="w-full px-6 py-5 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-4xl outline-none transition-all font-bold text-base"
                           placeholder="Saisissez votre réponse..."
                         ></textarea>
                       </div>
@@ -567,7 +567,7 @@ async function saveAndExit() {
                         <label
                           v-for="(option, oIdx) in questions[currentQuestionIndex].options"
                           :key="oIdx"
-                          class="option-card !rounded-[1.5rem] !p-6 !min-height-[4.5rem]"
+                          class="option-card rounded-3xl! p-6! min-h-18!"
                           :class="
                             currentResponses[questions[currentQuestionIndex].id] === option
                               ? 'option-card--selected'
@@ -581,9 +581,9 @@ async function saveAndExit() {
                             :value="option"
                             class="hidden"
                           />
-                          <span class="option-card__label !text-base">{{ option }}</span>
+                          <span class="option-card__label text-base!">{{ option }}</span>
                           <div
-                            class="option-card__radio !w-6 !h-6"
+                            class="option-card__radio w-6! h-6!"
                             :class="
                               currentResponses[questions[currentQuestionIndex].id] === option
                                 ? 'option-card__radio--selected'
@@ -592,7 +592,7 @@ async function saveAndExit() {
                           >
                             <div
                               v-if="currentResponses[questions[currentQuestionIndex].id] === option"
-                              class="option-card__radio-dot !w-2 !h-2"
+                              class="option-card__radio-dot w-2! h-2!"
                             ></div>
                           </div>
                         </label>
@@ -641,7 +641,7 @@ async function saveAndExit() {
                   v-if="currentQuestionIndex < questions.length - 1"
                   @click="currentQuestionIndex++"
                   :disabled="!currentResponses[questions[currentQuestionIndex].id]"
-                  class="px-8 py-3 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl hover:bg-brand-primary hover:text-white transition-all flex items-center gap-2 disabled:opacity-30"
+                  class="px-8 py-3 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl hover:bg-brand-primary hover:text-[#428496] transition-all flex items-center gap-2 disabled:opacity-30"
                 >
                   Suivant
                   <span class="material-icons-outlined text-lg">arrow_forward</span>
@@ -651,7 +651,7 @@ async function saveAndExit() {
                   v-else
                   @click="nextStep"
                   :disabled="submitting || !currentResponses[questions[currentQuestionIndex].id]"
-                  class="px-8 py-3 bg-brand-primary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-30"
+                  class="px-8 py-3 bg-brand-primary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-30"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
                   <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
@@ -675,7 +675,7 @@ async function saveAndExit() {
                       return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
                     })
                   "
-                  class="px-8 py-3 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-sm"
+                  class="px-8 py-3 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 text-sm"
                 >
                   <span>{{
                     currentLevelIndex === levels.length - 1

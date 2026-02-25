@@ -163,21 +163,40 @@ async function skipStep() {
                 <!-- Radio Toggle Type (Oui/Non) -->
                 <div
                   v-if="q.metadata?.type === 'radio_toggle'"
-                  class="flex gap-3"
+                  class="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 >
-                  <button
+                  <label
                     v-for="opt in q.options"
                     :key="opt"
-                    @click="responses[q.id] = opt"
-                    class="flex-1 py-4 rounded-2xl border transition-all font-bold text-sm"
+                    class="option-card"
                     :class="
                       responses[q.id] === opt
-                        ? 'border-brand-primary bg-brand-primary text-white shadow-sm scale-[1.02]'
-                        : 'border-transparent bg-gray-100 text-gray-700 hover:border-gray-200'
+                        ? 'option-card--selected'
+                        : 'option-card--default'
                     "
                   >
-                    {{ opt }}
-                  </button>
+                    <input
+                      type="radio"
+                      :name="'q-' + q.id"
+                      v-model="responses[q.id]"
+                      :value="opt"
+                      class="hidden"
+                    />
+                    <span class="option-card__label">{{ opt }}</span>
+                    <div
+                      class="option-card__radio"
+                      :class="
+                        responses[q.id] === opt
+                          ? 'option-card__radio--selected'
+                          : 'option-card__radio--default'
+                      "
+                    >
+                      <div
+                        v-if="responses[q.id] === opt"
+                        class="option-card__radio-dot"
+                      ></div>
+                    </div>
+                  </label>
                 </div>
 
                 <!-- QCM Type (Multiple Choice) -->
@@ -185,27 +204,38 @@ async function skipStep() {
                   v-else-if="q.metadata?.type === 'qcm'"
                   class="grid grid-cols-1 gap-3"
                 >
-                  <button
+                  <label
                     v-for="(opt, oIdx) in q.options"
                     :key="oIdx"
-                    @click="responses[q.id] = opt"
-                    type="button"
-                    class="w-full p-4 rounded-2xl border text-left font-medium text-sm transition-all shadow-sm"
+                    class="option-card"
                     :class="
                       responses[q.id] === opt
-                        ? 'border-brand-primary bg-brand-primary text-white'
-                        : 'border-transparent bg-gray-100 text-gray-700 hover:border-gray-200'
+                        ? 'option-card--selected'
+                        : 'option-card--default'
                     "
                   >
-                    <div class="flex items-center justify-between gap-3">
-                      <span>{{ opt }}</span>
-                      <span
+                    <input
+                      type="radio"
+                      :name="'q-' + q.id"
+                      v-model="responses[q.id]"
+                      :value="opt"
+                      class="hidden"
+                    />
+                    <span class="option-card__label">{{ opt }}</span>
+                    <div
+                      class="option-card__radio"
+                      :class="
+                        responses[q.id] === opt
+                          ? 'option-card__radio--selected'
+                          : 'option-card__radio--default'
+                      "
+                    >
+                      <div
                         v-if="responses[q.id] === opt"
-                        class="material-icons-outlined text-brand-primary text-sm"
-                        >check_circle</span
-                      >
+                        class="option-card__radio-dot"
+                      ></div>
                     </div>
-                  </button>
+                  </label>
                 </div>
 
                 <!-- Textarea Type -->
@@ -251,7 +281,7 @@ async function skipStep() {
             <button
               @click="nextStep"
               :disabled="submitting"
-              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
+              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
             >
               <span>Continuer</span>
               <span v-if="!submitting" class="material-icons-outlined text-xl"
@@ -273,7 +303,70 @@ async function skipStep() {
 
 <style scoped>
 
+
 .font-outfit {
   font-family: "Outfit", sans-serif;
+}
+
+/* Option card styling synced from PositionnementView */
+.option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  min-height: 3.5rem;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.option-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.option-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.option-card--selected .option-card__label {
+  color: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
 }
 </style>
