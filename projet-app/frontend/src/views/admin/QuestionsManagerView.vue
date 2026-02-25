@@ -168,12 +168,18 @@ onMounted(() => {
 });
 
 function moveQuestion(levelGroup, index, direction) {
-  const list = levelGroup.questions;
-  if (direction === -1 && index > 0) {
-    [list[index], list[index - 1]] = [list[index - 1], list[index]];
-  } else if (direction === 1 && index < list.length - 1) {
-    [list[index], list[index + 1]] = [list[index + 1], list[index]];
-  }
+  if (!enableOrdering) return;
+  const fromQ = levelGroup.questions[index];
+  const toQ = levelGroup.questions[index + direction];
+  if (!fromQ || !toQ) return;
+
+  const idxA = questions.value.findIndex((q) => q.id === fromQ.id);
+  const idxB = questions.value.findIndex((q) => q.id === toQ.id);
+  if (idxA === -1 || idxB === -1) return;
+
+  const copy = [...questions.value];
+  [copy[idxA], copy[idxB]] = [copy[idxB], copy[idxA]];
+  questions.value = copy;
 }
 
 async function saveOrder(questionsList) {
@@ -203,6 +209,8 @@ const types = [
   { label: "Complémentaires", value: "complementary" },
   { label: "Disponibilités", value: "availabilities" },
 ];
+// Toggle to enable ordering UI
+const enableOrdering = true;
 
 const availableLevels = computed(() => {
   if (!form.value.formationId) return [];
@@ -304,18 +312,20 @@ const groupedQuestions = computed(() => {
 
     <!-- Filters -->
     <div class="flex flex-wrap gap-4 items-center">
-      <div class="flex gap-2 p-1 bg-gray-100 rounded-2xl w-fit">
+      <div class="flex gap-2 p-2 bg-gray-200 rounded-2xl w-fit">
         <button
+          type="button"
           v-for="t in types"
           :key="t.value"
           @click="
             filterType = t.value;
             fetchQuestions();
           "
+          :aria-pressed="filterType === t.value"
           class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
           :class="
             filterType === t.value
-              ? 'bg-white text-[var(--title-color)] shadow-md'
+              ? 'bg-gray-300 text-[var(--title-color)] shadow-md'
               : 'text-gray-400 hover:text-gray-600'
           "
         >
@@ -399,6 +409,7 @@ const groupedQuestions = computed(() => {
                   {{ lg.questions.length }} question(s)
                 </span>
                 <button 
+                  v-if="enableOrdering"
                   @click="saveOrder(lg.questions)"
                   :disabled="savingOrder"
                   class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
@@ -415,7 +426,7 @@ const groupedQuestions = computed(() => {
                 class="p-6 flex items-start gap-6 hover:bg-gray-50/60 transition-colors group relative"
               >
                 <!-- REORDER CONTROLS -->
-                <div class="flex flex-col gap-1 mt-1">
+                <div v-if="enableOrdering" class="flex flex-col gap-1 mt-1">
                   <button 
                     @click="moveQuestion(lg, idx, -1)" 
                     :disabled="idx === 0"
