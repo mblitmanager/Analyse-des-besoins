@@ -505,7 +505,7 @@ const downloadPDF = async () => {
                   class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
                 >
                   <h4 class="text-lg font-bold heading-primary">
-                    {{ session.formationChoisie }} - {{ recommendedLevel1?.label }}
+                    {{ recommendedLevel1 ? (session.formationChoisie + ' - ' + recommendedLevel1.label) : recommendedLabel }}
                   </h4>
                 </div>
                 <p class="text-gray-400 mb-4 font-medium text-sm">

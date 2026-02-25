@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
-
+import AppLogo from '../../components/AppLogo.vue';
 const auth = useAuthStore();
 const router = useRouter();
 
@@ -14,7 +14,7 @@ const navItems = [
   { label: "Dashboard", icon: "dashboard", route: "/admin/dashboard" },
   { label: "Sessions", icon: "assignment", route: "/admin/sessions" },
   { label: "Questions", icon: "quiz", route: "/admin/questions" },
-  { label: "Conseillers", icon: "badge", route: "/admin/contacts" },
+  // { label: "Conseillers", icon: "badge", route: "/admin/contacts" },
   { label: "Formations", icon: "school", route: "/admin/formations" },
   { label: "Administrateurs", icon: "group", route: "/admin/users" },
   { label: "Paramètres", icon: "settings", route: "/admin/settings" },
@@ -29,21 +29,8 @@ const navItems = [
     >
       <div class="p-8">
         <div class="flex items-center gap-3 mb-10">
-          <div
-            class="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/20"
-          >
-            <span class="material-icons-outlined text-blue-500 text-xl">bolt</span>
-          </div>
-          <div>
-            <h1 class="text-xl font-black heading-primary">
-              WIZY<span class="text-brand-primary">ADMIN</span>
-            </h1>
-            <p
-              class="text-[8px] font-black text-gray-400 uppercase tracking-[0.2em]"
-            >
-              Management System
-            </p>
-          </div>
+          <AppLogo class="w-10 h-10" />
+          
         </div>
 
         <nav class="space-y-2">
