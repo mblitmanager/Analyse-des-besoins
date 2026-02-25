@@ -61,6 +61,26 @@ const recommendedLevel2 = computed(() => {
   return levels.value.find(l => l.label === l2Label) || null;
 });
 
+const parcoursOptions = computed(() => {
+  if (!session.value) return [];
+  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length)
+    return session.value.recommendations.map(r => String(r));
+
+  const rec = session.value.finalRecommendation || "";
+  if (!rec) return [];
+  // Try to split older format "Formation - Level1 & Level2"
+  if (rec.includes("&")) {
+    const parts = rec.split("-")[1]?.trim().split("&");
+    if (parts && parts.length >= 2) {
+      return [
+        `${session.value.formationChoisie || ""} - ${parts[0].trim()}`.trim(),
+        `${session.value.formationChoisie || ""} - ${parts[1].trim()}`.trim(),
+      ];
+    }
+  }
+  return [rec];
+});
+
 async function loadLevelsForFormation() {
   try {
     const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -459,7 +479,7 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <div
+        <div v-if="parcoursOptions.length <= 1"
           class="relative bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
         >
           <!-- Pack Header -->
@@ -603,6 +623,20 @@ const downloadPDF = async () => {
                 Ce parcours "Pack Duo" est entièrement finançable par votre CPF
                 (Mon Compte Formation).
               </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div v-for="(p, idx) in parcoursOptions" :key="idx" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-brand-primary p-6 text-blue-400 relative overflow-hidden">
+              <div class="relative z-10">
+                <h3 class="text-xl font-bold mb-1">Parcours proposé {{ idx + 1 }}</h3>
+                <p class="opacity-80 text-sm">{{ p }}</p>
+              </div>
+            </div>
+            <div class="p-6">
+              <p class="text-gray-500 text-sm mb-4">Ce parcours est calculé à partir de vos réponses et peut être validé ou discuté avec un conseiller.</p>
             </div>
           </div>
         </div>

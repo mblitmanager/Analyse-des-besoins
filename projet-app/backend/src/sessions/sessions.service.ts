@@ -211,8 +211,26 @@ export class SessionsService {
       finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
     }
 
+    // Determine two proposed parcours (always provide two options)
+    let proposedParcours: string[] = [];
+    // find index of finalLevel in levels
+    const idx = levels.findIndex((l) => l.id === finalLevel.id);
+    const nextLevel = idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
+
     if (hasInsuffisant) {
-      finalRecommendationValue = `Parcours Initiation - Digcomp Initial & Word Initial`;
+      // First option: DigComp initial & Word initial
+      // Second option: level-based parcours augmented with initiation
+      proposedParcours = [
+        'DigComp Initial & Word Initial',
+        `${finalLevel.label} + DigComp Initial & Word Initial`,
+      ];
+      // set finalRecommendationValue as joined proposals for backward compatibility
+      finalRecommendationValue = proposedParcours.join(' / ');
+    } else {
+      const first = finalLevel.label;
+      const second = nextLevel ? nextLevel.label : finalLevel.label;
+      proposedParcours = [first, second];
+      finalRecommendationValue = proposedParcours.join(' / ');
     }
 
     // Score final global
@@ -232,6 +250,7 @@ export class SessionsService {
 
     return {
       recommendation: finalRecommendationValue,
+      recommendations: proposedParcours,
       scoreFinal,
       finalLevel,
       qTextById,

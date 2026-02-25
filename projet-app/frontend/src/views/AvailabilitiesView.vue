@@ -160,8 +160,8 @@ async function skipStep() {
                   class="py-4 px-3 rounded-2xl border transition-all group flex flex-col items-center gap-2"
                   :class="
                     responses[q.id].includes(opt)
-                      ? 'bg-brand-primary text-blue-500 border-brand-primary shadow-md scale-[1.02]'
-                      : 'bg-white text-gray-300 border-gray-100 hover:border-gray-200'
+                      ? 'bg-brand-primary text-white border-brand-primary shadow-md scale-[1.02]'
+                      : 'bg-gray-100 text-gray-700 border-transparent hover:border-gray-200'
                   "
                 >
                   <span
