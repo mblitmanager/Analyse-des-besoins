@@ -274,12 +274,7 @@ export class SeedService implements OnApplicationBootstrap {
     // 3. Prerequisite Questions
     const prerequisQuestions = [
       {
-        text: 'Niveau numérique global',
-        options: ['Débutant', 'Intermédiaire', 'Avancé'],
-        type: 'prerequis',
-      },
-      {
-        text: "Fréquence d'utilisation d'un ordinateur",
+        text: 'Fréquence d’utilisation d’un ordinateur',
         options: ['Tous les jours', 'Occasionnelle', 'Jamais'],
         type: 'prerequis',
       },
@@ -299,13 +294,18 @@ export class SeedService implements OnApplicationBootstrap {
         type: 'prerequis',
       },
       {
-        text: 'Utilisez-vous les logiciels suivants :',
+        text: 'Avez-vous déjà utilisé les logiciels suivants :',
         options: [
-          'Traitement de texte',
-          'Tableur',
-          'Présentation',
+          'Traitement de texte type Word, Google Docs',
+          'Tableur feuille de calcul type Excel, Google Sheets',
+          'Logiciel de présentation type Powerpoint, Google slides',
           "Je n'utilise aucun de ces logiciels",
         ],
+        type: 'prerequis',
+      },
+      {
+        text: 'Savoir créer un dossier et y ranger et renommer un fichier',
+        options: ['Acquis', 'Moyen', 'Insuffisant'],
         type: 'prerequis',
       },
       {
@@ -603,6 +603,66 @@ export class SeedService implements OnApplicationBootstrap {
         console.log(
           `Question "${qData.text.substring(0, 20)}..." for TOEIC added.`,
         );
+      }
+    }
+
+    // 5. WordPress specific questions
+    const wordpress = await this.formationRepo.findOne({
+      where: { slug: 'wordpress' },
+    });
+    if (wordpress) {
+      const wpQuestions = [
+        {
+          text: 'Quel est l’objectif principal de votre formation ?',
+          options: [
+            'Découvrir l’outil par curiosité',
+            'Créer un site vitrine pour présenter votre activité',
+            'Créer une boutique en ligne pour vendre des produits',
+          ],
+          type: 'complementary',
+          metadata: { type: 'radio_toggle' },
+        },
+      ];
+      for (const q of wpQuestions) {
+        const exists = await this.questionRepo.findOne({
+          where: { text: q.text, type: 'complementary' as any },
+        });
+        if (!exists) {
+          await this.questionRepo.save({
+            ...q,
+            order: 100, // Put them at the end
+            type: 'complementary' as any,
+            correctResponseIndex: 0,
+          });
+        }
+      }
+    }
+
+    // 6. Bureautique decision aid
+    const bureautiqueFormations = ['word', 'excel', 'outlook', 'powerpoint'];
+    for (const slug of bureautiqueFormations) {
+      const formation = await this.formationRepo.findOne({ where: { slug } });
+      if (formation) {
+        const decisionAidQ = {
+          text: 'Quelle suite logicielle souhaitez-vous privilégier ?',
+          options: [
+            'Microsoft Office (Word, Excel, PPT)',
+            'Google Workspace (Docs, Sheets, Slides)',
+          ],
+          type: 'complementary',
+          metadata: { type: 'radio_toggle' },
+        };
+        const exists = await this.questionRepo.findOne({
+          where: { text: decisionAidQ.text, type: 'complementary' as any },
+        });
+        if (!exists) {
+          await this.questionRepo.save({
+            ...decisionAidQ,
+            order: 50,
+            type: 'complementary' as any,
+            correctResponseIndex: 0,
+          });
+        }
       }
     }
   }

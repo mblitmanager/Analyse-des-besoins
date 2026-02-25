@@ -239,9 +239,9 @@ onMounted(fetchFormations);
             <h3 class="text-xl font-black heading-primary leading-tight">
               {{ f.label }}
             </h3>
-            <p class="text-[10px] font-bold text-gray-300 mt-1">
+            <!-- <p class="text-[10px] font-bold text-gray-300 mt-1">
               Slug: {{ f.slug }}
-            </p>
+            </p> -->
           </div>
 
           <div

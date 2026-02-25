@@ -105,7 +105,9 @@ export class SessionsService {
     for (const level of levels) {
       const raw = scores[level.label];
       const userScore =
-        typeof raw === 'number' ? raw : ((raw as any)?.score ?? undefined);
+        typeof raw === 'number'
+          ? raw
+          : ((raw as Record<string, any>)?.score ?? undefined);
 
       if (userScore !== undefined) {
         if (userScore >= level.successThreshold) {
@@ -120,15 +122,98 @@ export class SessionsService {
       }
     }
 
-    const recommendation =
+    // Index texte des questions (pré-requis + complémentaires + disponibilités + positionnement)
+    const ids = new Set<number>();
+    const addIds = (obj: Record<string, any> | undefined | null) => {
+      if (!obj) return;
+      Object.keys(obj).forEach((k) => {
+        const n = Number(k);
+        if (!Number.isNaN(n)) ids.add(n);
+      });
+    };
+    addIds(session.prerequisiteScore);
+    addIds(session.complementaryQuestions);
+    addIds(session.availabilities);
+    addIds(session.positionnementAnswers);
+
+    const questions = ids.size
+      ? await this.questionRepo.find({ where: { id: In([...ids]) } })
+      : [];
+    const qTextById: Record<number, string> = {};
+    questions.forEach((q) => {
+      qTextById[q.id] = q.text;
+    });
+
+    let finalRecommendationValue =
       finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
+
+    // 1. Check Prerequisite "Insuffisant" Logic
+    const hasInsuffisant = Object.values(
+      (session.prerequisiteScore as Record<string, any>) || {},
+    ).some((val) => String(val).toLowerCase() === 'insuffisant');
+
+    if (hasInsuffisant) {
+      finalRecommendationValue = `Digcomp Initial & Word Initial & ${finalRecommendationValue}`;
+    }
+
+    // 2. WordPress Specific Logic
+    if (session.formationChoisie?.toLowerCase().includes('wordpress')) {
+      const objectiveQ = questions.find((q) =>
+        q.text.toLowerCase().includes('objectif principal'),
+      );
+      const objectiveVal = objectiveQ
+        ? (session.complementaryQuestions as Record<string, any>)?.[
+            objectiveQ.id
+          ]
+        : null;
+
+      if (objectiveVal) {
+        if (objectiveVal.includes('vitrine')) {
+          finalRecommendationValue = 'WordPress - Création de site vitrine';
+        } else if (objectiveVal.includes('boutique')) {
+          finalRecommendationValue =
+            'WordPress - Création de boutique en ligne';
+        } else {
+          finalRecommendationValue = 'WordPress - Découverte et Initiation';
+        }
+      }
+    }
+
+    // 3. Google Workspace vs Microsoft Office
+    const bureautiqueChoiceQ = questions.find(
+      (q) =>
+        q.text.toLowerCase().includes('google workspace') &&
+        q.text.toLowerCase().includes('microsoft office'),
+    );
+    const softwareChoice = bureautiqueChoiceQ
+      ? (session.complementaryQuestions as Record<string, any>)?.[
+          bureautiqueChoiceQ.id
+        ]
+      : null;
+
+    if (
+      softwareChoice &&
+      (session.formationChoisie
+        ?.toLowerCase()
+        .match(/word|excel|powerpoint|outlook|bureautique/) ||
+        session.formationChoisie === 'Pack Office')
+    ) {
+      finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
+    }
+
+    // Special case for "Insuffisant" prerequisites: prepend/wrap in a Duo format
+    if (hasInsuffisant) {
+      finalRecommendationValue = `Parcours Initiation - Digcomp Initial & Word Initial`;
+    }
+
+    const recommendation = finalRecommendationValue;
 
     const safe = (v: any) =>
       String(v ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
+        .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 
     const renderAnswersTable = (
@@ -167,28 +252,6 @@ export class SessionsService {
       `;
     };
 
-    // Index texte des questions (pré-requis + complémentaires + disponibilités)
-    const ids = new Set<number>();
-    const addIds = (obj: any) => {
-      if (!obj) return;
-      Object.keys(obj).forEach((k) => {
-        const n = Number(k);
-        if (!Number.isNaN(n)) ids.add(n);
-      });
-    };
-    addIds(session.prerequisiteScore);
-    addIds(session.complementaryQuestions);
-    addIds(session.availabilities);
-    addIds(session.positionnementAnswers);
-
-    const questions = ids.size
-      ? await this.questionRepo.find({ where: { id: In([...ids]) } })
-      : [];
-    const qTextById: Record<number, string> = {};
-    questions.forEach((q) => {
-      qTextById[q.id] = q.text;
-    });
-
     // Score final global (si possible)
     const levelsEntries: any[] = session.levelsScores
       ? Object.values(session.levelsScores)
@@ -221,13 +284,13 @@ export class SessionsService {
                 const ok = e?.validated ? 'Oui' : 'Non';
                 const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
                 return `<tr>
-                  <td style=\"padding:10px;border-top:1px solid #eee;font-weight:700;\">${safe(
+                  <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">${safe(
                     lvl,
                   )}</td>
-                  <td style=\"padding:10px;border-top:1px solid #eee;\">${safe(
+                  <td style="padding:10px;border-top:1px solid #eee;">${safe(
                     score,
                   )}</td>
-                  <td style=\"padding:10px;border-top:1px solid #eee;\">${safe(
+                  <td style="padding:10px;border-top:1px solid #eee;">${safe(
                     ok,
                   )}</td>
                 </tr>`;
