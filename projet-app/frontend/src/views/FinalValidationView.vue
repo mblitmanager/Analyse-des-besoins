@@ -132,9 +132,7 @@ function goHome() {
             >Progression</span
           >
           <span class="text-[10px] text-brand-primary font-bold"
-            >Étape {{ store.getProgress("/validation").current }}/{{
-              store.getProgress("/validation").total
-            }}</span
+            >Étape 8/8</span
           >
         </div>
         <div
@@ -142,9 +140,7 @@ function goHome() {
         >
           <div
             class="h-full bg-brand-primary transition-all duration-700"
-            :style="{
-              width: store.getProgress('/validation').percentage + '%',
-            }"
+            style="width: 100%"
           ></div>
         </div>
         <p
@@ -177,6 +173,14 @@ function goHome() {
                   session.formationChoisie
                 }}</span>
               </div>
+              <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200" v-if="session.finalRecommendation">
+                <span class="text-xs text-gray-500 font-bold"
+                  >Parcours recommandé</span
+                >
+                <span class="text-sm font-black text-green-600 text-right max-w-[200px]">{{
+                  session.finalRecommendation
+                }}</span>
+              </div>
             </div>
           </div>
 
@@ -188,14 +192,13 @@ function goHome() {
             </h3>
             <p class="text-sm font-bold text-gray-600 leading-relaxed">
               Vous avez complété l'identification, la sélection de formation, et
-              les tests de positionnement. Vos réponses ont été enregistrées
-              avec succès.
+              les tests de positionnement. Merci de confirmer, pour soumettre vos résultats.
             </p>
           </div>
         </div>
 
         <!-- Statistiques de synthèse -->
-        <section class="space-y-4 mb-10" v-if="session">
+        <!-- <section class="space-y-4 mb-10" v-if="session">
           <h3
             class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2"
           >
@@ -254,7 +257,7 @@ function goHome() {
             </div>
           </div>
 
-          <div
+           <div
             v-if="levelsEntries.length"
             class="bg-white rounded-2xl border border-gray-100 p-5"
           >
@@ -321,24 +324,25 @@ function goHome() {
                 </tbody>
               </table>
             </div>
-          </div>
-        </section>
+          </div> 
+        </section> -->
 
-        <div class="space-y-3">
-          <button
-            @click="validate"
-            class="w-full py-5 bg-brand-primary text-blue-500 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
-          >
-            <span>Découvrir mes résultats</span>
-            <span class="material-icons-outlined">rocket_launch</span>
-          </button>
+        <div class="flex flex-col sm:flex-row gap-3">
           <button
             @click="goHome"
-            class="w-full py-4 bg-white text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+            class="flex-1 py-5 bg-white text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
           >
-            <span>Retour à l'accueil</span>
+            <span>Accueil</span>
             <span class="material-icons-outlined">home</span>
           </button>
+          <button
+            @click="validate"
+            class="flex-1 py-5 bg-brand-primary text-blue-500 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
+          >
+            <span>Soumettre</span>
+            <!-- <span class="material-icons-outlined">rocket_launch</span> -->
+          </button>
+          
         </div>
       </div>
 

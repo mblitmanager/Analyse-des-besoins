@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
@@ -13,6 +13,7 @@ const sessionId = localStorage.getItem("session_id");
 const loading = ref(true);
 const submitting = ref(false);
 const selectedFormation = ref(null);
+const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 
 const formations = ref([]);
 
@@ -40,14 +41,24 @@ onMounted(() => {
 
 async function selectFormation() {
   if (!selectedFormation.value) return;
+  // For bureautique formations require a suite choice
+  if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique' && !selectedSuite.value) {
+    alert('Veuillez choisir : Google Workspace ou Microsoft Office');
+    return;
+  }
 
   submitting.value = true;
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    const payload = {
       formationChoisie: selectedFormation.value.label,
-    });
+    };
+    if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique') {
+      payload.bureautiqueSuite = selectedSuite.value;
+    }
+
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
     localStorage.setItem(
       "selected_formation_slug",
       selectedFormation.value.slug,
@@ -56,6 +67,7 @@ async function selectFormation() {
       "selected_formation_label",
       selectedFormation.value.label,
     );
+    if (selectedSuite.value) localStorage.setItem('selected_suite', selectedSuite.value);
     const nextRoute = store.getNextRoute("/formations");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
@@ -64,6 +76,94 @@ async function selectFormation() {
   } finally {
     submitting.value = false;
   }
+}
+
+// Grouping rules and preferred order
+const categoryGroupsOrder = [
+  'anglais-francais',
+  'bureautique',
+  'illustration',
+  'ia-generative',
+  'digcomp-google-wordpress',
+  'autres',
+];
+
+function detectGroupForFormation(f) {
+  const cat = (f.category || '').toLowerCase();
+  const label = (f.label || '').toLowerCase();
+  if (cat.includes('anglais') || label.includes('anglais') || cat.includes('francais') || label.includes('francais')) return 'anglais-francais';
+  if (cat.includes('bureautique') || label.includes('bureautique') || label.includes('google') || label.includes('microsoft') || label.includes('office')) return 'bureautique';
+  if (label.includes('illustrator') || label.includes('photoshop') || label.includes('sketchup')) return 'illustration';
+  if (label.includes('intelligence') || label.includes('ia') || label.includes('générative') || label.includes('generative')) return 'ia-generative';
+  if (label.includes('digcomp') || label.includes('wordpress') || label.includes('google workspace')) return 'digcomp-google-wordpress';
+  return 'autres';
+}
+
+const groupedFormations = computed(() => {
+  const map = new Map();
+  (formations.value || []).forEach((f) => {
+    const group = detectGroupForFormation(f);
+    if (!map.has(group)) map.set(group, []);
+    map.get(group).push(f);
+  });
+  const groups = Array.from(map.entries()).map(([group, items]) => ({
+    category: group,
+    items: items.sort((a, b) => (a.label || '').localeCompare(b.label || '')),
+  }));
+  groups.sort((a, b) => {
+    const ai = categoryGroupsOrder.indexOf(a.category);
+    const bi = categoryGroupsOrder.indexOf(b.category);
+    if (ai === -1 && bi === -1) return a.category.localeCompare(b.category);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+  return groups;
+});
+
+// Modal & helpers for Bureautique choice between Google Workspace and Microsoft Office
+const showBureauModal = ref(false);
+const bureauGoogle = computed(() => {
+  const list = formations.value.filter((f) => {
+    const cat = (f.category || '').toLowerCase();
+    const label = (f.label || '').toLowerCase();
+    return (
+      cat.includes('google') ||
+      label.includes('google workspace') ||
+      label.includes('google') ||
+      (cat.includes('bureautique') && label.includes('google'))
+    );
+  });
+  // fallback: if empty, include all bureautique
+  if (list.length === 0) return formations.value.filter((f) => (f.category || '').toLowerCase().includes('bureautique'));
+  return list;
+});
+const bureauMicrosoft = computed(() => {
+  const list = formations.value.filter((f) => {
+    const cat = (f.category || '').toLowerCase();
+    const label = (f.label || '').toLowerCase();
+    return (
+      cat.includes('microsoft') ||
+      label.includes('microsoft') ||
+      label.includes('office') ||
+      (cat.includes('bureautique') && (label.includes('microsoft') || label.includes('office')))
+    );
+  });
+  if (list.length === 0) return formations.value.filter((f) => (f.category || '').toLowerCase().includes('bureautique'));
+  return list;
+});
+
+function openBureautiqueModal() {
+  showBureauModal.value = true;
+}
+
+function chooseBureauFormation(f) {
+  selectedFormation.value = f;
+  // set suite based on label/category heuristic
+  const l = (f.label || '').toLowerCase();
+  if (l.includes('google')) selectedSuite.value = 'google';
+  else if (l.includes('microsoft') || l.includes('office')) selectedSuite.value = 'microsoft';
+  showBureauModal.value = false;
 }
 </script>
 
@@ -121,33 +221,73 @@ async function selectFormation() {
         ></div>
       </div>
 
-      <div v-else class="formations-grid pb-24">
-        <button
-          v-for="form in formations"
-          :key="form.id"
-          @click="selectedFormation = form"
-          class="formation-card"
-          :class="
-            selectedFormation?.id === form.id
-              ? 'formation-card--selected'
-              : 'formation-card--default'
-          "
-        >
-          <span class="formation-card__label">{{ form.label }}</span>
-          <div
-            class="formation-card__radio"
-            :class="
-              selectedFormation?.id === form.id
-                ? 'formation-card__radio--selected'
-                : 'formation-card__radio--default'
-            "
-          >
-            <div
-              v-if="selectedFormation?.id === form.id"
-              class="formation-card__radio-dot"
-            ></div>
+      <div v-else class="pb-24">
+        <!-- Special Bureautique entry that opens modal to choose between Google / Microsoft trainings -->
+        <div v-if="(formations || []).length && formations.some(f => (f.category||'').toLowerCase().includes('bureautique'))" class="mb-6">
+          <div class="formations-grid">
+            <button
+              @click="openBureautiqueModal"
+              class="formation-card formation-card--default"
+            >
+              <span class="formation-card__label">Bureautique — Choix Google / Microsoft</span>
+              <div class="formation-card__radio formation-card__radio--default"></div>
+            </button>
           </div>
-        </button>
+        </div>
+
+        <div v-for="group in groupedFormations" :key="group.category" class="mb-6">
+          <div class="formations-grid">
+            <button
+              v-for="form in group.items"
+              :key="form.id"
+              @click="selectedFormation = form"
+              class="formation-card"
+              :class="
+                selectedFormation?.id === form.id
+                  ? 'formation-card--selected'
+                  : 'formation-card--default'
+              "
+            >
+              <span class="formation-card__label">{{ form.label }}</span>
+              <div
+                class="formation-card__radio"
+                :class="
+                  selectedFormation?.id === form.id
+                    ? 'formation-card__radio--selected'
+                    : 'formation-card__radio--default'
+                "
+              >
+                <div
+                  v-if="selectedFormation?.id === form.id"
+                  class="formation-card__radio-dot"
+                ></div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Suite choice for bureautique -->
+        <div v-if="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="mt-4">
+          <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-2">Aide à la décision — Choisissez votre suite</p>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              @click="selectedSuite = 'google'"
+              :class="selectedSuite === 'google' ? 'bg-brand-primary text-white' : 'bg-gray-50 text-gray-700'"
+              class="flex-1 py-3 rounded-2xl font-bold border border-gray-100 transition-all"
+            >
+              Google Workspace
+            </button>
+            <button
+              type="button"
+              @click="selectedSuite = 'microsoft'"
+              :class="selectedSuite === 'microsoft' ? 'bg-brand-primary text-white' : 'bg-gray-50 text-gray-700'"
+              class="flex-1 py-3 rounded-2xl font-bold border border-gray-100 transition-all"
+            >
+              Microsoft Office
+            </button>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -181,6 +321,33 @@ async function selectFormation() {
       </div>
     </div>
     <SiteFooter />
+
+    <!-- Bureautique Modal -->
+    <div v-if="showBureauModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40" @click="showBureauModal = false"></div>
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 z-10">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-black">Choisissez une formation Bureautique</h3>
+          <button @click="showBureauModal = false" class="text-gray-500">✕</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-sm font-bold mb-2">Google Workspace</h4>
+            <div class="space-y-2">
+              <button v-for="f in bureauGoogle" :key="f.id" @click="chooseBureauFormation(f)" class="w-full text-left px-4 py-3 bg-gray-50 rounded-2xl border border-gray-100">{{ f.label }}</button>
+              <div v-if="bureauGoogle.length===0" class="text-xs text-gray-400">Aucune formation trouvée</div>
+            </div>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold mb-2">Microsoft Office</h4>
+            <div class="space-y-2">
+              <button v-for="f in bureauMicrosoft" :key="f.id" @click="chooseBureauFormation(f)" class="w-full text-left px-4 py-3 bg-gray-50 rounded-2xl border border-gray-100">{{ f.label }}</button>
+              <div v-if="bureauMicrosoft.length===0" class="text-xs text-gray-400">Aucune formation trouvée</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
