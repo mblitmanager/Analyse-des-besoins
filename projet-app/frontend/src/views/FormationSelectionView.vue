@@ -91,7 +91,7 @@ const categoryGroupsOrder = [
 function detectGroupForFormation(f) {
   const cat = (f.category || '').toLowerCase();
   const label = (f.label || '').toLowerCase();
-  if (cat.includes('anglais') || label.includes('anglais') || cat.includes('francais') || label.includes('francais')) return 'anglais-francais';
+  if (cat.includes('anglais') || cat.includes('langu') || label.includes('anglais') || cat.includes('francais') || label.includes('francais')) return 'anglais-francais';
   if (cat.includes('bureautique') || label.includes('bureautique') || label.includes('google') || label.includes('microsoft') || label.includes('office')) return 'bureautique';
   if (label.includes('illustrator') || label.includes('photoshop') || label.includes('sketchup')) return 'illustration';
   if (label.includes('intelligence') || label.includes('ia') || label.includes('générative') || label.includes('generative')) return 'ia-generative';
@@ -165,6 +165,44 @@ function chooseBureauFormation(f) {
   else if (l.includes('microsoft') || l.includes('office')) selectedSuite.value = 'microsoft';
   showBureauModal.value = false;
 }
+
+// Build explicit sections per requested layout
+const sections = computed(() => {
+  const map = new Map(groupedFormations.value.map((g) => [g.category, g.items]));
+
+  const langs = map.get('anglais-francais') || [];
+  const creation = map.get('illustration') || [];
+  const ia = map.get('ia-generative') || [];
+  const digcompGroup = map.get('digcomp-google-wordpress') || [];
+
+  // also include any formations explicitly matching google workspace/digcomp/wordpress
+  const extraDigcomp = formations.value.filter((f) => {
+    const l = (f.label || '').toLowerCase();
+    return l.includes('digcomp') || l.includes('google workspace') || l.includes('wordpress');
+  });
+
+  const combinedDigcomp = [...digcompGroup, ...extraDigcomp].reduce((acc, f) => {
+    if (!acc.find((x) => x.id === f.id)) acc.push(f);
+    return acc;
+  }, []);
+
+  return [
+    { key: 'langues', title: 'Langues — Anglais / Français', items: langs },
+    { key: 'bureautique', title: 'Bureautique', items: [], modal: true },
+    { key: 'creation', title: 'Création et Internet', items: creation },
+    { key: 'ia', title: 'Intelligence Artificielle Générative', items: ia },
+    { key: 'digcomp', title: 'Digcomp, Google Workspace et Wordpress', items: combinedDigcomp },
+  ];
+});
+
+// Layout parts: put Bureautique and IA side-by-side
+const sectionParts = computed(() => {
+  const langs = sections.value.find((s) => s.key === 'langues') || null;
+  const bureau = sections.value.find((s) => s.key === 'bureautique') || null;
+  const ia = sections.value.find((s) => s.key === 'ia') || null;
+  const rest = sections.value.filter((s) => !['langues', 'bureautique', 'ia'].includes(s.key));
+  return { langs, bureau, ia, rest };
+});
 </script>
 
 <template>
@@ -222,45 +260,72 @@ function chooseBureauFormation(f) {
       </div>
 
       <div v-else class="pb-24">
-        <!-- Special Bureautique entry that opens modal to choose between Google / Microsoft trainings -->
-        <div v-if="(formations || []).length && formations.some(f => (f.category||'').toLowerCase().includes('bureautique'))" class="mb-6">
+        
+
+        <!-- Langues -->
+        <div v-if="sectionParts.langs" class="mb-6">
+          <h3 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">{{ sectionParts.langs.title }}</h3>
           <div class="formations-grid">
             <button
-              @click="openBureautiqueModal"
-              class="formation-card formation-card--default"
+              v-for="form in sectionParts.langs.items"
+              :key="form.id"
+              @click="selectedFormation = form"
+              class="formation-card"
+              :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
             >
-              <span class="formation-card__label">Bureautique — Choix Google / Microsoft</span>
-              <div class="formation-card__radio formation-card__radio--default"></div>
+              <span class="formation-card__label">{{ form.label }}</span>
+              <div class="formation-card__radio" :class="selectedFormation?.id === form.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                <div v-if="selectedFormation?.id === form.id" class="formation-card__radio-dot"></div>
+              </div>
             </button>
           </div>
         </div>
 
-        <div v-for="group in groupedFormations" :key="group.category" class="mb-6">
+        <!-- Bureautique + IA side-by-side -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div v-if="sectionParts.bureau">
+            <h3 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">{{ sectionParts.bureau.title }}</h3>
+            <div class="formations-grid">
+              <button @click="openBureautiqueModal" class="formation-card formation-card--default">
+                <span class="formation-card__label">Choix Google / Microsoft</span>
+                <div class="formation-card__radio formation-card__radio--default"></div>
+              </button>
+            </div>
+          </div>
+
+          <div v-if="sectionParts.ia">
+            <h3 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">{{ sectionParts.ia.title }}</h3>
+            <div class="formations-grid">
+              <button
+                v-for="form in sectionParts.ia.items"
+                :key="form.id"
+                @click="selectedFormation = form"
+                class="formation-card"
+                :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
+              >
+                <span class="formation-card__label">{{ form.label }}</span>
+                <div class="formation-card__radio" :class="selectedFormation?.id === form.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                  <div v-if="selectedFormation?.id === form.id" class="formation-card__radio-dot"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other sections -->
+        <div v-for="section in sectionParts.rest" :key="section.key" class="mb-6">
+          <h3 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-3">{{ section.title }}</h3>
           <div class="formations-grid">
             <button
-              v-for="form in group.items"
+              v-for="form in section.items"
               :key="form.id"
               @click="selectedFormation = form"
               class="formation-card"
-              :class="
-                selectedFormation?.id === form.id
-                  ? 'formation-card--selected'
-                  : 'formation-card--default'
-              "
+              :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
             >
               <span class="formation-card__label">{{ form.label }}</span>
-              <div
-                class="formation-card__radio"
-                :class="
-                  selectedFormation?.id === form.id
-                    ? 'formation-card__radio--selected'
-                    : 'formation-card__radio--default'
-                "
-              >
-                <div
-                  v-if="selectedFormation?.id === form.id"
-                  class="formation-card__radio-dot"
-                ></div>
+              <div class="formation-card__radio" :class="selectedFormation?.id === form.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                <div v-if="selectedFormation?.id === form.id" class="formation-card__radio-dot"></div>
               </div>
             </button>
           </div>
