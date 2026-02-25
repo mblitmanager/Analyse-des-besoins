@@ -35,7 +35,8 @@ async function fetchQuestions() {
       ? `${apiBaseUrl}/questions/workflow/${filterType.value}`
       : `${apiBaseUrl}/questions`;
     const res = await axios.get(url, {
-      params: { ...(formationFilter.value ? { formation: formationFilter.value } : {}) }
+      params: { ...(formationFilter.value ? { formation: formationFilter.value } : {}) },
+      headers: { Authorization: `Bearer ${token}` }
     });
     // deduplicate fetched questions by id or text
     questions.value = Array.from(
@@ -105,9 +106,12 @@ async function saveQuestion() {
       await axios.patch(
         `${apiBaseUrl}/questions/${editingQuestion.value.id}`,
         payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
     } else {
-      await axios.post(`${apiBaseUrl}/questions`, payload);
+      await axios.post(`${apiBaseUrl}/questions`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
     }
 
     showModal.value = false;
@@ -135,7 +139,9 @@ async function toggleStatus(q) {
 async function deleteQuestion(id) {
   if (!confirm("Êtes-vous sûr de vouloir supprimer cette question ?")) return;
   try {
-    await axios.delete(`${apiBaseUrl}/questions/${id}`);
+    await axios.delete(`${apiBaseUrl}/questions/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     await fetchQuestions();
   } catch (error) {
     alert("Erreur lors de la suppression");
@@ -397,7 +403,6 @@ const groupedQuestions = computed(() => {
                   :disabled="savingOrder"
                   class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
                 >
-                  <!-- <span class="material-icons-outlined text-sm">auto_fix_high</span> -->
                   Appliquer l'ordre
                 </button>
               </div>
@@ -451,38 +456,256 @@ const groupedQuestions = computed(() => {
                       class="px-3 py-1 bg-blue-50 text-[8px] font-black uppercase tracking-widest text-blue-500 rounded-full border border-blue-100"
                       >{{ q.category }}</span
                     >
+                    <span
+                      class="px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-full border"
+                      :class="q.isActive ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'"
+                    >
+                      {{ q.isActive ? 'Actif' : 'Inactif' }}
+                    </span>
                   </div>
                   <p class="text-sm font-black heading-primary">
                     {{ q.text }}
                   </p>
                   <div v-if="q.responseType !== 'text'" class="flex flex-wrap gap-2">
                     <span
-                      v-for="(opt, idx) in q.options"
-                      :key="idx"
+                      v-for="(opt, oIdx) in q.options"
+                      :key="oIdx"
                       class="text-[10px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 border border-transparent"
                       :class="
-                        idx === q.correctResponseIndex
+                        oIdx === q.correctResponseIndex
+                          ? 'bg-green-50 text-green-600 border-green-200'
+                          : 'text-gray-400 bg-gray-50 border-gray-100'
+                      "
+                    >
+                      {{ typeof opt === 'string' ? opt : opt.label }}
+                      <span
+                        v-if="oIdx === q.correctResponseIndex"
+                        class="material-icons-outlined text-[10px]"
+                        >check_circle</span
+                      >
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    @click="toggleStatus(q)"
+                    class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center"
+                    :title="q.isActive ? 'Désactiver' : 'Activer'"
+                  >
+                    <span class="material-icons-outlined text-sm">{{ q.isActive ? 'visibility_off' : 'visibility' }}</span>
+                  </button>
+                  <button
+                    @click="openEditModal(q)"
+                    class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center"
+                  >
+                    <span class="material-icons-outlined text-sm">edit</span>
+                  </button>
+                  <button
+                    @click="deleteQuestion(q.id)"
+                    class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center"
+                  >
+                    <span class="material-icons-outlined text-sm">delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="!loading && questions.length === 0"
+        class="flex flex-col items-center justify-center py-20 text-gray-300 bg-white rounded-[40px] shadow-sm"
+      >
+        <span class="material-icons-outlined text-6xl mb-4 opacity-20"
+          >search_off</span
+        >
+        <p class="font-bold uppercase tracking-widest text-xs">
+          Aucune question trouvée pour ce type
+        </p>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="absolute inset-0 overlay-dark backdrop-blur-sm"
+        @click="showModal = false"
+      ></div>
+      <div
+        class="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl relative overflow-hidden animate-scale-up"
+      >
+        <div class="p-10 space-y-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-black heading-primary">
+                {{ editingQuestion ? "Modifier" : "Ajouter" }} une Question
+              </h3>
+              <p
+                class="text-gray-400 text-xs font-bold uppercase tracking-widest"
+              >
+                Configurez les paramètres de la question
+              </p>
+            </div>
+            <button
+              @click="showModal = false"
+              class="text-gray-300 hover:text-gray-600 transition-colors"
+            >
+              <span class="material-icons-outlined">close</span>
+            </button>
+          </div>
+
+          <form @submit.prevent="saveQuestion" class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Formation Associée (Optionnel)</label
+                >
+                <select
+                  v-model="form.formationId"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="">-- Toutes les formations (Global) --</option>
+                  <option v-for="f in formations" :key="f.id" :value="f.id">{{ f.label }}</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Type de Workflow</label
+                >
+                <select
+                  v-model="form.type"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="prerequis">Pré-requis</option>
+                  <option value="positionnement">Positionnement</option>
+                  <option value="complementary">Complémentaires</option>
+                  <option value="availabilities">Disponibilités</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Type de réponse</label
+                >
+                <select
+                  v-model="form.responseType"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="qcm">Multiple (QCM)</option>
+                  <option value="text">Texte libre</option>
+                </select>
+              </div>
+
+              <div class="space-y-2" v-if="(form.type === 'positionnement' || form.type === 'prerequis') && form.formationId">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Niveau Associé (Optionnel)</label
+                >
+                <select
+                  v-model="form.levelId"
+                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                >
+                  <option value="">-- Ignorer le niveau --</option>
+                  <option v-for="lvl in availableLevels" :key="lvl.id" :value="lvl.id">{{ lvl.label }} ({{ lvl.successThreshold }} Q.)</option>
+                </select>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Catégorie / Icone</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    v-model="form.category"
+                    placeholder="ex: Expérience"
+                    class="flex-1 px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                  />
+                  <input
+                    v-model="form.icon"
+                    placeholder="quiz"
+                    class="w-24 px-4 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm text-center"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                  >Actif ?</label
+                >
+                <div
+                  @click="form.isActive = !form.isActive"
+                  class="w-full px-6 py-4 rounded-2xl cursor-pointer transition-all font-bold text-sm text-center border"
+                  :class="
+                    form.isActive
+                      ? 'bg-green-50 border-green-200 text-green-600'
+                      : 'bg-red-50 border-red-200 text-red-600'
+                  "
+                >
+                  {{ form.isActive ? "OUI" : "NON" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label
+                class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
+                >Texte de la Question</label
+              >
+              <textarea
+                v-model="form.text"
+                rows="3"
+                class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                placeholder="Saisissez votre question ici..."
+              ></textarea>
+            </div>
+
+            <div v-if="form.responseType === 'qcm'" class="space-y-4">
+              <div class="flex items-center justify-between px-1">
+                <label
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
+                  >Options de Réponse</label
+                >
+                <button
+                  type="button"
+                  @click="addOption"
+                  class="text-brand-primary text-[10px] font-black uppercase tracking-widest hover:underline"
+                >
+                  + Ajouter une option
+                </button>
               </div>
               <div
                 class="grid grid-cols-1 gap-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar"
               >
                 <div
-                  v-for="(opt, idx) in form.options"
-                  :key="idx"
+                  v-for="(opt, oIdx) in form.options"
+                  :key="oIdx"
                   class="flex gap-2 items-center group relative"
                 >
                   <label class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
-                    <input type="radio" :value="idx" v-model="form.correctResponseIndex" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 cursor-pointer" />
+                    <input type="radio" :value="oIdx" v-model="form.correctResponseIndex" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 cursor-pointer" />
                   </label>
                   <input
-                    v-model="form.options[idx]"
+                    v-model="form.options[oIdx]"
                     class="flex-1 px-6 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm"
                     placeholder="Option..."
                   />
                   <button
                     v-if="form.options.length > 1"
                     type="button"
-                    @click="removeOption(idx)"
+                    @click="removeOption(oIdx)"
                     class="w-11 h-11 flex items-center justify-center text-red-300 hover:text-red-500 transition-colors"
                   >
                     <span class="material-icons-outlined text-lg"
