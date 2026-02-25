@@ -75,10 +75,42 @@ async function sendNotificationEmail() {
       if (s && s.value) to = s.value;
     }
 
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const subject = `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`;
+
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
+        <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        
+        <p><strong>Bénéficiaire :</strong> ${session.value?.civilite || ''} ${session.value?.prenom || ''} ${session.value?.nom || ''}</p>
+        <p><strong>Email :</strong> ${session.value?.stagiaire?.email || ''}</p>
+        <p><strong>Téléphone :</strong> ${session.value?.telephone || ''}</p>
+        <p><strong>Formation :</strong> ${session.value?.formationChoisie || ''}</p>
+        <p><strong>Recommandation :</strong> <span style="color: #22C55E; font-weight: bold;">${session.value?.finalRecommendation || ''}</span></p>
+        <p><strong>Score final :</strong> <span style="color: #2563eb; font-weight: bold;">${session.value?.scorePretest ?? ''}%</span></p>
+        
+        <div style="margin-top: 30px;">
+          <p style="font-size:13px;color:#444;">Session ID: ${sessionId}</p>
+        </div>
+        
+        <p style="font-size: 11px; color: #999; margin-top: 40px;">Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.</p>
+      </div>
+    `;
+
     const payload = {
       to,
-      subject: `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`,
-      body: `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`,
+      subject,
+      body: htmlBody,
     };
 
     const res = await fetch(`${apiBaseUrl}/send-email`, {
@@ -97,8 +129,8 @@ async function sendNotificationEmail() {
       return 'mblitmanager@gmail.com';
     })());
     const subject = `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`;
-    const body = `Une nouvelle soumission a été effectuée.\n\nNom: ${session.value?.prenom || ''} ${session.value?.nom || ''}\nFormation: ${session.value?.formationChoisie || ''}\nSession ID: ${sessionId}`;
-    const mailto = `mailto:${encodeURIComponent(fallbackTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const plainBody = `Bilan d'évaluation - Analyse des besoins\nSoumis le ${new Date().toLocaleString('fr-FR')}\n\nBénéficiaire: ${session.value?.civilite || ''} ${session.value?.prenom || ''} ${session.value?.nom || ''}\nEmail: ${session.value?.stagiaire?.email || ''}\nTéléphone: ${session.value?.telephone || ''}\nFormation: ${session.value?.formationChoisie || ''}\nRecommandation: ${session.value?.finalRecommendation || ''}\nScore final: ${session.value?.scorePretest ?? ''}%\n\nSession ID: ${sessionId}`;
+    const mailto = `mailto:${encodeURIComponent(fallbackTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainBody)}`;
     window.location.href = mailto;
   }
 }
