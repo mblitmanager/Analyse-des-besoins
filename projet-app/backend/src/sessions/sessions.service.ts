@@ -65,6 +65,18 @@ export class SessionsService {
       relations: ['stagiaire'],
     });
     if (!session) throw new NotFoundException('Session not found');
+
+    // If recommendation is not yet stored, calculate it on the fly for preview
+    if (!session.finalRecommendation && session.formationChoisie) {
+      try {
+        const data = await this.getRecommendationData(session);
+        session.finalRecommendation = data.recommendation;
+        session.scorePretest = data.scoreFinal;
+      } catch (e) {
+        console.error('Failed to pre-calculate recommendation:', e);
+      }
+    }
+
     return session;
   }
 
@@ -82,25 +94,27 @@ export class SessionsService {
     return { success: true };
   }
 
-  async submit(id: string) {
-    const session = await this.findOne(id);
-
+  private async getRecommendationData(session: Session) {
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
     const levels = await this.levelRepo.find({
-      where: { formation: { label: session.formationChoisie } }, // Simplified or use formation slug if stored
+      where: { formation: { label: session.formationChoisie } },
       order: { order: 'ASC' },
     });
 
     if (levels.length === 0) {
-      // Fallback if formation not found by label
-      return this.update(id, { finalRecommendation: 'Formation non reconnue' });
+      return {
+        recommendation: 'Formation non reconnue',
+        scoreFinal: 0,
+        finalLevel: null,
+        qTextById: {},
+      };
     }
 
     const scores =
       (session.levelsScores as Record<string, number | { score?: number }>) ||
       {};
-    let finalLevel = levels[0]; // Default to first level
+    let finalLevel = levels[0];
 
     for (const level of levels) {
       const raw = scores[level.label];
@@ -114,15 +128,14 @@ export class SessionsService {
           finalLevel = level;
         } else {
           finalLevel = level;
-          break; // Stop at the first level they fail
+          break;
         }
       } else {
-        // No score for this level, maybe they stopped before
         break;
       }
     }
 
-    // Index texte des questions (pré-requis + complémentaires + disponibilités + positionnement)
+    // Index texte des questions
     const ids = new Set<number>();
     const addIds = (obj: Record<string, any> | undefined | null) => {
       if (!obj) return;
@@ -147,7 +160,6 @@ export class SessionsService {
     let finalRecommendationValue =
       finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
 
-    // 1. Check Prerequisite "Insuffisant" Logic
     const hasInsuffisant = Object.values(
       (session.prerequisiteScore as Record<string, any>) || {},
     ).some((val) => String(val).toLowerCase() === 'insuffisant');
@@ -156,7 +168,6 @@ export class SessionsService {
       finalRecommendationValue = `Digcomp Initial & Word Initial & ${finalRecommendationValue}`;
     }
 
-    // 2. WordPress Specific Logic
     if (session.formationChoisie?.toLowerCase().includes('wordpress')) {
       const objectiveQ = questions.find((q) =>
         q.text.toLowerCase().includes('objectif principal'),
@@ -179,7 +190,6 @@ export class SessionsService {
       }
     }
 
-    // 3. Google Workspace vs Microsoft Office
     const bureautiqueChoiceQ = questions.find(
       (q) =>
         q.text.toLowerCase().includes('google workspace') &&
@@ -201,58 +211,11 @@ export class SessionsService {
       finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
     }
 
-    // Special case for "Insuffisant" prerequisites: prepend/wrap in a Duo format
     if (hasInsuffisant) {
       finalRecommendationValue = `Parcours Initiation - Digcomp Initial & Word Initial`;
     }
 
-    const recommendation = finalRecommendationValue;
-
-    const safe = (v: any) =>
-      String(v ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-
-    const renderAnswersTable = (
-      title: string,
-      answers: Record<string, any> | null | undefined,
-      qTextById: Record<number, string>,
-    ) => {
-      if (!answers) return '';
-      const rows = Object.entries(answers)
-        .map(([key, val]) => {
-          const idNum = Number(key);
-          const label = qTextById[idNum] || `Question ${key}`;
-          const display = Array.isArray(val) ? val.join(', ') : val;
-          return `<tr>
-            <td style="padding:10px;border-top:1px solid #eee;font-weight:700;vertical-align:top;">${safe(
-              label,
-            )}</td>
-            <td style="padding:10px;border-top:1px solid #eee;color:#374151;vertical-align:top;">${safe(
-              display,
-            )}</td>
-          </tr>`;
-        })
-        .join('');
-
-      return `
-        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">${safe(title)}</h3>
-        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
-          <thead style="background:#f8fafc;">
-            <tr>
-              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Question</th>
-              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Réponse</th>
-            </tr>
-          </thead>
-          <tbody>${rows || ''}</tbody>
-        </table>
-      `;
-    };
-
-    // Score final global (si possible)
+    // Score final global
     const levelsEntries: any[] = session.levelsScores
       ? Object.values(session.levelsScores)
       : [];
@@ -266,6 +229,23 @@ export class SessionsService {
     );
     const scoreFinal =
       totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+    return {
+      recommendation: finalRecommendationValue,
+      scoreFinal,
+      finalLevel,
+      qTextById,
+    };
+  }
+
+  async submit(id: string) {
+    const session = await this.findOne(id);
+    const { recommendation, scoreFinal, finalLevel, qTextById } =
+      await this.getRecommendationData(session);
+
+    if (!finalLevel) {
+      return this.update(id, { finalRecommendation: 'Formation non reconnue' });
+    }
 
     const levelsTable = session.levelsScores
       ? `
