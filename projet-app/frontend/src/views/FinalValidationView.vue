@@ -210,7 +210,7 @@ function goHome() {
                   >Parcours recommandé</span
                 >
                 <span class="text-sm font-black text-green-600 text-right max-w-[200px]">{{
-                  session.finalRecommendation
+                  session.finalRecommendation.replace(/ \| /g, " / ")
                 }}</span>
               </div>
             </div>
@@ -369,7 +369,7 @@ function goHome() {
           </button>
           <button
             @click="validate"
-            class="flex-1 py-5 bg-brand-primary text-blue-500 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
+            class="flex-1 py-5 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
             <span>Soumettre</span>
             <!-- <span class="material-icons-outlined">rocket_launch</span> -->

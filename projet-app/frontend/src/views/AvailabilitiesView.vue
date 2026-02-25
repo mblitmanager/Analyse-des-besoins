@@ -153,30 +153,52 @@ async function skipStep() {
                 v-if="q.metadata?.type === 'multi_select'"
                 class="grid grid-cols-1 md:grid-cols-3 gap-3"
               >
-                <button
+                <label
                   v-for="(opt, idx) in q.options"
                   :key="opt"
-                  @click="toggleMultiSelect(q.id, opt)"
-                  class="py-4 px-3 rounded-2xl border transition-all group flex flex-col items-center gap-2"
+                  class="option-card h-auto! flex-col! items-center! py-6!"
                   :class="
                     responses[q.id].includes(opt)
-                      ? 'bg-brand-primary text-white border-brand-primary shadow-md scale-[1.02]'
-                      : 'bg-gray-100 text-gray-700 border-transparent hover:border-gray-200'
+                      ? 'option-card--selected'
+                      : 'option-card--default'
                   "
                 >
+                  <input
+                    type="checkbox"
+                    @change="toggleMultiSelect(q.id, opt)"
+                    :checked="responses[q.id].includes(opt)"
+                    class="hidden"
+                  />
                   <span
                     v-if="q.metadata.icons?.[idx]"
-                    class="material-icons-outlined text-2xl"
+                    class="material-icons-outlined text-3xl mb-2 transition-colors"
                     :class="
                       responses[q.id].includes(opt)
-                        ? 'text-blue-500'
-                        : 'text-gray-200 group-hover:text-brand-primary/40'
+                        ? 'text-brand-primary'
+                        : 'text-gray-300'
                     "
                   >
                     {{ q.metadata.icons[idx] }}
                   </span>
-                  <span class="font-bold text-sm">{{ opt }}</span>
-                </button>
+                  <span 
+                    class="option-card__label text-center! text-sm font-bold"
+                    :class="responses[q.id].includes(opt) ? 'text-brand-primary' : 'text-gray-700'"
+                  >
+                    {{ opt }}
+                  </span>
+                  
+                  <!-- Checkbox indicator -->
+                  <div
+                    class="mt-3 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center placeholder-checkbox"
+                    :class="
+                      responses[q.id].includes(opt)
+                        ? 'bg-brand-primary border-brand-primary'
+                        : 'border-gray-200'
+                    "
+                  >
+                    <span v-if="responses[q.id].includes(opt)" class="material-icons-outlined text-white text-[14px] font-black">check</span>
+                  </div>
+                </label>
               </div>
 
               <!-- Textarea Type (dates libres) -->
@@ -221,7 +243,7 @@ async function skipStep() {
             <button
               @click="nextStep"
               :disabled="submitting"
-              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
+              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
             >
               <span>Valider mes disponibilités</span>
               <span v-if="!submitting" class="material-icons-outlined text-xl"
@@ -243,7 +265,70 @@ async function skipStep() {
 
 <style scoped>
 
+
 .font-outfit {
   font-family: "Outfit", sans-serif;
+}
+
+/* Option card styling synced from PositionnementView */
+.option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  min-height: 3.5rem;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.option-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.option-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.option-card--selected .option-card__label {
+  color: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
 }
 </style>

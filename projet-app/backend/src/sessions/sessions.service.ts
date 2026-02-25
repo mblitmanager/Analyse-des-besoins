@@ -66,14 +66,18 @@ export class SessionsService {
     });
     if (!session) throw new NotFoundException('Session not found');
 
-    // If recommendation is not yet stored, calculate it on the fly for preview
-    if (!session.finalRecommendation && session.formationChoisie) {
+    if (session.formationChoisie) {
       try {
         const data = await this.getRecommendationData(session);
-        session.finalRecommendation = data.recommendation;
-        session.scorePretest = data.scoreFinal;
+        (session as any).recommendations = data.recommendations;
+
+        // Ensure values are synced if not already stored
+        if (!session.finalRecommendation) {
+          session.finalRecommendation = data.recommendation;
+          session.scorePretest = data.scoreFinal;
+        }
       } catch (e) {
-        console.error('Failed to pre-calculate recommendation:', e);
+        console.error('Failed to include recommendations array:', e);
       }
     }
 
@@ -211,27 +215,29 @@ export class SessionsService {
       finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
     }
 
-    // Determine two proposed parcours (always provide two options)
+    // Determine proposed parcours
     let proposedParcours: string[] = [];
-    // find index of finalLevel in levels
     const idx = levels.findIndex((l) => l.id === finalLevel.id);
-    const nextLevel = idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
+    const nextLevel =
+      idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
+
+    const l1 = finalLevel.label;
+    const l2 = nextLevel ? nextLevel.label : l1;
 
     if (hasInsuffisant) {
-      // First option: DigComp initial & Word initial
-      // Second option: level-based parcours augmented with initiation
+      // Rule: Proposal 1: Duo (Level X et Level X+1)
+      //       Proposal 2: Level X + DigComp initial et Word initial
       proposedParcours = [
-        'DigComp Initial & Word Initial',
-        `${finalLevel.label} + DigComp Initial & Word Initial`,
+        `${l1} et ${l2}`,
+        `${l1} + DigComp initial et Word initial`,
       ];
-      // set finalRecommendationValue as joined proposals for backward compatibility
-      finalRecommendationValue = proposedParcours.join(' / ');
     } else {
-      const first = finalLevel.label;
-      const second = nextLevel ? nextLevel.label : finalLevel.label;
-      proposedParcours = [first, second];
-      finalRecommendationValue = proposedParcours.join(' / ');
+      // Normal case: The Duo
+      proposedParcours = [`${l1} et ${l2}`];
     }
+
+    // Set combined string for backward compatibility and DB storage
+    finalRecommendationValue = proposedParcours.join(' | ');
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores
@@ -401,7 +407,16 @@ export class SessionsService {
         <p><strong>Email :</strong> ${session.stagiaire?.email || ''}</p>
         <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
         <p><strong>Formation :</strong> ${session.formationChoisie}</p>
-        <p><strong>Recommandation :</strong> <span style="color: #22C55E; font-weight: bold;">${recommendation}</span></p>
+        <p><strong>Recommandation(s) :</strong></p>
+        <div style="margin-bottom: 20px;">
+          ${recommendation
+            .split(' | ')
+            .map(
+              (r) =>
+                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
+            )
+            .join('')}
+        </div>
         <p><strong>Score final :</strong> <span style="color: #2563eb; font-weight: bold;">${scoreFinal}%</span></p>
         
         <div style="margin-top: 30px;">
@@ -423,4 +438,47 @@ export class SessionsService {
       isCompleted: true,
     });
   }
+}
+
+function safe(str: any): string {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderAnswersTable(
+  title: string,
+  answers: any,
+  qTextById: Record<number, string>,
+): string {
+  if (!answers || Object.keys(answers).length === 0) return '';
+  const rows = Object.entries(answers)
+    .map(([key, val]) => {
+      const idNum = Number(key);
+      const qText = qTextById[idNum] || `Question ${key}`;
+      const displayVal = Array.isArray(val) ? val.join(', ') : String(val);
+      return `
+      <tr>
+        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%;">${safe(
+          qText,
+        )}</td>
+        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700;">${safe(
+          displayVal,
+        )}</td>
+      </tr>`;
+    })
+    .join('');
+
+  return `
+    <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">${safe(title)}</h3>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
 }

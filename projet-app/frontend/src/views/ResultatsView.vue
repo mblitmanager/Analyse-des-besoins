@@ -24,7 +24,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
   if (session.value.finalRecommendation)
-    return session.value.finalRecommendation;
+    return session.value.finalRecommendation.replace(/ \| /g, " / ");
 
   const level =
     session.value.lastValidatedLevel || session.value.stopLevel || "";
@@ -38,27 +38,25 @@ const recommendedLabel = computed(() => {
 
 const recommendedLevel1 = computed(() => {
   if (!session.value || !levels.value.length) return null;
-  const rec = session.value.finalRecommendation || "";
-  if (!rec.includes("&")) {
-    const label = session.value.lastValidatedLevel || session.value.stopLevel;
-    return levels.value.find(l => l.label === label) || null;
-  }
-  // Format: "Formation - Level1 & Level2"
-  const parts = rec.split("-")[1]?.trim().split("&");
-  if (!parts) return null;
-  const l1Label = parts[0].trim();
-  return levels.value.find(l => l.label === l1Label) || null;
+  const opts = parcoursOptions.value;
+  if (!opts.length) return null;
+  
+  // Extract first level from first option
+  const firstOpt = opts[0];
+  const label = firstOpt.split(/ et | \+ | & | \| /)[0]?.trim();
+  return levels.value.find(l => l.label === label) || null;
 });
 
 const recommendedLevel2 = computed(() => {
   if (!session.value || !levels.value.length) return null;
-  const rec = session.value.finalRecommendation || "";
-  if (!rec.includes("&")) return null;
-  
-  const parts = rec.split("-")[1]?.trim().split("&");
-  if (!parts || parts.length < 2) return null;
-  const l2Label = parts[1].trim();
-  return levels.value.find(l => l.label === l2Label) || null;
+  const opts = parcoursOptions.value;
+  if (!opts.length) return null;
+
+  const firstOpt = opts[0];
+  const parts = firstOpt.split(/ et | \+ | & | \| /);
+  if (parts.length < 2) return null;
+  const label = parts[1].trim();
+  return levels.value.find(l => l.label === label) || null;
 });
 
 const parcoursOptions = computed(() => {
@@ -68,6 +66,11 @@ const parcoursOptions = computed(() => {
 
   const rec = session.value.finalRecommendation || "";
   if (!rec) return [];
+  
+  if (rec.includes(" | ")) {
+    return rec.split(" | ").map(s => s.trim());
+  }
+
   // Try to split older format "Formation - Level1 & Level2"
   if (rec.includes("&")) {
     const parts = rec.split("-")[1]?.trim().split("&");
@@ -629,10 +632,10 @@ const downloadPDF = async () => {
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div v-for="(p, idx) in parcoursOptions" :key="idx" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="bg-brand-primary p-6 text-blue-400 relative overflow-hidden">
+            <div class="bg-brand-primary p-6 text-[#428496] relative overflow-hidden">
               <div class="relative z-10">
                 <h3 class="text-xl font-bold mb-1">Parcours proposé {{ idx + 1 }}</h3>
-                <p class="opacity-80 text-sm">{{ p }}</p>
+                <p class="opacity-90 text-sm italic">{{ p }}</p>
               </div>
             </div>
             <div class="p-6">

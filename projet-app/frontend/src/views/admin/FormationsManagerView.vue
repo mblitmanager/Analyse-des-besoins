@@ -182,7 +182,7 @@ onMounted(fetchFormations);
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Formation
@@ -550,7 +550,7 @@ onMounted(fetchFormations);
             <div class="pt-4">
               <button
                 type="submit"
-                class="w-full py-5 bg-brand-primary text-blue-400 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                class="w-full py-5 bg-brand-primary text-[#428496] rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Enregistrer la Formation
               </button>

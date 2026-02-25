@@ -332,7 +332,7 @@ async function submitPrerequis() {
                           typeof opt === 'string' ? opt : opt.label,
                         )
                       "
-                      class="material-icons-outlined text-white text-xs"
+                      class="material-icons-outlined text-[#428496] text-xs"
                       >check</span
                     >
                   </div>
@@ -358,7 +358,7 @@ async function submitPrerequis() {
           <button
             v-if="needsPagination && currentPage < totalPages - 1"
             @click="nextPage"
-            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 text-base"
+            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 text-base"
           >
             <span>Suivant</span>
             <span class="material-icons-outlined text-xl">arrow_forward</span>
@@ -369,7 +369,7 @@ async function submitPrerequis() {
             v-else
             @click="submitPrerequis"
             :disabled="submitting"
-            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
+            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
           >
             <span>Valider et continuer</span>
             <span v-if="!submitting" class="material-icons-outlined text-xl"

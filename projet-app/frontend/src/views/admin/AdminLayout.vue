@@ -41,7 +41,7 @@ const navItems = [
             class="flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all group"
             :class="
               $route.path === item.route
-                ? 'bg-brand-primary text-blue-500 shadow-lg shadow-brand-primary/30'
+                ? 'bg-brand-primary text-[#428496] shadow-lg shadow-brand-primary/30'
                 : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
             "
           >

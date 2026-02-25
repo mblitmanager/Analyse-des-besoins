@@ -276,7 +276,7 @@ const sectionParts = computed(() => {
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                   <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'translate' }}</span>
                    </div>
                    <span class="formation-card__label">{{ form.label }}</span>
@@ -301,12 +301,12 @@ const sectionParts = computed(() => {
                 :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                   <div :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">desktop_windows</span>
                    </div>
                    <div class="flex flex-col items-start">
                      <span class="formation-card__label">{{ selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? selectedFormation.label : 'Choisir votre logiciel' }}</span>
-                     <span v-if="selectedSuite && selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="text-[9px] font-black uppercase text-brand-primary tracking-widest mt-0.5">
+                     <span v-if="selectedSuite && selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="text-[9px] font-black uppercase text-[#428496]/70 tracking-widest mt-0.5">
                        {{ selectedSuite === 'google' ? 'Google Workspace' : 'Microsoft Office' }}
                      </span>
                    </div>
@@ -329,7 +329,7 @@ const sectionParts = computed(() => {
                   :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
                 >
                   <div class="flex items-center gap-4">
-                     <div :class="selectedFormation?.id === form.id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                     <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                         <span class="material-icons-outlined text-xl">psychology</span>
                      </div>
                      <span class="formation-card__label">{{ form.label }}</span>
@@ -357,7 +357,7 @@ const sectionParts = computed(() => {
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                   <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'star' }}</span>
                    </div>
                    <span class="formation-card__label">{{ form.label }}</span>
@@ -385,7 +385,7 @@ const sectionParts = computed(() => {
               <button
                 type="button"
                 @click="selectedSuite = 'google'"
-                :class="selectedSuite === 'google' ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20 bg-blue-500!' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                :class="selectedSuite === 'google' ? 'bg-brand-primary text-[#428496] shadow-lg shadow-brand-primary/20 bg-blue-500!' : 'bg-white text-gray-700 hover:bg-gray-50'"
                 class="flex-1 py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-gray-100 transition-all flex items-center justify-center gap-3"
               >
                 <img v-if="selectedSuite !== 'google'" src="https://www.google.com/favicon.ico" class="w-4 h-4" />
@@ -395,7 +395,7 @@ const sectionParts = computed(() => {
               <button
                 type="button"
                 @click="selectedSuite = 'microsoft'"
-                :class="selectedSuite === 'microsoft' ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/20 bg-blue-500!' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                :class="selectedSuite === 'microsoft' ? 'bg-brand-primary text-[#428496] shadow-lg shadow-brand-primary/20 bg-blue-500!' : 'bg-white text-gray-700 hover:bg-gray-50'"
                 class="flex-1 py-4 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] border border-gray-100 transition-all flex items-center justify-center gap-3"
               >
                 <img v-if="selectedSuite !== 'microsoft'" src="https://www.microsoft.com/favicon.ico" class="w-4 h-4" />
@@ -424,7 +424,7 @@ const sectionParts = computed(() => {
         <button
           @click="selectFormation"
           :disabled="submitting || !selectedFormation"
-          class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+          class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
         >
           <span>Continuer</span>
           <span v-if="!submitting" class="material-icons-outlined text-lg"
@@ -605,19 +605,19 @@ const sectionParts = computed(() => {
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
   min-height: 5rem;
-  background: #F8FAFC;
-  border: 1px solid #F1F5F9;
+  background: #f1f5f9;
+  border: 1px solid #f1f5f9;
   border-radius: 1.5rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .formation-card:hover {
-  background: white;
-  border-color: #E2E8F0;
+  background: #e2e8f0;
+  border-color: #e2e8f0;
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
 }
 
 .formation-card:active {
@@ -626,8 +626,8 @@ const sectionParts = computed(() => {
 
 .formation-card--selected {
   border-color: var(--color-brand-primary);
-  background: white;
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+  background: var(--color-brand-primary);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
 }
 
 .formation-card__label {
@@ -636,6 +636,11 @@ const sectionParts = computed(() => {
   color: var(--title-color);
   text-align: left;
   line-height: 1.25;
+  transition: color 0.3s ease;
+}
+
+.formation-card--selected .formation-card__label {
+  color: white;
 }
 
 .formation-card__radio {
@@ -643,7 +648,7 @@ const sectionParts = computed(() => {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  border: 2px solid #E2E8F0;
+  border: 2px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -652,6 +657,19 @@ const sectionParts = computed(() => {
 
 .formation-card__radio--selected {
   border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary);
+}
+
+.formation-card--selected .formation-card__radio {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.formation-card--selected .formation-card__radio--selected {
+  border-color: white;
+  background: white;
+}
+
+.formation-card--selected .formation-card__radio-dot {
   background: var(--color-brand-primary);
 }
 

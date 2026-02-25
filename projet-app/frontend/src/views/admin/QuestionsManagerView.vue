@@ -303,7 +303,7 @@ const groupedQuestions = computed(() => {
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Question
@@ -412,7 +412,7 @@ const groupedQuestions = computed(() => {
                   v-if="enableOrdering"
                   @click="saveOrder(lg.questions)"
                   :disabled="savingOrder"
-                  class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-blue-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
+                  class="flex items-center gap-2 px-4 py-1.5 bg-brand-primary text-[#428496] rounded-lg text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all disabled:opacity-50"
                 >
                   Appliquer l'ordre
                 </button>
@@ -430,7 +430,7 @@ const groupedQuestions = computed(() => {
                   <button 
                     @click="moveQuestion(lg, idx, -1)" 
                     :disabled="idx === 0"
-                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-white disabled:opacity-10 transition-all border border-gray-50"
+                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-10 transition-all border border-gray-50"
                   >
                     <span class="material-icons-outlined text-sm">expand_less</span>
                   </button>
@@ -438,14 +438,14 @@ const groupedQuestions = computed(() => {
                   <button 
                     @click="moveQuestion(lg, idx, 1)" 
                     :disabled="idx === lg.questions.length - 1"
-                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-white disabled:opacity-10 transition-all border border-gray-50"
+                    class="w-6 h-6 rounded-md flex items-center justify-center text-gray-300 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-10 transition-all border border-gray-50"
                   >
                     <span class="material-icons-outlined text-sm">expand_more</span>
                   </button>
                 </div>
 
                 <div
-                  class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-blue-400 transition-all shadow-inner"
+                  class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand-primary group-hover:text-[#428496] transition-all shadow-inner"
                 >
                   <span class="material-icons-outlined text-xl">{{
                     q.icon || "quiz"
@@ -730,7 +730,7 @@ const groupedQuestions = computed(() => {
             <div class="pt-4">
               <button
                 type="submit"
-                class="w-full py-5 bg-brand-primary text-blue-400 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                class="w-full py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 Enregistrer la Question
               </button>
