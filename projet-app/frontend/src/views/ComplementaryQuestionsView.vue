@@ -172,8 +172,8 @@ async function skipStep() {
                     class="flex-1 py-4 rounded-2xl border transition-all font-bold text-sm"
                     :class="
                       responses[q.id] === opt
-                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary shadow-sm scale-[1.02]'
-                        : 'border-gray-100 bg-white text-gray-300 hover:border-gray-200'
+                        ? 'border-brand-primary bg-brand-primary text-white shadow-sm scale-[1.02]'
+                        : 'border-transparent bg-gray-100 text-gray-700 hover:border-gray-200'
                     "
                   >
                     {{ opt }}
@@ -193,8 +193,8 @@ async function skipStep() {
                     class="w-full p-4 rounded-2xl border text-left font-medium text-sm transition-all shadow-sm"
                     :class="
                       responses[q.id] === opt
-                        ? 'border-brand-primary bg-brand-primary/5 text-brand-primary'
-                        : 'border-gray-100 bg-white text-gray-400 hover:border-gray-200'
+                        ? 'border-brand-primary bg-brand-primary text-white'
+                        : 'border-transparent bg-gray-100 text-gray-700 hover:border-gray-200'
                     "
                   >
                     <div class="flex items-center justify-between gap-3">
