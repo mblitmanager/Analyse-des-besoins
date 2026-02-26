@@ -61,16 +61,16 @@ export class QuestionsController {
     return this.questionsService.create(data);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: number, @Body() data: any) {
-    return this.questionsService.update(id, data);
-  }
-
   @Patch('order')
   @UseGuards(JwtAuthGuard)
   updateOrder(@Body() orders: { id: number; order: number }[]) {
     return this.questionsService.updateOrder(orders);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: number, @Body() data: any) {
+    return this.questionsService.update(id, data);
   }
 
   @Delete(':id')
