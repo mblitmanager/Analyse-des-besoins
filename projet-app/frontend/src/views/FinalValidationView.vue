@@ -369,7 +369,7 @@ function goHome() {
           </button>
           <button
             @click="validate"
-            class="flex-1 py-5 bg-brand-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
+            class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
             <span>Soumettre</span>
             <!-- <span class="material-icons-outlined">rocket_launch</span> -->

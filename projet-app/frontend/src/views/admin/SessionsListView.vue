@@ -263,14 +263,14 @@ function toggleExpandedLevel(level) {
         <!-- Export Button -->
         <button
           @click="exportToCSV"
-          class="px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-lg hover:bg-black transition-all"
+          class="w-full sm:w-auto px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all"
         >
           <span class="material-icons-outlined text-sm">download</span>
           CSV
         </button>
 
         <!-- Search -->
-        <div class="relative min-w-[200px]">
+        <div class="relative flex-1 min-w-[200px]">
           <span
             class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
             >search</span
@@ -286,7 +286,7 @@ function toggleExpandedLevel(level) {
         <!-- Formation Filter -->
         <select 
           v-model="formationFilter"
-          class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+          class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
         >
           <option value="all">Toutes Formations</option>
           <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
@@ -295,7 +295,7 @@ function toggleExpandedLevel(level) {
         <!-- Status Filter -->
         <select 
           v-model="statusFilter"
-          class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+          class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
         >
           <option value="all">Tous Statuts</option>
           <option value="completed">Terminé</option>
@@ -303,8 +303,8 @@ function toggleExpandedLevel(level) {
         </select>
       </div>
 
-    <div class="bg-white rounded-[40px] shadow-sm overflow-hidden">
-      <table class="w-full text-left">
+    <div class="bg-white rounded-[40px] shadow-sm overflow-x-auto">
+      <table class="w-full min-w-max text-left">
         <thead>
           <tr class="border-b border-gray-50 bg-gray-50/50">
             <th

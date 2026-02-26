@@ -196,7 +196,7 @@ async function skipStep() {
                         : 'border-gray-200'
                     "
                   >
-                    <span v-if="responses[q.id].includes(opt)" class="material-icons-outlined text-white text-[14px] font-black">check</span>
+                    <span v-if="responses[q.id].includes(opt)" class="material-icons-outlined text-[#428496] text-[14px] font-black">check</span>
                   </div>
                 </label>
               </div>
