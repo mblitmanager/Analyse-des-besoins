@@ -25,7 +25,7 @@ export class Question {
   type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities';
 
   @Column({ type: 'varchar', length: 20, default: 'qcm' })
-  responseType: 'qcm' | 'text';
+  responseType: 'qcm' | 'text' | 'checkbox';
 
   @Column({ nullable: true })
   category: string;
