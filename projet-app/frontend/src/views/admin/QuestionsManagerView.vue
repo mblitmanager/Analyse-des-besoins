@@ -325,7 +325,7 @@ const groupedQuestions = computed(() => {
           class="flex-1 sm:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
           :class="
             filterType === t.value
-              ? 'bg-gray-300 text-[var(--title-color)] shadow-md'
+              ? 'bg-gray-300 text-(--title-color) shadow-md'
               : 'text-gray-400 hover:text-gray-600'
           "
         >

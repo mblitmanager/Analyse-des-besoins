@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { QuestionsService } from './questions.service';
+import { Question } from '../entities/question.entity';
 
 @Controller('questions')
 export class QuestionsController {
@@ -26,12 +27,13 @@ export class QuestionsController {
 
   @Get('workflow/:type')
   findWorkflowQuestions(
-    @Param('type') type: string,
+    @Param('type')
+    type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities',
     @Query('formation') formation?: string,
     @Query('scope') scope?: 'auto' | 'global' | 'formation',
   ) {
     return this.questionsService.findQuestions(
-      type as any,
+      type,
       formation,
       scope || 'auto',
     );
@@ -57,7 +59,10 @@ export class QuestionsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() data: any) {
+  create(
+    @Body()
+    data: Partial<Question> & { formationId?: number; levelId?: number },
+  ) {
     return this.questionsService.create(data);
   }
 
@@ -69,7 +74,11 @@ export class QuestionsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: number, @Body() data: any) {
+  update(
+    @Param('id') id: number,
+    @Body()
+    data: Partial<Question> & { formationId?: number; levelId?: number },
+  ) {
     return this.questionsService.update(id, data);
   }
 
