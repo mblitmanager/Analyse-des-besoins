@@ -614,6 +614,7 @@ const groupedQuestions = computed(() => {
                   class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
                 >
                   <option value="qcm">Multiple (QCM)</option>
+                  <option value="checkbox">Cases à cocher</option>
                   <option value="text">Texte libre</option>
                 </select>
               </div>
@@ -683,11 +684,11 @@ const groupedQuestions = computed(() => {
               ></textarea>
             </div>
 
-            <div v-if="form.responseType === 'qcm'" class="space-y-4">
+            <div v-if="form.responseType === 'qcm' || form.responseType === 'checkbox'" class="space-y-4">
               <div class="flex items-center justify-between px-1">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
-                  >Options de Réponse</label
+                  >{{ form.responseType === 'qcm' ? 'Options de Réponse' : 'Cases à cocher' }}</label
                 >
                 <button
                   type="button"
@@ -705,9 +706,10 @@ const groupedQuestions = computed(() => {
                   :key="oIdx"
                   class="flex gap-2 items-center group relative"
                 >
-                  <label class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
+                  <label v-if="form.responseType === 'qcm'" class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
                     <input type="radio" :value="oIdx" v-model="form.correctResponseIndex" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 cursor-pointer" />
                   </label>
+                  <div v-else class="w-8 h-8"></div>
                   <input
                     v-model="form.options[oIdx]"
                     class="flex-1 px-6 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm"
