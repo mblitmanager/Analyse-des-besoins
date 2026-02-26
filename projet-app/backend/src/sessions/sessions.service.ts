@@ -161,64 +161,12 @@ export class SessionsService {
       qTextById[q.id] = q.text;
     });
 
-    let finalRecommendationValue =
-      finalLevel.recommendationLabel || `Niveau: ${finalLevel.label}`;
-
-    const hasInsuffisant = Object.values(
-      (session.prerequisiteScore as Record<string, any>) || {},
-    ).some((val) => String(val).toLowerCase() === 'insuffisant');
-
-    if (hasInsuffisant) {
-      finalRecommendationValue = `Digcomp Initial & Word Initial & ${finalRecommendationValue}`;
-    }
-
-    if (session.formationChoisie?.toLowerCase().includes('wordpress')) {
-      const objectiveQ = questions.find((q) =>
-        q.text.toLowerCase().includes('objectif principal'),
-      );
-      const objectiveVal = objectiveQ
-        ? (session.complementaryQuestions as Record<string, any>)?.[
-            objectiveQ.id
-          ]
-        : null;
-
-      if (objectiveVal) {
-        if (objectiveVal.includes('vitrine')) {
-          finalRecommendationValue = 'WordPress - Création de site vitrine';
-        } else if (objectiveVal.includes('boutique')) {
-          finalRecommendationValue =
-            'WordPress - Création de boutique en ligne';
-        } else {
-          finalRecommendationValue = 'WordPress - Découverte et Initiation';
-        }
-      }
-    }
-
-    const bureautiqueChoiceQ = questions.find(
-      (q) =>
-        q.text.toLowerCase().includes('google workspace') &&
-        q.text.toLowerCase().includes('microsoft office'),
-    );
-    const softwareChoice = bureautiqueChoiceQ
-      ? (session.complementaryQuestions as Record<string, any>)?.[
-          bureautiqueChoiceQ.id
-        ]
-      : null;
-
-    if (
-      softwareChoice &&
-      (session.formationChoisie
-        ?.toLowerCase()
-        .match(/word|excel|powerpoint|outlook|bureautique/) ||
-        session.formationChoisie === 'Pack Office')
-    ) {
-      finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
-    }
-
     // Determine proposed parcours (Logic Duo)
-    let proposedParcours: string[] = [];
+    // Rule:
+    // Parcours 1: Last validated level (or Level 0 if nothing validated)
+    // Parcours 2: Next level (First failed level)
+    // If Beginner (Level 0) failed, suggest Level 0 and Level 1
 
-    // Find last validated index
     let lastValidatedIdx = -1;
     for (let i = 0; i < levels.length; i++) {
       const raw = scores[levels[i].label];
@@ -241,24 +189,19 @@ export class SessionsService {
       if (lastValidatedIdx < levels.length - 1) {
         l2 = levels[lastValidatedIdx + 1].label;
       } else {
-        // Already at max level, just repeat it or handle as single
         l2 = l1;
       }
     }
 
+    let proposedParcours: string[] = [];
     if (l1 === l2) {
       proposedParcours = [l1];
     } else {
-      proposedParcours = [`${l1} et ${l2}`];
-    }
-
-    // Handle extra logic for hasInsuffisant if needed (optional based on latest request)
-    if (hasInsuffisant) {
-      proposedParcours.push(`${l1} + DigComp initial et Word initial`);
+      proposedParcours = [l1, l2];
     }
 
     // Set combined string for backward compatibility and DB storage
-    finalRecommendationValue = proposedParcours.join(' | ');
+    let finalRecommendationValue = proposedParcours.join(' | ');
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores

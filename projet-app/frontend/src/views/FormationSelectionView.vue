@@ -186,12 +186,13 @@ const sections = computed(() => {
     return acc;
   }, []);
 
+  const combinedCreationAndInternet = [...creation, ...combinedDigcomp];
+
   return [
     { key: 'langues', title: 'Langues — Anglais / Français', items: langs },
     { key: 'bureautique', title: 'Bureautique', items: [], modal: true },
-    { key: 'creation', title: 'Création et Internet', items: creation },
+    { key: 'creation', title: 'Création et Internet', items: combinedCreationAndInternet },
     { key: 'ia', title: 'Intelligence Artificielle Générative', items: ia },
-    { key: 'digcomp', title: 'Digcomp, Google Workspace et Wordpress', items: combinedDigcomp },
   ];
 });
 
