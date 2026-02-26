@@ -290,29 +290,42 @@ const sectionParts = computed(() => {
 
           <!-- Bureautique + IA side-by-side -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div v-if="sectionParts.bureau">
-              <!-- <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
-                <span class="w-8 h-px bg-gray-100"></span>
-                {{ sectionParts.bureau.title }}
-              </h3> -->
+            <div v-if="sectionParts.bureau" class="space-y-3">
+              <!-- Selection Trigger / Suite indicator -->
               <button 
                 @click="openBureautiqueModal" 
                 class="formation-card w-full"
-                :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'formation-card--selected' : 'formation-card--default'"
+                :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'border-brand-primary bg-blue-50/50' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
                    <div :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">desktop_windows</span>
                    </div>
                    <div class="flex flex-col items-start">
-                     <span class="formation-card__label">{{ selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? selectedFormation.label : 'Bureautique' }}</span>
-                     <span v-if="selectedSuite && selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="text-[9px] font-black uppercase text-blue-400/70 tracking-widest mt-0.5">
+                     <span class="formation-card__label">{{ selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'Changer de formation bureautique' : 'Bureautique' }}</span>
+                     <span v-if="selectedSuite" class="text-[9px] font-black uppercase text-blue-400/70 tracking-widest mt-0.5">
                        {{ selectedSuite === 'google' ? 'Google Workspace' : 'Microsoft Office' }}
                      </span>
                    </div>
                 </div>
-                <span class="material-icons-outlined text-gray-300">expand_more</span>
+                <span class="material-icons-outlined text-gray-300">sync_alt</span>
               </button>
+
+              <!-- Selected Formation Display -->
+              <transition name="fade-slide">
+                <div v-if="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" 
+                     class="formation-card formation-card--selected animate-in zoom-in duration-300">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-white text-blue-400 flex items-center justify-center shadow-sm">
+                      <span class="material-icons-outlined text-xl">check_circle</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Formation sélectionnée</span>
+                      <span class="formation-card__label text-blue-500">{{ selectedFormation.label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </transition>
             </div>
 
             <div v-if="sectionParts.ia && sectionParts.ia.items.length">
@@ -473,17 +486,21 @@ const sectionParts = computed(() => {
                    </div>
                 </div>
                 
-                <div class="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   <button 
                     v-for="f in bureauGoogle" 
                     :key="f.id" 
                     @click="chooseBureauFormation(f)" 
-                    class="w-full group text-left px-6 py-4 bg-gray-50 hover:bg-brand-primary/5 rounded-2xl border-2 border-transparent hover:border-brand-primary/20 transition-all flex items-center justify-between"
+                    class="formation-card w-full"
+                    :class="selectedFormation?.id === f.id ? 'formation-card--selected' : 'formation-card--default'"
                   >
-                    <span class="font-bold text-gray-700 group-hover:text-brand-primary transition-colors">{{ f.label }}</span>
-                    <span class="material-icons-outlined text-gray-300 group-hover:text-brand-primary opacity-0 group-hover:opacity-100 transition-all">chevron_right</span>
+                    <span class="formation-card__label">{{ f.label }}</span>
+                    <div class="formation-card__radio" :class="selectedFormation?.id === f.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                      <div v-if="selectedFormation?.id === f.id" class="formation-card__radio-dot"></div>
+                      <span v-else class="material-icons-outlined text-[14px]">chevron_right</span>
+                    </div>
                   </button>
-                  <div v-if="bureauGoogle.length===0" class="py-10 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+                  <div v-if="bureauGoogle.length===0" class="py-10 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
                     <span class="material-icons-outlined text-gray-300 text-3xl mb-2">search_off</span>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation trouvée</p>
                   </div>
@@ -502,17 +519,21 @@ const sectionParts = computed(() => {
                    </div>
                 </div>
                 
-                <div class="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   <button 
                     v-for="f in bureauMicrosoft" 
                     :key="f.id" 
                     @click="chooseBureauFormation(f)" 
-                    class="w-full group text-left px-6 py-4 bg-gray-50 hover:bg-brand-primary/5 rounded-2xl border-2 border-transparent hover:border-brand-primary/20 transition-all flex items-center justify-between"
+                    class="formation-card w-full"
+                    :class="selectedFormation?.id === f.id ? 'formation-card--selected' : 'formation-card--default'"
                   >
-                    <span class="font-bold text-gray-700 group-hover:text-brand-primary transition-colors">{{ f.label }}</span>
-                    <span class="material-icons-outlined text-gray-300 group-hover:text-brand-primary opacity-0 group-hover:opacity-100 transition-all">chevron_right</span>
+                    <span class="formation-card__label">{{ f.label }}</span>
+                    <div class="formation-card__radio" :class="selectedFormation?.id === f.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                      <div v-if="selectedFormation?.id === f.id" class="formation-card__radio-dot"></div>
+                      <span v-else class="material-icons-outlined text-[14px]">chevron_right</span>
+                    </div>
                   </button>
-                  <div v-if="bureauMicrosoft.length===0" class="py-10 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+                  <div v-if="bureauMicrosoft.length===0" class="py-10 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
                     <span class="material-icons-outlined text-gray-300 text-3xl mb-2">search_off</span>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation trouvée</p>
                   </div>

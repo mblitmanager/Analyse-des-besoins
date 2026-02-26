@@ -93,29 +93,34 @@ async function testDbConnection() {
         </div>
 
         <div class="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
+          <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-widest text-blue-400">Date de complétude</span>
+            <span class="text-sm font-bold text-blue-900">{{ new Date().toLocaleDateString('fr-FR') }}</span>
+          </div>
+
           <form @submit.prevent="startTest" class="space-y-6">
-            <div>
-              <span class="Wizi-label">Civilité</span>
-              <div class="mt-2 flex space-x-6">
-                <div class="flex items-center">
-                  <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="monsieur" name="civilite" type="radio" value="M." />
-                  <label class="ml-3 block text-sm font-medium text-gray-700" for="monsieur">Monsieur</label>
-                </div>
-                <div class="flex items-center">
-                  <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="madame" name="civilite" type="radio" value="Mme" />
-                  <label class="ml-3 block text-sm font-medium text-gray-700" for="madame">Madame</label>
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+              <div class="col-span-2">
+                <span class="Wizi-label">Civilité</span>
+                <div class="mt-2 flex space-x-6">
+                  <div class="flex items-center">
+                    <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="monsieur" name="civilite" type="radio" value="M." />
+                    <label class="ml-3 block text-sm font-medium text-gray-700" for="monsieur">Monsieur</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="madame" name="civilite" type="radio" value="Mme" />
+                    <label class="ml-3 block text-sm font-medium text-gray-700" for="madame">Madame</label>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
               <div class="col-span-1">
                 <label class="Wizi-label" for="last-name">Nom</label>
-                <input v-model="form.nom" autocomplete="family-name" class="Wizi-input" id="last-name" name="last-name" placeholder="Dupont" required type="text" />
+                <input v-model="form.nom" autocomplete="family-name" class="Wizi-input" id="last-name" name="last-name" placeholder="Nom" required type="text" />
               </div>
               <div class="col-span-1">
                 <label class="Wizi-label" for="first-name">Prénom</label>
-                <input v-model="form.prenom" autocomplete="given-name" class="Wizi-input" id="first-name" name="first-name" placeholder="Jean" required type="text" />
+                <input v-model="form.prenom" autocomplete="given-name" class="Wizi-input" id="first-name" name="first-name" placeholder="Prénom" required type="text" />
               </div>
             </div>
 
@@ -130,14 +135,18 @@ async function testDbConnection() {
             </div>
 
             <div>
-              <label class="Wizi-label" for="conseiller">Conseiller en formation</label>
-              <input v-model="form.conseiller" class="Wizi-input" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller (optionnel)" type="text" />
+              <label class="Wizi-label" for="conseiller">Conseiller commercial</label>
+              <div class="relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="material-icons-outlined text-gray-400 text-[20px]">person</span>
+                </div>
+                <input v-model="form.conseiller" class="Wizi-input pl-10" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller" required type="text" />
+              </div>
             </div>
 
             <div class="pt-4">
-              <button type="submit" :disabled="loading" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[#428496] bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                Démarrer
-                 <!-- le test -->
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg text-sm font-black uppercase tracking-widest text-[#428496] bg-brand-primary hover:bg-brand-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                <span>Démarrer le parcours</span>
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>
             </div>

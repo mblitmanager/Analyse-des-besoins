@@ -11,6 +11,8 @@ export class PdfService {
     email?: string;
     telephone?: string;
     conseiller?: string;
+    metier?: string;
+    situation?: string[];
     brand?: string;
     formationChoisie?: string;
     finalRecommendation?: string;
@@ -66,6 +68,13 @@ export class PdfService {
         ['Email', data.email || 'N/A'],
         ['Téléphone', data.telephone || 'N/A'],
         ['Conseiller', data.conseiller || 'N/A'],
+        ['Métier', data.metier || 'N/A'],
+        [
+          'Situation',
+          Array.isArray(data.situation)
+            ? data.situation.join(', ')
+            : data.situation || 'N/A',
+        ],
         ['Marque', data.brand || 'N/A'],
       ];
       this.drawTable(doc, beneficiary, darkText, grayText, lightBg);

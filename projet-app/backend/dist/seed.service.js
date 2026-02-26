@@ -226,49 +226,6 @@ let SeedService = class SeedService {
                 toeicLevels[lData.label] = level;
             }
         }
-        const genericLevelsData = [
-            {
-                label: 'Débutant',
-                order: 1,
-                successThreshold: 4,
-                recommendationLabel: 'Parcours Débutant',
-            },
-            {
-                label: 'Intermédiaire',
-                order: 2,
-                successThreshold: 4,
-                recommendationLabel: 'Parcours Intermédiaire',
-            },
-            {
-                label: 'Avancé',
-                order: 3,
-                successThreshold: 4,
-                recommendationLabel: 'Parcours Avancé',
-            },
-            {
-                label: 'Expert',
-                order: 4,
-                successThreshold: 4,
-                recommendationLabel: 'Parcours Expert',
-            },
-        ];
-        const allFormations = await this.formationRepo.find();
-        for (const formation of allFormations) {
-            if (formation.slug === 'toeic')
-                continue;
-            for (const lData of genericLevelsData) {
-                const level = await this.levelRepo.findOne({
-                    where: { label: lData.label, formation: { id: formation.id } },
-                });
-                if (!level) {
-                    await this.levelRepo.save({
-                        ...lData,
-                        formation: formation,
-                    });
-                    console.log(`Level ${lData.label} for ${formation.label} created.`);
-                }
-            }
-        }
         const prerequisQuestions = [
             {
                 text: 'Fréquence d’utilisation d’un ordinateur',

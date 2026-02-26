@@ -381,6 +381,30 @@ const downloadPDF = async () => {
         </div>
       </div>
 
+      <!-- Profile Summary Section -->
+      <section class="mb-14">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="material-icons-outlined text-brand-primary text-lg">person_search</span>
+          <h2 class="text-base font-bold section-title uppercase tracking-widest">Votre Profil</h2>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row gap-8">
+          <div class="flex-1 space-y-2">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Métier / Poste</p>
+            <p class="text-lg font-bold text-blue-900">{{ session.metier || 'Non renseigné' }}</p>
+          </div>
+          <div class="flex-1 space-y-2">
+            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Situation</p>
+            <div class="flex flex-wrap gap-2">
+              <span v-for="sit in (session.situation || [])" :key="sit" 
+                    class="px-3 py-1 bg-blue-50 text-brand-primary rounded-lg text-xs font-bold border border-blue-100">
+                {{ sit }}
+              </span>
+              <span v-if="!session.situation?.length" class="text-gray-400 text-sm italic">Non renseignée</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Progress Bar -->
       <div
         class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8"
