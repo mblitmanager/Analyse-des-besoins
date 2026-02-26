@@ -1,9 +1,16 @@
 <script setup>
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
 import AppLogo from '../../components/AppLogo.vue';
+
 const auth = useAuthStore();
 const router = useRouter();
+const isSidebarOpen = ref(false);
+
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value;
+}
 
 function logout() {
   auth.logout();
@@ -23,14 +30,26 @@ const navItems = [
 
 <template>
   <div class="flex min-h-screen font-outfit">
+    <!-- Backdrop for mobile -->
+    <div
+      v-if="isSidebarOpen"
+      @click="isSidebarOpen = false"
+      class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+    ></div>
+
     <!-- Sidebar -->
     <aside
-      class="w-72 bg-white border-r border-gray-100 flex flex-col fixed inset-y-0 shadow-lg shadow-blue-900/5"
+      class="w-72 bg-white border-r border-gray-100 flex flex-col fixed inset-y-0 shadow-lg shadow-blue-900/5 transition-transform duration-300 z-50 lg:translate-x-0"
+      :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <div class="p-8">
-        <div class="flex items-center gap-3 mb-10">
-          <AppLogo class="w-10 h-10" />
-          
+        <div class="flex items-center justify-between mb-10">
+          <div class="flex items-center gap-3">
+            <AppLogo class="w-10 h-10" />
+          </div>
+          <button @click="isSidebarOpen = false" class="lg:hidden text-gray-400 hover:text-gray-600">
+            <span class="material-icons-outlined">close</span>
+          </button>
         </div>
 
         <nav class="space-y-2">
@@ -83,7 +102,18 @@ const navItems = [
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-72 p-10">
+    <main class="flex-1 lg:ml-72 p-6 lg:p-10 min-h-screen">
+      <!-- Top header for mobile -->
+      <header class="flex lg:hidden items-center justify-between mb-8 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-gray-100 shadow-sm sticky top-4 z-30">
+        <div class="flex items-center gap-3">
+          <AppLogo class="w-8 h-8" />
+          <span class="font-black text-xs uppercase tracking-widest text-[#428496]">WiziLearn</span>
+        </div>
+        <button @click="isSidebarOpen = true" class="p-2 bg-gray-50 rounded-xl text-gray-500 hover:bg-brand-primary hover:text-[#428496] transition-all">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+      </header>
+
       <router-view></router-view>
     </main>
   </div>

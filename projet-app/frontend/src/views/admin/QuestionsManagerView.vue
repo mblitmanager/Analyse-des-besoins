@@ -290,7 +290,7 @@ const groupedQuestions = computed(() => {
 
 <template>
   <div class="space-y-10 animate-fade-in">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div>
         <h2 class="text-3xl font-black heading-primary">
           Gestion des Questions
@@ -303,7 +303,7 @@ const groupedQuestions = computed(() => {
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="w-full md:w-auto px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Question
@@ -312,7 +312,7 @@ const groupedQuestions = computed(() => {
 
     <!-- Filters -->
     <div class="flex flex-wrap gap-4 items-center">
-      <div class="flex gap-2 p-2 bg-gray-200 rounded-2xl w-fit">
+      <div class="flex flex-wrap gap-2 p-2 bg-gray-200 rounded-2xl w-full sm:w-fit">
         <button
           type="button"
           v-for="t in types"
@@ -322,7 +322,7 @@ const groupedQuestions = computed(() => {
             fetchQuestions();
           "
           :aria-pressed="filterType === t.value"
-          class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+          class="flex-1 sm:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
           :class="
             filterType === t.value
               ? 'bg-gray-300 text-[var(--title-color)] shadow-md'
@@ -336,7 +336,7 @@ const groupedQuestions = computed(() => {
       <select
         v-model="formationFilter"
         @change="() => { levelFilter = ''; fetchQuestions(); }"
-        class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
+        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
       >
         <option value="">Toutes les formations</option>
         <option v-for="f in formations" :key="f.id" :value="f.slug">
@@ -346,7 +346,7 @@ const groupedQuestions = computed(() => {
 
       <select
         v-model="levelFilter"
-        class="px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
+        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
       >
         <option value="">Tous les niveaux</option>
         <option
@@ -426,7 +426,7 @@ const groupedQuestions = computed(() => {
                 class="p-6 flex items-start gap-6 hover:bg-gray-50/60 transition-colors group relative"
               >
                 <!-- REORDER CONTROLS -->
-                <div v-if="enableOrdering" class="flex flex-col gap-1 mt-1">
+                <div v-if="enableOrdering" class="flex flex-col gap-1 mt-1 shrink-0">
                   <button 
                     @click="moveQuestion(lg, idx, -1)" 
                     :disabled="idx === 0"
@@ -499,7 +499,7 @@ const groupedQuestions = computed(() => {
                 </div>
 
                 <div
-                  class="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="flex flex-col sm:flex-row lg:flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                 >
                   <button
                     @click="toggleStatus(q)"

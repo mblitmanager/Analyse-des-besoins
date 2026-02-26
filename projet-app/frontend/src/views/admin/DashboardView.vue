@@ -159,7 +159,7 @@ function formatDate(date) {
 
 <template>
   <div class="space-y-10 animate-fade-in">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
       <div>
         <h2 class="text-3xl font-black heading-primary">Tableau de Bord</h2>
         <p
@@ -169,7 +169,7 @@ function formatDate(date) {
         </p>
       </div>
       <button
-        class="px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-lg transition-all"
+        class="w-full md:w-auto px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all"
       >
         <span class="material-icons-outlined text-sm">download</span>
         Exporter Rapport
@@ -254,8 +254,8 @@ function formatDate(date) {
         ></div>
       </div>
 
-      <div v-else-if="recentSessions.length > 0" class="overflow-hidden">
-        <table class="w-full text-left">
+      <div v-else-if="recentSessions.length > 0" class="overflow-x-auto -mx-10 px-10">
+        <table class="w-full min-w-max text-left">
           <tbody class="divide-y divide-gray-50">
             <tr
               v-for="session in recentSessions"
