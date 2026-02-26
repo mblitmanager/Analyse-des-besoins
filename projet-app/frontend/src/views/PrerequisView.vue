@@ -12,37 +12,21 @@ const sessionId = localStorage.getItem("session_id");
 
 const loading = ref(true);
 const submitting = ref(false);
-
 const questions = ref([]);
 const responses = ref({});
 const groups = ref([]);
-const QUESTIONS_PER_PAGE = 5;
-const isPaginated = ref(false);
-const currentPage = ref(0);
 
-const allQuestions = computed(() =>
-  groups.value.flatMap((g) => g.questions)
-);
+const metier = ref("");
+const situation = ref("");
+const showProposal = ref(false);
 
-const totalPages = computed(() =>
-  Math.max(1, Math.ceil(allQuestions.value.length / QUESTIONS_PER_PAGE))
-);
-
-const paginatedQuestions = computed(() => {
-  if (!isPaginated.value) return allQuestions.value;
-  const start = currentPage.value * QUESTIONS_PER_PAGE;
-  return allQuestions.value.slice(start, start + QUESTIONS_PER_PAGE);
+const itSkillsTriggered = computed(() => {
+  return Object.values(responses.value).some(
+    (val) => String(val).toLowerCase() === "insuffisant"
+  );
 });
 
-const needsPagination = computed(() => isPaginated.value && allQuestions.value.length > QUESTIONS_PER_PAGE);
-
-function nextPage() {
-  if (currentPage.value < totalPages.value - 1) currentPage.value++;
-}
-
-function prevPage() {
-  if (currentPage.value > 0) currentPage.value--;
-}
+const needsPagination = computed(() => false); // Disable for this specific screen
 
 onMounted(async () => {
   if (!sessionId) {
@@ -55,65 +39,34 @@ onMounted(async () => {
     const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const session = sessionRes.data;
 
-    const formationSlug =
-      localStorage.getItem("selected_formation_slug") ||
-      session.formationChoisie ||
-      undefined;
+    metier.value = session.metier || "";
+    situation.value = session.situation || [];
 
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
-      params: formationSlug
-        ? { formation: formationSlug, scope: "auto" }
-        : { scope: "global" },
+      params: { scope: "global" },
     });
-    // deduplicate fetched questions by id or text
-    questions.value = Array.from(
-      new Map((res.data || []).map((q) => [q.id ?? q.text, q])).values(),
+    
+    // Filter for Screen 2 questions
+    const itKeywords = ["ordinateur", "windows", "internet", "dossier", "clavier", "souris"];
+    questions.value = (res.data || []).filter(q => 
+      itKeywords.some(kw => q.text.toLowerCase().includes(kw))
     );
 
-    // Group questions by category
-    const grouped = {};
     questions.value.forEach((q) => {
-      if (!grouped[q.category]) {
-        grouped[q.category] = {
-          title: q.category,
-          icon: q.icon || "list",
-          color: q.metadata?.color || "blue",
-          questions: [],
-        };
-      }
-      grouped[q.category].questions.push({
-        id: q.id,
-        type: q.metadata?.type || "radio",
-        text: q.text,
-        responseType: q.responseType || "qcm",
-        subtitle: q.metadata?.subtitle || "",
-        options: q.options.map((opt) => {
-          if (typeof opt === "string") return opt;
-          return opt; // metadata might contain exclusive/extra, but for seeding we used simple strings for now
-        }),
-      });
-
-      // Initialize response
       if (q.responseType === "text") {
         responses.value[q.id] = "";
-      } else if (q.metadata?.type === "checkbox") {
-        responses.value[q.id] = [];
       } else {
         responses.value[q.id] = null;
       }
     });
 
-    groups.value = Object.values(grouped);
-
-    // Fetch pagination setting
-    try {
-      const settingsRes = await axios.get(`${apiBaseUrl}/settings/PREREQUIS_PAGINATED`);
-      if (settingsRes.data && settingsRes.data.value !== undefined) {
-        isPaginated.value = settingsRes.data.value === "true";
+    groups.value = [
+      {
+        title: "Compétences Numériques",
+        icon: "devices",
+        questions: questions.value
       }
-    } catch (e) {
-      console.warn("Could not fetch PREREQUIS_PAGINATED setting, using default (true)");
-    }
+    ];
   } catch (error) {
     console.error("Failed to fetch prerequisites:", error);
   } finally {
@@ -121,358 +74,297 @@ onMounted(async () => {
   }
 });
 
-function handleCheckbox(questionId, optionLabel, exclusive) {
-  if (exclusive) {
-    responses.value[questionId] = [optionLabel];
-  } else {
-    const idx = responses.value[questionId].indexOf(optionLabel);
-    // Remove exclusive options if present
-    const q = groups.value
-      .flatMap((g) => g.questions)
-      .find((q) => q.id === questionId);
-    const exclusiveOptions = q.options
-      .filter((o) => o.exclusive)
-      .map((o) => o.label);
-    responses.value[questionId] = responses.value[questionId].filter(
-      (o) => !exclusiveOptions.includes(o),
-    );
-
-    if (idx > -1) {
-      responses.value[questionId].splice(idx, 1);
-    } else {
-      responses.value[questionId].push(optionLabel);
-    }
+async function submitPrerequis(force = false) {
+  const isForced = force === true;
+  if (!metier.value || !situation.value) {
+    alert("Veuillez renseigner votre métier et votre situation.");
+    return;
   }
-}
 
-async function submitPrerequis() {
+  const unanswered = questions.value.some(q => !responses.value[q.id]);
+  if (unanswered) {
+    alert("Veuillez répondre à toutes les questions.");
+    return;
+  }
+
+  if (itSkillsTriggered.value && !showProposal.value && !isForced) {
+    showProposal.value = true;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
   submitting.value = true;
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      metier: metier.value,
+      situation: [situation.value], // Send as array for backend compatibility if needed, or update backend
       prerequisiteScore: responses.value,
     });
-    const nextRoute = store.getNextRoute("/prerequis");
-    router.push(nextRoute || "/formations");
+    
+    if (showProposal.value) {
+       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+          formationChoisie: "Parcours Initial (DigComp & Word)",
+          finalRecommendation: "DigComp Initial | Word Initial",
+       });
+       router.push("/resultats");
+    } else {
+       router.push("/formations");
+    }
   } catch (error) {
-    console.error("Failed to submit prerequisites:", error);
-    alert("Erreur lors de la validation des prérequis.");
+    console.error("Failed to submit:", error);
+    alert("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
 }
+
+function refuseProposal() {
+  showProposal.value = false;
+  submitPrerequis(true); 
+}
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
         <div class="hidden md:flex flex-col items-end mr-4">
           <div class="flex items-center gap-2 mb-1">
-            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Progression</span>
-            <span class="text-[10px] text-brand-primary font-bold">
-              Étape {{ store.getProgress("/prerequis").current }}/{{ store.getProgress("/prerequis").total }}
-            </span>
-          </div>
-          <div class="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              class="h-full bg-brand-primary transition-all duration-700"
-              :style="{ width: store.getProgress('/prerequis').percentage + '%' }"
-            ></div>
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyse des besoins</span>
+            <span class="text-[10px] text-brand-primary font-bold">Étape 2 / 2</span>
           </div>
         </div>
       </template>
     </SiteHeader>
 
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
-      <div class="text-center mb-10">
-        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
-          Prérequis - Niveau Informatique
-        </h1>
-        <p class="text-gray-400 text-base md:text-lg">
-          Veuillez répondre aux questions suivantes pour évaluer votre niveau de
-          confort avec les outils numériques.
-        </p>
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 relative">
+      <div v-if="loading" class="flex flex-col items-center justify-center min-h-[400px]">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-brand-primary mb-4"></div>
+        <p class="text-blue-900 font-bold animate-pulse uppercase tracking-widest text-xs">Chargement...</p>
       </div>
 
-      <div v-if="loading" class="flex justify-center py-20">
-        <div
-          class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
-        ></div>
-      </div>
-
-      <div v-else class="space-y-8">
-        <!-- Pagination dots -->
-        <div v-if="needsPagination" class="flex items-center justify-center gap-3 mb-2">
-          <button
-            v-for="p in totalPages"
-            :key="p - 1"
-            @click="currentPage = p - 1"
-            class="w-3 h-3 rounded-full transition-all"
-            :class="currentPage === p - 1 ? 'bg-brand-primary scale-125' : 'bg-gray-200 hover:bg-gray-300'"
-          ></button>
-          <span class="text-xs text-gray-400 font-bold ml-2">
-            {{ currentPage + 1 }} / {{ totalPages }}
-          </span>
+      <div v-else class="space-y-8 animate-in fade-in duration-500">
+        <!-- Overlay Proposition Spéciale -->
+        <div v-if="showProposal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/40 backdrop-blur-sm">
+          <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-blue-100 animate-in fade-in zoom-in duration-300">
+            <div class="h-20 w-20 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
+              <span class="material-icons-outlined text-4xl">lightbulb</span>
+            </div>
+            <h2 class="text-2xl font-black text-blue-900 mb-4 text-center">Parcours Recommandé</h2>
+            <p class="text-gray-600 mb-8 text-center leading-relaxed">
+              Au vu de vos réponses sur les compétences numériques de base, nous vous suggérons de débuter par un renforcement initial :
+            </p>
+            <div class="space-y-3 mb-8">
+              <div class="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                <span class="material-icons-outlined text-blue-600 mr-3">star_outline</span>
+                <span class="font-bold text-blue-900">DigComp Initial</span>
+              </div>
+              <div class="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                <span class="material-icons-outlined text-blue-600 mr-3">description</span>
+                <span class="font-bold text-blue-900">Word Initial</span>
+              </div>
+            </div>
+            <div class="flex flex-col space-y-3">
+              <button @click="submitPrerequis()" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
+                Accepter et voir mon bilan
+              </button>
+              <button @click="refuseProposal" class="w-full py-4 text-gray-500 font-bold text-sm hover:text-blue-900 transition-colors">
+                Ignorer et continuer
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div
-          class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
-        >
-          <div
-            class="px-6 py-5 border-b border-gray-50 flex items-center gap-3 bg-gray-50/30"
-          >
-            <div
-              class="w-9 h-9 rounded-lg flex items-center justify-center text-sm bg-blue-600/10 text-blue-600"
-            >
-              <span class="material-icons-outlined text-lg">quiz</span>
+        <div class="text-center mb-10">
+          <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Bloc Commun - Étape 2</h1>
+          <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">Situation & Compétences Numériques</p>
+        </div>
+
+        <!-- Section 1 : Situation -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white p-8">
+          <div class="flex items-center mb-8">
+            <div class="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center mr-4 text-brand-primary">
+              <span class="material-icons-outlined">work_outline</span>
             </div>
-            <h2 class="text-base font-bold text-gray-800">
-              Questions {{ needsPagination ? `(${currentPage * QUESTIONS_PER_PAGE + 1}-${Math.min((currentPage + 1) * QUESTIONS_PER_PAGE, allQuestions.length)} sur ${allQuestions.length})` : '' }}
-            </h2>
+            <h2 class="text-xl font-black text-blue-900 uppercase tracking-tight">Votre Profil</h2>
           </div>
 
-          <div class="p-6 md:p-8 space-y-8">
-            <div v-for="q in paginatedQuestions" :key="q.id" class="space-y-4">
-              <div v-if="q.text" class="space-y-1">
-                <p class="text-base font-bold heading-primary">{{ q.text }}</p>
-                <p v-if="q.subtitle" class="text-xs text-gray-400">
-                  {{ q.subtitle }}
-                </p>
-              </div>
+          <div class="grid grid-cols-1 gap-8">
+            <div>
+              <label class="Wizi-label">Votre métier (poste actuel)</label>
+              <input v-model="metier" type="text" class="Wizi-input" placeholder="Ex: Assistant administratif, Comptable..." />
+            </div>
 
-              <!-- Free-text -->
-              <div v-if="q.responseType === 'text'" class="mt-4">
-                <textarea
-                  v-model="responses[q.id]"
-                  rows="3"
-                  class="w-full px-5 py-4 bg-white border border-gray-100 focus:border-brand-primary outline-none rounded-2xl transition-all font-bold text-sm shadow-sm"
-                  placeholder="Saisissez votre réponse ici..."
-                ></textarea>
-              </div>
-
-              <!-- Radio Options -->
-              <div
-                v-else-if="q.type === 'radio'"
-                class="grid grid-cols-1 md:grid-cols-3 gap-3"
-              >
-                <button
-                  v-for="opt in q.options"
-                  :key="opt"
-                  @click="responses[q.id] = opt"
-                  class="prereq-option"
-                  :class="
-                    responses[q.id] === opt
-                      ? 'prereq-option--selected'
-                      : 'prereq-option--default'
-                  "
-                >
-                  <span class="prereq-option__label">{{ opt }}</span>
-                  <div
-                    class="prereq-option__radio"
-                    :class="
-                      responses[q.id] === opt
-                        ? 'prereq-option__radio--selected'
-                        : ''
-                    "
-                  >
-                    <div
-                      v-if="responses[q.id] === opt"
-                      class="prereq-option__radio-dot"
-                    ></div>
+            <div>
+              <label class="Wizi-label font-black text-[10px] uppercase tracking-widest text-gray-400 mb-4 block">Votre situation actuelle</label>
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div v-for="sit in ['Salarié', 'Indépendant', 'Demandeur d’emploi', 'Reconversion']" :key="sit" 
+                     @click="situation = sit"
+                     class="formation-card"
+                     :class="situation === sit ? 'formation-card--selected' : 'formation-card--default'">
+                  <div class="flex items-center gap-4">
+                     <div :class="situation === sit ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
+                        <span class="material-icons-outlined text-xl">person_outline</span>
+                     </div>
+                     <span class="formation-card__label">{{ sit }}</span>
                   </div>
-                </button>
-              </div>
-
-              <!-- Checkbox Options -->
-              <div v-if="q.type === 'checkbox'" class="space-y-2">
-                <button
-                  v-for="opt in q.options"
-                  :key="typeof opt === 'string' ? opt : opt.label"
-                  @click="
-                    handleCheckbox(
-                      q.id,
-                      typeof opt === 'string' ? opt : opt.label,
-                      typeof opt === 'string' ? false : opt.exclusive,
-                    )
-                  "
-                  class="prereq-option prereq-option--full"
-                  :class="
-                    responses[q.id].includes(
-                      typeof opt === 'string' ? opt : opt.label,
-                    )
-                      ? 'prereq-option--selected'
-                      : 'prereq-option--default'
-                  "
-                >
-                  <div class="flex flex-col flex-1">
-                    <span class="prereq-option__label">{{
-                      typeof opt === "string" ? opt : opt.label
-                    }}</span>
-                    <span
-                      v-if="typeof opt !== 'string' && opt.extra"
-                      class="text-xs font-medium opacity-60"
-                      >{{ opt.extra }}</span
-                    >
+                  <div class="formation-card__radio" :class="situation === sit ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                    <div v-if="situation === sit" class="formation-card__radio-dot"></div>
                   </div>
-                  <div
-                    class="prereq-option__check"
-                    :class="
-                      responses[q.id].includes(
-                        typeof opt === 'string' ? opt : opt.label,
-                      )
-                        ? 'prereq-option__check--selected'
-                        : ''
-                    "
-                  >
-                    <span
-                      v-if="
-                        responses[q.id].includes(
-                          typeof opt === 'string' ? opt : opt.label,
-                        )
-                      "
-                      class="material-icons-outlined text-[#428496] text-xs"
-                      >check</span
-                    >
-                  </div>
-                </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div
-          class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4"
-        >
-          <button
-            @click="needsPagination && currentPage > 0 ? prevPage() : router.push('/')"
-            class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
-          >
-            <span class="material-icons-outlined">arrow_back</span>
-            {{ needsPagination && currentPage > 0 ? 'Précédent' : 'Retour' }}
-          </button>
+        <!-- Section 2 : IT Skills -->
+        <div v-for="group in groups" :key="group.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white mb-8">
+          <div class="bg-blue-900 p-8 text-white">
+            <div class="flex items-center">
+              <span class="material-icons-outlined mr-3 text-3xl">{{ group.icon }}</span>
+              <h2 class="text-2xl font-black uppercase tracking-tight">{{ group.title }}</h2>
+            </div>
+          </div>
 
-          <!-- Next page button (shown when not on last page) -->
-          <button
-            v-if="needsPagination && currentPage < totalPages - 1"
-            @click="nextPage"
-            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 text-base"
-          >
-            <span>Suivant</span>
-            <span class="material-icons-outlined text-xl">arrow_forward</span>
-          </button>
+          <div class="p-8 space-y-12">
+            <div v-for="(q, idx) in group.questions" :key="q.id" class="space-y-6">
+              <div class="flex items-start">
+                <span class="shrink-0 w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-blue-100">
+                  {{ idx + 1 }}
+                </span>
+                <p class="text-lg font-bold text-blue-900 mt-1">{{ q.text }}</p>
+              </div>
 
-          <!-- Submit button (shown on last page or when no pagination) -->
-          <button
-            v-else
-            @click="submitPrerequis"
-            :disabled="submitting"
-            class="w-full sm:w-auto px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
-          >
-            <span>Valider et continuer</span>
-            <span v-if="!submitting" class="material-icons-outlined text-xl"
-              >arrow_forward</span
-            >
-            <div
-              v-else
-              class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
-            ></div>
-          </button>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 ml-0 sm:ml-14">
+                <div v-for="opt in q.options" :key="opt"
+                     @click="responses[q.id] = opt"
+                     class="formation-card"
+                     :class="responses[q.id] === opt ? 'formation-card--selected' : 'formation-card--default'">
+                  <div class="flex items-center gap-3">
+                    <span class="formation-card__label">{{ opt }}</span>
+                  </div>
+                  <div class="formation-card__radio" :class="responses[q.id] === opt ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                    <div v-if="responses[q.id] === opt" class="formation-card__radio-dot"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Padding for sticky bar -->
+        <div class="h-32"></div>
       </div>
     </main>
+
+    <!-- Bottom Actions Sticky -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40">
+      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        <button @click="router.push('/')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors">
+          <span class="material-icons-outlined text-lg">arrow_back</span>
+          Retour
+        </button>
+
+        <button @click="submitPrerequis()" :disabled="submitting"
+                class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+          <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+          <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
+          <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+        </button>
+      </div>
+    </div>
 
     <SiteFooter />
   </div>
 </template>
 
 <style scoped>
+:root {
+  --color-brand-primary: #3b82f6;
+  --title-color: #0d1b3e;
+}
 
 .font-outfit {
   font-family: "Outfit", sans-serif;
 }
 
-/* Prereq option card */
-.prereq-option {
+.heading-primary {
+  color: var(--title-color);
+}
+
+/* Formation card style alignment */
+.formation-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  min-height: 3.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  min-height: 4.5rem;
+  background: #f1f5f9;
+  border: 1px solid #f1f5f9;
+  border-radius: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.formation-card:hover {
+  background: #e2e8f0;
+  border-color: #e2e8f0;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+}
+
+.formation-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.formation-card--selected {
+  border-color: #60a5fa; /* blue-400 */
+  background: #f3f4f6; /* gray-100 */
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+
+.formation-card__label {
   font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--title-color);
+  text-align: left;
+  line-height: 1.25;
+  transition: color 0.3s ease;
 }
 
-.prereq-option--full {
-  width: 100%;
+.formation-card--selected .formation-card__label {
+  color: #60a5fa; /* blue-400 */
 }
 
-.prereq-option--default:hover {
-  border-color: #d1d5db;
-}
-
-.prereq-option--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: rgba(59, 130, 246, 0.03);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
-}
-
-.prereq-option__label {
-  font-weight: 600;
-  color: #1f2937;
-  flex: 1;
-}
-
-.prereq-option--selected .prereq-option__label {
-  color: var(--color-brand-primary, #3b82f6);
-}
-
-.prereq-option__radio {
+.formation-card__radio {
   flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
-  border: 2px solid #d1d5db;
+  border: 2px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
-.prereq-option__radio--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: var(--color-brand-primary, #3b82f6);
-}
-
-.prereq-option__radio-dot {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 50%;
+.formation-card__radio--selected {
+  border-color: #60a5fa;
   background: white;
 }
 
-.prereq-option__check {
-  flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.375rem;
-  border: 2px solid #d1d5db;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+.formation-card__radio-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #60a5fa;
 }
 
-.prereq-option__check--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: var(--color-brand-primary, #3b82f6);
+.animate-in {
+  animation-duration: 0.3s;
 }
 </style>

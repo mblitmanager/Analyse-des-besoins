@@ -225,7 +225,8 @@ export class SeedService implements OnApplicationBootstrap {
       }
     }
 
-    // 2b. Generic Levels for other formations
+    // 2b. Generic Levels for other formations (Disabled to favor specific Markdown imports)
+    /*
     const genericLevelsData = [
       {
         label: 'Débutant',
@@ -233,43 +234,9 @@ export class SeedService implements OnApplicationBootstrap {
         successThreshold: 4,
         recommendationLabel: 'Parcours Débutant',
       },
-      {
-        label: 'Intermédiaire',
-        order: 2,
-        successThreshold: 4,
-        recommendationLabel: 'Parcours Intermédiaire',
-      },
-      {
-        label: 'Avancé',
-        order: 3,
-        successThreshold: 4,
-        recommendationLabel: 'Parcours Avancé',
-      },
-      {
-        label: 'Expert',
-        order: 4,
-        successThreshold: 4,
-        recommendationLabel: 'Parcours Expert',
-      },
+      ...
     ];
-
-    const allFormations = await this.formationRepo.find();
-    for (const formation of allFormations) {
-      if (formation.slug === 'toeic') continue;
-
-      for (const lData of genericLevelsData) {
-        const level = await this.levelRepo.findOne({
-          where: { label: lData.label, formation: { id: formation.id } },
-        });
-        if (!level) {
-          await this.levelRepo.save({
-            ...lData,
-            formation: formation,
-          } as any);
-          console.log(`Level ${lData.label} for ${formation.label} created.`);
-        }
-      }
-    }
+    */
 
     // 3. Prerequisite Questions
     const prerequisQuestions = [

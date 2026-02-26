@@ -215,25 +215,46 @@ export class SessionsService {
       finalRecommendationValue = `${softwareChoice} - ${finalLevel.label}`;
     }
 
-    // Determine proposed parcours
+    // Determine proposed parcours (Logic Duo)
     let proposedParcours: string[] = [];
-    const idx = levels.findIndex((l) => l.id === finalLevel.id);
-    const nextLevel =
-      idx >= 0 && idx < levels.length - 1 ? levels[idx + 1] : null;
 
-    const l1 = finalLevel.label;
-    const l2 = nextLevel ? nextLevel.label : l1;
+    // Find last validated index
+    let lastValidatedIdx = -1;
+    for (let i = 0; i < levels.length; i++) {
+      const raw = scores[levels[i].label];
+      const userScore =
+        typeof raw === 'number' ? raw : ((raw as any)?.score ?? undefined);
+      if (userScore !== undefined && userScore >= levels[i].successThreshold) {
+        lastValidatedIdx = i;
+      }
+    }
 
-    if (hasInsuffisant) {
-      // Rule: Proposal 1: Duo (Level X et Level X+1)
-      //       Proposal 2: Level X + DigComp initial et Word initial
-      proposedParcours = [
-        `${l1} et ${l2}`,
-        `${l1} + DigComp initial et Word initial`,
-      ];
+    let l1: string, l2: string;
+
+    if (lastValidatedIdx === -1) {
+      // "Débutant KO" case: Propose Debutant + Intermédiaire
+      l1 = levels[0].label;
+      l2 = levels.length > 1 ? levels[1].label : l1;
     } else {
-      // Normal case: The Duo
+      // Normal case: Last Validated (L1) + Next Level (L2)
+      l1 = levels[lastValidatedIdx].label;
+      if (lastValidatedIdx < levels.length - 1) {
+        l2 = levels[lastValidatedIdx + 1].label;
+      } else {
+        // Already at max level, just repeat it or handle as single
+        l2 = l1;
+      }
+    }
+
+    if (l1 === l2) {
+      proposedParcours = [l1];
+    } else {
       proposedParcours = [`${l1} et ${l2}`];
+    }
+
+    // Handle extra logic for hasInsuffisant if needed (optional based on latest request)
+    if (hasInsuffisant) {
+      proposedParcours.push(`${l1} + DigComp initial et Word initial`);
     }
 
     // Set combined string for backward compatibility and DB storage
@@ -323,6 +344,14 @@ export class SessionsService {
           )}</td></tr>
           <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
             session.conseiller,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.metier,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            Array.isArray(session.situation)
+              ? session.situation.join(', ')
+              : session.situation,
           )}</td></tr>
           <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Marque</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
             session.brand,

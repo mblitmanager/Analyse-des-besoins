@@ -31,6 +31,12 @@ export class Session {
   conseiller: string;
 
   @Column({ nullable: true })
+  metier: string;
+
+  @Column('simple-json', { nullable: true })
+  situation: string[];
+
+  @Column({ nullable: true })
   formationChoisie: string;
 
   @Column('simple-json', { nullable: true })
