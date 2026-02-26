@@ -263,10 +263,10 @@ const sectionParts = computed(() => {
         <div class="space-y-12">
           <!-- Langues -->
           <div v-if="sectionParts.langs && sectionParts.langs.items.length">
-            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
+            <!-- <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
               <span class="w-8 h-px bg-gray-100"></span>
               {{ sectionParts.langs.title }}
-            </h3>
+            </h3> -->
             <div class="formations-grid">
               <button
                 v-for="form in sectionParts.langs.items"
@@ -276,7 +276,7 @@ const sectionParts = computed(() => {
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
+                   <div :class="selectedFormation?.id === form.id ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'translate' }}</span>
                    </div>
                    <span class="formation-card__label">{{ form.label }}</span>
@@ -291,22 +291,22 @@ const sectionParts = computed(() => {
           <!-- Bureautique + IA side-by-side -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div v-if="sectionParts.bureau">
-              <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
+              <!-- <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
                 <span class="w-8 h-px bg-gray-100"></span>
                 {{ sectionParts.bureau.title }}
-              </h3>
+              </h3> -->
               <button 
                 @click="openBureautiqueModal" 
                 class="formation-card w-full"
                 :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
+                   <div :class="selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">desktop_windows</span>
                    </div>
                    <div class="flex flex-col items-start">
-                     <span class="formation-card__label">{{ selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? selectedFormation.label : 'Choisir votre logiciel' }}</span>
-                     <span v-if="selectedSuite && selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="text-[9px] font-black uppercase text-[#428496]/70 tracking-widest mt-0.5">
+                     <span class="formation-card__label">{{ selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique' ? selectedFormation.label : 'Bureautique' }}</span>
+                     <span v-if="selectedSuite && selectedFormation && (selectedFormation.category || '').toLowerCase() === 'bureautique'" class="text-[9px] font-black uppercase text-blue-400/70 tracking-widest mt-0.5">
                        {{ selectedSuite === 'google' ? 'Google Workspace' : 'Microsoft Office' }}
                      </span>
                    </div>
@@ -316,10 +316,10 @@ const sectionParts = computed(() => {
             </div>
 
             <div v-if="sectionParts.ia && sectionParts.ia.items.length">
-              <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
+              <!-- <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
                 <span class="w-8 h-px bg-gray-100"></span>
                 {{ sectionParts.ia.title }}
-              </h3>
+              </h3> -->
               <div class="space-y-3">
                 <button
                   v-for="form in sectionParts.ia.items"
@@ -329,7 +329,7 @@ const sectionParts = computed(() => {
                   :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
                 >
                   <div class="flex items-center gap-4">
-                     <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
+                     <div :class="selectedFormation?.id === form.id ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                         <span class="material-icons-outlined text-xl">psychology</span>
                      </div>
                      <span class="formation-card__label">{{ form.label }}</span>
@@ -344,10 +344,10 @@ const sectionParts = computed(() => {
 
           <!-- Other sections -->
           <div v-for="section in sectionParts.rest" :key="section.key">
-            <h3 v-if="section.items.length" class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
+            <!-- <h3 v-if="section.items.length" class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-3">
               <span class="w-8 h-px bg-gray-100"></span>
               {{ section.title }}
-            </h3>
+            </h3> -->
             <div class="formations-grid">
               <button
                 v-for="form in section.items"
@@ -357,7 +357,7 @@ const sectionParts = computed(() => {
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-white/20 text-[#428496]' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
+                   <div :class="selectedFormation?.id === form.id ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'star' }}</span>
                    </div>
                    <span class="formation-card__label">{{ form.label }}</span>
@@ -625,9 +625,9 @@ const sectionParts = computed(() => {
 }
 
 .formation-card--selected {
-  border-color: var(--color-brand-primary);
-  background: var(--color-brand-primary);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+  border-color: #60a5fa; /* blue-400 */
+  background: #f3f4f6; /* gray-100 */
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
 }
 
 .formation-card__label {
@@ -640,7 +640,7 @@ const sectionParts = computed(() => {
 }
 
 .formation-card--selected .formation-card__label {
-  color: white;
+  color: #60a5fa; /* blue-400 */
 }
 
 .formation-card__radio {
@@ -660,17 +660,13 @@ const sectionParts = computed(() => {
   background: var(--color-brand-primary);
 }
 
-.formation-card--selected .formation-card__radio {
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
 .formation-card--selected .formation-card__radio--selected {
-  border-color: white;
+  border-color: #60a5fa; /* blue-400 */
   background: white;
 }
 
 .formation-card--selected .formation-card__radio-dot {
-  background: var(--color-brand-primary);
+  background: #60a5fa; /* blue-400 */
 }
 
 .formation-card__radio-dot {
