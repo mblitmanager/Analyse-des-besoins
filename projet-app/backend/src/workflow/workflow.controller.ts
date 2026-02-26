@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, Param } from '@nestjs/common';
+import { Controller, Get, Put, Body, Param, Query } from '@nestjs/common';
 import { WorkflowService } from './workflow.service';
 import { WorkflowStep } from '../entities/workflow-step.entity';
 
@@ -7,8 +7,9 @@ export class WorkflowController {
   constructor(private readonly workflowService: WorkflowService) {}
 
   @Get()
-  findAll() {
-    return this.workflowService.findAll();
+  findAll(@Query('all') all?: string) {
+    const fetchAll = all === 'true';
+    return this.workflowService.findAll(fetchAll);
   }
 
   @Put('order')

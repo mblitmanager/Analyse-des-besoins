@@ -10,9 +10,9 @@ export class WorkflowService {
     private workflowRepo: Repository<WorkflowStep>,
   ) {}
 
-  async findAll() {
+  async findAll(all: boolean = false) {
     return this.workflowRepo.find({
-      where: { isActive: true },
+      where: all ? {} : { isActive: true },
       order: { order: 'ASC' },
     });
   }
