@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import { formatBoldText } from "../utils/formatText";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -507,7 +508,7 @@ async function saveAndExit() {
                           :value="option"
                           class="hidden"
                         />
-                        <span class="option-card__label">{{ option }}</span>
+                        <span class="option-card__label" v-html="formatBoldText(option)"></span>
                         <div
                           class="option-card__radio"
                           :class="
@@ -581,7 +582,7 @@ async function saveAndExit() {
                             :value="option"
                             class="hidden"
                           />
-                          <span class="option-card__label text-base!">{{ option }}</span>
+                          <span class="option-card__label text-base!" v-html="formatBoldText(option)"></span>
                           <div
                             class="option-card__radio w-6! h-6!"
                             :class="
