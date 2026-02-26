@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
+import { formatBoldText } from "../utils/formatText";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -243,7 +244,7 @@ function refuseProposal() {
                      class="formation-card"
                      :class="responses[q.id] === opt ? 'formation-card--selected' : 'formation-card--default'">
                   <div class="flex items-center gap-3">
-                    <span class="formation-card__label">{{ opt }}</span>
+                    <span class="formation-card__label" v-html="formatBoldText(opt)"></span>
                   </div>
                   <div class="formation-card__radio" :class="responses[q.id] === opt ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
                     <div v-if="responses[q.id] === opt" class="formation-card__radio-dot"></div>

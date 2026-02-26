@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import { formatBoldText } from "../../utils/formatText";
 
 const questions = ref([]);
 const loading = ref(true);
@@ -488,7 +489,7 @@ const groupedQuestions = computed(() => {
                           : 'text-gray-400 bg-gray-50 border-gray-100'
                       "
                     >
-                      {{ typeof opt === 'string' ? opt : opt.label }}
+                      <span v-html="formatBoldText(typeof opt === 'string' ? opt : opt.label)"></span>
                       <span
                         v-if="oIdx === q.correctResponseIndex"
                         class="material-icons-outlined text-[10px]"

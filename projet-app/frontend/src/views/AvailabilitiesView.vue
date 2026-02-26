@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue"; // Fixed: was missing onMounted
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
+import { formatBoldText } from "../utils/formatText";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import axios from "axios";
@@ -183,9 +184,8 @@ async function skipStep() {
                   <span 
                     class="option-card__label text-center! text-sm font-bold"
                     :class="responses[q.id].includes(opt) ? 'text-brand-primary' : 'text-gray-700'"
-                  >
-                    {{ opt }}
-                  </span>
+                    v-html="formatBoldText(opt)"
+                  ></span>
                   
                   <!-- Checkbox indicator -->
                   <div

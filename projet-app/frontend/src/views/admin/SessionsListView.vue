@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { formatBoldText } from "../../utils/formatText";
 
 const sessions = ref([]);
 const loading = ref(true);
@@ -585,9 +586,7 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ Array.isArray(val) ? val.join(', ') : val }}
-                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
                         </tr>
                       </tbody>
                     </table>
@@ -657,9 +656,7 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ Array.isArray(val) ? val.join(', ') : val }}
-                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
                         </tr>
                       </tbody>
                     </table>
@@ -680,9 +677,7 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ Array.isArray(val) ? val.join(', ') : val }}
-                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
                         </tr>
                       </tbody>
                     </table>
@@ -703,9 +698,7 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ Array.isArray(val) ? val.join(', ') : val }}
-                          </td>
+                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
                         </tr>
                       </tbody>
                     </table>

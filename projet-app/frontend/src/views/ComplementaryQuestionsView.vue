@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
+import { formatBoldText } from "../utils/formatText";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -182,7 +183,7 @@ async function skipStep() {
                       :value="opt"
                       class="hidden"
                     />
-                    <span class="option-card__label">{{ opt }}</span>
+                    <span class="option-card__label" v-html="formatBoldText(opt)"></span>
                     <div
                       class="option-card__radio"
                       :class="
@@ -221,7 +222,7 @@ async function skipStep() {
                       :value="opt"
                       class="hidden"
                     />
-                    <span class="option-card__label">{{ opt }}</span>
+                    <span class="option-card__label" v-html="formatBoldText(opt)"></span>
                     <div
                       class="option-card__radio"
                       :class="
