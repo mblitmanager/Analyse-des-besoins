@@ -141,11 +141,11 @@ function goHome() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit p-8">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8] p-8">
     <div class="max-w-2xl mx-auto w-full">
       <div
         v-if="!loading && session"
-        class="bg-white rounded-3xl shadow-xl p-10 border border-gray-100"
+        class="bg-white rounded-3xl shadow-xl p-10 border border-white"
       >
         <div
           class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500"

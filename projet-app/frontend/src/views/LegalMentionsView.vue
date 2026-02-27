@@ -26,7 +26,7 @@ import SiteFooter from '../components/SiteFooter.vue';
         <div>
           <h2 class="font-bold text-base heading-primary mb-1">Éditeur</h2>
           <p>
-            <strong>AOPIA, marque de NS CONSEIL</strong><br />
+            <strong>Wizi Learn, marque de NS CONSEIL</strong><br />
             519 408 140 RCS Bordeaux<br />
             8, rue Evariste Galois, 86130 Jaunay-Marigny<br />
             Tél. : 09 72 51 29 04
@@ -40,7 +40,7 @@ import SiteFooter from '../components/SiteFooter.vue';
           <p>Alexandre Florek</p>
         </div>
 
-        <div>
+        <!-- <div>
           <h2 class="font-bold text-base heading-primary mb-1">Hébergeur</h2>
           <p>
             <strong>IONOS</strong><br />
@@ -48,7 +48,7 @@ import SiteFooter from '../components/SiteFooter.vue';
             BP 70109<br />
             57200 Sarreguemines Cedex
           </p>
-        </div>
+        </div> -->
 
         <div>
           <h2 class="font-bold text-base heading-primary mb-1">
@@ -76,27 +76,27 @@ import SiteFooter from '../components/SiteFooter.vue';
             Les présentes mentions légales s’appliquent à toute personne physique
             qui visite le site internet, qui utilise les applications mises à
             disposition et, d’une façon générale, pour tout évènement auquel la
-            personne participe dans le cadre des services proposés par AOPIA.
+            personne participe dans le cadre des services proposés par Wizi Learn.
           </p>
 
           <h3 class="font-semibold text-sm heading-primary">
             II – Informations contenues dans le site
           </h3>
           <p>
-            Les informations fournies le sont à titre informatif. AOPIA ne saurait
+            Les informations fournies le sont à titre informatif. Wizi Learn ne saurait
             garantir l’exactitude, la complétude, l’actualité des informations
-            diffusées sur le site. AOPIA met tout en œuvre pour offrir aux
+            diffusées sur le site. Wizi Learn met tout en œuvre pour offrir aux
             utilisateurs des informations et des outils disponibles et vérifiés,
             mais ne saurait être tenue pour responsable des erreurs, des omissions
             et/ou d’une absence de disponibilité des informations et des services.
           </p>
           <p>
             En conséquence, l’utilisateur reconnaît utiliser ces informations sous
-            sa responsabilité exclusive. D’une manière générale, AOPIA ne pourra
+            sa responsabilité exclusive. D’une manière générale, Wizi Learn ne pourra
             être tenue responsable de tous les dommages directs ou indirects
             résultant de l’utilisation de son site internet. Les sites extérieurs
             ayant un lien hypertexte avec le présent site ne sont pas sous son
-            contrôle et AOPIA décline par conséquent toute responsabilité quant à
+            contrôle et Wizi Learn décline par conséquent toute responsabilité quant à
             leur contenu. L’utilisateur est seul responsable de leur utilisation.
           </p>
 
@@ -104,10 +104,10 @@ import SiteFooter from '../components/SiteFooter.vue';
             III – Modifications du contenu du site
           </h3>
           <p>
-            AOPIA est propriétaire de son site internet et se réserve le droit
+            Wizi Learn est propriétaire de son site internet et se réserve le droit
             d’en modifier le contenu à tout moment et sans préavis, sans pouvoir
             être tenue responsable des conséquences de telles modifications. En
-            outre, AOPIA se réserve le droit d’interrompre ou de suspendre tout ou
+            outre, Wizi Learn se réserve le droit d’interrompre ou de suspendre tout ou
             partie des fonctionnalités des sites et/ou de leur publication, à tout
             moment et sans préavis.
           </p>
@@ -129,7 +129,7 @@ import SiteFooter from '../components/SiteFooter.vue';
             Toute la structure générale, ainsi que les informations au sens large,
             les logiciels, textes, images animées ou fixes, sons, savoir-faire,
             dessins, graphismes, marques, logos, noms de domaine et tout autre
-            élément composant ces sites sont la propriété exclusive d’AOPIA, sous
+            élément composant ces sites sont la propriété exclusive d’Wizi Learn, sous
             réserve des droits de tiers. Toute reproduction ou représentation sans
             autorisation est strictement interdite.
           </p>
@@ -140,7 +140,7 @@ import SiteFooter from '../components/SiteFooter.vue';
             VII – Conditions Générales de Vente
           </h2>
           <p>
-            Toute commande passée auprès d’AOPIA implique l’adhésion entière et
+            Toute commande passée auprès d’Wizi Learn implique l’adhésion entière et
             sans réserve du client aux Conditions Générales de Vente.
           </p>
         </div>

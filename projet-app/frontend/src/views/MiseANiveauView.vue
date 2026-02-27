@@ -115,7 +115,7 @@ async function nextStep() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader />
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
@@ -129,7 +129,7 @@ async function nextStep() {
       </div>
 
       <div v-else class="space-y-8">
-        <div v-for="grp in computedGroups" :key="grp.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+        <div v-for="grp in computedGroups" :key="grp.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white">
           <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
             <div class="w-9 h-9 rounded-lg bg-indigo-600/5 flex items-center justify-center">
               <span class="material-icons-outlined text-indigo-600 text-lg">{{ grp.icon }}</span>

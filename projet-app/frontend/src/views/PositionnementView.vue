@@ -282,7 +282,7 @@ async function saveAndExit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit bg-gray-50/50">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
         <button
@@ -303,7 +303,7 @@ async function saveAndExit() {
         class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
         <div
-          class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-2xl shadow-brand-primary/10 border border-brand-primary/5 text-center"
+          class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-white text-center"
         >
           <div
             class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-blue-400 mx-auto mb-8 shadow-xl shadow-green-500/30"
@@ -413,7 +413,7 @@ async function saveAndExit() {
 
           <!-- Progress Bar -->
           <div
-            class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8"
+            class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
           >
             <div class="flex items-center justify-between mb-2 px-1">
               <span
@@ -441,10 +441,10 @@ async function saveAndExit() {
           </div>
         </div>
 
-        <div
-          v-if="loading"
-          class="flex flex-col items-center justify-center py-32 gap-4 bg-white rounded-2xl shadow-sm border border-gray-100"
-        >
+          <div
+            v-if="loading"
+            class="flex flex-col items-center justify-center py-32 gap-4 bg-[#F0F4F8] rounded-3xl shadow-xl border border-white"
+          >
           <div
             class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
           ></div>
@@ -469,7 +469,7 @@ async function saveAndExit() {
                 <div
                   v-for="(q, idx) in filteredQuestions"
                   :key="q.id"
-                  class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden group animate-in fade-in slide-in-from-bottom-2 duration-500"
                 >
                   <div class="p-6 md:p-8">
                     <div class="flex items-start gap-4 mb-6">
@@ -542,7 +542,7 @@ async function saveAndExit() {
                 <div 
                   v-if="filteredQuestions[currentQuestionIndex]"
                   :key="filteredQuestions[currentQuestionIndex].id"
-                  class="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-primary/5 border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500"
+                  class="bg-white rounded-[2.5rem] shadow-xl border border-white overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500"
                 >
                   <div class="p-8 md:p-12">
                     <div class="flex items-center justify-between mb-8">
@@ -616,7 +616,7 @@ async function saveAndExit() {
 
           <!-- Sticky Footer Info -->
           <div
-            class="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4"
+            class="bg-white border border-white rounded-3xl shadow-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4"
           >
             <div class="flex items-center gap-3">
               <div

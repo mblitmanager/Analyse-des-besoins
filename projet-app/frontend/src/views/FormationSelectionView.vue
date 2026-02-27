@@ -207,7 +207,7 @@ const sectionParts = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white flex flex-col font-outfit">
+  <div class="min-h-screen bg-[#F0F4F8] flex flex-col font-outfit">
     <SiteHeader>
       <template #actions>
         <button
