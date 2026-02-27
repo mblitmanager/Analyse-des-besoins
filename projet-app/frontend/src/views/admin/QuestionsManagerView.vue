@@ -250,6 +250,14 @@ const types = computed(() => {
 // Toggle to enable ordering UI
 const enableOrdering = true;
 
+// Only show type buttons when there are questions for that type (or "Tous")
+const visibleTypes = computed(() => {
+  return types.value.filter((t) => {
+    if (!t.value) return true; // always keep "Tous"
+    return questions.value.some((q) => (q.type || '').toLowerCase() === String(t.value).toLowerCase());
+  });
+});
+
 const availableLevels = computed(() => {
   if (!form.value.formationId) return [];
   const selectedFormation = formations.value.find(
@@ -353,7 +361,7 @@ const groupedQuestions = computed(() => {
       <div class="flex flex-wrap gap-2 p-2 bg-gray-200 rounded-2xl w-full sm:w-fit">
         <button
           type="button"
-          v-for="t in types"
+          v-for="t in visibleTypes"
           :key="t.value"
           @click="
             filterType = t.value;
