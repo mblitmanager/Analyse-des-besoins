@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Put, Body, Param, Query, Post, Delete } from '@nestjs/common';
 import { WorkflowService } from './workflow.service';
 import { WorkflowStep } from '../entities/workflow-step.entity';
 
@@ -20,5 +20,15 @@ export class WorkflowController {
   @Put(':id')
   updateStep(@Param('id') id: string, @Body() data: Partial<WorkflowStep>) {
     return this.workflowService.updateStep(+id, data);
+  }
+
+  @Post()
+  createStep(@Body() data: Partial<WorkflowStep>) {
+    return this.workflowService.createStep(data as WorkflowStep);
+  }
+
+  @Delete(':id')
+  removeStep(@Param('id') id: string) {
+    return this.workflowService.removeStep(+id);
   }
 }

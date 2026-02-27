@@ -28,4 +28,24 @@ export class WorkflowService {
     await this.workflowRepo.update(id, data);
     return this.workflowRepo.findOne({ where: { id } });
   }
+
+  async createStep(data: Partial<WorkflowStep>) {
+    // compute order as last + 1
+    const last = await this.workflowRepo.findOne({ order: { order: 'DESC' } as any });
+    const nextOrder = (last?.order ?? 0) + 1;
+    const step = this.workflowRepo.create({
+      ...data,
+      order: data.order ?? nextOrder,
+      isActive: data.isActive === undefined ? true : data.isActive,
+    } as any);
+    return this.workflowRepo.save(step);
+  }
+
+  async removeStep(id: number) {
+    const step = await this.workflowRepo.findOne({ where: { id } });
+    if (!step) return false;
+    // Soft-delete: mark inactive
+    await this.workflowRepo.update(id, { isActive: false });
+    return true;
+  }
 }

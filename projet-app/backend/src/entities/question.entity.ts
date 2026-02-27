@@ -22,7 +22,7 @@ export class Question {
   isActive: boolean;
 
   @Column({ type: 'varchar', length: 50 })
-  type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities';
+  type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities' | 'mise_a_niveau';
 
   @Column({ type: 'varchar', length: 20, default: 'qcm' })
   responseType: 'qcm' | 'text' | 'checkbox';
