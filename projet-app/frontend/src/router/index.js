@@ -25,6 +25,11 @@ const router = createRouter({
       component: () => import('../views/PositionnementView.vue')
     },
     {
+      path: '/mise-a-niveau',
+      name: 'mise-a-niveau',
+      component: () => import('../views/MiseANiveauView.vue')
+    },
+    {
       path: '/resultats',
       name: 'resultats',
       component: () => import('../views/ResultatsView.vue')

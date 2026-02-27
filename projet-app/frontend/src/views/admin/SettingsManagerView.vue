@@ -11,6 +11,7 @@ const saving = ref(false);
 
 const workflowSteps = ref([]);
 const savingWorkflow = ref(false);
+const newStep = ref({ code: '', label: '', route: '' });
 
 const token = localStorage.getItem("admin_token");
 
@@ -94,6 +95,35 @@ async function saveWorkflowOrder() {
   }
 }
 
+async function createWorkflowStep() {
+  if (!newStep.value.label || !newStep.value.route) {
+    alert('Veuillez renseigner le libellé et la route');
+    return;
+  }
+  try {
+    const payload = { ...newStep.value };
+    await axios.post(`${apiBaseUrl}/workflow`, payload, { headers: { Authorization: `Bearer ${token}` } });
+    await fetchSettings();
+    newStep.value = { code: '', label: '', route: '' };
+    alert('Étape créée');
+  } catch (error) {
+    console.error('Erreur création étape', error);
+    alert('Erreur lors de la création de l\'étape');
+  }
+}
+
+async function deleteWorkflowStep(id) {
+  if (!confirm('Supprimer cette étape ? (elle sera désactivée)')) return;
+  try {
+    await axios.delete(`${apiBaseUrl}/workflow/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    await fetchSettings();
+    alert('Étape supprimée');
+  } catch (error) {
+    console.error('Erreur suppression étape', error);
+    alert('Erreur lors de la suppression');
+  }
+}
+
 function moveStep(index, direction) {
   if (direction === -1 && index > 0) {
     const temp = workflowSteps.value[index];
@@ -171,10 +201,19 @@ onMounted(fetchSettings);
     </div>
 
     <div class="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden p-8 max-w-4xl">
-      <div v-if="loading" class="space-y-4">
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <input v-model="newStep.code" placeholder="CODE" class="Wizi-input" />
+          <input v-model="newStep.label" placeholder="Libellé (ex: Mise à niveau)" class="Wizi-input" />
+          <div class="flex gap-2">
+            <input v-model="newStep.route" placeholder="/mise-a-niveau" class="Wizi-input flex-1" />
+            <button @click="createWorkflowStep" class="btn-primary px-4">Ajouter</button>
+          </div>
+        </div>
+        <div v-if="loading" class="space-y-4">
         <div v-for="i in 5" :key="'w'+i" class="h-16 bg-gray-50 animate-pulse rounded-2xl"></div>
       </div>
-
+      
       <div v-else class="space-y-4">
         <div
           v-for="(step, index) in workflowSteps"
@@ -211,6 +250,9 @@ onMounted(fetchSettings);
               class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
             >
               <span class="material-icons-outlined text-lg">arrow_downward</span>
+            </button>
+            <button @click="deleteWorkflowStep(step.id)" class="w-10 h-10 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-50 transition-all border border-gray-50" title="Supprimer">
+              <span class="material-icons-outlined text-lg">delete</span>
             </button>
           </div>
         </div>
