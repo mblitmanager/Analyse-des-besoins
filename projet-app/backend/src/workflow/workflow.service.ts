@@ -31,10 +31,18 @@ export class WorkflowService {
 
   async createStep(data: Partial<WorkflowStep>) {
     // compute order as last + 1
-    const last = await this.workflowRepo.findOne({ order: { order: 'DESC' } as any });
+    const [last] = await this.workflowRepo.find({
+      order: { order: 'DESC' },
+      take: 1,
+    });
     const nextOrder = (last?.order ?? 0) + 1;
+    
+    // auto-generate code from label if not provided
+    const code = data.code || (data.label?.toUpperCase().replace(/\s+/g, '_') ?? `STEP_${nextOrder}`);
+    
     const step = this.workflowRepo.create({
       ...data,
+      code,
       order: data.order ?? nextOrder,
       isActive: data.isActive === undefined ? true : data.isActive,
     } as any);

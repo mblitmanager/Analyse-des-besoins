@@ -5,9 +5,10 @@ SET client_encoding = 'UTF8';
 -- Shift existing steps order >= 3 (so positionnement becomes order 4)
 UPDATE public.workflow_steps SET "order" = "order" + 1 WHERE "order" >= 3;
 
--- Insert new workflow step
+-- Insert new workflow step (ignore if already exists)
 INSERT INTO public.workflow_steps(code, label, "order", route, "isActive")
-VALUES ('MISE_A_NIVEAU', 'Mise à niveau', 3, '/mise-a-niveau', true);
+VALUES ('MISE_A_NIVEAU', 'Mise à niveau', 3, '/mise-a-niveau', true)
+ON CONFLICT (code) DO NOTHING;
 
 -- Insert global mise_a_niveau questions (category indicates target formation area)
 -- Voltaire (French)

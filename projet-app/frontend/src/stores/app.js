@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
+import router from '../router';
 
 export const useAppStore = defineStore('app', () => {
   const brand = ref('aopia') // Default brand
@@ -22,7 +23,23 @@ export const useAppStore = defineStore('app', () => {
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
       const response = await fetch(`${apiBaseUrl}/workflow`);
-      workflowSteps.value = await response.json();
+      const allSteps = await response.json();
+      // only keep active steps for navigation/progress
+      workflowSteps.value = allSteps.filter(s => s.isActive !== false);
+
+      // register dynamic routes for each active step so router.push() works
+      workflowSteps.value.forEach((step) => {
+        const name = step.code.toLowerCase();
+        // do not override existing admin/static routes
+        if (!router.hasRoute(name) && !step.route.startsWith('/admin')) {
+          // generic component which will render questions based on step code
+          router.addRoute({
+            path: step.route,
+            name,
+            component: () => import('../views/GenericWorkflowView.vue'),
+          });
+        }
+      });
     } catch (error) {
       console.error('Failed to fetch workflow:', error);
     }
