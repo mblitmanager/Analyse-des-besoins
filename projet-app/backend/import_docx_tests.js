@@ -12,10 +12,10 @@ const formationMapping = {
   'Google Sheets - Test AB.md': { slug: 'google-sheets', label: 'Google Sheets', category: 'Internet', id: 41 },
   'Google Slides - Test AB.md': { slug: 'google-slides', label: 'Google Slides', category: 'Internet', id: 42 },
   'Outils Collaboratifs Google - Test AB.md': { slug: 'outils-collaboratifs-google', label: 'Outils Collaboratifs Google', category: 'Internet', id: 43 },
-  'Outlook-Test AB.md': { slug: 'pack-office-outlook', label: 'Pack Office Outlook', category: 'Bureautique', id: 15 },
+  'Outlook-Test AB.md': { slug: 'outlook', label: 'Outlook', category: 'Bureautique', id: 49 },
   'Illustrator-Test AB.md': { slug: 'illustrator', label: 'Illustrator', category: 'Création', id: 19 },
   'Photoshop-Test AB.md': { slug: 'photoshop', label: 'Photoshop', category: 'Création', id: 20 },
-  'Voltaire - Test AB.md': { slug: 'voltaire', label: 'Français (Voltaire)', category: 'Langue', id: 30 }
+  'Voltaire - Test AB.md': { slug: 'voltaire', label: 'Français', category: 'Langue', id: 2 }
 };
 
 function parseMarkdownTest(filePath) {
