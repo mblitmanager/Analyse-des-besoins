@@ -210,12 +210,12 @@ const sectionParts = computed(() => {
   <div class="min-h-screen bg-[#F0F4F8] flex flex-col font-outfit">
     <SiteHeader>
       <template #actions>
-        <button
+        <!-- <button
           class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all font-bold text-sm text-blue-900 border border-white/30"
         >
           <span class="material-icons-outlined text-lg">save</span>
           Sauvegarder et quitter
-        </button>
+        </button> -->
       </template>
     </SiteHeader>
 
