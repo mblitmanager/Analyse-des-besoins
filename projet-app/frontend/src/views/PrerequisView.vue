@@ -138,12 +138,12 @@ function refuseProposal() {
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
-        <div class="hidden md:flex flex-col items-end mr-4">
+        <!-- <div class="hidden md:flex flex-col items-end mr-4">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyse des besoins</span>
             <span class="text-[10px] text-brand-primary font-bold">Étape 2 / 2</span>
           </div>
-        </div>
+        </div> -->
       </template>
     </SiteHeader>
 
@@ -186,8 +186,7 @@ function refuseProposal() {
         </div>
 
         <div class="text-center mb-10">
-          <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Bloc Commun - Étape 2</h1>
-          <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">Situation & Compétences Numériques</p>
+          <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Situation & Compétences Numériques</h1>
         </div>
 
         <!-- Section 1 : Situation -->
@@ -230,11 +229,11 @@ function refuseProposal() {
         </div>
 
         <!-- Section 2 : IT Skills -->
-        <div v-for="group in groups" :key="group.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white mb-8">
+        <div v-for="group in groups" :key="group.title" class="bg-white rounded-l shadow-xl overflow-hidden border border-white mb-8">
           <div class="bg-[#eab973] p-8 text-white">
             <div class="flex items-center">
-              <span class="material-icons-outlined mr-3 text-3xl">{{ group.icon }}</span>
-              <h2 class="text-2xl font-black uppercase tracking-tight">{{ group.title }}</h2>
+              <span class="material-icons-outlined mr-3 text-l">{{ group.icon }}</span>
+              <h2 class="text-l font-black uppercase tracking-tight">{{ group.title }}</h2>
             </div>
           </div>
 

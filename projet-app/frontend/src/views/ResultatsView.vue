@@ -406,7 +406,7 @@ const downloadPDF = async () => {
       </section>
 
       <!-- Progress Bar -->
-      <div
+      <!-- <div
         class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
       >
         <div class="flex items-center justify-between mb-2 px-1">
@@ -428,7 +428,7 @@ const downloadPDF = async () => {
             :style="{ width: store.getProgress('/resultats').percentage + '%' }"
           ></div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Strengths Section -->
       <section class="mb-14">
