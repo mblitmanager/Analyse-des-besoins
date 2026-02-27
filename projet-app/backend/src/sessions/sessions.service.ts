@@ -155,19 +155,25 @@ export class SessionsService {
     addIds(session.positionnementAnswers);
 
     const questions = ids.size
-      ? await this.questionRepo.find({ where: { id: In([...ids]) }, relations: ['formation'] })
+      ? await this.questionRepo.find({
+          where: { id: In([...ids]) },
+          relations: ['formation'],
+        })
       : [];
     const qTextById: Record<number, string> = {};
     questions.forEach((q) => {
       qTextById[q.id] = q.text;
     });
 
-    // helper to filter mise à niveau answers by selected formation
+    // helper to filter mise à niveau answers: include only answered questions for selected formation
     const formationLabel = session.formationChoisie;
     const filterMiseAnswers = (answers: any) => {
       if (!answers || !formationLabel) return answers;
       const result: Record<string, any> = {};
       Object.entries(answers).forEach(([key, val]) => {
+        // Skip null, undefined, or empty responses
+        if (val === null || val === undefined || val === '') return;
+
         const idNum = Number(key);
         const q = questions.find((x) => x.id === idNum);
         // include if question has no formation (global) or matches the chosen formation label
@@ -246,13 +252,21 @@ export class SessionsService {
       scoreFinal,
       finalLevel,
       qTextById,
+      filteredMiseAnswers,
+      miseTitle,
     };
   }
 
   async submit(id: string) {
     const session = await this.findOne(id);
-    const { recommendation, scoreFinal, finalLevel, qTextById } =
-      await this.getRecommendationData(session);
+    const {
+      recommendation,
+      scoreFinal,
+      finalLevel,
+      qTextById,
+      filteredMiseAnswers,
+      miseTitle,
+    } = await this.getRecommendationData(session);
 
     if (!finalLevel) {
       return this.update(id, { finalRecommendation: 'Formation non reconnue' });
@@ -341,11 +355,7 @@ export class SessionsService {
         session.availabilities,
         qTextById,
       )}
-      ${renderAnswersTable(
-        miseTitle,
-        filteredMiseAnswers,
-        qTextById,
-      )}
+      ${renderAnswersTable(miseTitle, filteredMiseAnswers, qTextById)}
     `;
 
     // Determine admin recipients from settings (can be comma-separated)
