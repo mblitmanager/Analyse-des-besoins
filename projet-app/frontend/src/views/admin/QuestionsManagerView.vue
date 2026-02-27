@@ -20,6 +20,13 @@ const form = ref({
   levelId: "",
   correctResponseIndex: 0,
   isActive: true,
+  // Conditional display fields
+  showIfEnabled: false,
+  showIfQuestionId: "",
+  // For qcm/checkbox parent questions: array of selected option indices
+  showIfResponseIndexes: [],
+  // For text parent questions: matching text value
+  showIfResponseValue: "",
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -88,6 +95,10 @@ function openAddModal() {
     levelId: "",
     correctResponseIndex: 0,
     isActive: true,
+    showIfEnabled: false,
+    showIfQuestionId: "",
+    showIfResponseIndexes: [],
+    showIfResponseValue: "",
   };
   showModal.value = true;
 }
@@ -107,6 +118,11 @@ function openEditModal(q) {
     levelId: q.level?.id || "",
     correctResponseIndex: q.correctResponseIndex || 0,
     isActive: q.isActive !== false, // Default to true
+    // Populate conditional fields if present on question
+    showIfEnabled: !!(q.showIfQuestionId || (q.showIf && q.showIf.questionId)),
+    showIfQuestionId: q.showIfQuestionId || (q.showIf && q.showIf.questionId) || "",
+    showIfResponseIndexes: q.showIfResponseIndexes || (q.showIf && q.showIf.responseIndexes) || [],
+    showIfResponseValue: q.showIfResponseValue || (q.showIf && q.showIf.responseValue) || "",
   };
   showModal.value = true;
 }
@@ -117,7 +133,13 @@ async function saveQuestion() {
     const payload = {
       ...form.value,
       options: form.value.responseType === 'text' ? [] : form.value.options.filter((o) => o.trim() !== ""),
+      // map conditional fields to explicit payload keys
+      // (showIfEnabled is only a UI flag, not sent to backend)
+      showIfQuestionId: form.value.showIfEnabled && form.value.showIfQuestionId ? Number(form.value.showIfQuestionId) : null,
+      showIfResponseIndexes: form.value.showIfEnabled ? (form.value.showIfResponseIndexes || []).map(i => Number(i)) : [],
+      showIfResponseValue: form.value.showIfEnabled && form.value.showIfResponseValue ? String(form.value.showIfResponseValue).trim() : "",
     };
+    delete payload.showIfEnabled;
 
     if (editingQuestion.value) {
       const res = await axios.patch(
@@ -264,6 +286,17 @@ const availableLevels = computed(() => {
     (f) => f.id === form.value.formationId,
   );
   return selectedFormation?.levels || [];
+});
+
+// Parent question options helper for conditional logic
+const parentQuestionOptions = computed(() => {
+  const pq = questions.value.find((q) => String(q.id) === String(form.value.showIfQuestionId));
+  if (!pq) return [];
+  if (!pq.options || pq.options.length === 0) return [];
+  return pq.options.map((o, idx) => ({
+    idx,
+    label: typeof o === 'string' ? o : o.label,
+  }));
 });
 
 // Options de filtre par niveau (basées sur les questions chargées)
@@ -722,6 +755,49 @@ const groupedQuestions = computed(() => {
                   "
                 >
                   {{ form.isActive ? "OUI" : "NON" }}
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Question conditionnelle ?</label>
+                <div class="flex items-center gap-3">
+                  <div
+                    @click="form.showIfEnabled = !form.showIfEnabled"
+                    class="px-6 py-3 rounded-2xl cursor-pointer transition-all font-bold text-sm text-center border"
+                    :class="form.showIfEnabled ? 'bg-green-50 border-green-200 text-green-600' : 'bg-red-50 border-red-200 text-red-600'"
+                  >
+                    {{ form.showIfEnabled ? 'OUI' : 'NON' }}
+                  </div>
+                </div>
+
+                <div v-if="form.showIfEnabled" class="space-y-2">
+                  <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Parent Question</label>
+                  <select v-model="form.showIfQuestionId" class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm">
+                    <option value="">-- Sélectionnez une question parent --</option>
+                    <option v-for="pq in questions.filter(q => q.id !== (editingQuestion && editingQuestion.id))" :key="pq.id" :value="pq.id">{{ pq.text }}</option>
+                  </select>
+
+                  <div v-if="form.showIfQuestionId">
+                    <div v-if="questions.find(q => String(q.id) === String(form.showIfQuestionId))?.responseType === 'text'" class="space-y-2">
+                      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Valeur attendue</label>
+                      <input v-model="form.showIfResponseValue" placeholder="Texte attendu" class="w-full px-6 py-3 bg-gray-50 rounded-xl outline-none" />
+                    </div>
+
+                    <div v-else class="space-y-2">
+                      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Options déclenchantes</label>
+                      <div class="flex flex-wrap gap-2">
+                        <label v-for="opt in parentQuestionOptions" :key="opt.idx" class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-xl border">
+                          <input
+                            type="checkbox"
+                            :value="opt.idx"
+                            v-model="form.showIfResponseIndexes"
+                          />
+                          <span class="text-sm">{{ opt.label }}</span>
+                        </label>
+                      </div>
+                      <p class="text-xs text-gray-400">Cochez les options qui doivent déclencher l'affichage de cette question.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
