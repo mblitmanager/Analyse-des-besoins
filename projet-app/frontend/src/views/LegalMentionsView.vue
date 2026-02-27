@@ -4,24 +4,25 @@ import SiteFooter from '../components/SiteFooter.vue';
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50 font-outfit">
+  <div class="min-h-screen flex flex-col bg-[#F0F4F8] font-outfit">
     <SiteHeader />
 
     <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-10 md:py-14">
-      <div class="flex items-center justify-between gap-4 mb-6">
+      <div class="flex items-center justify-between gap-4 mb-10">
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary">
           Mentions légales
         </h1>
         <router-link
           to="/"
-          class="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-brand-primary"
+          class="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-brand-primary transition-colors"
         >
           <span class="material-icons-outlined text-base">arrow_back</span>
-          <span>Retour à l'accueil</span>
+          <span>Retour</span>
         </router-link>
       </div>
 
-      <section class="space-y-6 text-sm leading-relaxed text-gray-700">
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white p-8 md:p-10">
+        <section class="space-y-6 text-sm leading-relaxed text-gray-700">
         <div>
           <h2 class="font-bold text-base heading-primary mb-1">Éditeur</h2>
           <p>
@@ -144,6 +145,7 @@ import SiteFooter from '../components/SiteFooter.vue';
           </p>
         </div>
       </section>
+    </div>
     </main>
     <SiteFooter />
   </div>

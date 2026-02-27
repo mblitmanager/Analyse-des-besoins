@@ -42,14 +42,14 @@ export class Formation {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'varchar', length: 12, default: 'auto' })
-  prerequisQuestionsScope: 'auto' | 'global' | 'formation';
+  @Column({ type: 'varchar', length: 12, default: 'global' })
+  prerequisQuestionsScope: 'global' | 'formation' | 'both';
 
-  @Column({ type: 'varchar', length: 12, default: 'auto' })
-  complementaryQuestionsScope: 'auto' | 'global' | 'formation';
+  @Column({ type: 'varchar', length: 12, default: 'global' })
+  complementaryQuestionsScope: 'global' | 'formation' | 'both';
 
-  @Column({ type: 'varchar', length: 12, default: 'auto' })
-  availabilitiesQuestionsScope: 'auto' | 'global' | 'formation';
+  @Column({ type: 'varchar', length: 12, default: 'global' })
+  availabilitiesQuestionsScope: 'global' | 'formation' | 'both';
 
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];

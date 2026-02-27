@@ -27,8 +27,9 @@ export class Session {
   @Column()
   telephone: string;
 
-  @Column()
-  conseiller: string;
+  // commercial advisor name is optional – some flows may not have this information
+  @Column({ nullable: true })
+  conseiller: string | null;
 
   @Column({ nullable: true })
   metier: string;

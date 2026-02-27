@@ -23,6 +23,7 @@ onMounted(() => {
 });
 
 async function startTest() {
+  // conseiller is optional, only check the required fields
   if (!form.value.nom || !form.value.prenom || !form.value.telephone) {
     alert("Veuillez remplir tous les champs obligatoires.");
     return;
@@ -84,17 +85,17 @@ async function testDbConnection() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50">
+  <div class="min-h-screen flex flex-col bg-[#F0F4F8] font-outfit">
     <SiteHeader />
 
-    <main class="grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 md:py-14 flex items-center justify-center">
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
-          <h2 class="mt-2 text-3xl font-extrabold text-gray-900">Identification</h2>
-          <p class="mt-2 text-sm text-gray-600">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
+          <h2 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Identification</h2>
+          <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
         </div>
 
-        <div class="bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10 border border-gray-100">
+        <div class="bg-white py-8 px-6 shadow-xl rounded-3xl border border-white">
           <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
             <span class="text-[10px] font-black uppercase tracking-widest text-blue-400">Date de complétude</span>
             <span class="text-sm font-bold text-blue-900">{{ new Date().toLocaleDateString('fr-FR') }}</span>
@@ -137,12 +138,13 @@ async function testDbConnection() {
             </div>
 
             <div>
-              <label class="Wizi-label" for="conseiller">Conseiller commercial</label>
+              <label class="Wizi-label" for="conseiller">Conseiller commercial (facultatif)</label>
               <div class="relative rounded-md shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="material-icons-outlined text-gray-400 text-[20px]">person</span>
                 </div>
-                <input v-model="form.conseiller" class="Wizi-input pl-10" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller" required type="text" />
+                <!-- field is optional, user may leave blank -->
+                <input v-model="form.conseiller" class="Wizi-input pl-10" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller" type="text" />
               </div>
             </div>
 
