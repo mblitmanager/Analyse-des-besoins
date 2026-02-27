@@ -102,7 +102,7 @@ export class SessionsService {
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
     const levels = await this.levelRepo.find({
-      where: { formation: { label: session.formationChoisie } },
+      where: { formation: { label: session.formationChoisie as string } },
       order: { order: 'ASC' },
     });
 

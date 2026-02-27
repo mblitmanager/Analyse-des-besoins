@@ -12,13 +12,13 @@ export class Formation {
   @Column()
   label: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   category: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   icon: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   color: string;
 
   @Column({ type: 'text', nullable: true })
@@ -30,10 +30,10 @@ export class Formation {
   @Column({ type: 'text', nullable: true })
   modaliteDuree: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   dateEnregistrement: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   certificateur: string;
 
   @Column({ type: 'text', nullable: true })

@@ -22,7 +22,7 @@ export class Level {
   @Column()
   successThreshold: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   recommendationLabel: string;
 
   @ManyToOne(() => Formation, (formation) => formation.levels)

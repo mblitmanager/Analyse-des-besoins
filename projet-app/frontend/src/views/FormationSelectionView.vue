@@ -260,7 +260,7 @@ const sectionParts = computed(() => {
         ></div>
       </div>
 
-      <div v-else class="pb-32">
+      <div v-else class="p-10 bg-white">
         <div class="space-y-12">
           <!-- Langues -->
           <div v-if="sectionParts.langs && sectionParts.langs.items.length">
@@ -457,94 +457,103 @@ const sectionParts = computed(() => {
     <transition name="modal">
       <div v-if="showBureauModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-[#0d1b3e]/40 backdrop-blur-sm" @click="showBureauModal = false"></div>
-        <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl relative overflow-hidden animate-scale-up border border-white/20">
+        <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl relative overflow-hidden animate-scale-up border border-white/20">
           <!-- Header -->
-          <div class="p-8 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
-            <div>
-              <h3 class="text-2xl font-black heading-primary italic uppercase tracking-tight">Logiciels Bureautique</h3>
-              <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Sélectionnez votre programme</p>
+          <div class="p-6 md:p-10 border-b border-gray-50 flex items-center justify-between bg-white">
+            <div class="min-w-0">
+              <h3 class="text-2xl md:text-3xl font-black heading-primary uppercase tracking-tight">Bureautique</h3>
+              <p class="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-widest mt-1 md:mt-2">Choisissez votre environnement</p>
             </div>
             <button 
               @click="showBureauModal = false" 
-              class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors border border-gray-100"
+              class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all border border-gray-100 hover:scale-110"
             >
-              <span class="material-icons-outlined">close</span>
+              <span class="material-icons-outlined text-lg md:text-xl">close</span>
             </button>
           </div>
 
           <!-- Content -->
-          <div class="p-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <!-- Google -->
-              <div class="space-y-6">
-                <div class="flex items-center gap-4">
-                   <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm">
-                      <img src="https://www.google.com/favicon.ico" class="w-6 h-6" />
-                   </div>
-                   <div>
-                     <h4 class="font-black heading-primary uppercase tracking-tight italic">Google Workspace</h4>
-                     <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Outils collaboratifs</p>
-                   </div>
-                </div>
-                
-                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  <button 
-                    v-for="f in bureauGoogle" 
-                    :key="f.id" 
-                    @click="chooseBureauFormation(f)" 
-                    class="formation-card w-full"
-                    :class="selectedFormation?.id === f.id ? 'formation-card--selected' : 'formation-card--default'"
-                  >
-                    <span class="formation-card__label">{{ f.label }}</span>
-                    <div class="formation-card__radio" :class="selectedFormation?.id === f.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                      <div v-if="selectedFormation?.id === f.id" class="formation-card__radio-dot"></div>
-                      <span v-else class="material-icons-outlined text-[14px]">chevron_right</span>
+          <div class="p-4 md:p-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12">
+              <!-- Microsoft -->
+              <div class="space-y-4 md:space-y-6">
+                <div class="relative">
+                  <div class="relative bg-indigo-50 rounded-2xl md:rounded-3xl p-4 md:p-6 border border-indigo-200">
+                    <div class="flex items-start gap-3 md:gap-4 mb-2">
+                       <div class="flex-shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-white flex items-center justify-center border-2 border-indigo-200 shadow-lg">
+                          <img src="https://www.microsoft.com/favicon.ico" class="w-6 h-6" />
+                       </div>
+                       <div class="min-w-0">
+                         <h4 class="font-black heading-primary uppercase tracking-tight text-sm md:text-lg">Microsoft Office</h4>
+                         <p class="text-[9px] md:text-[10px] text-indigo-600 font-bold uppercase tracking-widest mt-0.5">Standard professionnel</p>
+                       </div>
                     </div>
-                  </button>
-                  <div v-if="bureauGoogle.length===0" class="py-10 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
-                    <span class="material-icons-outlined text-gray-300 text-3xl mb-2">search_off</span>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation trouvée</p>
                   </div>
                 </div>
-              </div>
-
-              <!-- Microsoft -->
-              <div class="space-y-6">
-                <div class="flex items-center gap-4">
-                   <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm">
-                      <img src="https://www.microsoft.com/favicon.ico" class="w-6 h-6" />
-                   </div>
-                   <div>
-                     <h2 class="font-black heading-primary uppercase tracking-tight italic">Microsoft Office</h2>
-                     <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Standard industriel</p>
-                   </div>
-                </div>
                 
-                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div class="space-y-2 md:space-y-3 max-h-[350px] md:max-h-[480px] overflow-y-auto pr-2 md:pr-3 custom-scrollbar">
                   <button 
                     v-for="f in bureauMicrosoft" 
                     :key="f.id" 
                     @click="chooseBureauFormation(f)" 
-                    class="formation-card w-full"
-                    :class="selectedFormation?.id === f.id ? 'formation-card--selected' : 'formation-card--default'"
+                    class="bureau-card"
+                    :class="selectedFormation?.id === f.id ? 'bureau-card--selected bureau-card--microsoft-selected' : 'bureau-card--default bureau-card--microsoft'"
                   >
-                    <span class="formation-card__label">{{ f.label }}</span>
-                    <div class="formation-card__radio" :class="selectedFormation?.id === f.id ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                      <div v-if="selectedFormation?.id === f.id" class="formation-card__radio-dot"></div>
-                      <span v-else class="material-icons-outlined text-[14px]">chevron_right</span>
+                    <span class="formation-card__label text-sm">{{ f.label }}</span>
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                      <span v-if="selectedFormation?.id === f.id" class="material-icons-outlined text-indigo-500 text-lg md:text-xl">check_circle</span>
+                      <span v-else class="material-icons-outlined text-gray-300 text-base md:text-lg">arrow_forward</span>
                     </div>
                   </button>
-                  <div v-if="bureauMicrosoft.length===0" class="py-10 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-100">
-                    <span class="material-icons-outlined text-gray-300 text-3xl mb-2">search_off</span>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation trouvée</p>
+                  <div v-if="bureauMicrosoft.length===0" class="py-8 md:py-12 text-center bg-gray-50 rounded-2xl md:rounded-[2rem] border-2 border-dashed border-gray-200">
+                    <span class="material-icons-outlined text-gray-300 text-3xl md:text-4xl mb-2 md:mb-3 block">search_off</span>
+                    <p class="text-[9px] md:text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Google -->
+              <div class="space-y-4 md:space-y-6">
+                <div class="relative">
+                  <div class="relative bg-blue-50 rounded-2xl md:rounded-3xl p-4 md:p-6 border border-blue-200">
+                    <div class="flex items-start gap-3 md:gap-4 mb-2">
+                       <div class="flex-shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-2xl bg-white flex items-center justify-center border-2 border-blue-200 shadow-lg">
+                          <img src="https://www.google.com/favicon.ico" class="w-6 h-6" />
+                       </div>
+                       <div class="min-w-0 flex-1">
+                         <h4 class="font-black heading-primary uppercase tracking-tight text-sm md:text-lg">Google Workspace</h4>
+                         <p class="text-[9px] md:text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">Outils collaboratifs cloud</p>
+                       </div>
+                       <div class="flex-shrink-0 px-2 md:px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Recommandé</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="space-y-2 md:space-y-3 max-h-[350px] md:max-h-[480px] overflow-y-auto pr-2 md:pr-3 custom-scrollbar">
+                  <button 
+                    v-for="f in bureauGoogle" 
+                    :key="f.id" 
+                    @click="chooseBureauFormation(f)" 
+                    class="bureau-card"
+                    :class="selectedFormation?.id === f.id ? 'bureau-card--selected bureau-card--google-selected' : 'bureau-card--default bureau-card--google'"
+                  >
+                    <span class="formation-card__label text-sm">{{ f.label }}</span>
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                      <span v-if="selectedFormation?.id === f.id" class="material-icons-outlined text-blue-500 text-lg md:text-xl">check_circle</span>
+                      <span v-else class="material-icons-outlined text-gray-300 text-base md:text-lg">arrow_forward</span>
+                    </div>
+                  </button>
+                  <div v-if="bureauGoogle.length===0" class="py-8 md:py-12 text-center bg-gray-50 rounded-2xl md:rounded-[2rem] border-2 border-dashed border-gray-200">
+                    <span class="material-icons-outlined text-gray-300 text-3xl md:text-4xl mb-2 md:mb-3 block">search_off</span>
+                    <p class="text-[9px] md:text-xs text-gray-400 font-bold uppercase tracking-widest">Aucune formation</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div class="p-6 bg-gray-50/50 border-t border-gray-50 text-center">
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Sélectionnez une formation pour continuer vers l'évaluation</p>
+          <div class="p-6 md:p-8 bg-white border-t border-gray-100 text-center">
+            <p class="text-[9px] md:text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">✓ Sélectionnez une formation pour continuer vers l'évaluation</p>
           </div>
         </div>
       </div>
@@ -696,5 +705,68 @@ const sectionParts = computed(() => {
   height: 0.5rem;
   border-radius: 50%;
   background: white;
+}
+
+/* Bureau card styling for modal */
+.bureau-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  min-height: 3rem;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .bureau-card {
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 3.5rem;
+    border-radius: 1.25rem;
+  }
+}
+
+.bureau-card--google {
+  color: #1f2937;
+  border-color: #bfdbfe;
+  background: #f0f9ff;
+}
+
+.bureau-card--google:hover {
+  border-color: #3b82f6;
+  background: #e0f2fe;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+}
+
+.bureau-card--google-selected {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+}
+
+.bureau-card--microsoft {
+  color: #1f2937;
+  border-color: #c7d2fe;
+  background: #f5f3ff;
+}
+
+.bureau-card--microsoft:hover {
+  border-color: #6366f1;
+  background: #ede9fe;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+}
+
+.bureau-card--microsoft-selected {
+  border-color: #6366f1;
+  background: #faf5ff;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
 }
 </style>
