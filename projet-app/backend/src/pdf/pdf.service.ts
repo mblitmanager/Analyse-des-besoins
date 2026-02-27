@@ -21,6 +21,7 @@ export class PdfService {
     prerequisiteAnswers?: Record<string, any>;
     complementaryAnswers?: Record<string, any>;
     availabilityAnswers?: Record<string, any>;
+    miseANiveauAnswers?: Record<string, any>;
     qTextById?: Record<number, string>;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -141,6 +142,19 @@ export class PdfService {
         doc,
         'Disponibilités (réponses)',
         data.availabilityAnswers,
+        data.qTextById,
+        darkText,
+        grayText,
+        lightBg,
+      );
+      // title includes formation when available
+      const miseTitle = data.formationChoisie
+        ? `Mise à niveau (réponses – ${data.formationChoisie})`
+        : 'Mise à niveau (réponses)';
+      this.renderAnswersSection(
+        doc,
+        miseTitle,
+        data.miseANiveauAnswers,
         data.qTextById,
         darkText,
         grayText,

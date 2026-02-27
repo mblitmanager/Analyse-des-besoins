@@ -151,15 +151,37 @@ export class SessionsService {
     addIds(session.prerequisiteScore);
     addIds(session.complementaryQuestions);
     addIds(session.availabilities);
+    addIds(session.miseANiveauAnswers);
     addIds(session.positionnementAnswers);
 
     const questions = ids.size
-      ? await this.questionRepo.find({ where: { id: In([...ids]) } })
+      ? await this.questionRepo.find({ where: { id: In([...ids]) }, relations: ['formation'] })
       : [];
     const qTextById: Record<number, string> = {};
     questions.forEach((q) => {
       qTextById[q.id] = q.text;
     });
+
+    // helper to filter mise à niveau answers by selected formation
+    const formationLabel = session.formationChoisie;
+    const filterMiseAnswers = (answers: any) => {
+      if (!answers || !formationLabel) return answers;
+      const result: Record<string, any> = {};
+      Object.entries(answers).forEach(([key, val]) => {
+        const idNum = Number(key);
+        const q = questions.find((x) => x.id === idNum);
+        // include if question has no formation (global) or matches the chosen formation label
+        if (!q || !q.formation || q.formation.label === formationLabel) {
+          result[key] = val;
+        }
+      });
+      return result;
+    };
+
+    const filteredMiseAnswers = filterMiseAnswers(session.miseANiveauAnswers);
+    const miseTitle = session.formationChoisie
+      ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
+      : 'Mise à niveau (réponses)';
 
     // Determine proposed parcours (Logic Duo)
     // Rule:
@@ -319,6 +341,11 @@ export class SessionsService {
         session.availabilities,
         qTextById,
       )}
+      ${renderAnswersTable(
+        miseTitle,
+        filteredMiseAnswers,
+        qTextById,
+      )}
     `;
 
     // Determine admin recipients from settings (can be comma-separated)
@@ -348,6 +375,7 @@ export class SessionsService {
         any
       >,
       availabilityAnswers: session.availabilities as Record<string, any>,
+      miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
     });
 
