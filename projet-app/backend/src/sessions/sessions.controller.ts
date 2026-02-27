@@ -17,7 +17,8 @@ export class CreateSessionDto {
   nom: string;
   prenom: string;
   telephone: string;
-  conseiller: string;
+  // conseiller is now optional; backend will accept null/undefined
+  conseiller?: string | null;
   formationChoisie: string;
 }
 

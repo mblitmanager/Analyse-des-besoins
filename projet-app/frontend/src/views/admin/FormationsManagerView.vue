@@ -19,9 +19,9 @@ const form = ref({
   certificateur: "",
   programme: "",
   isActive: true,
-  prerequisQuestionsScope: "auto",
-  complementaryQuestionsScope: "auto",
-  availabilitiesQuestionsScope: "auto",
+  prerequisQuestionsScope: "global",
+  complementaryQuestionsScope: "global",
+  availabilitiesQuestionsScope: "global",
   levels: [],
 });
 
@@ -57,9 +57,9 @@ function openAddModal() {
     certificateur: "",
     programme: "",
     isActive: true,
-    prerequisQuestionsScope: "auto",
-    complementaryQuestionsScope: "auto",
-    availabilitiesQuestionsScope: "auto",
+    prerequisQuestionsScope: "global",
+    complementaryQuestionsScope: "global",
+    availabilitiesQuestionsScope: "global",
     levels: [],
   };
   showModal.value = true;
@@ -472,9 +472,9 @@ onMounted(fetchFormations);
                     v-model="form.prerequisQuestionsScope"
                     class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="auto">Auto (formation si dispo, sinon global)</option>
-                    <option value="formation">Uniquement formation</option>
-                    <option value="global">Uniquement global</option>
+                    <option value="global">Global uniquement</option>
+                    <option value="formation">Formation uniquement</option>
+                    <option value="both">Global et Formation (en même temps)</option>
                   </select>
                 </div>
                 <div class="space-y-1">
@@ -485,9 +485,9 @@ onMounted(fetchFormations);
                     v-model="form.complementaryQuestionsScope"
                     class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="auto">Auto (formation si dispo, sinon global)</option>
-                    <option value="formation">Uniquement formation</option>
-                    <option value="global">Uniquement global</option>
+                    <option value="global">Global uniquement</option>
+                    <option value="formation">Formation uniquement</option>
+                    <option value="both">Global et Formation (en même temps)</option>
                   </select>
                 </div>
                 <div class="space-y-1">
@@ -498,9 +498,9 @@ onMounted(fetchFormations);
                     v-model="form.availabilitiesQuestionsScope"
                     class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="auto">Auto (formation si dispo, sinon global)</option>
-                    <option value="formation">Uniquement formation</option>
-                    <option value="global">Uniquement global</option>
+                    <option value="global">Global uniquement</option>
+                    <option value="formation">Formation uniquement</option>
+                    <option value="both">Global et Formation (en même temps)</option>
                   </select>
                 </div>
               </div>

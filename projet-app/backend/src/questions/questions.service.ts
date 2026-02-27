@@ -13,7 +13,7 @@ export class QuestionsService {
   async findQuestions(
     type: string,
     formationSlug?: string,
-    scope: 'auto' | 'global' | 'formation' = 'auto',
+    scope: 'global' | 'formation' | 'both' = 'global',
   ) {
     // 1) Forcer global
     if (!formationSlug || scope === 'global') {
@@ -37,7 +37,7 @@ export class QuestionsService {
       });
     }
 
-    // 3) Mode auto (défaut) : formation-specific + global, deduplicated by text
+    // 3) Mode both : formation-specific + global, deduplicated by text
     const specific = await this.questionRepo.find({
       where: {
         type,
@@ -77,7 +77,7 @@ export class QuestionsService {
 
   findPrerequisites(
     formationSlug?: string,
-    scope: 'auto' | 'global' | 'formation' = 'auto',
+    scope: 'global' | 'formation' | 'both' = 'global',
   ) {
     return this.findQuestions('prerequis', formationSlug, scope);
   }
@@ -124,7 +124,14 @@ export class QuestionsService {
   async create(
     data: Partial<Question> & { formationId?: number; levelId?: number },
   ) {
-    const { formationId, levelId, showIfQuestionId, showIfResponseIndexes, showIfResponseValue, ...rest } = data;
+    const {
+      formationId,
+      levelId,
+      showIfQuestionId,
+      showIfResponseIndexes,
+      showIfResponseValue,
+      ...rest
+    } = data;
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
@@ -151,11 +158,25 @@ export class QuestionsService {
     const nextOrder = (lastInScope?.order ?? 0) + 1;
 
     // Normalize legacy conditional fields into showIfRules (array) for multi-parent support
-    const showIfRules = (data as any).showIfRules && Array.isArray((data as any).showIfRules)
-      ? (data as any).showIfRules
-      : (showIfQuestionId
-          ? [{ questionId: Number(showIfQuestionId), responseIndexes: Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0 ? showIfResponseIndexes.map((i:any)=>Number(i)) : undefined, responseValue: showIfResponseValue && String(showIfResponseValue).trim() ? String(showIfResponseValue).trim() : undefined }]
-          : undefined);
+    const showIfRules =
+      (data as any).showIfRules && Array.isArray((data as any).showIfRules)
+        ? (data as any).showIfRules
+        : showIfQuestionId
+          ? [
+              {
+                questionId: Number(showIfQuestionId),
+                responseIndexes:
+                  Array.isArray(showIfResponseIndexes) &&
+                  showIfResponseIndexes.length > 0
+                    ? showIfResponseIndexes.map((i: any) => Number(i))
+                    : undefined,
+                responseValue:
+                  showIfResponseValue && String(showIfResponseValue).trim()
+                    ? String(showIfResponseValue).trim()
+                    : undefined,
+              },
+            ]
+          : undefined;
 
     const question = this.questionRepo.create({
       text: rest.text,
@@ -172,8 +193,14 @@ export class QuestionsService {
       level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
       // Handle conditional display fields
       showIfQuestionId: showIfQuestionId ? Number(showIfQuestionId) : null,
-      showIfResponseIndexes: Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0 ? showIfResponseIndexes.map(idx => Number(idx)) : null,
-      showIfResponseValue: showIfResponseValue && String(showIfResponseValue).trim() ? String(showIfResponseValue).trim() : null,
+      showIfResponseIndexes:
+        Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0
+          ? showIfResponseIndexes.map((idx) => Number(idx))
+          : null,
+      showIfResponseValue:
+        showIfResponseValue && String(showIfResponseValue).trim()
+          ? String(showIfResponseValue).trim()
+          : null,
       showIfRules: showIfRules || null,
     } as any);
     return this.questionRepo.save(question);
@@ -183,7 +210,15 @@ export class QuestionsService {
     id: number,
     data: Partial<Question> & { formationId?: number; levelId?: number },
   ) {
-    const { formationId, levelId, responseType, showIfQuestionId, showIfResponseIndexes, showIfResponseValue, ...rest } = data;
+    const {
+      formationId,
+      levelId,
+      responseType,
+      showIfQuestionId,
+      showIfResponseIndexes,
+      showIfResponseValue,
+      ...rest
+    } = data;
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
@@ -198,16 +233,41 @@ export class QuestionsService {
     }
 
     // Normalize legacy conditional fields into showIfRules (array) for multi-parent support
-    const incomingShowIfRules = (data as any).showIfRules && Array.isArray((data as any).showIfRules)
-      ? (data as any).showIfRules
-      : (showIfQuestionId
-          ? [{ questionId: Number(showIfQuestionId), responseIndexes: Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0 ? showIfResponseIndexes.map((i:any)=>Number(i)) : undefined, responseValue: showIfResponseValue && String(showIfResponseValue).trim() ? String(showIfResponseValue).trim() : undefined }]
-          : undefined);
+    const incomingShowIfRules =
+      (data as any).showIfRules && Array.isArray((data as any).showIfRules)
+        ? (data as any).showIfRules
+        : showIfQuestionId
+          ? [
+              {
+                questionId: Number(showIfQuestionId),
+                responseIndexes:
+                  Array.isArray(showIfResponseIndexes) &&
+                  showIfResponseIndexes.length > 0
+                    ? showIfResponseIndexes.map((i: any) => Number(i))
+                    : undefined,
+                responseValue:
+                  showIfResponseValue && String(showIfResponseValue).trim()
+                    ? String(showIfResponseValue).trim()
+                    : undefined,
+              },
+            ]
+          : undefined;
 
-    updateData.showIfQuestionId = showIfQuestionId ? Number(showIfQuestionId) : null;
-    updateData.showIfResponseIndexes = Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0 ? showIfResponseIndexes.map(idx => Number(idx)) : null;
-    updateData.showIfResponseValue = showIfResponseValue && String(showIfResponseValue).trim() ? String(showIfResponseValue).trim() : null;
-    updateData.showIfRules = incomingShowIfRules && incomingShowIfRules.length > 0 ? incomingShowIfRules : null;
+    updateData.showIfQuestionId = showIfQuestionId
+      ? Number(showIfQuestionId)
+      : null;
+    updateData.showIfResponseIndexes =
+      Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0
+        ? showIfResponseIndexes.map((idx) => Number(idx))
+        : null;
+    updateData.showIfResponseValue =
+      showIfResponseValue && String(showIfResponseValue).trim()
+        ? String(showIfResponseValue).trim()
+        : null;
+    updateData.showIfRules =
+      incomingShowIfRules && incomingShowIfRules.length > 0
+        ? incomingShowIfRules
+        : null;
 
     await this.questionRepo.update(id, updateData);
     return this.questionRepo.findOne({

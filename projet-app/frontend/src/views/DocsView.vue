@@ -19,8 +19,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto p-6">
-    <div v-html="marked.parse(content)" />
+  <div class="min-h-screen flex flex-col bg-[#F0F4F8] font-outfit">
+    <SiteHeader />
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-10 md:py-14">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Documentation</h1>
+        <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">Informations et manuels utiles</p>
+      </div>
+      <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white p-8">
+        <div v-html="marked.parse(content)" class="space-y-4 text-gray-700" />
+      </div>
+    </main>
+    <SiteFooter />
   </div>
 </template>
 
