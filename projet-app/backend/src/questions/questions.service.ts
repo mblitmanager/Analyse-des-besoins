@@ -11,7 +11,7 @@ export class QuestionsService {
   ) {}
 
   async findQuestions(
-    type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities' | 'mise_a_niveau',
+    type: string,
     formationSlug?: string,
     scope: 'auto' | 'global' | 'formation' = 'auto',
   ) {

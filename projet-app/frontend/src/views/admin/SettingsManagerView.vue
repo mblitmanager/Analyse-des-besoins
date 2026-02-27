@@ -124,6 +124,21 @@ async function deleteWorkflowStep(id) {
   }
 }
 
+async function toggleStepActive(step) {
+  try {
+    const newStatus = !step.isActive;
+    await axios.put(
+      `${apiBaseUrl}/workflow/${step.id}`,
+      { isActive: newStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    step.isActive = newStatus;
+  } catch (error) {
+    console.error('Erreur toggle étape', error);
+    alert('Impossible de mettre à jour l\'étape');
+  }
+}
+
 function moveStep(index, direction) {
   if (direction === -1 && index > 0) {
     const temp = workflowSteps.value[index];
@@ -210,50 +225,62 @@ onMounted(fetchSettings);
             <button @click="createWorkflowStep" class="btn-primary px-4">Ajouter</button>
           </div>
         </div>
+
         <div v-if="loading" class="space-y-4">
-        <div v-for="i in 5" :key="'w'+i" class="h-16 bg-gray-50 animate-pulse rounded-2xl"></div>
-      </div>
-      
-      <div v-else class="space-y-4">
-        <div
-          v-for="(step, index) in workflowSteps"
-          :key="step.id"
-          class="flex items-center gap-4 bg-white p-5 rounded-2xl border border-gray-100 hover:border-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/5 transition-all group"
-        >
-          <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 font-black text-xs group-hover:bg-brand-primary group-hover:text-[#428496] transition-colors">
-            {{ index + 1 }}
-          </div>
+          <div v-for="i in 5" :key="'w'+i" class="h-16 bg-gray-50 animate-pulse rounded-2xl"></div>
+        </div>
 
-          <div class="flex-1">
-            <h3 class="font-black heading-primary text-base flex items-center gap-2">
-              {{ step.label }}
-              <span v-if="index === 0" class="text-[9px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded-full uppercase">Début</span>
-              <span v-if="index === workflowSteps.length - 1" class="text-[9px] bg-green-50 text-green-500 px-2 py-0.5 rounded-full uppercase">Fin</span>
-            </h3>
-            <p class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
-              <span class="material-icons-outlined text-[12px]">link</span>
-              {{ step.route }}
-            </p>
-          </div>
+        <div v-else class="space-y-4">
+          <div
+            v-for="(step, index) in workflowSteps"
+            :key="step.id"
+            :class="['flex items-center gap-4 p-5 rounded-2xl border transition-all group', step.isActive ? 'bg-white border-gray-100 hover:border-brand-primary/30 hover:shadow-lg hover:shadow-brand-primary/5' : 'bg-gray-100 border-gray-200 opacity-60']"
+          >
+            <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 font-black text-xs group-hover:bg-brand-primary group-hover:text-[#428496] transition-colors">
+              {{ index + 1 }}
+            </div>
 
-          <div class="flex gap-2">
-            <button 
-              @click="moveStep(index, -1)" 
-              :disabled="index === 0"
-              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
-            >
-              <span class="material-icons-outlined text-lg">arrow_upward</span>
-            </button>
-            <button 
-              @click="moveStep(index, 1)" 
-              :disabled="index === workflowSteps.length - 1"
-              class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
-            >
-              <span class="material-icons-outlined text-lg">arrow_downward</span>
-            </button>
-            <button @click="deleteWorkflowStep(step.id)" class="w-10 h-10 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-50 transition-all border border-gray-50" title="Supprimer">
-              <span class="material-icons-outlined text-lg">delete</span>
-            </button>
+            <div class="flex-1">
+              <h3 class="font-black heading-primary text-base flex items-center gap-2">
+                {{ step.label }}
+                <span v-if="index === 0" class="text-[9px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded-full uppercase">Début</span>
+                <span v-if="index === workflowSteps.length - 1" class="text-[9px] bg-green-50 text-green-500 px-2 py-0.5 rounded-full uppercase">Fin</span>
+                <span v-if="!step.isActive" class="text-[9px] bg-red-50 text-red-500 px-2 py-0.5 rounded-full uppercase">Désactivée</span>
+              </h3>
+              <p class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
+                <span class="material-icons-outlined text-[12px]">link</span>
+                {{ step.route }}
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                @click="toggleStepActive(step)"
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-yellow-50 hover:text-yellow-600 transition-all border border-gray-50"
+                :title="step.isActive ? 'Désactiver' : 'Réactiver'"
+              >
+                <span class="material-icons-outlined text-lg">
+                  {{ step.isActive ? 'toggle_off' : 'toggle_on' }}
+                </span>
+              </button>
+              <button 
+                @click="moveStep(index, -1)" 
+                :disabled="index === 0"
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
+              >
+                <span class="material-icons-outlined text-lg">arrow_upward</span>
+              </button>
+              <button 
+                @click="moveStep(index, 1)" 
+                :disabled="index === workflowSteps.length - 1"
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-brand-primary hover:text-[#428496] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-all border border-gray-50"
+              >
+                <span class="material-icons-outlined text-lg">arrow_downward</span>
+              </button>
+              <button @click="deleteWorkflowStep(step.id)" class="w-10 h-10 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-50 transition-all border border-gray-50" title="Supprimer">
+                <span class="material-icons-outlined text-lg">delete</span>
+              </button>
+            </div>
           </div>
         </div>
 

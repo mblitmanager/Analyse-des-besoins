@@ -8,6 +8,7 @@ const loading = ref(true);
 const filterType = ref("");
 const showModal = ref(false);
 const editingQuestion = ref(null);
+const workflowTypes = ref([]);
 const form = ref({
   text: "",
   type: "prerequis",
@@ -59,6 +60,21 @@ async function fetchFormations() {
   }
 }
 
+async function fetchWorkflowTypes() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/workflow`);
+    // Map ALL active workflow steps to question types (code -> lowercase)
+    workflowTypes.value = res.data
+      .filter(step => step.isActive !== false)
+      .map(step => ({
+        label: step.label,
+        value: step.code.toLowerCase(), // Convert code to lowercase for type
+      }));
+  } catch (error) {
+    console.error("Failed to fetch workflow types:", error);
+  }
+}
+
 function openAddModal() {
   editingQuestion.value = null;
   form.value = {
@@ -104,19 +120,26 @@ async function saveQuestion() {
     };
 
     if (editingQuestion.value) {
-      await axios.patch(
+      const res = await axios.patch(
         `${apiBaseUrl}/questions/${editingQuestion.value.id}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      // update local copy
+      const idx = questions.value.findIndex((q) => q.id === editingQuestion.value.id);
+      if (idx !== -1) {
+        questions.value[idx] = { ...questions.value[idx], ...res.data };
+      }
     } else {
-      await axios.post(`${apiBaseUrl}/questions`, payload, {
+      const res = await axios.post(`${apiBaseUrl}/questions`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      // add new question to the list (push to end to maintain position)
+      questions.value.push(res.data);
     }
 
     showModal.value = false;
-    await fetchQuestions();
+    // do not re-fetch everything to avoid scroll jump
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
     console.error(error);
@@ -143,7 +166,9 @@ async function deleteQuestion(id) {
     await axios.delete(`${apiBaseUrl}/questions/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    await fetchQuestions();
+    // remove locally
+    const idx = questions.value.findIndex((q) => q.id === id);
+    if (idx !== -1) questions.value.splice(idx, 1);
   } catch (error) {
     alert("Erreur lors de la suppression");
     console.error(error);
@@ -166,6 +191,7 @@ function removeOption(index) {
 onMounted(() => {
   fetchQuestions();
   fetchFormations();
+  fetchWorkflowTypes();
 });
 
 function moveQuestion(levelGroup, index, direction) {
@@ -193,8 +219,12 @@ async function saveOrder(questionsList) {
     await axios.patch(`${apiBaseUrl}/questions/order`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    // update local order values to match
+    questionsList.forEach((q, idx) => {
+      const idxAll = questions.value.findIndex((x) => x.id === q.id);
+      if (idxAll !== -1) questions.value[idxAll].order = idx + 1;
+    });
     alert("Ordre mis à jour");
-    await fetchQuestions();
   } catch (error) {
     console.error("Failed to save order", error);
     alert("Erreur lors de la sauvegarde de l'ordre");
@@ -203,13 +233,20 @@ async function saveOrder(questionsList) {
   }
 }
 
-const types = [
-  { label: "Tous", value: "" },
-  { label: "Pré-requis", value: "prerequis" },
-  { label: "Positionnement", value: "positionnement" },
-  { label: "Complémentaires", value: "complementary" },
-  { label: "Disponibilités", value: "availabilities" },
-];
+const types = computed(() => {
+  const baseTypes = [{ label: "Tous", value: "" }];
+  return baseTypes.concat(
+    workflowTypes.value.length > 0
+      ? workflowTypes.value
+      : [
+          { label: "Pré-requis", value: "prerequis" },
+          { label: "Mise à niveau", value: "mise_a_niveau" },
+          { label: "Positionnement", value: "positionnement" },
+          { label: "Complémentaires", value: "complementary" },
+          { label: "Disponibilités", value: "availabilities" },
+        ]
+  );
+});
 // Toggle to enable ordering UI
 const enableOrdering = true;
 
@@ -598,10 +635,19 @@ const groupedQuestions = computed(() => {
                   v-model="form.type"
                   class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
                 >
-                  <option value="prerequis">Pré-requis</option>
-                  <option value="positionnement">Positionnement</option>
-                  <option value="complementary">Complémentaires</option>
-                  <option value="availabilities">Disponibilités</option>
+                  <option 
+                    v-for="wt in workflowTypes.length > 0 ? workflowTypes : [
+                      { label: 'Pré-requis', value: 'prerequis' },
+                      { label: 'Mise à niveau', value: 'mise_a_niveau' },
+                      { label: 'Positionnement', value: 'positionnement' },
+                      { label: 'Complémentaires', value: 'complementary' },
+                      { label: 'Disponibilités', value: 'availabilities' },
+                    ]"
+                    :key="wt.value"
+                    :value="wt.value"
+                  >
+                    {{ wt.label }}
+                  </option>
                 </select>
               </div>
 

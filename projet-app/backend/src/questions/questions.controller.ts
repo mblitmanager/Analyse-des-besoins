@@ -27,8 +27,7 @@ export class QuestionsController {
 
   @Get('workflow/:type')
   findWorkflowQuestions(
-    @Param('type')
-    type: 'prerequis' | 'positionnement' | 'complementary' | 'availabilities' | 'mise_a_niveau',
+    @Param('type') type: string,
     @Query('formation') formation?: string,
     @Query('scope') scope?: 'auto' | 'global' | 'formation',
   ) {
