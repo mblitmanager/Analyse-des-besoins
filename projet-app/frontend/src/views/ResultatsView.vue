@@ -36,6 +36,14 @@ const recommendedLabel = computed(() => {
   }`.trim();
 });
 
+// helper for adapting messaging when prereq shows insuffisant
+const hasInsufficientPrereq = computed(() => {
+  if (!session.value || !session.value.prerequisiteScore) return false;
+  return Object.values(session.value.prerequisiteScore).some(
+    (v) => String(v).toLowerCase() === "insuffisant"
+  );
+});
+
 const recommendedLevel1 = computed(() => {
   if (!session.value || !levels.value.length) return null;
   const opts = parcoursOptions.value;
@@ -82,6 +90,22 @@ const parcoursOptions = computed(() => {
     }
   }
   return [rec];
+});
+
+// override display options based on stopLevel and levels list
+const displayOptions = computed(() => {
+  if (!session.value) return [];
+  if (session.value.stopLevel && levels.value.length) {
+    const idx = levels.value.findIndex((l) => l.label === session.value.stopLevel);
+    if (idx >= 0) {
+      const arr = [session.value.stopLevel];
+      if (idx < levels.value.length - 1) {
+        arr.push(levels.value[idx + 1].label);
+      }
+      return arr;
+    }
+  }
+  return parcoursOptions.value;
 });
 
 async function loadLevelsForFormation() {
@@ -462,8 +486,14 @@ const downloadPDF = async () => {
               Bases Informatiques
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
-              Vous maîtrisez déjà les outils de base. C'est un excellent socle
-              pour vous concentrer sur vos nouveaux apprentissages.
+              <template v-if="hasInsufficientPrereq">
+                Certaines compétences de base sont insuffisantes. Le parcours choisi
+                vous aidera à les renforcer avant de poursuivre.
+              </template>
+              <template v-else>
+                Vous maîtrisez déjà les outils de base. C'est un excellent socle
+                pour vous concentrer sur vos nouveaux apprentissages.
+              </template>
             </p>
           </div>
 
@@ -486,8 +516,7 @@ const downloadPDF = async () => {
               Niveau d'{{ session.formationChoisie }}
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
-              Vous avez des bases solides. Le parcours choisi va vous permettre
-              d'atteindre le niveau supérieur pour votre vie professionnelle.
+              Le parcours choisi vous permettra de valider le niveau {{ session.stopLevel }}.
             </p>
           </div>
         </div>
@@ -559,14 +588,7 @@ const downloadPDF = async () => {
                   {{ recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
                 </p>
                 <div class="flex items-center gap-6">
-                  <div
-                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
-                  >
-                    <span class="material-icons-outlined text-sm"
-                      >schedule</span
-                    >
-                    35h
-                  </div>
+                
                   <div
                     class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
@@ -612,14 +634,14 @@ const downloadPDF = async () => {
                   {{ recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
                 </p>
                 <div class="flex items-center gap-6">
-                  <div
+                  <!-- <div
                     class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
                     <span class="material-icons-outlined text-sm"
                       >schedule</span
                     >
                     40h
-                  </div>
+                  </div> -->
                   <div
                     class="flex items-center gap-2 text-xs font-medium text-gray-400"
                   >
@@ -655,15 +677,21 @@ const downloadPDF = async () => {
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div v-for="(p, idx) in parcoursOptions" :key="idx" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div v-for="(lvl, idx) in displayOptions" :key="idx" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="bg-brand-primary p-6 text-[#428496] relative overflow-hidden">
               <div class="relative z-10">
-                <h3 class="text-xl font-bold mb-1">Parcours proposé {{ idx + 1 }}</h3>
-                <p class="opacity-90 text-sm italic">{{ p }}</p>
+                <h3 class="text-xl font-bold mb-1">Niveau {{ lvl }}</h3>
               </div>
             </div>
             <div class="p-6">
-              <p class="text-gray-500 text-sm mb-4">Ce parcours est calculé à partir de vos réponses et peut être validé ou discuté avec un conseiller.</p>
+              <p class="text-gray-500 text-sm mb-4">
+                <template v-if="idx === 0">
+                  Ce parcours est calculé à partir de vos réponses et peut être validé ou discuté avec un conseiller.
+                </template>
+                <template v-else>
+                  Si vous avez validé le niveau précédent, vous pouvez passer à ce niveau.
+                </template>
+              </p>
             </div>
           </div>
         </div>

@@ -30,6 +30,12 @@ const finalRecommendation = ref("");
 const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
 
+// Low score warning modal
+const showFormationWarning = ref(false);
+const lowScoreThreshold = ref(3); // default: warn if < 3 correct answers
+const lastScoreDetails = ref({ correctCount: 0, total: 0 });
+const skipFormationWarning = ref(false);
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 // Computed: filter questions based on conditional logic
@@ -147,6 +153,7 @@ onMounted(async () => {
   await loadLevels();
   await restoreProgressFromSession();
   await fetchPaginationSetting();
+  await fetchLowScoreThreshold();
   if (!showResults.value) {
     await loadLevelQuestions();
   }
@@ -161,7 +168,17 @@ async function fetchPaginationSetting() {
     isPaginated.value = false;
   }
 }
-
+async function fetchLowScoreThreshold() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/settings/LOW_SCORE_THRESHOLD`);
+    // Default to 3 if not set or invalid
+    const value = Number(res.data?.value);
+    lowScoreThreshold.value = !isNaN(value) ? value : 3;
+  } catch (error) {
+    console.error("Failed to fetch low score threshold:", error);
+    lowScoreThreshold.value = 3; // fallback
+  }
+}
 async function nextStep() {
   submitting.value = true;
   try {
@@ -184,6 +201,14 @@ async function nextStep() {
     });
 
     const percentage = (correctCount / filteredQuestions.value.length) * 100;
+
+    // Check if score is below warning threshold (if not already skipped)
+    if (!skipFormationWarning.value && currentLevelIndex.value === 0 && correctCount < lowScoreThreshold.value) {
+      lastScoreDetails.value = { correctCount, total: filteredQuestions.value.length };
+      showFormationWarning.value = true;
+      submitting.value = false;
+      return; // Stop here, wait for user decision
+    }
 
     // Sécurise le seuil : si le niveau demande plus de bonnes réponses que le nombre
     // de questions affichées, on considère le maximum possible.
@@ -220,28 +245,11 @@ async function nextStep() {
     const canProgress = correctCount >= requiredCorrect;
 
     if (!canProgress || currentLevelIndex.value === levels.value.length - 1) {
-      // Pack Duo logic: recommend failed level and the next one (or last two if at end)
-      let rec1 = currentLevel.label;
-      let rec2 = null;
-
-      if (!canProgress) {
-        // Failed this level
-        const nextIdx = currentLevelIndex.value + 1;
-        if (nextIdx < levels.value.length) {
-          rec2 = levels.value[nextIdx].label;
-        } else if (currentLevelIndex.value > 0) {
-          // Last level failed, recommend previous and this one
-          rec2 = rec1;
-          rec1 = levels.value[currentLevelIndex.value - 1].label;
-        }
-      } else {
-        // Validated last level
-        rec1 = currentLevel.label;
-      }
-
-      finalRecommendation.value = rec2 
-        ? `${formationLabel} - ${rec1} & ${rec2}`
-        : `${formationLabel} - ${rec1}`;
+      // Determine recommendation. The path should allow the user to validate the current
+      // level (i.e. the one they just failed or completed).
+      // If the user failed (!canProgress) we simply recommend that level; if they
+      // validated the final level we also recommend it.
+      finalRecommendation.value = `Le parcours choisi vous permettre de valider le niveau ${currentLevel.label}`;
 
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
         levelsScores: levelsScores.value,
@@ -270,6 +278,18 @@ function finishStep() {
   const nextRoute = store.getNextRoute("/positionnement");
   router.push(nextRoute || "/complementary");
 }
+function closeAndChangeFormation() {
+  showFormationWarning.value = false;
+  router.push("/formations");
+}
+
+async function continueWithWarning() {
+  skipFormationWarning.value = true;
+  showFormationWarning.value = false;
+  // Re-enter nextStep with the flag set to skip the warning
+  await nextStep();
+}
+
 async function saveAndExit() {
   submitting.value = true;
   try {
@@ -293,14 +313,14 @@ async function saveAndExit() {
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
-        <button
+        <!-- <button
           @click="saveAndExit"
           :disabled="submitting"
           class="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-xl transition-all font-bold text-sm text-blue-900 border border-white/30"
         >
           <span class="material-icons-outlined text-lg">save</span>
           {{ submitting ? "Sauvegarde..." : "Enregistrer et quitter" }}
-        </button>
+        </button> -->
       </template>
     </SiteHeader>
 
@@ -313,11 +333,11 @@ async function saveAndExit() {
         <div
           class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-white text-center"
         >
-          <div
+          <!-- <div
             class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-blue-400 mx-auto mb-8 shadow-xl shadow-green-500/30"
           >
             <span class="material-icons-outlined text-5xl">task_alt</span>
-          </div>
+          </div> -->
 
           <h1
             class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight"
@@ -335,7 +355,7 @@ async function saveAndExit() {
             class="inline-block px-10 py-6 bg-brand-primary/5 border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500"
           >
             <span
-              class="text-brand-primary font-black text-3xl md:text-4xl tracking-tight uppercase"
+              class="text-brand-primary font-black text-3xl md:text-4xl tracking-tight"
             >
               {{ finalRecommendation }}
             </span>
@@ -775,6 +795,46 @@ async function saveAndExit() {
           </div>
         </div>
       </div>
+
+      <!-- Low Score Warning Modal -->
+      <transition name="modal-fade">
+        <div v-if="showFormationWarning" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="continueWithWarning()"></div>
+          <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-md relative z-10 text-center animate-in zoom-in duration-300">
+            <!-- Warning Icon -->
+            <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span class="material-icons-outlined text-4xl text-yellow-600">warning</span>
+            </div>
+
+            <!-- Title -->
+            <h2 class="text-2xl md:text-3xl font-black heading-primary mb-4">
+              Avez-vous choisi la bonne formation ?
+            </h2>
+
+            <!-- Score Details -->
+            <p class="text-gray-400 text-sm md:text-base mb-8 leading-relaxed">
+              Vous avez obtenu <strong class="text-gray-600">{{ lastScoreDetails.correctCount }}/{{ lastScoreDetails.total }}</strong> bonnes réponses.
+              <br />Nous vous recommandons de revoir votre choix de formation.
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button
+                @click="closeAndChangeFormation"
+                class="flex-1 px-6 py-3 bg-white text-brand-primary border-2 border-brand-primary rounded-2xl font-bold hover:bg-brand-primary/10 transition-all active:scale-95"
+              >
+                Changer de formation
+              </button>
+              <button
+                @click="continueWithWarning"
+                class="flex-1 px-6 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
     </main>
     <SiteFooter />
   </div>
@@ -799,6 +859,17 @@ async function saveAndExit() {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* Modal fade transitions */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 
 /* Option card */
