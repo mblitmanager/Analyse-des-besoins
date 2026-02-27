@@ -36,6 +36,24 @@ export class Question {
   @Column({ type: 'simple-json', nullable: true })
   metadata: Record<string, any>;
 
+  // Conditional display: this question only shows if a parent question's response matches conditions
+  @Column({ nullable: true })
+  showIfQuestionId: number; // parent question ID
+
+  @Column({ type: 'simple-json', nullable: true })
+  showIfResponseIndexes: number[]; // for qcm/checkbox: array of option indices that trigger display
+
+  @Column({ nullable: true })
+  showIfResponseValue: string; // for text questions: exact text value that triggers display
+
+  @Column({ type: 'simple-json', nullable: true })
+  showIfRules: Array<{
+    questionId: number;
+    responseIndexes?: number[];
+    responseValue?: string;
+    // future: operator: 'any'|'all' etc.
+  }>;
+
   @ManyToOne(() => Level, (level) => level.questions, { nullable: true })
   level: Level;
 

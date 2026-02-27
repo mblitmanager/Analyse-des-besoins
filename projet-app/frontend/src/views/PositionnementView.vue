@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
+import { filterConditionalQuestions } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -13,6 +14,7 @@ const router = useRouter();
 const currentLevelIndex = ref(0);
 const levels = ref([]); // loaded dynamically from API
 const questions = ref([]);
+const allQuestions = ref([]); // Store all questions before filtering
 const currentResponses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
@@ -29,6 +31,11 @@ const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+// Computed: filter questions based on conditional logic
+const filteredQuestions = computed(() => {
+  return filterConditionalQuestions(questions.value, currentResponses.value);
+});
 
 async function loadLevels() {
   try {
@@ -150,7 +157,7 @@ async function fetchPaginationSetting() {
 async function nextStep() {
   submitting.value = true;
   try {
-    // 1. Calculate score for current level
+    // 1. Calculate score for current level (using filtered questions only)
     let correctCount = 0;
     const currentLevel = levels.value[currentLevelIndex.value];
 
@@ -158,7 +165,9 @@ async function nextStep() {
     if (!positionnementAnswers.value[currentLevel.label]) {
       positionnementAnswers.value[currentLevel.label] = {};
     }
-    questions.value.forEach((q) => {
+
+    // Score only on filtered (displayed) questions
+    filteredQuestions.value.forEach((q) => {
       const answer = currentResponses.value[q.id];
       positionnementAnswers.value[currentLevel.label][q.id] = answer;
       if (answer === q.options[q.correctResponseIndex]) {
@@ -166,18 +175,18 @@ async function nextStep() {
       }
     });
 
-    const percentage = (correctCount / questions.value.length) * 100;
+    const percentage = (correctCount / filteredQuestions.value.length) * 100;
 
     // Sécurise le seuil : si le niveau demande plus de bonnes réponses que le nombre
-    // de questions chargées, on considère le maximum possible.
+    // de questions affichées, on considère le maximum possible.
     const requiredCorrect = Math.min(
-      Number(currentLevel.successThreshold ?? questions.value.length),
-      questions.value.length,
+      Number(currentLevel.successThreshold ?? filteredQuestions.value.length),
+      filteredQuestions.value.length,
     );
 
     levelsScores.value[currentLevel.label] = {
       score: correctCount,
-      total: questions.value.length,
+      total: filteredQuestions.value.length,
       percentage: percentage,
       requiredCorrect,
       validated: correctCount >= requiredCorrect,
@@ -458,7 +467,7 @@ async function saveAndExit() {
               <!-- MODE LISTE (CLASSIQUE) -->
               <template v-if="!isPaginated">
                 <div
-                  v-for="(q, idx) in questions"
+                  v-for="(q, idx) in filteredQuestions"
                   :key="q.id"
                   class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group animate-in fade-in slide-in-from-bottom-2 duration-500"
                 >
@@ -531,21 +540,21 @@ async function saveAndExit() {
               <!-- MODE PAGINÉ (QUESTION PAR QUESTION) -->
               <template v-else>
                 <div 
-                  v-if="questions[currentQuestionIndex]"
-                  :key="questions[currentQuestionIndex].id"
+                  v-if="filteredQuestions[currentQuestionIndex]"
+                  :key="filteredQuestions[currentQuestionIndex].id"
                   class="bg-white rounded-[2.5rem] shadow-2xl shadow-brand-primary/5 border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500"
                 >
                   <div class="p-8 md:p-12">
                     <div class="flex items-center justify-between mb-8">
                       <span class="px-5 py-2 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest">
-                        Question {{ currentQuestionIndex + 1 }} sur {{ questions.length }}
+                        Question {{ currentQuestionIndex + 1 }} sur {{ filteredQuestions.length }}
                       </span>
                       <div class="flex gap-2">
                         <div 
-                          v-for="(_, i) in questions" 
+                          v-for="(_, i) in filteredQuestions" 
                           :key="i"
                           class="w-1.5 h-1.5 rounded-full transition-all duration-300"
-                          :class="i === currentQuestionIndex ? 'bg-brand-primary w-4' : (currentResponses[questions[i].id] ? 'bg-green-300' : 'bg-gray-200')"
+                          :class="i === currentQuestionIndex ? 'bg-brand-primary w-4' : (currentResponses[filteredQuestions[i].id] ? 'bg-green-300' : 'bg-gray-200')"
                         ></div>
                       </div>
                     </div>
@@ -639,9 +648,9 @@ async function saveAndExit() {
                 </button>
                 
                 <button
-                  v-if="currentQuestionIndex < questions.length - 1"
+                  v-if="currentQuestionIndex < filteredQuestions.length - 1"
                   @click="currentQuestionIndex++"
-                  :disabled="!currentResponses[questions[currentQuestionIndex].id]"
+                  :disabled="!currentResponses[filteredQuestions[currentQuestionIndex].id]"
                   class="px-8 py-3 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl hover:bg-brand-primary hover:text-[#428496] transition-all flex items-center gap-2 disabled:opacity-30"
                 >
                   Suivant
@@ -651,7 +660,7 @@ async function saveAndExit() {
                 <button
                   v-else
                   @click="nextStep"
-                  :disabled="submitting || !currentResponses[questions[currentQuestionIndex].id]"
+                  :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
                   class="px-8 py-3 bg-brand-primary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-30"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>

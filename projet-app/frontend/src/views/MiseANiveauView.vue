@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
 import { formatBoldText } from "../utils/formatText";
+import { filterConditionalQuestions } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -22,9 +23,9 @@ const unanswered = ref(false);
 // group questions by category for UI design
 const groups = ref([]);
 
-function buildGroups() {
+function buildGroups(questionsList) {
   const map = new Map();
-  questions.value.forEach((q) => {
+  questionsList.forEach((q) => {
     const key = q.category || 'Général';
     if (!map.has(key)) {
       map.set(key, { title: key, icon: q.icon || 'quiz', questions: [] });
@@ -33,6 +34,24 @@ function buildGroups() {
   });
   groups.value = Array.from(map.values());
 }
+
+// Computed: filter questions based on conditional logic
+const filteredQuestions = computed(() => {
+  return filterConditionalQuestions(questions.value, responses.value);
+});
+
+// Update groups when filtered questions change
+const computedGroups = computed(() => {
+  const map = new Map();
+  filteredQuestions.value.forEach((q) => {
+    const key = q.category || 'Général';
+    if (!map.has(key)) {
+      map.set(key, { title: key, icon: q.icon || 'quiz', questions: [] });
+    }
+    map.get(key).questions.push(q);
+  });
+  return Array.from(map.values());
+});
 
 onMounted(async () => {
   if (!sessionId) {
@@ -61,7 +80,7 @@ onMounted(async () => {
       else if (q.metadata?.type === "qcm") responses.value[q.id] = null;
       else responses.value[q.id] = "";
     });
-    buildGroups();
+    buildGroups(filteredQuestions.value);
   } catch (error) {
     console.error("Failed to fetch mise à niveau questions:", error);
   } finally {
@@ -71,8 +90,8 @@ onMounted(async () => {
 
 
 async function nextStep() {
-  // check unanswered
-  unanswered.value = questions.value.some(q => {
+  // check unanswered (on filtered questions only)
+  unanswered.value = filteredQuestions.value.some(q => {
     const ans = responses.value[q.id];
     return ans === null || ans === "" || ans === undefined;
   });
@@ -110,7 +129,7 @@ async function nextStep() {
       </div>
 
       <div v-else class="space-y-8">
-        <div v-for="grp in groups" :key="grp.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+        <div v-for="grp in computedGroups" :key="grp.title" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
           <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-3">
             <div class="w-9 h-9 rounded-lg bg-indigo-600/5 flex items-center justify-center">
               <span class="material-icons-outlined text-indigo-600 text-lg">{{ grp.icon }}</span>
