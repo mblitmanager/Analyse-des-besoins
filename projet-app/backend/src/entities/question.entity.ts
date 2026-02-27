@@ -27,10 +27,10 @@ export class Question {
   @Column({ type: 'varchar', length: 20, default: 'qcm' })
   responseType: 'qcm' | 'text' | 'checkbox';
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   category: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   icon: string;
 
   @Column({ type: 'simple-json', nullable: true })
@@ -43,7 +43,7 @@ export class Question {
   @Column({ type: 'simple-json', nullable: true })
   showIfResponseIndexes: number[]; // for qcm/checkbox: array of option indices that trigger display
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   showIfResponseValue: string; // for text questions: exact text value that triggers display
 
   @Column({ type: 'simple-json', nullable: true })

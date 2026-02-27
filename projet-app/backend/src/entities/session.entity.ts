@@ -28,17 +28,17 @@ export class Session {
   telephone: string;
 
   // commercial advisor name is optional – some flows may not have this information
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   conseiller: string | null;
 
-  @Column({ nullable: true })
-  metier: string;
+  @Column({ type: 'varchar', nullable: true })
+  metier: string | null;
 
   @Column('simple-json', { nullable: true })
-  situation: string[];
+  situation: string[] | null;
 
-  @Column({ nullable: true })
-  formationChoisie: string;
+  @Column({ type: 'varchar', nullable: true })
+  formationChoisie: string | null;
 
   @Column('simple-json', { nullable: true })
   prerequisiteScore: any;

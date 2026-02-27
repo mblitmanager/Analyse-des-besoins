@@ -40,6 +40,7 @@ onMounted(async () => {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const session = sessionRes.data;
+    const formationSlug = localStorage.getItem("selected_formation_slug");
 
     metier.value = session.metier || "";
     // ensure situation is an array
