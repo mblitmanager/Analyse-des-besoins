@@ -335,6 +335,8 @@ export class SessionsService {
       email: beneficiaryEmail,
       telephone: session.telephone,
       conseiller: session.conseiller,
+      metier: session.metier,
+      situation: session.situation,
       brand: session.brand,
       formationChoisie: session.formationChoisie,
       finalRecommendation: recommendation,

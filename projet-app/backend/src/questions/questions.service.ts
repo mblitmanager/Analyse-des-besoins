@@ -1,55 +1,96 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere, DeepPartial } from 'typeorm';
 import { Question } from '../entities/question.entity';
+import { Formation } from '../entities/formation.entity';
+import { Level } from '../entities/level.entity';
+
+// Use a type alias for more flexibility with DeepPartial
+type QuestionPayload = DeepPartial<Question> & {
+  formationId?: number;
+  levelId?: number;
+};
 
 @Injectable()
 export class QuestionsService {
   constructor(
     @InjectRepository(Question)
     private questionRepo: Repository<Question>,
+    @InjectRepository(Formation)
+    private formationRepo: Repository<Formation>,
   ) {}
 
   async findQuestions(
     type: string,
     formationSlug?: string,
-    scope: 'global' | 'formation' | 'both' = 'global',
+    scope: 'global' | 'formation' | 'both' | 'auto' = 'global',
   ) {
-    // 1) Forcer global
-    if (!formationSlug || scope === 'global') {
+    let activeScope: 'global' | 'formation' | 'both' =
+      scope === 'auto' ? 'both' : scope;
+
+    if (scope === 'auto' && formationSlug) {
+      const formation = await this.formationRepo.findOne({
+        where: { slug: formationSlug },
+      });
+      if (formation) {
+        // Map type to the correct scope field
+        const typeMap: Record<string, keyof Formation> = {
+          prerequis: 'prerequisQuestionsScope',
+          complementary: 'complementaryQuestionsScope',
+          availabilities: 'availabilitiesQuestionsScope',
+          'mise-a-niveau': 'miseANiveauQuestionsScope',
+          mise_a_niveau: 'miseANiveauQuestionsScope',
+        };
+        const field = typeMap[type];
+        if (field && formation[field]) {
+          activeScope = formation[field] as 'global' | 'formation' | 'both';
+        }
+      }
+    }
+
+    // Default to global if no formation or scope still unresolved
+    if (!formationSlug || activeScope === 'global') {
       return this.questionRepo.find({
-        where: { type, isActive: true, formation: null } as any,
+        where: {
+          type,
+          isActive: true,
+          formation: undefined,
+        } as FindOptionsWhere<Question>,
         order: { order: 'ASC' },
         relations: ['formation', 'level'],
       });
     }
 
-    // 2) Forcer uniquement la formation
-    if (scope === 'formation') {
+    // If scope specifically requested formation only
+    if (activeScope === 'formation') {
       return this.questionRepo.find({
         where: {
           type,
           isActive: true,
           formation: { slug: formationSlug },
-        } as any,
+        } as FindOptionsWhere<Question>,
         order: { order: 'ASC' },
         relations: ['formation', 'level'],
       });
     }
 
-    // 3) Mode both : formation-specific + global, deduplicated by text
+    // Mode 'both' or fallback
     const specific = await this.questionRepo.find({
       where: {
         type,
         isActive: true,
         formation: { slug: formationSlug },
-      } as any,
+      } as FindOptionsWhere<Question>,
       order: { order: 'ASC' },
       relations: ['formation', 'level'],
     });
 
     const global = await this.questionRepo.find({
-      where: { type, isActive: true, formation: null } as any,
+      where: {
+        type,
+        isActive: true,
+        formation: undefined,
+      } as FindOptionsWhere<Question>,
       order: { order: 'ASC' },
       relations: ['formation', 'level'],
     });
@@ -77,7 +118,7 @@ export class QuestionsService {
 
   findPrerequisites(
     formationSlug?: string,
-    scope: 'global' | 'formation' | 'both' = 'global',
+    scope: 'global' | 'formation' | 'both' | 'auto' = 'global',
   ) {
     return this.findQuestions('prerequis', formationSlug, scope);
   }
@@ -107,10 +148,12 @@ export class QuestionsService {
   }
 
   async findAll(formationSlug?: string) {
-    const whereCondition = formationSlug
+    const whereCondition:
+      | FindOptionsWhere<Question>
+      | FindOptionsWhere<Question>[] = formationSlug
       ? [
           { formation: { slug: formationSlug } },
-          { formation: null }, // Include globals
+          { formation: undefined }, // Include globals
         ]
       : {};
 
@@ -121,33 +164,32 @@ export class QuestionsService {
     });
   }
 
-  async create(
-    data: Partial<Question> & { formationId?: number; levelId?: number },
-  ) {
+  async create(data: QuestionPayload) {
     const {
       formationId,
       levelId,
       showIfQuestionId,
       showIfResponseIndexes,
       showIfResponseValue,
+      showIfRules: incomingShowIfRules,
       ...rest
     } = data;
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
     // Calcul automatique de l'ordre (dernier + 1 dans le même contexte)
-    const whereForOrder: any = {
-      type: rest.type,
+    const whereForOrder: FindOptionsWhere<Question> = {
+      type: rest.type as string,
     };
 
     if (formationId) {
-      whereForOrder.formation = { id: formationId } as any;
+      whereForOrder.formation = { id: formationId };
     } else {
-      whereForOrder.formation = null;
+      whereForOrder.formation = undefined;
     }
 
     if (isLevelScoped && levelId) {
-      whereForOrder.level = { id: levelId } as any;
+      whereForOrder.level = { id: levelId };
     }
 
     const lastInScope = await this.questionRepo.findOne({
@@ -159,8 +201,8 @@ export class QuestionsService {
 
     // Normalize legacy conditional fields into showIfRules (array) for multi-parent support
     const showIfRules =
-      (data as any).showIfRules && Array.isArray((data as any).showIfRules)
-        ? (data as any).showIfRules
+      incomingShowIfRules && Array.isArray(incomingShowIfRules)
+        ? (incomingShowIfRules as unknown[])
         : showIfQuestionId
           ? [
               {
@@ -168,7 +210,7 @@ export class QuestionsService {
                 responseIndexes:
                   Array.isArray(showIfResponseIndexes) &&
                   showIfResponseIndexes.length > 0
-                    ? showIfResponseIndexes.map((i: any) => Number(i))
+                    ? (showIfResponseIndexes as unknown[]).map((i) => Number(i))
                     : undefined,
                 responseValue:
                   showIfResponseValue && String(showIfResponseValue).trim()
@@ -189,27 +231,30 @@ export class QuestionsService {
       metadata: rest.metadata,
       isActive: rest.isActive ?? true,
       order: rest.order ?? nextOrder,
-      formation: formationId ? ({ id: formationId } as any) : null,
-      level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
+      formation: formationId
+        ? ({ id: formationId } as DeepPartial<Formation>)
+        : undefined,
+      level:
+        isLevelScoped && levelId
+          ? ({ id: levelId } as DeepPartial<Level>)
+          : undefined,
       // Handle conditional display fields
-      showIfQuestionId: showIfQuestionId ? Number(showIfQuestionId) : null,
+      showIfQuestionId: showIfQuestionId ? Number(showIfQuestionId) : undefined,
       showIfResponseIndexes:
-        Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0
-          ? showIfResponseIndexes.map((idx) => Number(idx))
-          : null,
+        Array.isArray(showIfResponseIndexes) &&
+        (showIfResponseIndexes as unknown[]).length > 0
+          ? (showIfResponseIndexes as unknown[]).map((idx) => Number(idx))
+          : undefined,
       showIfResponseValue:
         showIfResponseValue && String(showIfResponseValue).trim()
           ? String(showIfResponseValue).trim()
-          : null,
-      showIfRules: showIfRules || null,
-    } as any);
+          : undefined,
+      showIfRules: showIfRules ? (showIfRules as any) : undefined,
+    } as DeepPartial<Question>);
     return this.questionRepo.save(question);
   }
 
-  async update(
-    id: number,
-    data: Partial<Question> & { formationId?: number; levelId?: number },
-  ) {
+  async update(id: number, data: QuestionPayload) {
     const {
       formationId,
       levelId,
@@ -217,15 +262,21 @@ export class QuestionsService {
       showIfQuestionId,
       showIfResponseIndexes,
       showIfResponseValue,
+      showIfRules: incomingShowIfRules,
       ...rest
     } = data;
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
-    const updateData: any = {
-      ...rest,
-      formation: formationId ? ({ id: formationId } as any) : null,
-      level: isLevelScoped && levelId ? ({ id: levelId } as any) : null,
+    const updateData: DeepPartial<Question> = {
+      ...(rest as DeepPartial<Question>),
+      formation: formationId
+        ? ({ id: formationId } as DeepPartial<Formation>)
+        : undefined,
+      level:
+        isLevelScoped && levelId
+          ? ({ id: levelId } as DeepPartial<Level>)
+          : undefined,
     };
 
     if (responseType) {
@@ -233,9 +284,9 @@ export class QuestionsService {
     }
 
     // Normalize legacy conditional fields into showIfRules (array) for multi-parent support
-    const incomingShowIfRules =
-      (data as any).showIfRules && Array.isArray((data as any).showIfRules)
-        ? (data as any).showIfRules
+    const normalizedShowIfRules =
+      incomingShowIfRules && Array.isArray(incomingShowIfRules)
+        ? (incomingShowIfRules as unknown[])
         : showIfQuestionId
           ? [
               {
@@ -243,7 +294,7 @@ export class QuestionsService {
                 responseIndexes:
                   Array.isArray(showIfResponseIndexes) &&
                   showIfResponseIndexes.length > 0
-                    ? showIfResponseIndexes.map((i: any) => Number(i))
+                    ? (showIfResponseIndexes as unknown[]).map((i) => Number(i))
                     : undefined,
                 responseValue:
                   showIfResponseValue && String(showIfResponseValue).trim()
@@ -255,21 +306,21 @@ export class QuestionsService {
 
     updateData.showIfQuestionId = showIfQuestionId
       ? Number(showIfQuestionId)
-      : null;
+      : undefined;
     updateData.showIfResponseIndexes =
-      Array.isArray(showIfResponseIndexes) && showIfResponseIndexes.length > 0
-        ? showIfResponseIndexes.map((idx) => Number(idx))
-        : null;
+      Array.isArray(showIfResponseIndexes) &&
+      (showIfResponseIndexes as unknown[]).length > 0
+        ? (showIfResponseIndexes as unknown[]).map((idx) => Number(idx))
+        : undefined;
     updateData.showIfResponseValue =
       showIfResponseValue && String(showIfResponseValue).trim()
         ? String(showIfResponseValue).trim()
-        : null;
-    updateData.showIfRules =
-      incomingShowIfRules && incomingShowIfRules.length > 0
-        ? incomingShowIfRules
-        : null;
+        : undefined;
+    updateData.showIfRules = normalizedShowIfRules
+      ? (normalizedShowIfRules as any)
+      : undefined;
 
-    await this.questionRepo.update(id, updateData);
+    await this.questionRepo.update(id, updateData as any);
     return this.questionRepo.findOne({
       where: { id },
       relations: ['formation', 'level'],

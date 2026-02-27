@@ -18,7 +18,8 @@ const responses = ref({});
 const groups = ref([]);
 
 const metier = ref("");
-const situation = ref("");
+// allow multiple situations via checkboxes
+const situation = ref([]);
 const showProposal = ref(false);
 
 const itSkillsTriggered = computed(() => {
@@ -41,10 +42,11 @@ onMounted(async () => {
     const session = sessionRes.data;
 
     metier.value = session.metier || "";
-    situation.value = session.situation || [];
+    // ensure situation is an array
+    situation.value = Array.isArray(session.situation) ? session.situation : (session.situation ? [session.situation] : []);
 
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
-      params: { scope: "global" },
+      params: formationSlug ? { scope: "auto", formation: formationSlug } : { scope: "global" },
     });
     
     // Filter for Screen 2 questions
@@ -77,8 +79,8 @@ onMounted(async () => {
 
 async function submitPrerequis(force = false) {
   const isForced = force === true;
-  if (!metier.value || !situation.value) {
-    alert("Veuillez renseigner votre métier et votre situation.");
+  if (!metier.value || !situation.value.length) {
+    alert("Veuillez renseigner votre métier et au moins une situation.");
     return;
   }
 
@@ -100,7 +102,7 @@ async function submitPrerequis(force = false) {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       metier: metier.value,
-      situation: [situation.value], // Send as array for backend compatibility if needed, or update backend
+      situation: situation.value, // already an array from checkboxes
       prerequisiteScore: responses.value,
     });
     
@@ -201,19 +203,21 @@ function refuseProposal() {
             <div>
               <label class="Wizi-label font-black text-[10px] uppercase tracking-widest text-gray-400 mb-4 block">Votre situation actuelle</label>
               <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div v-for="sit in ['Salarié', 'Indépendant', 'Demandeur d’emploi', 'Reconversion']" :key="sit" 
-                     @click="situation = sit"
+                <div v-for="sit in ['Salarié', 'Indépendant', 'Demandeur d’emploi', 'Reconversion']" :key="sit"
                      class="formation-card"
-                     :class="situation === sit ? 'formation-card--selected' : 'formation-card--default'">
-                  <div class="flex items-center gap-4">
-                     <div :class="situation === sit ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
-                        <span class="material-icons-outlined text-xl">person_outline</span>
-                     </div>
-                     <span class="formation-card__label">{{ sit }}</span>
-                  </div>
-                  <div class="formation-card__radio" :class="situation === sit ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                    <div v-if="situation === sit" class="formation-card__radio-dot"></div>
-                  </div>
+                     :class="situation.includes(sit) ? 'formation-card--selected' : 'formation-card--default'">
+                  <label class="flex items-center w-full cursor-pointer justify-between">
+                    <input type="checkbox" class="sr-only" :value="sit" v-model="situation" />
+                    <div class="flex items-center gap-4">
+                       <div :class="situation.includes(sit) ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
+                          <span class="material-icons-outlined text-xl">person_outline</span>
+                       </div>
+                       <span class="formation-card__label">{{ sit }}</span>
+                    </div>
+                    <div class="formation-card__radio" :class="situation.includes(sit) ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
+                      <span v-if="situation.includes(sit)" class="material-icons-outlined text-blue-600 text-xl">check</span>
+                    </div>
+                  </label>
                 </div>
               </div>
             </div>
@@ -239,17 +243,13 @@ function refuseProposal() {
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 ml-0 sm:ml-14">
-                <div v-for="opt in q.options" :key="opt"
-                     @click="responses[q.id] = opt"
-                     class="formation-card"
-                     :class="responses[q.id] === opt ? 'formation-card--selected' : 'formation-card--default'">
-                  <div class="flex items-center gap-3">
-                    <span class="formation-card__label" v-html="formatBoldText(opt)"></span>
+                <label v-for="opt in q.options" :key="opt" class="option-card" :class="responses[q.id] === opt ? 'option-card--selected' : 'option-card--default'">
+                  <input type="radio" :name="'q-' + q.id" v-model="responses[q.id]" :value="opt" class="hidden" />
+                  <span class="option-card__label" v-html="formatBoldText(opt)"></span>
+                  <div class="option-card__radio" :class="responses[q.id] === opt ? 'option-card__radio--selected' : 'option-card__radio--default'">
+                    <div v-if="responses[q.id] === opt" class="option-card__radio-dot"></div>
                   </div>
-                  <div class="formation-card__radio" :class="responses[q.id] === opt ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                    <div v-if="responses[q.id] === opt" class="formation-card__radio-dot"></div>
-                  </div>
-                </div>
+                </label>
               </div>
             </div>
           </div>
@@ -343,8 +343,8 @@ function refuseProposal() {
 
 .formation-card__radio {
   flex-shrink: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 50%;
   border: 2px solid #e2e8f0;
   display: flex;
@@ -358,14 +358,74 @@ function refuseProposal() {
   background: white;
 }
 
+/* remove dot style since we now use icon */
 .formation-card__radio-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: #60a5fa;
+  display: none;
 }
 
 .animate-in {
   animation-duration: 0.3s;
+}
+
+/* option-card styling reused from other views for radio questions */
+.option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  min-height: 3.5rem;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.option-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.option-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.option-card--selected .option-card__label {
+  color: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
 }
 </style>

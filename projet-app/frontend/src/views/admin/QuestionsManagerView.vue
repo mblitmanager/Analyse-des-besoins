@@ -262,7 +262,7 @@ const types = computed(() => {
       ? workflowTypes.value
       : [
           { label: "Pré-requis", value: "prerequis" },
-          { label: "Mise à niveau", value: "mise_a_niveau" },
+          { label: "Mise à niveau", value: "mise-a-niveau" },
           { label: "Positionnement", value: "positionnement" },
           { label: "Complémentaires", value: "complementary" },
           { label: "Disponibilités", value: "availabilities" },
@@ -679,7 +679,7 @@ const groupedQuestions = computed(() => {
                   <option 
                     v-for="wt in workflowTypes.length > 0 ? workflowTypes : [
                       { label: 'Pré-requis', value: 'prerequis' },
-                      { label: 'Mise à niveau', value: 'mise_a_niveau' },
+                      { label: 'Mise à niveau', value: 'mise-a-niveau' },
                       { label: 'Positionnement', value: 'positionnement' },
                       { label: 'Complémentaires', value: 'complementary' },
                       { label: 'Disponibilités', value: 'availabilities' },

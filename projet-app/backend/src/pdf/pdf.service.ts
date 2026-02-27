@@ -5,17 +5,17 @@ const PDFDocument = require('pdfkit');
 @Injectable()
 export class PdfService {
   async generateSessionPdf(data: {
-    civilite?: string;
-    prenom?: string;
-    nom?: string;
-    email?: string;
-    telephone?: string;
-    conseiller?: string;
-    metier?: string;
-    situation?: string[];
-    brand?: string;
-    formationChoisie?: string;
-    finalRecommendation?: string;
+    civilite?: string | null;
+    prenom?: string | null;
+    nom?: string | null;
+    email?: string | null;
+    telephone?: string | null;
+    conseiller?: string | null;
+    metier?: string | null;
+    situation?: string[] | null;
+    brand?: string | null;
+    formationChoisie?: string | null;
+    finalRecommendation?: string | null;
     scoreFinal?: number;
     levelsScores?: Record<string, any>;
     prerequisiteAnswers?: Record<string, any>;
