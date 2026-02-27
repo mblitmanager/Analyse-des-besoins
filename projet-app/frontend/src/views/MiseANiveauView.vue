@@ -116,8 +116,17 @@ async function nextStep() {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
-    <SiteHeader />
-    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
+    <SiteHeader>
+      <template #actions>
+        <div class="hidden md:flex flex-col items-end mr-4">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Mise à niveau</span>
+            <span class="text-[10px] text-brand-primary font-bold">Étape 1 / 2</span>
+          </div>
+        </div>
+      </template>
+    </SiteHeader>
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 relative">
       <div class="text-center mb-10">
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Mise à niveau</h1>
         <p class="text-gray-400 text-base md:text-lg">Répondez aux questions pour adapter votre parcours.</p>
@@ -151,12 +160,13 @@ async function nextStep() {
                 </label>
               </div>
               <div v-else-if="q.metadata?.type === 'qcm'" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button v-for="opt in q.options" :key="opt" @click="responses[q.id] = opt" class="formation-card" :class="responses[q.id] === opt ? 'formation-card--selected' : 'formation-card--default'">
-                  <span class="formation-card__label" v-html="formatBoldText(opt)"></span>
-                  <div class="formation-card__radio" :class="responses[q.id] === opt ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                    <div v-if="responses[q.id] === opt" class="formation-card__radio-dot"></div>
+                <label v-for="opt in q.options" :key="opt" class="option-card" :class="responses[q.id] === opt ? 'option-card--selected' : 'option-card--default'">
+                  <input type="radio" :name="'q-' + q.id" v-model="responses[q.id]" :value="opt" class="hidden" />
+                  <span class="option-card__label" v-html="formatBoldText(opt)"></span>
+                  <div class="option-card__radio" :class="responses[q.id] === opt ? 'option-card__radio--selected' : 'option-card__radio--default'">
+                    <div v-if="responses[q.id] === opt" class="option-card__radio-dot"></div>
                   </div>
-                </button>
+                </label>
               </div>
               <div v-else>
                 <input v-model="responses[q.id]" type="text" class="Wizi-input" />
@@ -173,10 +183,89 @@ async function nextStep() {
         </div>
       </div>
     </main>
+
+    <!-- Bottom Actions Sticky -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40">
+      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+        <button @click="router.push('/')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors">
+          <span class="material-icons-outlined text-lg">arrow_back</span>
+          Retour
+        </button>
+
+        <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+          <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+          <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
+          <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+
     <SiteFooter />
   </div>
 </template>
 
 <style scoped>
 .Wizi-input { width:100%; padding:0.75rem; border-radius:1rem; border:1px solid #e5e7eb }
+
+/* reuse option-card styles for radio selections */
+.option-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  min-height: 3.5rem;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-card--default:hover {
+  border-color: #d1d5db;
+  background: #e9ebee;
+}
+
+.option-card--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.option-card__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+}
+
+.option-card--selected .option-card__label {
+  color: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.option-card__radio--selected {
+  border-color: var(--color-brand-primary, #3b82f6);
+  background: var(--color-brand-primary, #3b82f6);
+}
+
+.option-card__radio-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: white;
+}
 </style>

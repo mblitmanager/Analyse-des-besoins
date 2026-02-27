@@ -22,6 +22,7 @@ const form = ref({
   prerequisQuestionsScope: "global",
   complementaryQuestionsScope: "global",
   availabilitiesQuestionsScope: "global",
+  miseANiveauQuestionsScope: "global",
   levels: [],
 });
 
@@ -60,6 +61,7 @@ function openAddModal() {
     prerequisQuestionsScope: "global",
     complementaryQuestionsScope: "global",
     availabilitiesQuestionsScope: "global",
+    miseANiveauQuestionsScope: "global",
     levels: [],
   };
   showModal.value = true;
@@ -496,6 +498,19 @@ onMounted(fetchFormations);
                   </label>
                   <select
                     v-model="form.availabilitiesQuestionsScope"
+                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <option value="global">Global uniquement</option>
+                    <option value="formation">Formation uniquement</option>
+                    <option value="both">Global et Formation (en même temps)</option>
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                    Mise à niveau · Source des questions
+                  </label>
+                  <select
+                    v-model="form.miseANiveauQuestionsScope"
                     class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
                     <option value="global">Global uniquement</option>

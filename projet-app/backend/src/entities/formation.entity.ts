@@ -51,6 +51,9 @@ export class Formation {
   @Column({ type: 'varchar', length: 12, default: 'global' })
   availabilitiesQuestionsScope: 'global' | 'formation' | 'both';
 
+  @Column({ type: 'varchar', length: 12, default: 'global' })
+  miseANiveauQuestionsScope: 'global' | 'formation' | 'both';
+
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 
