@@ -1,0 +1,107 @@
+[
+  {
+    "id": 25,
+    "slug": "toeic",
+    "label": "Anglais "
+  },
+  {
+    "id": 23,
+    "slug": "digcomp",
+    "label": "DigComp"
+  },
+  {
+    "id": 51,
+    "slug": "voltaire",
+    "label": "Français"
+  },
+  {
+    "id": 18,
+    "slug": "francais",
+    "label": "Français-KO"
+  },
+  {
+    "id": 48,
+    "slug": "gimp",
+    "label": "Gimp"
+  },
+  {
+    "id": 4,
+    "slug": "google-docs",
+    "label": "Google Docs"
+  },
+  {
+    "id": 5,
+    "slug": "google-sheets",
+    "label": "Google Sheets"
+  },
+  {
+    "id": 10,
+    "slug": "google-slides",
+    "label": "Google Slides"
+  },
+  {
+    "id": 16,
+    "slug": "google-workspace",
+    "label": "Google Workspace"
+  },
+  {
+    "id": 19,
+    "slug": "illustrator",
+    "label": "Illustrator"
+  },
+  {
+    "id": 24,
+    "slug": "intelligence-artificielle-générative",
+    "label": "Intelligence Artificielle Générative"
+  },
+  {
+    "id": 43,
+    "slug": "outils-collaboratifs-google",
+    "label": "Outils Collaboratifs Google"
+  },
+  {
+    "id": 49,
+    "slug": "outlook",
+    "label": "Outlook"
+  },
+  {
+    "id": 45,
+    "slug": "excel",
+    "label": "Pack Office Excel"
+  },
+  {
+    "id": 15,
+    "slug": "pack-office-outlook",
+    "label": "Pack Office Outlook"
+  },
+  {
+    "id": 14,
+    "slug": "pack-office-powerpoint",
+    "label": "Pack Office PowerPoint"
+  },
+  {
+    "id": 44,
+    "slug": "word",
+    "label": "Pack Office Word"
+  },
+  {
+    "id": 20,
+    "slug": "photoshop",
+    "label": "Photoshop"
+  },
+  {
+    "id": 50,
+    "slug": "powerpoint",
+    "label": "PowerPoint"
+  },
+  {
+    "id": 21,
+    "slug": "sketchup",
+    "label": "Sketchup"
+  },
+  {
+    "id": 22,
+    "slug": "wordpress",
+    "label": "WordPress"
+  }
+]

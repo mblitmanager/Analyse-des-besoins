@@ -222,20 +222,20 @@ const sectionParts = computed(() => {
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
         <div class="flex flex-col items-center gap-4 mb-6">
-          <div class="flex items-center gap-2 mb-1">
+          <!-- <div class="flex items-center gap-2 mb-1">
             <span
               class="text-xs text-gray-400 font-bold uppercase tracking-widest"
               >Étape {{ store.getProgress("/formations").current }} sur
               {{ store.getProgress("/formations").total }}</span
-            >
-            <span
+            > -->
+            <!-- <span
               class="text-xs text-brand-primary font-bold uppercase tracking-widest"
               >{{
                 Math.round(store.getProgress("/formations").percentage)
               }}%</span
             >
-          </div>
-          <div
+          </div> -->
+          <!-- <div
             class="w-full max-w-md h-1.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100"
           >
             <div
@@ -244,7 +244,7 @@ const sectionParts = computed(() => {
                 width: store.getProgress('/formations').percentage + '%',
               }"
             ></div>
-          </div>
+          </div> -->
         </div>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
           Quelle formation souhaitez-vous suivre ?

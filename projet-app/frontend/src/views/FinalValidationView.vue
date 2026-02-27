@@ -158,7 +158,7 @@ function goHome() {
         >
           Validation Finale
         </h1>
-        <div class="flex items-center justify-between mb-2 px-1">
+        <!-- <div class="flex items-center justify-between mb-2 px-1">
           <span
             class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"
             >Progression</span
@@ -174,7 +174,7 @@ function goHome() {
             class="h-full bg-brand-primary transition-all duration-700"
             style="width: 100%"
           ></div>
-        </div>
+        </div> -->
         <p
           class="text-gray-400 text-center mb-10 font-bold uppercase tracking-widest text-xs"
         >
