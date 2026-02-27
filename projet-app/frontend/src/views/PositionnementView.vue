@@ -119,7 +119,15 @@ async function loadLevelQuestions() {
     });
     currentResponses.value = {};
     questions.value.forEach((q) => {
-      currentResponses.value[q.id] = q.responseType === 'text' ? "" : null;
+      if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
+        currentResponses.value[q.id] = [];
+      } else if (q.metadata?.type === "radio_toggle") {
+        currentResponses.value[q.id] = "Non";
+      } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
+        currentResponses.value[q.id] = null;
+      } else {
+        currentResponses.value[q.id] = "";
+      }
     });
     currentQuestionIndex.value = 0; // Reset question index for new level
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -391,12 +399,12 @@ async function saveAndExit() {
           </div>
 
           <!-- Adaptive Introduction -->
-          <div class="bg-blue-600 rounded-3xl p-8 mb-8 text-[#428496] shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+          <div class="bg-blue-400 rounded-3xl p-8 mb-8  shadow-xl shadow-blue-600/20 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
-              <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
+              <!-- <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
                 <span class="material-icons-outlined text-3xl">info</span>
-              </div>
+              </div> -->
               <div class="flex-1">
                 <h3 class="text-xl font-bold mb-2">
                   {{ currentLevelIndex === 0 ? "Comment fonctionne ce test ?" : "Bravo, vous progressez !" }}
@@ -412,7 +420,7 @@ async function saveAndExit() {
           </div>
 
           <!-- Progress Bar -->
-          <div
+          <!-- <div
             class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
           >
             <div class="flex items-center justify-between mb-2 px-1">
@@ -438,7 +446,7 @@ async function saveAndExit() {
                 }"
               ></div>
             </div>
-          </div>
+          </div> -->
         </div>
 
           <div
@@ -455,13 +463,13 @@ async function saveAndExit() {
 
         <div v-else class="space-y-10">
           <div class="relative">
-            <div class="flex items-center gap-4 mb-8">
+            <!-- <div class="flex items-center gap-4 mb-8">
               <span
                 class="text-xs font-bold text-gray-300 uppercase tracking-widest whitespace-nowrap"
                 >Parcours {{ levels[currentLevelIndex]?.label }}</span
               >
               <div class="h-px w-full bg-gray-100"></div>
-            </div>
+            </div> -->
 
             <div class="space-y-5">
               <!-- MODE LISTE (CLASSIQUE) -->
@@ -490,7 +498,38 @@ async function saveAndExit() {
                       </div>
                     </div>
 
-                    <div v-if="q.responseType === 'text'" class="mt-4">
+                    <div v-if="q.responseType === 'checkbox' || q.metadata?.type === 'multi_select'" class="grid grid-cols-1 gap-3">
+                      <label
+                        v-for="(option, oIdx) in q.options"
+                        :key="oIdx"
+                        class="option-card"
+                        :class="
+                          Array.isArray(currentResponses[q.id]) && currentResponses[q.id].includes(option)
+                            ? 'option-card--selected'
+                            : 'option-card--default'
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          v-model="currentResponses[q.id]"
+                          :value="option"
+                          class="hidden"
+                        />
+                        <span class="option-card__label" v-html="formatBoldText(option)"></span>
+                        <div
+                          class="option-card__radio rounded-md"
+                          :class="
+                            Array.isArray(currentResponses[q.id]) && currentResponses[q.id].includes(option)
+                              ? 'option-card__radio--selected'
+                              : 'option-card__radio--default'
+                          "
+                        >
+                           <span v-if="Array.isArray(currentResponses[q.id]) && currentResponses[q.id].includes(option)" class="material-icons-outlined text-white text-[14px]">check</span>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div v-else-if="q.responseType === 'text'" class="mt-4">
                       <textarea
                         v-model="currentResponses[q.id]"
                         rows="3"
@@ -564,7 +603,38 @@ async function saveAndExit() {
                         {{ questions[currentQuestionIndex].text }}
                       </h3>
 
-                      <div v-if="questions[currentQuestionIndex].responseType === 'text'">
+                      <div v-if="questions[currentQuestionIndex].responseType === 'checkbox' || questions[currentQuestionIndex].metadata?.type === 'multi_select'" class="grid grid-cols-1 gap-4">
+                        <label
+                          v-for="(option, oIdx) in questions[currentQuestionIndex].options"
+                          :key="oIdx"
+                          class="option-card rounded-3xl! p-6! min-h-18!"
+                          :class="
+                            Array.isArray(currentResponses[questions[currentQuestionIndex].id]) && currentResponses[questions[currentQuestionIndex].id].includes(option)
+                              ? 'option-card--selected'
+                              : 'option-card--default'
+                          "
+                        >
+                          <input
+                            type="checkbox"
+                            v-model="currentResponses[questions[currentQuestionIndex].id]"
+                            :value="option"
+                            class="hidden"
+                          />
+                          <span class="option-card__label text-base!" v-html="formatBoldText(option)"></span>
+                          <div
+                            class="option-card__radio w-6! h-6! rounded-md"
+                            :class="
+                              Array.isArray(currentResponses[questions[currentQuestionIndex].id]) && currentResponses[questions[currentQuestionIndex].id].includes(option)
+                                ? 'option-card__radio--selected'
+                                : 'option-card__radio--default'
+                            "
+                          >
+                             <span v-if="Array.isArray(currentResponses[questions[currentQuestionIndex].id]) && currentResponses[questions[currentQuestionIndex].id].includes(option)" class="material-icons-outlined text-white text-base">check</span>
+                          </div>
+                        </label>
+                      </div>
+
+                      <div v-else-if="questions[currentQuestionIndex].responseType === 'text'">
                         <textarea
                           v-model="currentResponses[questions[currentQuestionIndex].id]"
                           rows="4"

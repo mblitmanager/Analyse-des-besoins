@@ -76,6 +76,9 @@ export class Session {
   @Column('simple-json', { nullable: true })
   availabilities: any;
 
+  @Column('simple-json', { nullable: true })
+  miseANiveauAnswers: any;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }

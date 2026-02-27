@@ -57,10 +57,14 @@ onMounted(async () => {
     );
 
     questions.value.forEach((q) => {
-      if (q.responseType === "text") {
-        responses.value[q.id] = "";
-      } else {
+      if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
+        responses.value[q.id] = [];
+      } else if (q.metadata?.type === "radio_toggle") {
+        responses.value[q.id] = "Non";
+      } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
         responses.value[q.id] = null;
+      } else {
+        responses.value[q.id] = "";
       }
     });
 
