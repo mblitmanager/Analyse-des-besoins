@@ -85,7 +85,7 @@ async function skipStep() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
         <div class="hidden md:flex flex-col items-end mr-4">
@@ -123,7 +123,7 @@ async function skipStep() {
 
       <div v-else class="space-y-6">
         <div
-          class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
+          class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <div
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"

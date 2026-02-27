@@ -291,7 +291,7 @@ const downloadPDF = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-outfit">
+  <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
         <div v-if="session" class="flex items-center gap-4">
@@ -407,7 +407,7 @@ const downloadPDF = async () => {
 
       <!-- Progress Bar -->
       <div
-        class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-8"
+        class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
       >
         <div class="flex items-center justify-between mb-2 px-1">
           <span
@@ -507,7 +507,7 @@ const downloadPDF = async () => {
         </div>
 
         <div v-if="parcoursOptions.length <= 1"
-          class="relative bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+          class="relative bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <!-- Pack Header -->
           <div
@@ -639,8 +639,8 @@ const downloadPDF = async () => {
 
             <!-- Financement Box -->
             <div
-              class="bg-white p-5 rounded-xl flex items-center gap-4 heading-primary border border-blue-50"
-            >
+          class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-white text-center"
+        >
               <div
                 class="shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
               >
