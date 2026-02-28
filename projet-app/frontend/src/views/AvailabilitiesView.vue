@@ -16,6 +16,9 @@ const responses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
 
+// when there are no availability questions
+const skipNotice = ref(false);
+
 onMounted(async () => {
   if (!sessionId) {
     router.push("/");
@@ -43,10 +46,13 @@ onMounted(async () => {
       ).values(),
     );
 
-    // if backend returned no questions for this step, advance automatically
+    // if backend returned no questions for this step, show message then advance
     if (questions.value.length === 0) {
-      const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
-      router.push(nextRoute || "/validation");
+      skipNotice.value = true;
+      setTimeout(async () => {
+        const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
+        router.push(nextRoute || "/validation");
+      }, 1500);
       return;
     }
 
@@ -130,12 +136,19 @@ async function skipStep() {
         <p class="text-gray-400 text-base md:text-lg">
           Planifions ensemble votre parcours de formation.
         </p>
+        <p v-if="skipNotice" class="text-blue-600 font-bold mt-4">
+          Aucune disponibilité demandée, redirection...
+        </p>
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">
         <div
           class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
         ></div>
+      </div>
+
+      <div v-else-if="skipNotice" class="flex items-center justify-center py-20">
+        <p class="text-gray-700 font-bold">Aucune disponibilité demandée, redirection...</p>
       </div>
 
       <div v-else class="space-y-6">
