@@ -143,7 +143,7 @@ function skipStep() {
         <div
           class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
-          <div
+          <!-- <div
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
@@ -154,7 +154,7 @@ function skipStep() {
               >
             </div>
             <h2 class="text-base font-bold text-gray-800">Votre profil</h2>
-          </div>
+          </div> -->
           <div class="p-6 md:p-8 space-y-8">
             <div v-for="q in questions" :key="q.id">
               <div v-if="shouldShowQuestion(q)" class="space-y-3">

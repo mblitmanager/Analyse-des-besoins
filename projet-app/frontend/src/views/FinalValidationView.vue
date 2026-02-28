@@ -55,6 +55,12 @@ const recommendedLabelParts = computed(() => {
       if (session.value?.formationChoisie && cleaned.startsWith(session.value.formationChoisie)) {
           cleaned = cleaned.replace(session.value.formationChoisie, "").replace(/^- /, "").trim();
       }
+      
+      // Add 'Niveau ' prefix if missing and it's not the full recommended label (which might be "Parcours personnalisé")
+      if (cleaned && !cleaned.toLowerCase().includes("niveau") && cleaned !== "Parcours personnalisé") {
+          cleaned = `Niveau ${cleaned}`;
+      }
+      
       return cleaned;
   }).filter(p => p !== "");
 });

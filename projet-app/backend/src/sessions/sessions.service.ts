@@ -207,6 +207,11 @@ export class SessionsService {
 
     let l1: string, l2: string;
 
+    const ensureNiveau = (label: string) => {
+      if (!label) return label;
+      return label.toLowerCase().includes('niveau') ? label : `Niveau ${label}`;
+    };
+
     // Use stopLevel if available, as it represents the target level where the user struggled
     const stopLevelLabel = session.stopLevel;
     const stopLevelIdx = stopLevelLabel
@@ -214,23 +219,23 @@ export class SessionsService {
       : -1;
 
     if (stopLevelIdx !== -1) {
-      l1 = levels[stopLevelIdx].label;
+      l1 = ensureNiveau(levels[stopLevelIdx].label);
       if (stopLevelIdx < levels.length - 1) {
-        l2 = levels[stopLevelIdx + 1].label;
+        l2 = ensureNiveau(levels[stopLevelIdx + 1].label);
       } else {
         l2 = l1;
       }
     } else {
       // Fallback to score logic (for legacy or manual sessions)
       if (lastValidatedIdx < levels.length - 1) {
-        l1 = levels[lastValidatedIdx + 1].label;
+        l1 = ensureNiveau(levels[lastValidatedIdx + 1].label);
         if (lastValidatedIdx + 1 < levels.length - 1) {
-          l2 = levels[lastValidatedIdx + 2].label;
+          l2 = ensureNiveau(levels[lastValidatedIdx + 2].label);
         } else {
           l2 = l1;
         }
       } else {
-        l1 = levels[levels.length - 1].label;
+        l1 = ensureNiveau(levels[levels.length - 1].label);
         l2 = l1;
       }
     }
