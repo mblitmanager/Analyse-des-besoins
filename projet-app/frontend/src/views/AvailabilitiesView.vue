@@ -193,12 +193,12 @@ function skipStep() {
               <!-- Multi-Select Type (créneaux) -->
               <div
                 v-if="q.metadata?.type === 'multi_select'"
-                class="grid grid-cols-1 md:grid-cols-3 gap-3"
+                class="grid grid-cols-1 md:grid-cols-3 gap-2"
               >
                 <label
                   v-for="(opt, idx) in q.options"
                   :key="opt"
-                  class="option-card h-auto! flex-col! items-center! py-4!"
+                  class="option-card h-auto! flex-col! items-center! py-2.5!"
                   :class="
                     responses[q.id].includes(opt)
                       ? 'option-card--selected'
@@ -213,7 +213,7 @@ function skipStep() {
                   />
                   <span
                     v-if="q.metadata.icons?.[idx]"
-                    class="material-icons-outlined text-2xl mb-2 transition-colors"
+                    class="material-icons-outlined text-lg mb-1 transition-colors"
                     :class="
                       responses[q.id].includes(opt)
                         ? 'text-brand-primary'
@@ -223,22 +223,12 @@ function skipStep() {
                     {{ q.metadata.icons[idx] }}
                   </span>
                   <span 
-                    class="option-card__label text-center! text-sm font-bold"
+                    class="option-card__label text-center! text-[13px] font-bold"
                     :class="responses[q.id].includes(opt) ? 'text-brand-primary' : 'text-gray-700'"
                     v-html="formatBoldText(opt)"
                   ></span>
                   
-                  <!-- Checkbox indicator -->
-                  <div
-                    class="mt-2 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center placeholder-checkbox"
-                    :class="
-                      responses[q.id].includes(opt)
-                        ? 'bg-brand-primary border-brand-primary'
-                        : 'border-gray-200'
-                    "
-                  >
-                    <span v-if="responses[q.id].includes(opt)" class="material-icons-outlined text-[#428496] text-[14px] font-black">check</span>
-                  </div>
+
                 </label>
               </div>
 

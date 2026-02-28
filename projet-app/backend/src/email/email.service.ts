@@ -11,7 +11,7 @@ export class EmailService {
     to: string,
     subject: string,
     content: string,
-    attachments?: Array<{ filename: string; content: Buffer }>,
+    attachments?: any[],
   ) {
     try {
       await this.mailerService.sendMail({
@@ -33,9 +33,13 @@ export class EmailService {
     formation: string,
     score: number,
   ) {
-    const publicPath = path.resolve(__dirname, '../../../public');
-    const logoAopiaPath = path.join(publicPath, 'logo/Logo-AOPIA.png');
-    const logoLikePath = path.join(publicPath, 'logo/Logo_Like_Formation.png');
+    const publicPath = path.join(process.cwd(), 'public');
+    const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
+    const logoLikePath = path.join(
+      publicPath,
+      'logo',
+      'Logo_Like_Formation.png',
+    );
 
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
@@ -60,7 +64,7 @@ export class EmailService {
       </div>
     `;
 
-    const attachments = [];
+    const attachments: any[] = [];
     if (fs.existsSync(logoAopiaPath)) {
       attachments.push({
         filename: 'logo-aopia.png',
