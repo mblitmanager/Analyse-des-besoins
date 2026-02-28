@@ -15,6 +15,9 @@ export class Question {
   @Column()
   correctResponseIndex: number;
 
+  @Column({ type: 'simple-json', nullable: true })
+  correctResponseIndexes: number[];
+
   @Column()
   order: number;
 

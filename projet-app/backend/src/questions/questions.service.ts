@@ -250,6 +250,7 @@ export class QuestionsService {
           ? String(showIfResponseValue).trim()
           : undefined,
       showIfRules: showIfRules ? (showIfRules as any) : undefined,
+      correctResponseIndexes: rest.correctResponseIndexes,
     } as DeepPartial<Question>);
     return this.questionRepo.save(question);
   }
@@ -319,6 +320,7 @@ export class QuestionsService {
     updateData.showIfRules = normalizedShowIfRules
       ? (normalizedShowIfRules as any)
       : undefined;
+    updateData.correctResponseIndexes = data.correctResponseIndexes;
 
     await this.questionRepo.update(id, updateData as any);
     return this.questionRepo.findOne({
@@ -337,6 +339,32 @@ export class QuestionsService {
   async remove(id: number) {
     const question = await this.questionRepo.findOne({ where: { id } });
     if (question) {
+      // 1. Clear simple showIfQuestionId dependencies
+      await this.questionRepo.update({ showIfQuestionId: id }, {
+        showIfQuestionId: null,
+        showIfResponseIndexes: null,
+        showIfResponseValue: null,
+      } as any);
+
+      // 2. Cleanup showIfRules (JSON array)
+      const allWithRules = await this.questionRepo.find();
+
+      for (const q of allWithRules) {
+        if (q.showIfRules && Array.isArray(q.showIfRules)) {
+          const originalLength = q.showIfRules.length;
+          q.showIfRules = q.showIfRules.filter(
+            (rule) => Number(rule.questionId) !== Number(id),
+          );
+
+          if (originalLength !== q.showIfRules.length) {
+            // If all rules were removed, TypeORM might prefer an empty array or null
+            // We'll use an empty array if that was the intended type
+            await this.questionRepo.save(q);
+          }
+        }
+      }
+
+      // 3. Remove the question itself
       await this.questionRepo.remove(question);
       return true;
     }

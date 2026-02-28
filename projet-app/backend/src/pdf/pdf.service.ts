@@ -106,7 +106,10 @@ export class PdfService {
           ([lvl, e]: [string, any]) => {
             const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
             const validated = e?.validated ? 'Oui' : 'Non';
-            return [lvl, score, validated];
+            const displayLvl = lvl.toLowerCase().includes('niveau')
+              ? lvl
+              : `Niveau ${lvl}`;
+            return [displayLvl, score, validated];
           },
         );
         this.drawTable(
