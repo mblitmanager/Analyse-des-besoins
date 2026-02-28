@@ -32,6 +32,9 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async seedSettings() {
+    const count = await this.settingRepo.count();
+    if (count > 0) return; // Don't re-seed if settings already exist
+
     const settings = [
       {
         key: 'ADMIN_EMAIL',
@@ -76,6 +79,9 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async seedAdmin() {
+    const count = await this.userRepo.count();
+    if (count > 0) return; // Don't re-seed if users already exist
+
     const email = 'admin@wizy-learn.com';
     const exists = await this.userRepo.findOne({ where: { email } });
     if (!exists) {
@@ -89,6 +95,9 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async seedFormations() {
+    const count = await this.formationRepo.count();
+    if (count > 0) return; // Don't re-seed if formations already exist
+
     // 1. Formations
     const formationsData = [
       {
@@ -215,17 +224,17 @@ export class SeedService implements OnApplicationBootstrap {
     ];
 
     const toeicLevels: Record<string, Level> = {};
+    const count = await this.levelRepo.count({
+      where: { formation: { id: toeic.id } },
+    });
+    if (count > 0) return; // Don't re-seed levels if some already exist for TOEIC
+
     for (const lData of levelsData) {
-      let level = await this.levelRepo.findOne({
-        where: { label: lData.label, formation: { id: toeic.id } },
-      });
-      if (!level) {
-        level = await this.levelRepo.save({
-          ...lData,
-          formation: toeic,
-        } as any);
-        console.log(`Level ${lData.label} for TOEIC created.`);
-      }
+      const level = await this.levelRepo.save({
+        ...lData,
+        formation: toeic,
+      } as any);
+      console.log(`Level ${lData.label} for TOEIC created.`);
       if (level) {
         toeicLevels[lData.label] = level;
       }
