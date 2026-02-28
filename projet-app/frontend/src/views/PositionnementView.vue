@@ -250,8 +250,13 @@ async function nextStep() {
       // If the user failed (!canProgress) we simply recommend that level; if they
       // validated the final level we also recommend it.
       // Recommendation targets the current level (the one failed or the final one) and its successor
-      const l1 = currentLevel.label;
-      const l2 = levels.value[currentLevelIndex.value + 1]?.label;
+      const ensureNiveau = (label) => {
+        if (!label) return label;
+        return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
+      };
+      
+      const l1 = ensureNiveau(currentLevel.label);
+      const l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
       
       if (l2) {
         finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;

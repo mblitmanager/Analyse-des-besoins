@@ -31,8 +31,13 @@ const recommendedLabel = computed(() => {
 
   if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
 
+  let displayLevel = level;
+  if (displayLevel && !displayLevel.toLowerCase().includes("niveau")) {
+      displayLevel = `Niveau ${displayLevel}`;
+  }
+
   return `${session.value.formationChoisie || ""}${
-    level ? " - " + level : ""
+    displayLevel ? " - " + displayLevel : ""
   }`.trim();
 });
 

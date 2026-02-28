@@ -28,8 +28,13 @@ const recommendedLabel = computed(() => {
 
   if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
 
+  let displayLevel = level;
+  if (displayLevel && !displayLevel.toLowerCase().includes("niveau")) {
+      displayLevel = `Niveau ${displayLevel}`;
+  }
+
   return `${session.value.formationChoisie || ""}${
-    level ? " - " + level : ""
+    displayLevel ? " - " + displayLevel : ""
   }`.trim();
 });
 
@@ -161,7 +166,7 @@ function skipStep() {
         <div
           class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
-          <div
+          <!-- <div
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
@@ -172,7 +177,7 @@ function skipStep() {
               >
             </div>
             <h2 class="text-base font-bold text-gray-800">Planification</h2>
-          </div>
+          </div> -->
 
           <div class="p-6 md:p-8 space-y-8">
             <div v-for="q in questions" :key="q.id" class="space-y-3">
