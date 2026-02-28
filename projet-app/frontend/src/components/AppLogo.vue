@@ -7,14 +7,7 @@ const logosVisible = reactive({ aopia: true, like: true, nsconseil: true })
 
 <template>
   <div class="flex items-center gap-3">
-      <img
-      v-if="logosVisible.nsconseil"
-      src="/logos/logo_nsconseil.png"
-      alt="NS Conseil"
-      @error="logosVisible.nsconseil=false"
-      class="h-8 object-contain"
-    />
-    <img
+         <img
       v-if="logosVisible.aopia"
       src="/logos/Logo-AOPIA.png"
       alt="AOPIA"

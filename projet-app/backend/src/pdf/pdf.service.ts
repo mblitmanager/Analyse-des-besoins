@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 const PDFDocument = require('pdfkit');
+const path = require('path');
+const fs = require('fs');
 
 @Injectable()
 export class PdfService {
@@ -48,6 +50,13 @@ export class PdfService {
       const grayText = '#6b7280';
       const lightBg = '#f8fafc';
 
+      const publicPath = path.resolve(__dirname, '../../../public');
+      const logoAopiaPath = path.join(publicPath, 'logo/Logo-AOPIA.png');
+      const logoLikePath = path.join(
+        publicPath,
+        'logo/Logo_Like_Formation.png',
+      );
+
       // ─── Header ───
       doc
         .fontSize(22)
@@ -66,7 +75,7 @@ export class PdfService {
           'Bénéficiaire',
           `${data.civilite || ''} ${data.prenom || ''} ${data.nom || ''}`.trim(),
         ],
-        ['Email', data.email || 'N/A'],
+        // ['Email', data.email || 'N/A'],
         ['Téléphone', data.telephone || 'N/A'],
         ['Conseiller', data.conseiller || 'N/A'],
         ['Métier', data.metier || 'N/A'],
@@ -76,7 +85,7 @@ export class PdfService {
             ? data.situation.join(', ')
             : data.situation || 'N/A',
         ],
-        ['Marque', data.brand || 'N/A'],
+        // ['Marque', data.brand || 'N/A'],
       ];
       this.drawTable(doc, beneficiary, darkText, grayText, lightBg);
 
@@ -164,15 +173,35 @@ export class PdfService {
         lightBg,
       );
 
-      // ─── Footer ───
-      doc.moveDown(2);
+      // ─── Footer with Logos ───
+      const footerY = doc.page.height - 80;
+
+      try {
+        if (fs.existsSync(logoAopiaPath)) {
+          doc.image(logoAopiaPath, doc.page.width / 2 - 90, footerY, {
+            height: 25,
+          });
+        }
+        if (fs.existsSync(logoLikePath)) {
+          doc.image(logoLikePath, doc.page.width / 2 + 10, footerY, {
+            height: 25,
+          });
+        }
+      } catch (e) {
+        console.warn('Could not add logos to PDF:', e.message);
+      }
+
+      doc.moveDown(3);
       doc
         .fontSize(8)
         .fillColor(grayText)
         .text(
           'Document généré automatiquement par NS Conseil - Analyse des besoins',
+          doc.page.width / 2 - 200, // Manual center adjustment if needed, but text() with align: center is better
+          footerY + 35,
           {
             align: 'center',
+            width: 400,
           },
         );
 

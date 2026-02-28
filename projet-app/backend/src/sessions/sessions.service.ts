@@ -355,9 +355,7 @@ export class SessionsService {
               ? session.situation.join(', ')
               : session.situation,
           )}</td></tr>
-          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Marque</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
-            session.brand,
-          )}</td></tr>
+        
         </tbody>
       </table>
 
@@ -392,12 +390,10 @@ export class SessionsService {
       civilite: session.civilite,
       prenom: session.prenom,
       nom: session.nom,
-      email: beneficiaryEmail,
       telephone: session.telephone,
       conseiller: session.conseiller,
       metier: session.metier,
       situation: session.situation,
-      brand: session.brand,
       formationChoisie: session.formationChoisie,
       finalRecommendation: recommendation,
       scoreFinal: scoreFinal,
