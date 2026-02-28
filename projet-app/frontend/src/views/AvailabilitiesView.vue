@@ -21,6 +21,9 @@ onMounted(async () => {
     router.push("/");
     return;
   }
+  if (store.workflowSteps.length === 0) {
+    await store.fetchWorkflow();
+  }
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -40,6 +43,13 @@ onMounted(async () => {
       ).values(),
     );
 
+    // if backend returned no questions for this step, advance automatically
+    if (questions.value.length === 0) {
+      const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
+      router.push(nextRoute || "/validation");
+      return;
+    }
+
     // Initialize responses keyed by q.id
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
@@ -54,6 +64,9 @@ onMounted(async () => {
     });
   } catch (error) {
     console.error("Failed to fetch questions:", error);
+    const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
+    router.push(nextRoute || "/validation");
+    return;
   } finally {
     loading.value = false;
   }
@@ -73,7 +86,7 @@ async function nextStep() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       availabilities: responses.value,
     });
-    const nextRoute = store.getNextRoute("/availabilities");
+    const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
     router.push(nextRoute || "/validation");
   } catch (error) {
     console.error("Failed to save availabilities:", error);
@@ -83,7 +96,7 @@ async function nextStep() {
 }
 
 async function skipStep() {
-  const nextRoute = store.getNextRoute("/availabilities");
+  const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
   router.push(nextRoute || "/validation");
 }
 </script>

@@ -21,6 +21,9 @@ onMounted(async () => {
     router.push("/");
     return;
   }
+  if (store.workflowSteps.length === 0) {
+    await store.fetchWorkflow();
+  }
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -40,6 +43,13 @@ onMounted(async () => {
       ).values(),
     );
 
+    // nothing to answer? jump ahead
+    if (questions.value.length === 0) {
+      const nextRoute = await store.getNextRouteWithQuestions("/complementary");
+      router.push(nextRoute || "/availabilities");
+      return;
+    }
+
     // Initialize responses keyed by q.id
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
@@ -54,6 +64,9 @@ onMounted(async () => {
     });
   } catch (error) {
     console.error("Failed to fetch questions:", error);
+    const nextRoute = await store.getNextRouteWithQuestions("/complementary");
+    router.push(nextRoute || "/availabilities");
+    return;
   } finally {
     loading.value = false;
   }
@@ -67,7 +80,7 @@ async function nextStep() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       complementaryQuestions: responses.value,
     });
-    const nextRoute = store.getNextRoute("/complementary");
+    const nextRoute = await store.getNextRouteWithQuestions("/complementary");
     router.push(nextRoute || "/availabilities");
   } catch (error) {
     console.error("Failed to save complementary questions:", error);
@@ -90,7 +103,7 @@ function shouldShowQuestion(q) {
 }
 
 async function skipStep() {
-  const nextRoute = store.getNextRoute("/complementary");
+  const nextRoute = await store.getNextRouteWithQuestions("/complementary");
   router.push(nextRoute || "/availabilities");
 }
 </script>

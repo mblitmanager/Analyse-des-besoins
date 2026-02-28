@@ -274,8 +274,8 @@ async function nextStep() {
   }
 }
 
-function finishStep() {
-  const nextRoute = store.getNextRoute("/positionnement");
+async function finishStep() {
+  const nextRoute = await store.getNextRouteWithQuestions("/positionnement");
   router.push(nextRoute || "/complementary");
 }
 function closeAndChangeFormation() {

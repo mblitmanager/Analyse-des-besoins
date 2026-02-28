@@ -68,7 +68,7 @@ async function selectFormation() {
       selectedFormation.value.label,
     );
     if (selectedSuite.value) localStorage.setItem('selected_suite', selectedSuite.value);
-    const nextRoute = store.getNextRoute("/formations");
+    const nextRoute = await store.getNextRouteWithQuestions("/formations");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);
