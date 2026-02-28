@@ -68,7 +68,9 @@ export const useAppStore = defineStore('app', () => {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
       const res = await fetch(`${apiBaseUrl}/settings/${key}`);
       if (res.ok) {
-        const data = await res.json();
+        const text = await res.text();
+        if (!text) return null;
+        const data = JSON.parse(text);
         settings.value[key] = data?.value;
         return data?.value;
       }
@@ -158,6 +160,7 @@ export const useAppStore = defineStore('app', () => {
     workflowSteps, 
     setBrand, 
     fetchWorkflow, 
+    fetchSetting,
     getNextRoute, 
     getNextRouteWithQuestions,
     getProgress 
