@@ -60,6 +60,24 @@ export const useAppStore = defineStore('app', () => {
     return null;
   }
 
+  const settings = ref({});
+
+  async function fetchSetting(key) {
+    if (settings.value[key] !== undefined) return settings.value[key];
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const res = await fetch(`${apiBaseUrl}/settings/${key}`);
+      if (res.ok) {
+        const data = await res.json();
+        settings.value[key] = data?.value;
+        return data?.value;
+      }
+    } catch (e) {
+      console.error(`Failed to fetch setting ${key}`, e);
+    }
+    return null;
+  }
+
   // Returns the next route skipping any workflow steps that currently have zero questions.
   // This performs an HTTP request for each candidate step so it is async.
   async function getNextRouteWithQuestions(currentPath) {
@@ -88,10 +106,23 @@ export const useAppStore = defineStore('app', () => {
         const res = await fetch(url + params);
         if (res.ok) {
           const questions = await res.json();
-          if (Array.isArray(questions) && questions.length === 0) {
-            // no questions for this formation/step; skip ahead
-            next = getNextRoute(next);
-            continue;
+          if (Array.isArray(questions)) {
+            let skipThisStep = questions.length === 0;
+
+            // Special logic for mise_a_niveau/positionnement: skip if no questions AND setting allowed
+            if (code === 'mise_a_niveau' || code === 'mise-a-niveau' || code === 'positionnement') {
+              const settingKey = code.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
+              const autoSkip = await fetchSetting(settingKey);
+              if (autoSkip === 'true') {
+                // If there are truly no questions returned, skip
+                if (questions.length === 0) skipThisStep = true;
+              }
+            }
+
+            if (skipThisStep) {
+              next = getNextRoute(next);
+              continue;
+            }
           }
         }
       } catch (e) {
