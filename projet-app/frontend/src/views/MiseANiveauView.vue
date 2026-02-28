@@ -186,8 +186,8 @@ async function nextStep() {
     </SiteHeader>
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 relative">
       <div class="text-center mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2 italic uppercase tracking-tight">Mise à niveau</h1>
-        <p class="text-gray-400 text-sm md:text-base font-bold uppercase tracking-widest">Répondez aux questions pour adapter votre parcours</p>
+        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2 italic uppercase tracking-tight">Analyses des besoins</h1>
+        <p class="text-gray-400 text-sm md:text-base font-bold tracking-widest">Répondez aux questions pour adapter votre parcours</p>
         <p v-if="unanswered" class="text-red-500 font-black text-[10px] uppercase tracking-widest mt-4 flex items-center justify-center gap-2 animate-pulse">
           <span class="material-icons-outlined text-sm">warning</span>
           Toutes les questions doivent être complétées
@@ -199,7 +199,7 @@ async function nextStep() {
         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Chargement des questions...</p>
       </div>
 
-      <div v-else class="space-y-8 animate-in fade-in duration-700 delay-200 pb-32">
+      <div v-else class="space-y-8 animate-in fade-in duration-700 delay-200">
         <QuestionGroup
           v-for="grp in computedGroups"
           :key="grp.title"
@@ -208,30 +208,23 @@ async function nextStep() {
           :unanswered="unanswered"
         />
 
-        <!-- <div class="pt-8 flex justify-end md:hidden">
-          <button @click="nextStep" :disabled="submitting" class="w-full px-8 py-4 bg-brand-primary text-[#428496] font-black uppercase rounded-2xl shadow-xl shadow-brand-primary/20">
-            <span v-if="submitting" class="material-icons-outlined animate-spin">sync</span>
-            <span v-else>Continuer</span>
-          </button>
-        </div> -->
+        <!-- Bottom Actions -->
+        <div class="pt-8 flex items-center justify-between gap-4 mt-10">
+          <div class="max-w-4xl mx-auto flex items-center justify-between gap-4 w-full">
+            <button @click="router.push('/formations')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-all hover:-translate-x-1">
+              <span class="material-icons-outlined text-lg">arrow_back</span>
+              Retour
+            </button>
+
+            <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+              <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+              <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
+              <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+            </button>
+          </div>
+        </div>
       </div>
     </main>
-
-    <!-- Bottom Actions Sticky -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40">
-      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
-        <button @click="router.push('/formations')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-all hover:-translate-x-1">
-          <span class="material-icons-outlined text-lg">arrow_back</span>
-          Retour
-        </button>
-
-        <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
-          <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
-          <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
-          <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
-        </button>
-      </div>
-    </div>
 
     <SiteFooter />
   </div>
