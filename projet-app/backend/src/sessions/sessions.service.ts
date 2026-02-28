@@ -248,7 +248,7 @@ export class SessionsService {
     }
 
     // Set combined string for backward compatibility and DB storage
-    let finalRecommendationValue = proposedParcours.join(' | ');
+    const finalRecommendationValue = proposedParcours.join(' | ');
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores
