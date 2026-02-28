@@ -149,7 +149,7 @@ const formatDate = (date) => {
 };
 
 const goNext = () => {
-  const nextRoute = await store.getNextRouteWithQuestions("/resultats");
+  const nextRoute = store.getNextRoute("/resultats");
   router.push(nextRoute || "/complementary");
 };
 
