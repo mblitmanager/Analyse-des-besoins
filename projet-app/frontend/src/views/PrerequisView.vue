@@ -259,27 +259,22 @@ function refuseProposal() {
           </div>
         </div>
 
-        <!-- Padding for sticky bar -->
-        <div class="h-32"></div>
+        <!-- Bottom Actions -->
+        <div class="pt-8 flex items-center justify-between gap-4 mt-10">
+          <button @click="router.push('/')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors">
+            <span class="material-icons-outlined text-lg">arrow_back</span>
+            Retour
+          </button>
+
+          <button @click="submitPrerequis()" :disabled="submitting"
+                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+            <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+            <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
+            <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+          </button>
+        </div>
       </div>
     </main>
-
-    <!-- Bottom Actions Sticky -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40">
-      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
-        <button @click="router.push('/')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors">
-          <span class="material-icons-outlined text-lg">arrow_back</span>
-          Retour
-        </button>
-
-        <button @click="submitPrerequis()" :disabled="submitting"
-                class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
-          <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
-          <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
-          <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
-        </button>
-      </div>
-    </div>
 
     <SiteFooter />
   </div>
