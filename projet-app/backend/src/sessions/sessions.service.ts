@@ -307,9 +307,12 @@ export class SessionsService {
               .map(([lvl, e]: any) => {
                 const ok = e?.validated ? 'Oui' : 'Non';
                 const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
+                const displayLvl = lvl.toLowerCase().includes('niveau')
+                  ? lvl
+                  : `Niveau ${lvl}`;
                 return `<tr>
                   <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">${safe(
-                    lvl,
+                    displayLvl,
                   )}</td>
                   <td style="padding:10px;border-top:1px solid #eee;">${safe(
                     score,
@@ -327,19 +330,20 @@ export class SessionsService {
 
     const beneficiaryEmail = session.stagiaire?.email || '';
 
+    // Filter complementary questions to exclude those already in Mise à niveau
+    const miseKeys = new Set(
+      Object.keys(filteredMiseAnswers || {}).map(String),
+    );
+    const filteredComplementary = Object.fromEntries(
+      Object.entries(session.complementaryQuestions || {}).filter(
+        ([key]) => !miseKeys.has(String(key)),
+      ),
+    );
+
     const extraContent = `
-      <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations du bénéficiaire</h3>
+      <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3>
       <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
         <tbody>
-          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Bénéficiaire</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
-            `${session.civilite || ''} ${session.prenom || ''} ${session.nom || ''}`.trim(),
-          )}</td></tr>
-          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
-            beneficiaryEmail,
-          )}</td></tr>
-          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
-            session.telephone,
-          )}</td></tr>
           <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
             session.conseiller,
           )}</td></tr>
@@ -366,7 +370,7 @@ export class SessionsService {
       )}
       ${renderAnswersTable(
         'Questions complémentaires (réponses)',
-        session.complementaryQuestions,
+        filteredComplementary,
         qTextById,
       )}
       ${renderAnswersTable(
@@ -399,10 +403,7 @@ export class SessionsService {
       scoreFinal: scoreFinal,
       levelsScores: session.levelsScores as Record<string, any>,
       prerequisiteAnswers: session.prerequisiteScore as Record<string, any>,
-      complementaryAnswers: session.complementaryQuestions as Record<
-        string,
-        any
-      >,
+      complementaryAnswers: filteredComplementary as Record<string, any>,
       availabilityAnswers: session.availabilities as Record<string, any>,
       miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
@@ -443,7 +444,7 @@ export class SessionsService {
             .split(' | ')
             .map(
               (r) =>
-                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">Niveau ${r}</div>`,
+                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
             )
             .join('')}
         </div>

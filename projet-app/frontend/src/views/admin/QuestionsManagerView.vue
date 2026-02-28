@@ -27,6 +27,7 @@ const form = ref({
   showIfResponseIndexes: [],
   // For text parent questions: matching text value
   showIfResponseValue: "",
+  correctResponseIndexes: [],
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -99,6 +100,7 @@ function openAddModal() {
     showIfQuestionId: "",
     showIfResponseIndexes: [],
     showIfResponseValue: "",
+    correctResponseIndexes: [],
   };
   showModal.value = true;
 }
@@ -123,6 +125,7 @@ function openEditModal(q) {
     showIfQuestionId: q.showIfQuestionId || (q.showIf && q.showIf.questionId) || "",
     showIfResponseIndexes: q.showIfResponseIndexes || (q.showIf && q.showIf.responseIndexes) || [],
     showIfResponseValue: q.showIfResponseValue || (q.showIf && q.showIf.responseValue) || "",
+    correctResponseIndexes: q.correctResponseIndexes || [],
   };
   showModal.value = true;
 }
@@ -138,6 +141,7 @@ async function saveQuestion() {
       showIfQuestionId: form.value.showIfEnabled && form.value.showIfQuestionId ? Number(form.value.showIfQuestionId) : null,
       showIfResponseIndexes: form.value.showIfEnabled ? (form.value.showIfResponseIndexes || []).map(i => Number(i)) : [],
       showIfResponseValue: form.value.showIfEnabled && form.value.showIfResponseValue ? String(form.value.showIfResponseValue).trim() : "",
+      correctResponseIndexes: form.value.responseType === 'checkbox' ? (form.value.correctResponseIndexes || []).map(i => Number(i)) : [],
     };
     delete payload.showIfEnabled;
 
@@ -569,7 +573,7 @@ const groupedQuestions = computed(() => {
                     >
                       <span v-html="formatBoldText(typeof opt === 'string' ? opt : opt.label)"></span>
                       <span
-                        v-if="oIdx === q.correctResponseIndex"
+                        v-if="(q.responseType === 'checkbox' ? (q.correctResponseIndexes || []).includes(oIdx) : oIdx === q.correctResponseIndex)"
                         class="material-icons-outlined text-[10px]"
                         >check_circle</span
                       >
@@ -839,6 +843,9 @@ const groupedQuestions = computed(() => {
                 >
                   <label v-if="form.responseType === 'qcm'" class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
                     <input type="radio" :value="oIdx" v-model="form.correctResponseIndex" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 cursor-pointer" />
+                  </label>
+                  <label v-else-if="form.responseType === 'checkbox'" class="flex items-center justify-center w-8 h-8 rounded-full cursor-pointer hover:bg-green-50 transition-colors" title="Marquer comme bonne réponse">
+                    <input type="checkbox" :value="oIdx" v-model="form.correctResponseIndexes" class="w-4 h-4 text-green-500 border-gray-300 focus:ring-green-500 rounded cursor-pointer" />
                   </label>
                   <div v-else class="w-8 h-8"></div>
                   <input
