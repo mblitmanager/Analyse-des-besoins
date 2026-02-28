@@ -60,6 +60,50 @@ export const useAppStore = defineStore('app', () => {
     return null;
   }
 
+  // Returns the next route skipping any workflow steps that currently have zero questions.
+  // This performs an HTTP request for each candidate step so it is async.
+  async function getNextRouteWithQuestions(currentPath) {
+    // make sure we know the workflow steps, even if called from a view that didn't
+    // fetch them yet (e.g. user reloaded mid-parcours)
+    if (workflowSteps.value.length === 0) {
+      await fetchWorkflow();
+    }
+
+    let next = getNextRoute(currentPath);
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const formationSlug = localStorage.getItem('selected_formation_slug');
+    while (next) {
+      const step = workflowSteps.value.find(s => s.route === next);
+      if (!step) break;
+      const code = step.code.toLowerCase();
+      try {
+        // when checking for questions we need the same formation-aware filter
+        let url = `${apiBaseUrl}/questions/workflow/${code}`;
+        let params = '';
+        if (formationSlug) {
+          params = `?formation=${formationSlug}&scope=auto`;
+        } else {
+          params = `?scope=global`;
+        }
+        const res = await fetch(url + params);
+        if (res.ok) {
+          const questions = await res.json();
+          if (Array.isArray(questions) && questions.length === 0) {
+            // no questions for this formation/step; skip ahead
+            next = getNextRoute(next);
+            continue;
+          }
+        }
+      } catch (e) {
+        // if the fetch fails just stop skipping
+        console.error('Error while checking questions for step', code, e);
+        break;
+      }
+      break;
+    }
+    return next;
+  }
+
   function getProgress(currentPath) {
     let currentIndex = workflowSteps.value.findIndex(s => s.route === currentPath);
     if (currentIndex === -1 && currentPath === '/') {
@@ -84,6 +128,7 @@ export const useAppStore = defineStore('app', () => {
     setBrand, 
     fetchWorkflow, 
     getNextRoute, 
+    getNextRouteWithQuestions,
     getProgress 
   }
 })

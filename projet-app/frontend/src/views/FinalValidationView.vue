@@ -55,7 +55,7 @@ async function validate() {
     // Attempt to notify via backend email endpoint, fallback to mailto
     await sendNotificationEmail();
 
-    const nextRoute = store.getNextRoute("/validation");
+    const nextRoute = await store.getNextRouteWithQuestions("/validation");
     if (nextRoute) router.push(nextRoute);
     else alert("Évaluation terminée avec succès !");
   } catch (error) {

@@ -56,6 +56,12 @@ onMounted(async () => {
     router.push("/");
     return;
   }
+
+  // ensure workflow is loaded so skipping logic works even on reload
+  if (store.workflowSteps.length === 0) {
+    await store.fetchWorkflow();
+  }
+
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -80,6 +86,13 @@ onMounted(async () => {
       new Map(allQuestions.map((q) => [q.id ?? q.text, q])).values()
     );
 
+    // if there are no relevant questions, skip this step immediately
+    if (questions.value.length === 0) {
+      const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
+      router.push(nextRoute || "/positionnement");
+      return;
+    }
+
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
         responses.value[q.id] = [];
@@ -94,6 +107,10 @@ onMounted(async () => {
     // groups will automatically recompute via computedGroups
   } catch (error) {
     console.error("Failed to fetch mise à niveau questions:", error);
+    // if the request failed, there's nothing to answer – skip this step
+    const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
+    router.push(nextRoute || "/positionnement");
+    return;
   } finally {
     loading.value = false;
   }
@@ -115,7 +132,7 @@ async function nextStep() {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, { miseANiveauAnswers: responses.value });
-    const nextRoute = store.getNextRoute("/mise-a-niveau");
+    const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to save mise à niveau answers:", error);
