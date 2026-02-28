@@ -8,6 +8,8 @@ import { EmailService } from '../email/email.service';
 import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class SessionsService {
@@ -99,6 +101,19 @@ export class SessionsService {
   }
 
   private async getRecommendationData(session: Session) {
+    // Handle special "Parcours Initial" virtual formation
+    if (session.formationChoisie === 'Parcours Initial (DigComp & Word)') {
+      return {
+        recommendation: 'DigComp Initial | Word Initial',
+        recommendations: ['DigComp Initial', 'Word Initial'],
+        scoreFinal: 0,
+        finalLevel: { label: 'Initial' } as Level,
+        qTextById: {},
+        filteredMiseAnswers: session.miseANiveauAnswers,
+        miseTitle: 'Mise à niveau (réponses)',
+      };
+    }
+
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
     const levels = await this.levelRepo.find({
@@ -422,6 +437,33 @@ export class SessionsService {
     const pdfFilename =
       `Analyse - ${session.prenom || ''} ${session.nom || ''} - ${filenameTimestamp}.pdf`.trim();
 
+    const publicPath = path.join(process.cwd(), 'public');
+    const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
+    const logoLikePath = path.join(
+      publicPath,
+      'logo',
+      'Logo_Like_Formation.png',
+    );
+
+    const emailAttachments: any[] = [
+      { filename: pdfFilename, content: pdfBuffer },
+    ];
+
+    if (fs.existsSync(logoAopiaPath)) {
+      emailAttachments.push({
+        filename: 'logo-aopia.png',
+        path: logoAopiaPath,
+        cid: 'logo_aopia',
+      });
+    }
+    if (fs.existsSync(logoLikePath)) {
+      emailAttachments.push({
+        filename: 'logo-like.png',
+        path: logoLikePath,
+        cid: 'logo_like',
+      });
+    }
+
     // Send the email with PDF attachment to configured admin(s)
     await this.emailService.sendReport(
       adminEmail,
@@ -429,6 +471,12 @@ export class SessionsService {
       `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
         <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
         <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
+        
+        <div style="margin-bottom: 20px;">
+          <img src="cid:logo_aopia" alt="AOPIA" style="height: 30px; margin-right: 15px; vertical-align: middle;">
+          <img src="cid:logo_like" alt="Like Formation" style="height: 30px; vertical-align: middle;">
+        </div>
+
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
         
         <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
@@ -453,12 +501,12 @@ export class SessionsService {
           Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
         </p>
       </div>`,
-      [{ filename: pdfFilename, content: pdfBuffer }],
+      emailAttachments,
     );
 
     return this.update(id, {
       finalRecommendation: recommendation,
-      stopLevel: finalLevel.label,
+      stopLevel: finalLevel ? finalLevel.label : 'Initial',
       scorePretest: scoreFinal,
       emailSentAt: new Date(),
       isCompleted: true,

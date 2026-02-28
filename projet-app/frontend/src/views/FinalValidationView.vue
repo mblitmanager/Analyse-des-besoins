@@ -57,7 +57,12 @@ const recommendedLabelParts = computed(() => {
       }
       
       // Add 'Niveau ' prefix if missing and it's not the full recommended label (which might be "Parcours personnalisé")
-      if (cleaned && !cleaned.toLowerCase().includes("niveau") && cleaned !== "Parcours personnalisé") {
+      // Also avoid adding it if the label already contains "Initial" (special case for DigComp/Word Initial)
+      const lowerCleaned = cleaned.toLowerCase();
+      if (cleaned && 
+          !lowerCleaned.includes("niveau") && 
+          !lowerCleaned.includes("initial") &&
+          cleaned !== "Parcours personnalisé") {
           cleaned = `Niveau ${cleaned}`;
       }
       

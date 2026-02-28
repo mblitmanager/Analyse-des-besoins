@@ -50,11 +50,12 @@ export class PdfService {
       const grayText = '#6b7280';
       const lightBg = '#f8fafc';
 
-      const publicPath = path.resolve(__dirname, '../../../public');
-      const logoAopiaPath = path.join(publicPath, 'logo/Logo-AOPIA.png');
+      const publicPath = path.join(process.cwd(), 'public');
+      const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
       const logoLikePath = path.join(
         publicPath,
-        'logo/Logo_Like_Formation.png',
+        'logo',
+        'Logo_Like_Formation.png',
       );
 
       // ─── Header ───
