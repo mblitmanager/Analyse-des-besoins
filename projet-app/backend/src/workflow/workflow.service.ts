@@ -36,10 +36,12 @@ export class WorkflowService {
       take: 1,
     });
     const nextOrder = (last?.order ?? 0) + 1;
-    
+
     // auto-generate code from label if not provided
-    const code = data.code || (data.label?.toUpperCase().replace(/\s+/g, '_') ?? `STEP_${nextOrder}`);
-    
+    const code =
+      data.code ||
+      (data.label?.toUpperCase().replace(/\s+/g, '_') ?? `STEP_${nextOrder}`);
+
     const step = this.workflowRepo.create({
       ...data,
       code,

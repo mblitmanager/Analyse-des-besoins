@@ -62,7 +62,8 @@ export class SeedService implements OnApplicationBootstrap {
       {
         key: 'AUTO_SKIP_MISE_A_NIVEAU',
         value: 'true',
-        description: "Autoriser le saut automatique de l'étape 'mise à niveau' en l'absence de questions",
+        description:
+          "Autoriser le saut automatique de l'étape 'mise à niveau' en l'absence de questions",
       },
     ];
 

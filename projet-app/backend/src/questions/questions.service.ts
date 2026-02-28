@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, DeepPartial } from 'typeorm';
+import { Repository, FindOptionsWhere, DeepPartial, IsNull } from 'typeorm';
 import { Question } from '../entities/question.entity';
 import { Formation } from '../entities/formation.entity';
 import { Level } from '../entities/level.entity';
@@ -153,7 +153,7 @@ export class QuestionsService {
       | FindOptionsWhere<Question>[] = formationSlug
       ? [
           { formation: { slug: formationSlug } },
-          { formation: undefined }, // Include globals
+          { formation: IsNull() }, // Include globals
         ]
       : {};
 

@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
-export class AddConditionalDisplayFieldsToQuestions1645000001000
-  implements MigrationInterface
-{
+export class AddConditionalDisplayFieldsToQuestions1645000001000 implements MigrationInterface {
   name = 'AddConditionalDisplayFieldsToQuestions1645000001000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
