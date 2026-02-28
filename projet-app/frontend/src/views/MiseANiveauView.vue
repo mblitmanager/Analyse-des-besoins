@@ -21,8 +21,10 @@ const submitting = ref(false);
 // validation state
 const unanswered = ref(false);
 
-// no‑questions notice
-const skipNotice = ref(false);
+// admin toggle for skipping this step
+const allowSkip = ref(true);
+
+
 
 // (groups state removed – we'll compute on the fly)
 
@@ -65,6 +67,16 @@ onMounted(async () => {
     await store.fetchWorkflow();
   }
 
+  // load skip setting
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  try {
+    const res = await axios.get(`${apiBaseUrl}/settings/AUTO_SKIP_MISE_A_NIVEAU`);
+    allowSkip.value = res.data?.value === 'true';
+  } catch (e) {
+    console.error('Failed to fetch skip setting, defaulting to true', e);
+    allowSkip.value = true;
+  }
+
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -89,15 +101,20 @@ onMounted(async () => {
       new Map(allQuestions.map((q) => [q.id ?? q.text, q])).values()
     );
 
-    // if there are no relevant questions (including after filtering), show a notice then skip
+    // if there are no relevant questions (including after filtering):
+    // - skip automatically only when configuration allows
+    // - otherwise keep the page loaded so the user can click «Continuer» manually
     if (questions.value.length === 0 || filteredQuestions.value.length === 0) {
-      skipNotice.value = true;
-      // give the user a second to read message
-      setTimeout(async () => {
+      if (allowSkip.value) {
         const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
         router.push(nextRoute || "/positionnement");
-      }, 1500);
-      return;
+        return;
+      } else {
+        // inform user there is nothing to answer
+        unanswered.value = false; // clear any warnings
+        // maybe show a light notice for clarity
+        alert("Aucune question de mise à niveau pour votre formation, vous pouvez continuer.");
+      }
     }
 
     questions.value.forEach((q) => {
@@ -171,9 +188,6 @@ async function nextStep() {
       <div class="text-center mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2 italic uppercase tracking-tight">Mise à niveau</h1>
         <p class="text-gray-400 text-sm md:text-base font-bold uppercase tracking-widest">Répondez aux questions pour adapter votre parcours</p>
-        <p v-if="skipNotice" class="text-blue-600 font-bold mt-4">
-          Aucune question disponible pour votre formation, on vous redirige...
-        </p>
         <p v-if="unanswered" class="text-red-500 font-black text-[10px] uppercase tracking-widest mt-4 flex items-center justify-center gap-2 animate-pulse">
           <span class="material-icons-outlined text-sm">warning</span>
           Toutes les questions doivent être complétées
@@ -183,10 +197,6 @@ async function nextStep() {
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
         <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12 mb-4"></div>
         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Chargement des questions...</p>
-      </div>
-
-      <div v-else-if="skipNotice" class="flex flex-col items-center justify-center py-20">
-        <p class="text-gray-700 font-bold">Aucune question à répondre pour cette étape, redirection...</p>
       </div>
 
       <div v-else class="space-y-8 animate-in fade-in duration-700 delay-200 pb-32">

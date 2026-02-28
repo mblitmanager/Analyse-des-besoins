@@ -46,7 +46,7 @@ async function startTest() {
       localStorage.setItem("session_id", session.id);
       // ensure workflow steps are loaded so dynamic routes exist
       await store.fetchWorkflow();
-      const nextRoute = await store.getNextRouteWithQuestions("/");
+      const nextRoute = store.getNextRoute("/");
       router.push(nextRoute || "/prerequis");
     } else {
       throw new Error("Session ID missing from response");

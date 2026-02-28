@@ -249,7 +249,7 @@ async function nextStep() {
       // level (i.e. the one they just failed or completed).
       // If the user failed (!canProgress) we simply recommend that level; if they
       // validated the final level we also recommend it.
-      finalRecommendation.value = `Le parcours choisi vous permettre de valider le niveau ${currentLevel.label}`;
+      finalRecommendation.value = `${formationLabel} - ${currentLevel.label}`;
 
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
         levelsScores: levelsScores.value,
@@ -274,8 +274,8 @@ async function nextStep() {
   }
 }
 
-async function finishStep() {
-  const nextRoute = await store.getNextRouteWithQuestions("/positionnement");
+function finishStep() {
+  const nextRoute = store.getNextRoute("/positionnement");
   router.push(nextRoute || "/complementary");
 }
 function closeAndChangeFormation() {
@@ -348,7 +348,7 @@ async function saveAndExit() {
           <p
             class="text-gray-400 text-lg md:text-xl mb-12 max-w-lg mx-auto leading-relaxed"
           >
-            Félicitations, voici votre niveau recommandé :
+            Félicitations, voici votre parcours de formation recommandé :
           </p>
 
           <div
