@@ -207,16 +207,30 @@ export class SessionsService {
 
     let l1: string, l2: string;
 
-    if (lastValidatedIdx === -1) {
-      // "Débutant KO" case: Propose Debutant + Intermédiaire
-      l1 = levels[0].label;
-      l2 = levels.length > 1 ? levels[1].label : l1;
-    } else {
-      // Normal case: Last Validated (L1) + Next Level (L2)
-      l1 = levels[lastValidatedIdx].label;
-      if (lastValidatedIdx < levels.length - 1) {
-        l2 = levels[lastValidatedIdx + 1].label;
+    // Use stopLevel if available, as it represents the target level where the user struggled
+    const stopLevelLabel = session.stopLevel;
+    const stopLevelIdx = stopLevelLabel
+      ? levels.findIndex((l) => l.label === stopLevelLabel)
+      : -1;
+
+    if (stopLevelIdx !== -1) {
+      l1 = levels[stopLevelIdx].label;
+      if (stopLevelIdx < levels.length - 1) {
+        l2 = levels[stopLevelIdx + 1].label;
       } else {
+        l2 = l1;
+      }
+    } else {
+      // Fallback to score logic (for legacy or manual sessions)
+      if (lastValidatedIdx < levels.length - 1) {
+        l1 = levels[lastValidatedIdx + 1].label;
+        if (lastValidatedIdx + 1 < levels.length - 1) {
+          l2 = levels[lastValidatedIdx + 2].label;
+        } else {
+          l2 = l1;
+        }
+      } else {
+        l1 = levels[levels.length - 1].label;
         l2 = l1;
       }
     }
@@ -416,20 +430,18 @@ export class SessionsService {
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
         
         <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
-        <p><strong>Email :</strong> ${session.stagiaire?.email || ''}</p>
         <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
         <p><strong>Formation :</strong> ${session.formationChoisie}</p>
-        <p><strong>Recommandation(s) :</strong></p>
+        <p><strong>Recommandations :</strong></p>
         <div style="margin-bottom: 20px;">
           ${recommendation
             .split(' | ')
             .map(
               (r) =>
-                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
+                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">Niveau ${r}</div>`,
             )
             .join('')}
         </div>
-        <p><strong>Score final :</strong> <span style="color: #2563eb; font-weight: bold;">${scoreFinal}%</span></p>
         
         <div style="margin-top: 30px;">
           ${extraContent}

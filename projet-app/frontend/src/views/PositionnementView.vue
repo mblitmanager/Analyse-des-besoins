@@ -249,7 +249,15 @@ async function nextStep() {
       // level (i.e. the one they just failed or completed).
       // If the user failed (!canProgress) we simply recommend that level; if they
       // validated the final level we also recommend it.
-      finalRecommendation.value = `${formationLabel} - ${currentLevel.label}`;
+      // Recommendation targets the current level (the one failed or the final one) and its successor
+      const l1 = currentLevel.label;
+      const l2 = levels.value[currentLevelIndex.value + 1]?.label;
+      
+      if (l2) {
+        finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
+      } else {
+        finalRecommendation.value = `${formationLabel} - ${l1}`;
+      }
 
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
         levelsScores: levelsScores.value,
