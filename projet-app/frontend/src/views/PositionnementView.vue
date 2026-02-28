@@ -32,6 +32,7 @@ const currentQuestionIndex = ref(0);
 
 // Low score warning modal
 const showFormationWarning = ref(false);
+const allowSkip = ref(true); // admin toggle for skipping this step
 const lowScoreThreshold = ref(3); // default: warn if < 3 correct answers
 const lastScoreDetails = ref({ correctCount: 0, total: 0 });
 const skipFormationWarning = ref(false);
@@ -135,6 +136,25 @@ async function loadLevelQuestions() {
         currentResponses.value[q.id] = "";
       }
     });
+    
+    // Auto-skip or finish if no questions found for this level
+    if (questions.value.length === 0 || filteredQuestions.value.length === 0) {
+      if (currentLevelIndex.value === 0) {
+        if (allowSkip.value) {
+          const nextRoute = await store.getNextRouteWithQuestions("/positionnement");
+          router.push(nextRoute || "/resultats");
+          return;
+        } else {
+          alert("Aucune question de positionnement pour cette formation. Vous pouvez continuer.");
+        }
+      } else {
+        // We reached an empty level AFTER doing some levels.
+        // Finish the test based on previous data.
+        await finishTest();
+        return;
+      }
+    }
+
     currentQuestionIndex.value = 0; // Reset question index for new level
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error) {
@@ -154,6 +174,7 @@ onMounted(async () => {
   await restoreProgressFromSession();
   await fetchPaginationSetting();
   await fetchLowScoreThreshold();
+  await fetchSkipSetting();
   if (!showResults.value) {
     await loadLevelQuestions();
   }
@@ -178,6 +199,11 @@ async function fetchLowScoreThreshold() {
     console.error("Failed to fetch low score threshold:", error);
     lowScoreThreshold.value = 3; // fallback
   }
+}
+async function fetchSkipSetting() {
+  const value = await store.fetchSetting('AUTO_SKIP_POSITIONNEMENT');
+  // Default to true unless explicitly set to 'false'
+  allowSkip.value = value !== 'false';
 }
 async function nextStep() {
   submitting.value = true;
@@ -245,35 +271,7 @@ async function nextStep() {
     const canProgress = correctCount >= requiredCorrect;
 
     if (!canProgress || currentLevelIndex.value === levels.value.length - 1) {
-      // Determine recommendation. The path should allow the user to validate the current
-      // level (i.e. the one they just failed or completed).
-      // If the user failed (!canProgress) we simply recommend that level; if they
-      // validated the final level we also recommend it.
-      // Recommendation targets the current level (the one failed or the final one) and its successor
-      const ensureNiveau = (label) => {
-        if (!label) return label;
-        return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
-      };
-      
-      const l1 = ensureNiveau(currentLevel.label);
-      const l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
-      
-      if (l2) {
-        finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
-      } else {
-        finalRecommendation.value = `${formationLabel} - ${l1}`;
-      }
-
-      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-        levelsScores: levelsScores.value,
-        finalRecommendation: finalRecommendation.value,
-        stopLevel: currentLevel.label,
-        lastValidatedLevel: finalLevel,
-        positionnementAnswers: positionnementAnswers.value,
-      });
-
-      showResults.value = true;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      await finishTest();
     } else {
       // Go to next level
       currentLevelIndex.value++;
@@ -285,6 +283,46 @@ async function nextStep() {
   } finally {
     submitting.value = false;
   }
+}
+
+async function finishTest() {
+  const currentLevel = levels.value[currentLevelIndex.value];
+  
+  // 1. Determine final recommendation
+  const ensureNiveau = (label) => {
+    if (!label) return label;
+    return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
+  };
+  
+  const l1 = ensureNiveau(currentLevel.label);
+  const l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
+  
+  if (l2) {
+    finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
+  } else {
+    finalRecommendation.value = `${formationLabel} - ${l1}`;
+  }
+
+  // 2. Identify last validated level so far
+  let finalLevel = "Débutant";
+  levels.value.forEach((l) => {
+    if (levelsScores.value[l.label]?.validated) {
+      finalLevel = l.label;
+    }
+  });
+
+  // 3. Update session
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    levelsScores: levelsScores.value,
+    finalRecommendation: finalRecommendation.value,
+    stopLevel: currentLevel.label,
+    lastValidatedLevel: finalLevel,
+    positionnementAnswers: positionnementAnswers.value,
+  });
+
+  showResults.value = true;
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function finishStep() {
