@@ -472,11 +472,6 @@ export class SessionsService {
         <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
         <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
         
-        <div style="margin-bottom: 20px;">
-          <img src="cid:logo_aopia" alt="AOPIA" style="height: 30px; margin-right: 15px; vertical-align: middle;">
-          <img src="cid:logo_like" alt="Like Formation" style="height: 30px; vertical-align: middle;">
-        </div>
-
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
         
         <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
@@ -497,6 +492,11 @@ export class SessionsService {
           ${extraContent}
         </div>
         
+        <div style="margin-top: 20px; text-align: right;">
+          <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
+          <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
+        </div>
+
         <p style="font-size: 11px; color: #999; margin-top: 40px;">
           Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
         </p>
