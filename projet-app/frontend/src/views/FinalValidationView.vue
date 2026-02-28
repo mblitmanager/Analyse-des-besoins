@@ -25,6 +25,40 @@ const validatedLevelsCount = computed(() => {
   return levelsEntries.value.filter(([, val]) => val?.validated).length;
 });
 
+const recommendedLabel = computed(() => {
+  if (!session.value) return "";
+  if (session.value.finalRecommendation)
+    return session.value.finalRecommendation;
+
+  const level =
+    session.value.stopLevel || session.value.lastValidatedLevel || "";
+
+  if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
+
+  return `${session.value.formationChoisie || ""}${
+    level ? " - " + level : ""
+  }`.trim();
+});
+
+const recommendedLabelParts = computed(() => {
+  if (!recommendedLabel.value) return [];
+  // Split by common separators
+  const parts = recommendedLabel.value.split(/ \| | & | \/ | - /);
+  // The first part is usually the formation name if we used the "Formation - Level" format
+  // If we only have levels, we return them.
+  // Actually, if it's "Photoshop - B1 & B2", we want ["Photoshop", "B1", "B2"] or just the levels.
+  
+  // Let's simplify: split by " | ", " & ", or " / " and remove the formation prefix if it exists in each part
+  const rawParts = recommendedLabel.value.split(/ \| | & | \/ /);
+  return rawParts.map(p => {
+      let cleaned = p.trim();
+      if (session.value?.formationChoisie && cleaned.startsWith(session.value.formationChoisie)) {
+          cleaned = cleaned.replace(session.value.formationChoisie, "").replace(/^- /, "").trim();
+      }
+      return cleaned;
+  }).filter(p => p !== "");
+});
+
 const totalLevelsCount = computed(() => levelsEntries.value.length);
 
 const answeredPrereqCount = computed(() => {
@@ -52,10 +86,8 @@ async function validate() {
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, {
       method: "POST",
     });
-    // Attempt to notify via backend email endpoint, fallback to mailto
-    await sendNotificationEmail();
 
-    const nextRoute = await store.getNextRouteWithQuestions("/validation");
+    const nextRoute = store.getNextRoute("/validation");
     if (nextRoute) router.push(nextRoute);
     else alert("Évaluation terminée avec succès !");
   } catch (error) {
@@ -63,77 +95,6 @@ async function validate() {
   }
 }
 
-async function sendNotificationEmail() {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-  // Retrieve configured admin email from settings so notification goes to same recipient as bilan d'évaluation
-  try {
-    const settingsRes = await fetch(`${apiBaseUrl}/settings/ADMIN_EMAIL`);
-    let to = 'mblitmanager@gmail.com';
-    if (settingsRes.ok) {
-      const s = await settingsRes.json();
-      // settings controller returns the setting object { key, value }
-      if (s && s.value) to = s.value;
-    }
-
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    const subject = `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`;
-
-    const htmlBody = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
-        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
-        <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        
-        <p><strong>Bénéficiaire :</strong> ${session.value?.civilite || ''} ${session.value?.prenom || ''} ${session.value?.nom || ''}</p>
-        <p><strong>Email :</strong> ${session.value?.stagiaire?.email || ''}</p>
-        <p><strong>Téléphone :</strong> ${session.value?.telephone || ''}</p>
-        <p><strong>Formation :</strong> ${session.value?.formationChoisie || ''}</p>
-        <p><strong>Recommandation :</strong> <span style="color: #22C55E; font-weight: bold;">${session.value?.finalRecommendation || ''}</span></p>
-        <p><strong>Score final :</strong> <span style="color: #2563eb; font-weight: bold;">${session.value?.scorePretest ?? ''}%</span></p>
-        
-        <div style="margin-top: 30px;">
-          <p style="font-size:13px;color:#444;">Session ID: ${sessionId}</p>
-        </div>
-        
-        <p style="font-size: 11px; color: #999; margin-top: 40px;">Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.</p>
-      </div>
-    `;
-
-    const payload = {
-      to,
-      subject,
-      body: htmlBody,
-    };
-
-    const res = await fetch(`${apiBaseUrl}/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error('Email API returned error');
-  } catch (err) {
-    // Fallback: open user's mail client with prefilled mail (use ADMIN_EMAIL if available)
-    const fallbackTo = (await (async () => {
-      try {
-        const r = await fetch(`${apiBaseUrl}/settings/ADMIN_EMAIL`);
-        if (r.ok) { const j = await r.json(); return j?.value || 'mblitmanager@gmail.com'; }
-      } catch (e) {}
-      return 'mblitmanager@gmail.com';
-    })());
-    const subject = `Nouvelle soumission - ${session.value?.prenom || ''} ${session.value?.nom || ''}`;
-    const plainBody = `Bilan d'évaluation - Analyse des besoins\nSoumis le ${new Date().toLocaleString('fr-FR')}\n\nBénéficiaire: ${session.value?.civilite || ''} ${session.value?.prenom || ''} ${session.value?.nom || ''}\nEmail: ${session.value?.stagiaire?.email || ''}\nTéléphone: ${session.value?.telephone || ''}\nFormation: ${session.value?.formationChoisie || ''}\nRecommandation: ${session.value?.finalRecommendation || ''}\nScore final: ${session.value?.scorePretest ?? ''}%\n\nSession ID: ${sessionId}`;
-    const mailto = `mailto:${encodeURIComponent(fallbackTo)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainBody)}`;
-    window.location.href = mailto;
-  }
-}
 
 function goHome() {
   router.push('/');
@@ -205,13 +166,15 @@ function goHome() {
                   session.formationChoisie
                 }}</span>
               </div>
-              <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200" v-if="session.finalRecommendation">
+              <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabelParts.length">
                 <span class="text-xs text-gray-500 font-bold"
                   >Parcours recommandé</span
                 >
-                <span class="text-sm font-black text-green-600 text-right max-w-[200px]">{{
-                  session.finalRecommendation.replace(/ \| /g, " / ")
-                }}</span>
+                <div class="flex flex-col items-end gap-1">
+                  <span v-for="part in recommendedLabelParts" :key="part" class="text-sm font-black text-green-600 text-right max-w-[200px]">
+                    {{ part }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -224,7 +187,7 @@ function goHome() {
             </h3>
             <p class="text-sm font-bold text-gray-600 leading-relaxed">
               Vous avez complété l'identification, la sélection de formation, et
-              les tests de positionnement. Merci de confirmer, pour soumettre vos résultats.
+              les tests de positionnement.
             </p>
           </div>
         </div>
@@ -367,13 +330,13 @@ function goHome() {
             <span>Accueil</span>
             <span class="material-icons-outlined">home</span>
           </button>
-          <button
+          <!-- <button
             @click="validate"
             class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
             <span>Soumettre</span>
-            <!-- <span class="material-icons-outlined">rocket_launch</span> -->
-          </button>
+            <span class="material-icons-outlined">rocket_launch</span>
+          </button> -->
           
         </div>
       </div>

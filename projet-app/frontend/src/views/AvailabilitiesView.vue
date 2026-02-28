@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue"; // Fixed: was missing onMounted
+import { ref, onMounted, computed } from "vue"; // Fixed: was missing onMounted and computed
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
@@ -13,11 +13,26 @@ const sessionId = localStorage.getItem("session_id");
 
 const questions = ref([]);
 const responses = ref({});
+const session = ref(null);
 const loading = ref(true);
 const submitting = ref(false);
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-// when there are no availability questions
-const skipNotice = ref(false);
+const recommendedLabel = computed(() => {
+  if (!session.value) return "";
+  if (session.value.finalRecommendation)
+    return session.value.finalRecommendation.replace(/ \| /g, " / ");
+
+  const level =
+    session.value.lastValidatedLevel || session.value.stopLevel || "";
+
+  if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
+
+  return `${session.value.formationChoisie || ""}${
+    level ? " - " + level : ""
+  }`.trim();
+});
+
 
 onMounted(async () => {
   if (!sessionId) {
@@ -39,6 +54,10 @@ onMounted(async () => {
           : { scope: "global" },
       },
     );
+    // Fetch session for email notification
+    const sessRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
+    session.value = sessRes.data;
+
     // remove duplicate questions (prefer unique id, fallback to text)
     questions.value = Array.from(
       new Map(
@@ -46,15 +65,6 @@ onMounted(async () => {
       ).values(),
     );
 
-    // if backend returned no questions for this step, show message then advance
-    if (questions.value.length === 0) {
-      skipNotice.value = true;
-      setTimeout(async () => {
-        const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
-        router.push(nextRoute || "/validation");
-      }, 1500);
-      return;
-    }
 
     // Initialize responses keyed by q.id
     questions.value.forEach((q) => {
@@ -70,9 +80,7 @@ onMounted(async () => {
     });
   } catch (error) {
     console.error("Failed to fetch questions:", error);
-    const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
-    router.push(nextRoute || "/validation");
-    return;
+    // keep the user here, fetching failed
   } finally {
     loading.value = false;
   }
@@ -92,7 +100,11 @@ async function nextStep() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       availabilities: responses.value,
     });
-    const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
+
+    // Submit session (sends official email report with PDF)
+    await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
+
+    const nextRoute = store.getNextRoute("/availabilities");
     router.push(nextRoute || "/validation");
   } catch (error) {
     console.error("Failed to save availabilities:", error);
@@ -101,10 +113,11 @@ async function nextStep() {
   }
 }
 
-async function skipStep() {
-  const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
+function skipStep() {
+  const nextRoute = store.getNextRoute("/availabilities");
   router.push(nextRoute || "/validation");
 }
+
 </script>
 
 <template>
@@ -136,19 +149,12 @@ async function skipStep() {
         <p class="text-gray-400 text-base md:text-lg">
           Planifions ensemble votre parcours de formation.
         </p>
-        <p v-if="skipNotice" class="text-blue-600 font-bold mt-4">
-          Aucune disponibilité demandée, redirection...
-        </p>
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">
         <div
           class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
         ></div>
-      </div>
-
-      <div v-else-if="skipNotice" class="flex items-center justify-center py-20">
-        <p class="text-gray-700 font-bold">Aucune disponibilité demandée, redirection...</p>
       </div>
 
       <div v-else class="space-y-6">

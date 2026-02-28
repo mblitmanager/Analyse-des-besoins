@@ -59,6 +59,11 @@ export class SeedService implements OnApplicationBootstrap {
         value: 'false',
         description: 'Afficher les prérequis question par question',
       },
+      {
+        key: 'AUTO_SKIP_MISE_A_NIVEAU',
+        value: 'true',
+        description: "Autoriser le saut automatique de l'étape 'mise à niveau' en l'absence de questions",
+      },
     ];
 
     for (const s of settings) {
