@@ -69,10 +69,18 @@ export const useAppStore = defineStore('app', () => {
       const res = await fetch(`${apiBaseUrl}/settings/${key}`);
       if (res.ok) {
         const text = await res.text();
-        if (!text) return null;
-        const data = JSON.parse(text);
-        settings.value[key] = data?.value;
-        return data?.value;
+        if (!text || text === 'null') {
+          settings.value[key] = null;
+          return null;
+        }
+        try {
+          const data = JSON.parse(text);
+          settings.value[key] = data?.value;
+          return data?.value;
+        } catch (parseError) {
+          console.error(`Invalid JSON for setting ${key}:`, text);
+          return null;
+        }
       }
     } catch (e) {
       console.error(`Failed to fetch setting ${key}`, e);
@@ -105,28 +113,31 @@ export const useAppStore = defineStore('app', () => {
         } else {
           params = `?scope=global`;
         }
-        const res = await fetch(url + params);
-        if (res.ok) {
-          const questions = await res.json();
-          if (Array.isArray(questions)) {
-            let skipThisStep = questions.length === 0;
+      const res = await fetch(url + params);
+      if (res.ok) {
+        const text = await res.text();
+        if (!text) return [];
+        const questions = JSON.parse(text);
+        if (Array.isArray(questions)) {
+          let skipThisStep = questions.length === 0;
 
-            // Special logic for mise_a_niveau/positionnement: skip if no questions AND setting allowed
-            if (code === 'mise_a_niveau' || code === 'mise-a-niveau' || code === 'positionnement') {
-              const settingKey = code.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
-              const autoSkip = await fetchSetting(settingKey);
-              if (autoSkip === 'true') {
-                // If there are truly no questions returned, skip
-                if (questions.length === 0) skipThisStep = true;
-              }
-            }
-
-            if (skipThisStep) {
-              next = getNextRoute(next);
-              continue;
+          // Special logic for mise_a_niveau/positionnement:
+          // We unified the logic: default to true (skip if 0 questions),
+          // but if AUTO_SKIP_XXX is explicitly 'false', we do NOT skip.
+          if (code.includes('mise') || code === 'positionnement') {
+            const settingKey = code.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
+            const autoSkipValue = await fetchSetting(settingKey);
+            if (autoSkipValue === 'false') {
+              skipThisStep = false;
             }
           }
+
+          if (skipThisStep) {
+            next = getNextRoute(next);
+            continue;
+          }
         }
+      }
       } catch (e) {
         // if the fetch fails just stop skipping
         console.error('Error while checking questions for step', code, e);
