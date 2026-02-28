@@ -198,7 +198,7 @@ function skipStep() {
                 <label
                   v-for="(opt, idx) in q.options"
                   :key="opt"
-                  class="option-card h-auto! flex-col! items-center! py-6!"
+                  class="option-card h-auto! flex-col! items-center! py-4!"
                   :class="
                     responses[q.id].includes(opt)
                       ? 'option-card--selected'
@@ -213,7 +213,7 @@ function skipStep() {
                   />
                   <span
                     v-if="q.metadata.icons?.[idx]"
-                    class="material-icons-outlined text-3xl mb-2 transition-colors"
+                    class="material-icons-outlined text-2xl mb-2 transition-colors"
                     :class="
                       responses[q.id].includes(opt)
                         ? 'text-brand-primary'
@@ -230,7 +230,7 @@ function skipStep() {
                   
                   <!-- Checkbox indicator -->
                   <div
-                    class="mt-3 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center placeholder-checkbox"
+                    class="mt-2 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center placeholder-checkbox"
                     :class="
                       responses[q.id].includes(opt)
                         ? 'bg-brand-primary border-brand-primary'

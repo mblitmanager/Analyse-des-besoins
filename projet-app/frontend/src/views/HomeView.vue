@@ -102,28 +102,28 @@ async function testDbConnection() {
           </div>
 
           <form @submit.prevent="startTest" class="space-y-6">
-            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-              <div class="col-span-2">
-                <span class="Wizi-label">Civilité</span>
-                <div class="mt-2 flex space-x-6">
-                  <div class="flex items-center">
-                    <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="monsieur" name="civilite" type="radio" value="M." />
-                    <label class="ml-3 block text-sm font-medium text-gray-700" for="monsieur">Monsieur</label>
-                  </div>
-                  <div class="flex items-center">
-                    <input v-model="form.civilite" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" id="madame" name="civilite" type="radio" value="Mme" />
-                    <label class="ml-3 block text-sm font-medium text-gray-700" for="madame">Madame</label>
-                  </div>
-                </div>
+            <div class="space-y-6">
+              <div class="Wizi-label">Civilité</div>
+              <div class="mt-2 flex space-x-8">
+                <label class="flex items-center cursor-pointer group">
+                  <input v-model="form.civilite" class="h-4 w-4 text-brand-primary border-gray-300 focus:ring-brand-primary cursor-pointer" name="civilite" type="radio" value="M." />
+                  <span class="ml-3 text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">Monsieur</span>
+                </label>
+                <label class="flex items-center cursor-pointer group">
+                  <input v-model="form.civilite" class="h-4 w-4 text-brand-primary border-gray-300 focus:ring-brand-primary cursor-pointer" name="civilite" type="radio" value="Mme" />
+                  <span class="ml-3 text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">Madame</span>
+                </label>
               </div>
 
-              <div class="col-span-1">
-                <label class="Wizi-label" for="last-name">Nom</label>
-                <input v-model="form.nom" autocomplete="family-name" class="Wizi-input" id="last-name" name="last-name" placeholder="Nom" required type="text" />
-              </div>
-              <div class="col-span-1">
-                <label class="Wizi-label" for="first-name">Prénom</label>
-                <input v-model="form.prenom" autocomplete="given-name" class="Wizi-input" id="first-name" name="first-name" placeholder="Prénom" required type="text" />
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="Wizi-label" for="last-name">Nom</label>
+                  <input v-model="form.nom" autocomplete="family-name" class="Wizi-input w-full" id="last-name" name="last-name" placeholder="Nom" required type="text" />
+                </div>
+                <div class="space-y-1.5">
+                  <label class="Wizi-label" for="first-name">Prénom</label>
+                  <input v-model="form.prenom" autocomplete="given-name" class="Wizi-input w-full" id="first-name" name="first-name" placeholder="Prénom" required type="text" />
+                </div>
               </div>
             </div>
 
