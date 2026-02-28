@@ -16,6 +16,9 @@ const responses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
 
+// skip notice when there are no questions
+const skipNotice = ref(false);
+
 onMounted(async () => {
   if (!sessionId) {
     router.push("/");
@@ -43,10 +46,13 @@ onMounted(async () => {
       ).values(),
     );
 
-    // nothing to answer? jump ahead
+    // nothing to answer? show notice then jump ahead
     if (questions.value.length === 0) {
-      const nextRoute = await store.getNextRouteWithQuestions("/complementary");
-      router.push(nextRoute || "/availabilities");
+      skipNotice.value = true;
+      setTimeout(async () => {
+        const nextRoute = await store.getNextRouteWithQuestions("/complementary");
+        router.push(nextRoute || "/availabilities");
+      }, 1500);
       return;
     }
 
@@ -138,12 +144,19 @@ async function skipStep() {
           Quelques informations supplémentaires pour personnaliser votre
           parcours.
         </p>
+        <p v-if="skipNotice" class="text-blue-600 font-bold mt-4">
+          Aucune question complémentaire disponible, redirection...
+        </p>
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">
         <div
           class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
         ></div>
+      </div>
+
+      <div v-else-if="skipNotice" class="flex items-center justify-center py-20">
+        <p class="text-gray-700 font-bold">Aucune question complémentaire, redirection...</p>
       </div>
 
       <div v-else class="space-y-6">
