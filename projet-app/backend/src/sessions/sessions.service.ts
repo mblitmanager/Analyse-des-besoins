@@ -227,6 +227,104 @@ export class SessionsService {
       return label.toLowerCase().includes('niveau') ? label : `Niveau ${label}`;
     };
 
+    // ── Special rule for language formations (LANGUES category) ──
+    // Check if this formation belongs to the LANGUES category
+    const formationEntity = await this.sessionRepo.manager
+      .getRepository('Formation')
+      .findOne({ where: { label: session.formationChoisie as string } });
+    const isLangueFormation =
+      formationEntity &&
+      (formationEntity as any).category &&
+      (formationEntity as any).category.toUpperCase().includes('LANGUE');
+
+    if (isLangueFormation && levels.length >= 2) {
+      // Language-specific regulatory rules:
+      // Map level labels to find A1, A2, B1, B2, C1
+      const labelMap = new Map(
+        levels.map((l, i) => [l.label.toUpperCase(), i]),
+      );
+
+      const findIdx = (...targets: string[]) => {
+        for (const t of targets) {
+          const idx = labelMap.get(t);
+          if (idx !== undefined) return idx;
+        }
+        return -1;
+      };
+
+      const a2Idx = findIdx('A2');
+      const b1Idx = findIdx('B1');
+      const b2Idx = findIdx('B2');
+      const c1Idx = findIdx('C1');
+
+      // Use stopLevel if available, as it represents the target level where the user struggled
+      const stopLabelUpper = (session.stopLevel || '').toUpperCase();
+
+      if (['A1', 'A2', 'B1'].includes(stopLabelUpper)) {
+        // Fails A1, A2, or B1 → parcours A2 + B1
+        l1 = ensureNiveau(
+          a2Idx >= 0 ? levels[a2Idx].label : levels[0]?.label || '',
+        );
+        l2 = ensureNiveau(
+          b1Idx >= 0 ? levels[b1Idx].label : levels[1]?.label || l1,
+        );
+      } else if (stopLabelUpper === 'B2') {
+        // Passes B1, fails B2 → parcours B1 + B2
+        l1 = ensureNiveau(
+          b1Idx >= 0 ? levels[b1Idx].label : levels[0]?.label || '',
+        );
+        l2 = ensureNiveau(
+          b2Idx >= 0 ? levels[b2Idx].label : levels[1]?.label || l1,
+        );
+      } else if (stopLabelUpper === 'C1') {
+        // Fails C1 → parcours B2 + C1
+        l1 = ensureNiveau(
+          b2Idx >= 0 ? levels[b2Idx].label : levels[0]?.label || '',
+        );
+        l2 = ensureNiveau(
+          c1Idx >= 0 ? levels[c1Idx].label : levels[1]?.label || l1,
+        );
+      } else {
+        // Fallback: use generic logic below
+        l1 = '';
+        l2 = '';
+      }
+
+      // If language-specific rules matched, use them
+      if (l1 && l2) {
+        const proposedParcours = l1 === l2 ? [l1] : [l1, l2];
+        const finalRecommendationValue = proposedParcours.join(' | ');
+
+        // Score final global
+        const levelsEntries: any[] = session.levelsScores
+          ? Object.values(session.levelsScores)
+          : [];
+        const totalAnswered: number = levelsEntries.reduce(
+          (acc: number, e: any) => acc + (Number(e?.total) || 0),
+          0 as number,
+        );
+        const totalCorrect: number = levelsEntries.reduce(
+          (acc: number, e: any) => acc + (Number(e?.score) || 0),
+          0 as number,
+        );
+        const scoreFinal =
+          totalAnswered > 0
+            ? Math.round((totalCorrect / totalAnswered) * 100)
+            : 0;
+
+        return {
+          recommendation: finalRecommendationValue,
+          recommendations: proposedParcours,
+          scoreFinal,
+          finalLevel,
+          qTextById,
+          filteredMiseAnswers,
+          miseTitle,
+        };
+      }
+    }
+
+    // ── Generic parcours logic (non-language formations) ──
     // Use stopLevel if available, as it represents the target level where the user struggled
     const stopLevelLabel = session.stopLevel;
     const stopLevelIdx = stopLevelLabel

@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
 import { formatBoldText } from "../utils/formatText";
-import { filterConditionalQuestions } from "../utils/conditionalQuestions";
+import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import QuestionGroup from '../components/QuestionGroup.vue';
@@ -42,6 +42,11 @@ const filteredQuestions = computed(() => {
   }
   return list;
 });
+
+// When responses change, clear answers for questions that became hidden
+watch(responses, () => {
+  clearHiddenResponses(questions.value, responses.value);
+}, { deep: true });
 
 // Grouping is derived from filteredQuestions
 const computedGroups = computed(() => {
@@ -117,17 +122,19 @@ onMounted(async () => {
       }
     }
 
+    const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        responses.value[q.id] = [];
+        initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
-        responses.value[q.id] = null;  // no default selection
+        initialResponses[q.id] = null;  // no default selection
       } else if (q.metadata?.type === "qcm" || q.responseType === "qcm") {
-        responses.value[q.id] = null;
+        initialResponses[q.id] = null;
       } else {
-        responses.value[q.id] = "";
+        initialResponses[q.id] = "";
       }
     });
+    responses.value = initialResponses;
     // groups will automatically recompute via computedGroups
   } catch (error) {
     console.error("Failed to fetch mise à niveau questions:", error);

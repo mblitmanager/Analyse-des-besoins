@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
+import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -28,7 +29,16 @@ const itSkillsTriggered = computed(() => {
   );
 });
 
-const needsPagination = computed(() => false); // Disable for this specific screen
+const needsPagination = computed(() => false);
+
+function isQuestionVisible(q) {
+  return filterConditionalQuestions([q], responses.value, questions.value).length > 0;
+}
+
+// When responses change, clear answers for questions that became hidden
+watch(responses, () => {
+  clearHiddenResponses(questions.value, responses.value);
+}, { deep: true });
 
 onMounted(async () => {
   if (!sessionId) {
@@ -238,7 +248,7 @@ function refuseProposal() {
           </div>
 
           <div class="p-8 space-y-12">
-            <div v-for="(q, idx) in group.questions" :key="q.id" class="space-y-6">
+            <div v-for="(q, idx) in group.questions" :key="q.id" v-show="isQuestionVisible(q)" class="space-y-6">
               <div class="flex items-start">
                 <span class="shrink-0 w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-blue-100">
                   {{ idx + 1 }}

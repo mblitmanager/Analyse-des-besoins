@@ -28,8 +28,12 @@ export function filterConditionalQuestions(questions, responses) {
   return questions.filter(q => {
     // 1. Check showIfRules (Advanced logic)
     if (q.showIfRules && Array.isArray(q.showIfRules) && q.showIfRules.length > 0) {
-      // Typically, all rules must be met (AND logic)
-      return q.showIfRules.every(rule => isConditionMet(rule, responses, questions));
+      const op = (q.showIfOperator || 'OR').toUpperCase();
+      if (op === 'AND') {
+        return q.showIfRules.every(rule => isConditionMet(rule, responses, questions));
+      }
+      // OR: at least one rule must be met
+      return q.showIfRules.some(rule => isConditionMet(rule, responses, questions));
     }
 
     // 2. Check showIfQuestionId (Direct dependency)
@@ -102,4 +106,41 @@ function isConditionMet(rule, responses, allQuestions) {
   }
 
   return true; 
+}
+
+/**
+ * Clears responses for questions that are currently hidden by conditional logic.
+ * Call this reactively (e.g. via a watcher) so that when a parent answer changes
+ * and a child question becomes hidden, its response is reset.
+ *
+ * @param {Array} questions - Full list of questions.
+ * @param {Object} responses - Reactive responses object { questionId: value }.
+ */
+export function clearHiddenResponses(questions, responses) {
+  if (!questions || !responses) return;
+
+  questions.forEach(q => {
+    // Only check questions that have conditional rules
+    const hasRules =
+      (q.showIfRules && Array.isArray(q.showIfRules) && q.showIfRules.length > 0) ||
+      q.showIfQuestionId ||
+      q.metadata?.visibility;
+
+    if (!hasRules) return;
+
+    const visible = filterConditionalQuestions([q], responses, questions).length > 0;
+    if (!visible) {
+      const currentVal = responses[q.id];
+      // Only clear if not already empty/null to avoid infinite reactive loops
+      if (currentVal !== undefined && currentVal !== null && currentVal !== '') {
+        if (Array.isArray(currentVal)) {
+          if (currentVal.length > 0) {
+            responses[q.id] = [];
+          }
+        } else {
+          responses[q.id] = null;
+        }
+      }
+    }
+  });
 }

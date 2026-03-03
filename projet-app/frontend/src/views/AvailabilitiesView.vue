@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, computed } from "vue"; // Fixed: was missing onMounted and computed
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
+import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import axios from "axios";
@@ -17,6 +18,11 @@ const session = ref(null);
 const loading = ref(true);
 const submitting = ref(false);
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+// When responses change, clear answers for questions that became hidden
+watch(responses, () => {
+  clearHiddenResponses(questions.value, responses.value);
+}, { deep: true });
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
@@ -37,6 +43,10 @@ const recommendedLabel = computed(() => {
     displayLevel ? " - " + displayLevel : ""
   }`.trim();
 });
+
+function isQuestionVisible(q) {
+  return filterConditionalQuestions([q], responses.value, questions.value).length > 0;
+}
 
 
 onMounted(async () => {
@@ -180,7 +190,7 @@ function skipStep() {
           </div> -->
 
           <div class="p-6 md:p-8 space-y-8">
-            <div v-for="q in questions" :key="q.id" class="space-y-3">
+            <div v-for="q in questions" :key="q.id" v-show="isQuestionVisible(q)" class="space-y-3">
               <div class="flex items-center gap-2">
                 <span
                   v-if="q.icon"

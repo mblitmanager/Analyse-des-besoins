@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
-import { filterConditionalQuestions } from "../utils/conditionalQuestions";
+import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -43,6 +43,11 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const filteredQuestions = computed(() => {
   return filterConditionalQuestions(questions.value, currentResponses.value);
 });
+
+// When responses change, clear answers for questions that became hidden
+watch(currentResponses, () => {
+  clearHiddenResponses(questions.value, currentResponses.value);
+}, { deep: true });
 
 async function loadLevels() {
   try {
