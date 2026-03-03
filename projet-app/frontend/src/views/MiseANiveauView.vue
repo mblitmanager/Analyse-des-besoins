@@ -191,12 +191,14 @@ async function nextStep() {
     </SiteHeader>
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 relative">
       <div class="text-center mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">Etape 2/5</h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2 italic uppercase tracking-tight">Analyses des besoins</h1>
         <p class="text-gray-400 text-sm md:text-base font-bold tracking-widest">Répondez aux questions pour adapter votre parcours</p>
         <p v-if="unanswered" class="text-red-500 font-black text-[10px] uppercase tracking-widest mt-4 flex items-center justify-center gap-2 animate-pulse">
           <span class="material-icons-outlined text-sm">warning</span>
           Toutes les questions doivent être complétées
         </p>
+        
       </div>
 
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">

@@ -298,10 +298,37 @@ async function finishTest() {
     return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
   };
   
-  const l1 = ensureNiveau(currentLevel.label);
-  const l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
+  let l1 = ensureNiveau(currentLevel.label);
+  let l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
+
+  // Special rules for English formations
+  const isEnglish = (formationSlug && formationSlug.toLowerCase().includes("anglais")) || 
+                    (formationLabel && formationLabel.toLowerCase().includes("anglais"));
   
-  if (l2) {
+  if (isEnglish) {
+    const stopLabel = currentLevel.label.toUpperCase();
+    if (["A1", "A2", "B1"].some(l => stopLabel.includes(l))) {
+      // Fails A1, A2, or B1 -> A2 & B1
+      const a2 = levels.value.find(l => l.label.toUpperCase().includes("A2"))?.label || "A2";
+      const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
+      l1 = ensureNiveau(a2);
+      l2 = ensureNiveau(b1);
+    } else if (stopLabel.includes("B2")) {
+      // Reached/Failed B2 -> B1 & B2
+      const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
+      const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
+      l1 = ensureNiveau(b1);
+      l2 = ensureNiveau(b2);
+    } else if (stopLabel.includes("C1")) {
+      // Failed C1 -> B2 & C1
+      const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
+      const c1 = levels.value.find(l => l.label.toUpperCase().includes("C1"))?.label || "C1";
+      l1 = ensureNiveau(b2);
+      l2 = ensureNiveau(c1);
+    }
+  }
+
+  if (l2 && l1 !== l2) {
     finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
   } else {
     finalRecommendation.value = `${formationLabel} - ${l1}`;
@@ -397,20 +424,20 @@ async function saveAndExit() {
           <h1
             class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight"
           >
-            Test terminé !
+        Félicitations!
           </h1>
 
           <p
             class="text-gray-400 text-lg md:text-xl mb-12 max-w-lg mx-auto leading-relaxed"
           >
-            Félicitations, voici votre parcours de formation recommandé :
+            Voici votre parcours de formation recommandé :
           </p>
 
           <div
-            class="inline-block px-10 py-6 bg-brand-primary/5 border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500"
+            class="inline-block px-10 py-6 bg-[#eab973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500"
           >
             <span
-              class="text-brand-primary font-black text-3xl md:text-4xl tracking-tight"
+              class="text-[#315264] font-black text-3xl md:text-4xl tracking-tight"
             >
               {{ finalRecommendation }}
             </span>
@@ -443,7 +470,7 @@ async function saveAndExit() {
             @click="finishStep"
             class="w-full md:w-auto px-16 py-6 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
           >
-            Continuer le parcours
+            Continuer
           </button>
         </div>
       </div>
@@ -456,6 +483,7 @@ async function saveAndExit() {
             class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
           >
             <div>
+              <h2 class="text-[25px] text-gray-400 text-center font-bold uppercase tracking-widest">Etape 3/5</h2>
               <h1
                 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2"
               >
@@ -464,6 +492,7 @@ async function saveAndExit() {
               <p class="text-gray-400 font-medium text-sm md:text-base">
                 {{ currentLevelIndex === 0 ? "Bienvenue dans votre évaluation adaptive." : "Niveau suivant débloqué !" }}
               </p>
+              
             </div>
             <div
               class="flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"

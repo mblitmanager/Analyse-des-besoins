@@ -92,12 +92,12 @@ async function testDbConnection() {
       <div class="max-w-md w-full space-y-8">
         <div class="text-center">
           <h2 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">Identification</h2>
-          <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
+          <p class="text-gray-400 text-sm font-bold  tracking-widest">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
         </div>
 
         <div class="bg-white py-8 px-6 shadow-xl rounded-3xl border border-white">
           <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
-            <span class="text-[10px] font-black uppercase tracking-widest text-blue-400">Date de complétude</span>
+            <span class="text-[10px] font-black tracking-widest text-blue-400">Date de complétude</span>
             <span class="text-sm font-bold text-blue-900">{{ new Date().toLocaleDateString('fr-FR') }}</span>
           </div>
 

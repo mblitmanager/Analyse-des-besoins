@@ -180,10 +180,18 @@ export class SessionsService {
       qTextById[q.id] = q.text;
     });
 
-    // helper to filter mise à niveau answers: include only answered questions for selected formation
+    const allAnswers = {
+      ...(session.prerequisiteScore || {}),
+      ...(session.complementaryQuestions || {}),
+      ...(session.availabilities || {}),
+      ...(session.miseANiveauAnswers || {}),
+      ...(session.positionnementAnswers || {}),
+    };
+
+    // helper to filter answers: include only visible questions and matching the selected formation
     const formationLabel = session.formationChoisie;
-    const filterMiseAnswers = (answers: any) => {
-      if (!answers || !formationLabel) return answers;
+    const filterByVisibility = (answers: any) => {
+      if (!answers) return answers;
       const result: Record<string, any> = {};
       Object.entries(answers).forEach(([key, val]) => {
         // Skip null, undefined, or empty responses
@@ -191,15 +199,25 @@ export class SessionsService {
 
         const idNum = Number(key);
         const q = questions.find((x) => x.id === idNum);
-        // include if question has no formation (global) or matches the chosen formation label
-        if (!q || !q.formation || q.formation.label === formationLabel) {
-          result[key] = val;
-        }
+        if (!q) return;
+
+        // 1. Formation filter (safety net)
+        if (q.formation && q.formation.label !== formationLabel) return;
+
+        // 2. Visibility filter (Conditional Logic)
+        if (!isQuestionVisible(q, allAnswers, questions)) return;
+
+        result[key] = val;
       });
       return result;
     };
 
-    const filteredMiseAnswers = filterMiseAnswers(session.miseANiveauAnswers);
+    const filteredMiseAnswers = filterByVisibility(session.miseANiveauAnswers);
+    const filteredPrerequis = filterByVisibility(session.prerequisiteScore);
+    const filteredComplementaryAnswers = filterByVisibility(
+      session.complementaryQuestions,
+    );
+    const filteredAvailabilities = filterByVisibility(session.availabilities);
     const miseTitle = session.formationChoisie
       ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
       : 'Mise à niveau (réponses)';
@@ -229,13 +247,9 @@ export class SessionsService {
 
     // ── Special rule for language formations (LANGUES category) ──
     // Check if this formation belongs to the LANGUES category
-    const formationEntity = await this.sessionRepo.manager
-      .getRepository('Formation')
-      .findOne({ where: { label: session.formationChoisie as string } });
     const isLangueFormation =
-      formationEntity &&
-      (formationEntity as any).category &&
-      (formationEntity as any).category.toUpperCase().includes('LANGUE');
+      session.formationChoisie &&
+      String(session.formationChoisie).toLowerCase().includes('anglais');
 
     if (isLangueFormation && levels.length >= 2) {
       // Language-specific regulatory rules:
@@ -319,6 +333,9 @@ export class SessionsService {
           finalLevel,
           qTextById,
           filteredMiseAnswers,
+          filteredPrerequis,
+          filteredComplementaryAnswers,
+          filteredAvailabilities,
           miseTitle,
         };
       }
@@ -385,6 +402,9 @@ export class SessionsService {
       finalLevel,
       qTextById,
       filteredMiseAnswers,
+      filteredPrerequis,
+      filteredComplementaryAnswers,
+      filteredAvailabilities,
       miseTitle,
     };
   }
@@ -397,6 +417,9 @@ export class SessionsService {
       finalLevel,
       qTextById,
       filteredMiseAnswers,
+      filteredPrerequis,
+      filteredComplementaryAnswers,
+      filteredAvailabilities,
       miseTitle,
     } = await this.getRecommendationData(session);
 
@@ -447,8 +470,8 @@ export class SessionsService {
     const miseKeys = new Set(
       Object.keys(filteredMiseAnswers || {}).map(String),
     );
-    const filteredComplementary = Object.fromEntries(
-      Object.entries(session.complementaryQuestions || {}).filter(
+    const finalComplementary = Object.fromEntries(
+      Object.entries(filteredComplementaryAnswers || {}).filter(
         ([key]) => !miseKeys.has(String(key)),
       ),
     );
@@ -476,17 +499,17 @@ export class SessionsService {
 
       ${renderAnswersTable(
         'Pré-requis (réponses)',
-        session.prerequisiteScore,
+        filteredPrerequis,
         qTextById,
       )}
       ${renderAnswersTable(
         'Questions complémentaires (réponses)',
-        filteredComplementary,
+        finalComplementary,
         qTextById,
       )}
       ${renderAnswersTable(
         'Disponibilités (réponses)',
-        session.availabilities,
+        filteredAvailabilities,
         qTextById,
       )}
       ${renderAnswersTable(miseTitle, filteredMiseAnswers, qTextById)}
@@ -511,9 +534,9 @@ export class SessionsService {
       finalRecommendation: recommendation,
       scoreFinal: scoreFinal,
       levelsScores: session.levelsScores as Record<string, any>,
-      prerequisiteAnswers: session.prerequisiteScore as Record<string, any>,
-      complementaryAnswers: filteredComplementary as Record<string, any>,
-      availabilityAnswers: session.availabilities as Record<string, any>,
+      prerequisiteAnswers: filteredPrerequis as Record<string, any>,
+      complementaryAnswers: finalComplementary as Record<string, any>,
+      availabilityAnswers: filteredAvailabilities as Record<string, any>,
       miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
     });
@@ -653,4 +676,127 @@ function renderAnswersTable(
       </tbody>
     </table>
   `;
+}
+
+function isQuestionVisible(
+  q: Question,
+  responses: any,
+  questionsPool: Question[],
+): boolean {
+  // 1. Check showIfRules (Advanced logic)
+  if (
+    q.showIfRules &&
+    Array.isArray(q.showIfRules) &&
+    q.showIfRules.length > 0
+  ) {
+    const results = q.showIfRules.map((rule) => {
+      const parentId = rule.questionId;
+      const parentResponse = responses[parentId] ?? responses[String(parentId)];
+
+      if (
+        parentResponse === undefined ||
+        parentResponse === null ||
+        parentResponse === ''
+      ) {
+        return false;
+      }
+
+      // Parent must also be visible recursively
+      const parentQuestion = questionsPool.find((x) => x.id === parentId);
+      if (
+        parentQuestion &&
+        !isQuestionVisible(parentQuestion, responses, questionsPool)
+      ) {
+        return false;
+      }
+
+      // If index based (qcm/checkbox)
+      if (rule.responseIndexes && Array.isArray(rule.responseIndexes)) {
+        if (Array.isArray(parentResponse)) {
+          // Checkbox: parentResponse is array of indices
+          return rule.responseIndexes.some((idx) =>
+            parentResponse.map(Number).includes(Number(idx)),
+          );
+        } else {
+          // QCM/Radio: parentResponse is single index
+          return rule.responseIndexes.some(
+            (idx) => Number(idx) === Number(parentResponse),
+          );
+        }
+      }
+
+      // If value based (text)
+      if (rule.responseValue) {
+        return (
+          String(parentResponse).trim().toLowerCase() ===
+          String(rule.responseValue).trim().toLowerCase()
+        );
+      }
+
+      return false;
+    });
+
+    if (q.showIfOperator === 'AND') {
+      return results.every((r) => r === true);
+    }
+    return results.some((r) => r === true);
+  }
+
+  // 2. Legacy showIfQuestionId simple dependency
+  if (q.showIfQuestionId) {
+    const parentId = q.showIfQuestionId;
+    const parentResponse = responses[parentId] ?? responses[String(parentId)];
+    if (
+      parentResponse === undefined ||
+      parentResponse === null ||
+      parentResponse === ''
+    ) {
+      return false;
+    }
+
+    // Check recursive visibility
+    const parentQuestion = questionsPool.find((x) => x.id === Number(parentId));
+    if (
+      parentQuestion &&
+      !isQuestionVisible(parentQuestion, responses, questionsPool)
+    ) {
+      return false;
+    }
+
+    if (
+      q.showIfResponseIndexes &&
+      Array.isArray(q.showIfResponseIndexes) &&
+      q.showIfResponseIndexes.length > 0
+    ) {
+      if (Array.isArray(parentResponse)) {
+        return q.showIfResponseIndexes.some((idx) =>
+          parentResponse.map(Number).includes(Number(idx)),
+        );
+      } else {
+        return q.showIfResponseIndexes.some(
+          (idx) => Number(idx) === Number(parentResponse),
+        );
+      }
+    }
+
+    if (q.showIfResponseValue) {
+      return (
+        String(parentResponse).trim().toLowerCase() ===
+        String(q.showIfResponseValue).trim().toLowerCase()
+      );
+    }
+  }
+
+  // 3. Legacy metadata.condition (handicap example)
+  if (q.metadata?.condition === "handicap == 'Oui'") {
+    const handicapQ = questionsPool.find((item) =>
+      item.text.toLowerCase().includes('handicap'),
+    );
+    if (handicapQ) {
+      return String(responses[handicapQ.id]).toLowerCase() === 'oui';
+    }
+    return false;
+  }
+
+  return true;
 }

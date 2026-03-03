@@ -100,7 +100,11 @@ const parcoursOptions = computed(() => {
 // override display options based on stopLevel and levels list
 const displayOptions = computed(() => {
   if (!session.value) return [];
-  if (session.value.stopLevel && levels.value.length) {
+  
+  const isEnglish = (session.value.formationSlug && session.value.formationSlug.toLowerCase().includes("anglais")) || 
+                    (session.value.formationChoisie && String(session.value.formationChoisie).toLowerCase().includes("anglais"));
+
+  if (session.value.stopLevel && levels.value.length && !isEnglish) {
     const idx = levels.value.findIndex((l) => l.label === session.value.stopLevel);
     if (idx >= 0) {
       const arr = [session.value.stopLevel];
