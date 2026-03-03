@@ -882,43 +882,51 @@ async function saveAndExit() {
 
       <!-- Low Score Warning Modal -->
       <transition name="modal-fade">
-        <div v-if="showFormationWarning" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
-          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="continueWithWarning()"></div>
-          <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-md relative z-10 text-center animate-in zoom-in duration-300">
-            <!-- Warning Icon -->
-            <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span class="material-icons-outlined text-4xl text-yellow-600">warning</span>
-            </div>
+  <div v-if="showFormationWarning" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="continueWithWarning()"></div>
 
-            <!-- Title -->
-            <h2 class="text-2xl md:text-3xl font-black heading-primary mb-4">
-              Avez-vous choisi la bonne formation ?
-            </h2>
+    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-md relative z-10 text-center animate-in zoom-in duration-300">
+      
+      <!-- Warning Icon -->
+      <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span class="material-icons-outlined text-4xl text-yellow-600">warning</span>
+      </div>
 
-            <!-- Score Details -->
-            <p class="text-gray-400 text-sm md:text-base mb-8 leading-relaxed">
-              Vous avez obtenu <strong class="text-gray-600">{{ lastScoreDetails.correctCount }}/{{ lastScoreDetails.total }}</strong> bonnes réponses.
-              <br />Nous vous recommandons de revoir votre choix de formation.
-            </p>
+      <!-- Title -->
+      <h2 class="text-2xl md:text-3xl font-black heading-primary mb-4">
+        Formation peut-être non adaptée à votre niveau
+      </h2>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4">
-              <button
-                @click="closeAndChangeFormation"
-                class="flex-1 px-6 py-3 bg-white text-brand-primary border-2 border-brand-primary rounded-2xl font-bold hover:bg-brand-primary/10 transition-all active:scale-95"
-              >
-                Changer de formation
-              </button>
-              <button
-                @click="continueWithWarning"
-                class="flex-1 px-6 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
-              >
-                Continuer
-              </button>
-            </div>
-          </div>
-        </div>
-      </transition>
+      <!-- Score Details -->
+      <p class="text-gray-500 text-sm md:text-base mb-8 leading-relaxed">
+        Vous avez obtenu 
+        <strong class="text-gray-700">
+          {{ lastScoreDetails.correctCount }}/{{ lastScoreDetails.total }}
+        </strong> bonnes réponses au test de positionnement.
+        <br /><br />
+        Nous vous recommandons d’envisager une formation plus adaptée à votre niveau.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button
+          @click="closeAndChangeFormation"
+          class="flex-1 px-6 py-3 bg-white text-brand-primary border-2 border-brand-primary rounded-2xl font-bold hover:bg-brand-primary/10 transition-all active:scale-95"
+        >
+          Modifier mon choix
+        </button>
+
+        <button
+          @click="continueWithWarning"
+          class="flex-1 px-6 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
+        >
+          Continuer quand même
+        </button>
+      </div>
+
+    </div>
+  </div>
+</transition>
     </main>
     <SiteFooter />
   </div>
