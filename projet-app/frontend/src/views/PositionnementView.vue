@@ -52,18 +52,10 @@ async function loadLevels() {
     if (res.data && res.data.length > 0) {
       levels.value = res.data; // Keep full level objects
     } else {
-      levels.value = [
-        { label: "Niveau 1", successThreshold: 4 },
-        { label: "Niveau 2", successThreshold: 4 },
-        { label: "Niveau 3", successThreshold: 4 },
-      ];
+      levels.value = [];
     }
   } catch {
-    levels.value = [
-      { label: "Niveau 1", successThreshold: 4 },
-      { label: "Niveau 2", successThreshold: 4 },
-      { label: "Niveau 3", successThreshold: 4 },
-    ];
+    levels.value = [];
   }
 }
 
@@ -111,6 +103,17 @@ async function restoreProgressFromSession() {
 async function loadLevelQuestions() {
   loading.value = true;
   try {
+    if (!levels.value || levels.value.length === 0) {
+      // No levels defined for this formation
+      if (allowSkip.value) {
+        const nextRoute = await store.getNextRouteWithQuestions("/positionnement");
+        router.push(nextRoute || "/resultats");
+      } else {
+        loading.value = false;
+        alert("Aucun niveau défini pour cette formation.");
+      }
+      return;
+    }
     const levelLabel = levels.value[currentLevelIndex.value].label;
     const response = await axios.get(
       `${apiBaseUrl}/questions/positionnement?formation=${formationSlug}&niveau=${levelLabel}`,
