@@ -31,22 +31,16 @@ const allowSkip = ref(true);
 
 // Computed: filter questions based on conditional logic and selected formation
 const filteredQuestions = computed(() => {
-  // apply conditional rules first
   let list = filterConditionalQuestions(questions.value, responses.value);
-  // enforce formation-specific / global scope on client side as a safety net
+  
+  // Safety net: filter by selected formation slug on client side
   const formationSlug = localStorage.getItem("selected_formation_slug");
   if (formationSlug) {
-    list = list.filter(q => {
-      return !q.formation || q.formation.slug === formationSlug;
-    });
+    list = list.filter(q => !q.formation || q.formation.slug === formationSlug);
   }
+  
   return list;
 });
-
-// When responses change, clear answers for questions that became hidden
-watch(responses, () => {
-  clearHiddenResponses(questions.value, responses.value);
-}, { deep: true });
 
 // Grouping is derived from filteredQuestions
 const computedGroups = computed(() => {
@@ -162,6 +156,10 @@ async function nextStep() {
   submitting.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    
+    // Clear responses for questions that are currently hidden before saving
+    clearHiddenResponses(questions.value, responses.value);
+    
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, { miseANiveauAnswers: responses.value });
     const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
     router.push(nextRoute || "/positionnement");

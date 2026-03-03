@@ -19,11 +19,6 @@ const loading = ref(true);
 const submitting = ref(false);
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-// When responses change, clear answers for questions that became hidden
-watch(responses, () => {
-  clearHiddenResponses(questions.value, responses.value);
-}, { deep: true });
-
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
   if (session.value.finalRecommendation)
@@ -82,17 +77,19 @@ onMounted(async () => {
 
 
     // Initialize responses keyed by q.id
+    const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        responses.value[q.id] = [];
+        initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
-        responses.value[q.id] = null;  // no default selection
+        initialResponses[q.id] = null;  // no default selection
       } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
-        responses.value[q.id] = null;
+        initialResponses[q.id] = null;
       } else {
-        responses.value[q.id] = "";
+        initialResponses[q.id] = "";
       }
     });
+    responses.value = initialResponses;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
     // keep the user here, fetching failed
@@ -112,6 +109,10 @@ async function nextStep() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    
+    // Clear responses for questions that are currently hidden before saving
+    clearHiddenResponses(questions.value, responses.value);
+
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       availabilities: responses.value,
     });

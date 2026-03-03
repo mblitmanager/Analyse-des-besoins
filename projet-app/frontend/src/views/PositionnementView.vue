@@ -44,11 +44,6 @@ const filteredQuestions = computed(() => {
   return filterConditionalQuestions(questions.value, currentResponses.value);
 });
 
-// When responses change, clear answers for questions that became hidden
-watch(currentResponses, () => {
-  clearHiddenResponses(questions.value, currentResponses.value);
-}, { deep: true });
-
 async function loadLevels() {
   try {
     const res = await axios.get(
@@ -132,18 +127,19 @@ async function loadLevelQuestions() {
       seen.add(key);
       return true;
     });
-    currentResponses.value = {};
+    const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        currentResponses.value[q.id] = [];
+        initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
-        currentResponses.value[q.id] = "Non";
+        initialResponses[q.id] = "Non";
       } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
-        currentResponses.value[q.id] = null;
+        initialResponses[q.id] = null;
       } else {
-        currentResponses.value[q.id] = "";
+        initialResponses[q.id] = "";
       }
     });
+    currentResponses.value = initialResponses;
     
     // Auto-skip or finish if no questions found for this level
     if (questions.value.length === 0 || filteredQuestions.value.length === 0) {
