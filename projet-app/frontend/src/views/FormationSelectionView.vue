@@ -524,7 +524,7 @@ const sectionParts = computed(() => {
                          <h4 class="font-black heading-primary uppercase tracking-tight text-sm md:text-lg">Google Workspace</h4>
                          <p class="text-[9px] md:text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">Outils collaboratifs cloud</p>
                        </div>
-                       <div class="flex-shrink-0 px-2 md:px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Recommandé</div>
+                       <!-- <div class="flex-shrink-0 px-2 md:px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest whitesace-nowrap">Recommandé</div> -->
                     </div>
                   </div>
                 </div>
