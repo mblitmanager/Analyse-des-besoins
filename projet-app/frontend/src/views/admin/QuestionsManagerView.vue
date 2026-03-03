@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
 
 const questions = ref([]);
 const loading = ref(true);
-const filterType = ref("");
+const filterType = ref(localStorage.getItem('admin_q_filterType') || "");
 const showModal = ref(false);
 const editingQuestion = ref(null);
 const workflowTypes = ref([]);
@@ -33,9 +33,17 @@ const form = ref({
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const formations = ref([]);
-const formationFilter = ref("");
-const levelFilter = ref("");
+const formationFilter = ref(localStorage.getItem('admin_q_formationFilter') || "");
+const levelFilter = ref(localStorage.getItem('admin_q_levelFilter') || "");
 const savingOrder = ref(false);
+const searchTerm = ref("");
+const page = ref(1);
+
+// Persist filters to localStorage
+watch(filterType, (v) => localStorage.setItem('admin_q_filterType', v));
+watch(formationFilter, (v) => localStorage.setItem('admin_q_formationFilter', v));
+watch(levelFilter, (v) => localStorage.setItem('admin_q_levelFilter', v));
+const pageSize = ref(25);
 const token = localStorage.getItem("admin_token");
 
 async function fetchQuestions() {
@@ -165,7 +173,8 @@ async function saveQuestion() {
     }
 
     showModal.value = false;
-    // do not re-fetch everything to avoid scroll jump
+    // Refresh the list to pick up all relations (formation, level, etc.)
+    await fetchQuestions();
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
     console.error(error);
@@ -320,26 +329,44 @@ const levelFilterOptions = computed(() => {
   return Array.from(labels);
 });
 
+// Total count of displayed questions
+const totalFilteredCount = computed(() => {
+  const q = (searchTerm.value || "").toLowerCase().trim();
+  return questions.value.filter((item) => {
+    if (formationFilter.value && (!item.formation || item.formation.slug !== formationFilter.value)) return false;
+    const levelLabel = item.level?.label || "Sans niveau";
+    if (levelFilter.value && levelLabel !== levelFilter.value) return false;
+    if (q && !(item.text || "").toLowerCase().includes(q)) return false;
+    return true;
+  }).length;
+});
+
 // Vue admin : regroupement par formation puis par niveau, avec filtres
 const groupedQuestions = computed(() => {
   const map = new Map();
+  const q = (searchTerm.value || "").toLowerCase().trim();
 
-  questions.value.forEach((q) => {
-    // Filtre formation : si une formation est choisie, ne garder que celle-ci (et pas Global)
+  questions.value.forEach((item) => {
+    // Filtre formation
     if (
       formationFilter.value &&
-      (!q.formation || q.formation.slug !== formationFilter.value)
+      (!item.formation || item.formation.slug !== formationFilter.value)
     ) {
       return;
     }
 
-    const levelLabel = q.level?.label || "Sans niveau";
+    const levelLabel = item.level?.label || "Sans niveau";
     if (levelFilter.value && levelLabel !== levelFilter.value) {
       return;
     }
 
-    const formationKey = q.formation?.id || "global";
-    const formationLabel = q.formation?.label || "Global";
+    // Filtre recherche texte
+    if (q && !(item.text || "").toLowerCase().includes(q)) {
+      return;
+    }
+
+    const formationKey = item.formation?.id || "global";
+    const formationLabel = item.formation?.label || "Global";
 
     if (!map.has(formationKey)) {
       map.set(formationKey, {
@@ -350,7 +377,7 @@ const groupedQuestions = computed(() => {
     }
 
     const formationGroup = map.get(formationKey);
-    const levelKey = q.level?.id || "no-level";
+    const levelKey = item.level?.id || "no-level";
 
     if (!formationGroup.levels.has(levelKey)) {
       formationGroup.levels.set(levelKey, {
@@ -360,7 +387,7 @@ const groupedQuestions = computed(() => {
       });
     }
 
-    formationGroup.levels.get(levelKey).questions.push(q);
+    formationGroup.levels.get(levelKey).questions.push(item);
   });
 
   return Array.from(map.values()).map((fg) => ({
@@ -393,53 +420,50 @@ const groupedQuestions = computed(() => {
       </button>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-4 items-center">
-      <div class="flex flex-wrap gap-2 p-2 bg-gray-200 rounded-2xl w-full sm:w-fit">
-        <button
-          type="button"
-          v-for="t in visibleTypes"
-          :key="t.value"
-          @click="
-            filterType = t.value;
-            fetchQuestions();
-          "
-          :aria-pressed="filterType === t.value"
-          class="flex-1 sm:flex-none px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-          :class="
-            filterType === t.value
-              ? 'bg-gray-300 text-(--title-color) shadow-md'
-              : 'text-gray-400 hover:text-gray-600'
-          "
-        >
-          {{ t.label }}
-        </button>
-      </div>
+    <!-- Filters: Row 1 — Type pills -->
+    <div class="flex flex-wrap gap-2 p-2 bg-gray-200 rounded-2xl">
+      <button
+        type="button"
+        v-for="t in visibleTypes"
+        :key="t.value"
+        @click="filterType = t.value; fetchQuestions();"
+        :aria-pressed="filterType === t.value"
+        class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+        :class="filterType === t.value ? 'bg-white text-(--title-color) shadow-md' : 'text-gray-400 hover:text-gray-600'"
+      >
+        {{ t.label }}
+      </button>
+    </div>
 
+    <!-- Filters: Row 2 — Dropdowns + Search -->
+    <div class="flex flex-wrap gap-3 items-center">
       <select
         v-model="formationFilter"
         @change="() => { levelFilter = ''; fetchQuestions(); }"
-        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
+        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[170px]"
       >
-        <option value="">Toutes les formations</option>
-        <option v-for="f in formations" :key="f.id" :value="f.slug">
-          {{ f.label }}
-        </option>
+        <option value="">Toutes formations</option>
+        <option v-for="f in formations" :key="f.id" :value="f.slug">{{ f.label }}</option>
       </select>
-
       <select
         v-model="levelFilter"
-        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
+        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[150px]"
       >
-        <option value="">Tous les niveaux</option>
-        <option
-          v-for="lvl in levelFilterOptions"
-          :key="lvl"
-          :value="lvl"
-        >
-          {{ lvl }}
-        </option>
+        <option value="">Tous niveaux</option>
+        <option v-for="lvl in levelFilterOptions" :key="lvl" :value="lvl">{{ lvl }}</option>
       </select>
+      <div class="relative flex-1 min-w-[180px]">
+        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+        <input
+          v-model="searchTerm"
+          type="search"
+          placeholder="Rechercher..."
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-xs font-bold transition-all shadow-sm"
+        />
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
+        {{ totalFilteredCount }} question(s)
+      </span>
     </div>
 
     <div class="grid grid-cols-1 gap-6">

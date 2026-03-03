@@ -153,6 +153,13 @@ const formatDate = (date) => {
   });
 };
 
+// French grammar: "d'" before vowels/h, "de " before consonants
+function niveauDe(text) {
+  if (!text) return 'de ';
+  const first = text.trim()[0].toLowerCase();
+  return 'aeiouyàâéèêëïîôùûüh'.includes(first) ? "d'" : 'de ';
+}
+
 const goNext = () => {
   const nextRoute = store.getNextRoute("/resultats");
   router.push(nextRoute || "/complementary");
@@ -518,7 +525,7 @@ const downloadPDF = async () => {
               >
             </div>
             <h3 class="text-base font-bold heading-primary mb-2">
-              Niveau d'{{ session.formationChoisie }}
+              Niveau {{ niveauDe(session.formationChoisie) }}{{ session.formationChoisie }}
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
               Le parcours choisi vous permettra de valider le niveau {{ session.stopLevel }}.

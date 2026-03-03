@@ -90,12 +90,11 @@ const categoryGroupsOrder = [
 
 function detectGroupForFormation(f) {
   const cat = (f.category || '').toLowerCase();
-  const label = (f.label || '').toLowerCase();
-  if (cat.includes('anglais') || cat.includes('langu') || label.includes('anglais') || cat.includes('francais') || label.includes('francais')) return 'anglais-francais';
-  if (cat.includes('bureautique') || label.includes('bureautique') || label.includes('google') || label.includes('microsoft') || label.includes('office')) return 'bureautique';
-  if (label.includes('illustrator') || label.includes('photoshop') || label.includes('sketchup')) return 'illustration';
-  if (label.includes('intelligence') || label.includes('ia') || label.includes('générative') || label.includes('generative')) return 'ia-generative';
-  if (label.includes('digcomp') || label.includes('wordpress') || label.includes('google workspace')) return 'digcomp-google-wordpress';
+  if (cat.includes('langue')) return 'anglais-francais';
+  if (cat.includes('bureautique')) return 'bureautique';
+  if (cat.includes('création') || cat.includes('creation') || cat.includes('design')) return 'illustration';
+  if (cat.includes('ia') || cat.includes('intelligence')) return 'ia-generative';
+  if (cat.includes('digital') || cat.includes('internet') || cat.includes('compétence')) return 'digcomp-google-wordpress';
   return 'autres';
 }
 
@@ -124,33 +123,16 @@ const groupedFormations = computed(() => {
 // Modal & helpers for Bureautique choice between Google Workspace and Microsoft Office
 const showBureauModal = ref(false);
 const bureauGoogle = computed(() => {
-  const list = formations.value.filter((f) => {
+  return formations.value.filter((f) => {
     const cat = (f.category || '').toLowerCase();
-    const label = (f.label || '').toLowerCase();
-    return (
-      cat.includes('google') ||
-      label.includes('google workspace') ||
-      label.includes('google') ||
-      (cat.includes('bureautique') && label.includes('google'))
-    );
+    return cat.includes('bureautique') && cat.includes('google');
   });
-  // fallback: if empty, include all bureautique
-  if (list.length === 0) return formations.value.filter((f) => (f.category || '').toLowerCase().includes('bureautique'));
-  return list;
 });
 const bureauMicrosoft = computed(() => {
-  const list = formations.value.filter((f) => {
+  return formations.value.filter((f) => {
     const cat = (f.category || '').toLowerCase();
-    const label = (f.label || '').toLowerCase();
-    return (
-      cat.includes('microsoft') ||
-      label.includes('microsoft') ||
-      label.includes('office') ||
-      (cat.includes('bureautique') && (label.includes('microsoft') || label.includes('office')))
-    );
+    return cat.includes('bureautique') && cat.includes('microsoft');
   });
-  if (list.length === 0) return formations.value.filter((f) => (f.category || '').toLowerCase().includes('bureautique'));
-  return list;
 });
 
 function openBureautiqueModal() {
@@ -175,23 +157,10 @@ const sections = computed(() => {
   const ia = map.get('ia-generative') || [];
   const digcompGroup = map.get('digcomp-google-wordpress') || [];
 
-  // also include any formations explicitly matching google workspace/digcomp/wordpress
-  const extraDigcomp = formations.value.filter((f) => {
-    const l = (f.label || '').toLowerCase();
-    return l.includes('digcomp') || l.includes('google workspace') || l.includes('wordpress');
-  });
-
-  const combinedDigcomp = [...digcompGroup, ...extraDigcomp].reduce((acc, f) => {
-    if (!acc.find((x) => x.id === f.id)) acc.push(f);
-    return acc;
-  }, []);
-
-  const combinedCreationAndInternet = [...creation, ...combinedDigcomp];
-
   return [
     { key: 'langues', title: 'Langues — Anglais / Français', items: langs },
     { key: 'bureautique', title: 'Bureautique', items: [], modal: true },
-    { key: 'creation', title: 'Création et Internet', items: combinedCreationAndInternet },
+    { key: 'creation', title: 'Création et Internet', items: [...creation, ...digcompGroup] },
     { key: 'ia', title: 'Intelligence Artificielle Générative', items: ia },
   ];
 });
@@ -250,7 +219,7 @@ const sectionParts = computed(() => {
           Quelle formation souhaitez-vous suivre ?
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
-          Sélectionnez votre programme de formation.
+          Sélectionnez votre choix
         </p>
       </div>
 
