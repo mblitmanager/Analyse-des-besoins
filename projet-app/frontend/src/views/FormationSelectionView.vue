@@ -220,7 +220,7 @@ const sectionParts = computed(() => {
           Quelle formation souhaitez-vous suivre ?
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
-          Sélectionnez votre choix
+          Prêt à apprendre ? Faites votre choix ci-dessous:
         </p>
         
       </div>
