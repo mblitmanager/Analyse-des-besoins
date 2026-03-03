@@ -1,11 +1,37 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 
 const formations = ref([]);
 const loading = ref(true);
 const showModal = ref(false);
 const editingFormation = ref(null);
+
+// Search & filter state
+const searchTerm = ref("");
+const categoryFilter = ref("");
+const statusFilter = ref("all");
+
+const uniqueCategories = computed(() => {
+  const set = new Set();
+  for (const f of formations.value) if (f.category) set.add(f.category);
+  return Array.from(set).sort();
+});
+
+const filteredFormations = computed(() => {
+  const q = (searchTerm.value || "").toLowerCase().trim();
+  return formations.value.filter((f) => {
+    if (statusFilter.value === "active" && !f.isActive) return false;
+    if (statusFilter.value === "draft" && f.isActive) return false;
+    if (categoryFilter.value && f.category !== categoryFilter.value) return false;
+    if (!q) return true;
+    return (
+      (f.label || "").toLowerCase().includes(q) ||
+      (f.slug || "").toLowerCase().includes(q) ||
+      (f.category || "").toLowerCase().includes(q)
+    );
+  }).sort((a, b) => (a.label || "").localeCompare(b.label || ""));
+});
 const form = ref({
   label: "",
   slug: "",
@@ -191,6 +217,37 @@ onMounted(fetchFormations);
       </button>
     </div>
 
+    <!-- Toolbar -->
+    <div class="flex flex-wrap gap-4 items-center">
+      <div class="relative flex-1 min-w-[200px]">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
+        <input
+          v-model="searchTerm"
+          type="search"
+          placeholder="Rechercher par nom, slug ou catégorie..."
+          class="w-full pl-12 pr-6 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
+        />
+      </div>
+      <select
+        v-model="categoryFilter"
+        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
+      >
+        <option value="">Toutes catégories</option>
+        <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
+      </select>
+      <select
+        v-model="statusFilter"
+        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+      >
+        <option value="all">Tous statuts</option>
+        <option value="active">En ligne</option>
+        <option value="draft">Brouillon</option>
+      </select>
+      <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+        {{ filteredFormations.length }} formation(s)
+      </span>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
         v-if="loading"
@@ -200,8 +257,16 @@ onMounted(fetchFormations);
       ></div>
 
       <div
+        v-else-if="filteredFormations.length === 0"
+        class="col-span-full flex flex-col items-center justify-center py-20 text-gray-300 bg-white rounded-[40px] shadow-sm"
+      >
+        <span class="material-icons-outlined text-6xl mb-4 opacity-20">search_off</span>
+        <p class="font-bold uppercase tracking-widest text-xs">Aucune formation trouvée pour ces critères</p>
+      </div>
+
+      <div
         v-else
-        v-for="f in formations"
+        v-for="f in filteredFormations"
         :key="f.id"
         class="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-blue-50 group"
       >
