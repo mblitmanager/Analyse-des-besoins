@@ -134,6 +134,7 @@ function skipStep() {
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
+        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">Etape 4/5</h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
           Questions Complémentaires
         </h1>
@@ -141,6 +142,7 @@ function skipStep() {
           Quelques informations supplémentaires pour personnaliser votre
           parcours.
         </p>
+        
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">

@@ -215,12 +215,14 @@ const sectionParts = computed(() => {
             ></div>
           </div> -->
         </div>
+        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">Etape 1/5</h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
           Quelle formation souhaitez-vous suivre ?
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
           Sélectionnez votre choix
         </p>
+        
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">
@@ -389,14 +391,8 @@ const sectionParts = computed(() => {
           </div>
         </transition>
       </div>
-    </main>
-
-    <!-- Bottom Actions Sticky -->
-    <div
-      class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-100 p-5 z-40"
-    >
-      <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
-        <button
+      <div class="pt-8 flex items-center justify-between gap-4 mt-10">
+          <button
           @click="router.push('/prerequis')"
           class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors"
         >
@@ -404,7 +400,7 @@ const sectionParts = computed(() => {
           Retour
         </button>
 
-        <button
+          <button
           @click="selectFormation"
           :disabled="submitting || !selectedFormation"
           class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
@@ -418,8 +414,10 @@ const sectionParts = computed(() => {
             class="animate-spin border-2 border-white/60 border-t-white rounded-full h-4 w-4"
           ></div>
         </button>
-      </div>
-    </div>
+        </div>
+    </main>
+
+ 
     <SiteFooter />
 
     <!-- Bureautique Modal -->
