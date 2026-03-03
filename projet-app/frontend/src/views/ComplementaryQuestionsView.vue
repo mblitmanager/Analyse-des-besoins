@@ -17,12 +17,6 @@ const responses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
 
-// When responses change, clear answers for questions that became hidden
-watch(responses, () => {
-  clearHiddenResponses(questions.value, responses.value);
-}, { deep: true });
-
-
 onMounted(async () => {
   if (!sessionId) {
     router.push("/");
@@ -52,17 +46,19 @@ onMounted(async () => {
 
 
     // Initialize responses keyed by q.id
+    const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        responses.value[q.id] = [];
+        initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
-        responses.value[q.id] = null;  // no default selection
+        initialResponses[q.id] = null;  // no default selection
       } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
-        responses.value[q.id] = null;
+        initialResponses[q.id] = null;
       } else {
-        responses.value[q.id] = "";
+        initialResponses[q.id] = "";
       }
     });
+    responses.value = initialResponses;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
     // keep user on page even if load failed; they can try again or skip manually
@@ -76,6 +72,10 @@ async function nextStep() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    
+    // Clear responses for questions that are currently hidden before saving
+    clearHiddenResponses(questions.value, responses.value);
+
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       complementaryQuestions: responses.value,
     });

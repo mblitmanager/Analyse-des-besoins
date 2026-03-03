@@ -35,11 +35,6 @@ function isQuestionVisible(q) {
   return filterConditionalQuestions([q], responses.value, questions.value).length > 0;
 }
 
-// When responses change, clear answers for questions that became hidden
-watch(responses, () => {
-  clearHiddenResponses(questions.value, responses.value);
-}, { deep: true });
-
 onMounted(async () => {
   if (!sessionId) {
     router.push("/");
@@ -66,17 +61,19 @@ onMounted(async () => {
       itKeywords.some(kw => q.text.toLowerCase().includes(kw))
     );
 
+    const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        responses.value[q.id] = [];
+        initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
-        responses.value[q.id] = null;  // no default selection
+        initialResponses[q.id] = null;  // no default selection
       } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
-        responses.value[q.id] = null;
+        initialResponses[q.id] = null;
       } else {
-        responses.value[q.id] = "";
+        initialResponses[q.id] = "";
       }
     });
+    responses.value = initialResponses;
 
     groups.value = [
       {
@@ -115,6 +112,11 @@ async function submitPrerequis(force = false) {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    
+    // Clear responses for questions that are currently hidden before saving
+    // Pass ALL questions fetched from API, not just the IT subset
+    clearHiddenResponses(questions.value, responses.value);
+
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       metier: metier.value,
       situation: situation.value, // already an array from checkboxes
