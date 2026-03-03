@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import axios from "axios";
 import { formatBoldText } from "../utils/formatText";
+import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 
@@ -15,6 +16,11 @@ const questions = ref([]);
 const responses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
+
+// When responses change, clear answers for questions that became hidden
+watch(responses, () => {
+  clearHiddenResponses(questions.value, responses.value);
+}, { deep: true });
 
 
 onMounted(async () => {
@@ -83,14 +89,18 @@ async function nextStep() {
 }
 
 function shouldShowQuestion(q) {
-  if (!q.metadata?.condition) return true; // Fixed: was 'True' (Python syntax)
+  // Check multi-parent showIfRules / showIfQuestionId via shared util
+  const filtered = filterConditionalQuestions([q], responses.value, questions.value);
+  if (filtered.length === 0) return false;
 
-  // Support: "handicap == 'Oui'"
-  if (q.metadata.condition === "handicap == 'Oui'") {
-    const handicapQ = questions.value.find((item) =>
-      item.text.toLowerCase().includes("handicap"),
-    );
-    return handicapQ ? responses.value[handicapQ.id] === "Oui" : false;
+  // Legacy metadata.condition support
+  if (q.metadata?.condition) {
+    if (q.metadata.condition === "handicap == 'Oui'") {
+      const handicapQ = questions.value.find((item) =>
+        item.text.toLowerCase().includes("handicap"),
+      );
+      return handicapQ ? responses.value[handicapQ.id] === "Oui" : false;
+    }
   }
   return true;
 }

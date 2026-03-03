@@ -54,8 +54,10 @@ export class Question {
     questionId: number;
     responseIndexes?: number[];
     responseValue?: string;
-    // future: operator: 'any'|'all' etc.
   }>;
+
+  @Column({ type: 'varchar', length: 10, default: 'OR' })
+  showIfOperator: 'AND' | 'OR';
 
   @ManyToOne(() => Level, (level) => level.questions, { nullable: true })
   level: Level;

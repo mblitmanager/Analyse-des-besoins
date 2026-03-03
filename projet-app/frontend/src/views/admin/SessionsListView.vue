@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
 
@@ -14,6 +14,13 @@ const showModal = ref(false);
 const savingSession = ref(false);
 const expandedLevel = ref(null);
 const questionsIndex = ref({});
+
+// Pagination
+const page = ref(1);
+const pageSize = ref(25);
+
+// Reset page when filters change
+watch([searchQuery, statusFilter, formationFilter], () => { page.value = 1; });
 
 function viewSession(session) {
   selectedSession.value = session;
@@ -46,6 +53,12 @@ const filteredSessions = computed(() => {
 
     return matchesSearch && matchesStatus && matchesFormation;
   });
+});
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredSessions.value.length / pageSize.value)));
+const paginatedSessions = computed(() => {
+  const start = (page.value - 1) * pageSize.value;
+  return filteredSessions.value.slice(start, start + pageSize.value);
 });
 
 async function fetchSessions() {
@@ -260,6 +273,13 @@ function toggleExpandedLevel(level) {
 
 <template>
   <div class="space-y-10 animate-fade-in">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div>
+        <h2 class="text-3xl font-black heading-primary">Gestion des Sessions</h2>
+        <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Suivez et gérez les sessions des candidats</p>
+      </div>
+    </div>
+
       <div class="flex flex-wrap gap-4 items-center">
         <!-- Export Button -->
         <button
@@ -302,6 +322,10 @@ function toggleExpandedLevel(level) {
           <option value="completed">Terminé</option>
           <option value="pending">En cours</option>
         </select>
+
+        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
+          {{ filteredSessions.length }} session(s)
+        </span>
       </div>
 
     <div class="bg-white rounded-[40px] shadow-sm overflow-x-auto">
@@ -349,7 +373,7 @@ function toggleExpandedLevel(level) {
 
           <tr
             v-else
-            v-for="session in filteredSessions"
+            v-for="session in paginatedSessions"
             :key="session.id"
             class="hover:bg-blue-50/30 transition-colors group"
           >
@@ -446,6 +470,42 @@ function toggleExpandedLevel(level) {
         <p class="font-bold uppercase tracking-widest text-xs">
           Aucune session enregistrée
         </p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="!loading && filteredSessions.length > 0" class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Par page</span>
+        <select
+          v-model.number="pageSize"
+          @change="page = 1"
+          class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold outline-none"
+        >
+          <option :value="10">10</option>
+          <option :value="25">25</option>
+          <option :value="50">50</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-gray-400">
+          {{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, filteredSessions.length) }}
+          sur {{ filteredSessions.length }}
+        </span>
+        <button
+          :disabled="page <= 1"
+          @click="page--"
+          class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30 hover:border-brand-primary transition-all"
+        >
+          <span class="material-icons-outlined text-sm">chevron_left</span>
+        </button>
+        <button
+          :disabled="page >= totalPages"
+          @click="page++"
+          class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30 hover:border-brand-primary transition-all"
+        >
+          <span class="material-icons-outlined text-sm">chevron_right</span>
+        </button>
       </div>
     </div>
 

@@ -20,12 +20,13 @@ const form = ref({
   levelId: "",
   correctResponseIndex: 0,
   isActive: true,
-  // Conditional display fields
+  // Multi-parent conditional display
   showIfEnabled: false,
+  showIfOperator: "OR",
+  showIfRules: [],
+  // Legacy single-parent (kept for backward compat)
   showIfQuestionId: "",
-  // For qcm/checkbox parent questions: array of selected option indices
   showIfResponseIndexes: [],
-  // For text parent questions: matching text value
   showIfResponseValue: "",
   correctResponseIndexes: [],
 });
@@ -105,6 +106,8 @@ function openAddModal() {
     correctResponseIndex: 0,
     isActive: true,
     showIfEnabled: false,
+    showIfOperator: "OR",
+    showIfRules: [],
     showIfQuestionId: "",
     showIfResponseIndexes: [],
     showIfResponseValue: "",
@@ -115,6 +118,22 @@ function openAddModal() {
 
 function openEditModal(q) {
   editingQuestion.value = q;
+  // Build showIfRules from existing data
+  let rules = [];
+  if (q.showIfRules && q.showIfRules.length) {
+    rules = q.showIfRules.map(r => ({
+      questionId: String(r.questionId || ""),
+      responseIndexes: r.responseIndexes || [],
+      responseValue: r.responseValue || "",
+    }));
+  } else if (q.showIfQuestionId) {
+    // Legacy single-parent migration
+    rules = [{
+      questionId: String(q.showIfQuestionId),
+      responseIndexes: q.showIfResponseIndexes || [],
+      responseValue: q.showIfResponseValue || "",
+    }];
+  }
   form.value = {
     text: q.text,
     type: q.type,
@@ -127,12 +146,13 @@ function openEditModal(q) {
     formationId: q.formation?.id || "",
     levelId: q.level?.id || "",
     correctResponseIndex: q.correctResponseIndex || 0,
-    isActive: q.isActive !== false, // Default to true
-    // Populate conditional fields if present on question
-    showIfEnabled: !!(q.showIfQuestionId || (q.showIf && q.showIf.questionId)),
-    showIfQuestionId: q.showIfQuestionId || (q.showIf && q.showIf.questionId) || "",
-    showIfResponseIndexes: q.showIfResponseIndexes || (q.showIf && q.showIf.responseIndexes) || [],
-    showIfResponseValue: q.showIfResponseValue || (q.showIf && q.showIf.responseValue) || "",
+    isActive: q.isActive !== false,
+    showIfEnabled: rules.length > 0,
+    showIfOperator: q.showIfOperator || "OR",
+    showIfRules: rules,
+    showIfQuestionId: q.showIfQuestionId || "",
+    showIfResponseIndexes: q.showIfResponseIndexes || [],
+    showIfResponseValue: q.showIfResponseValue || "",
     correctResponseIndexes: q.correctResponseIndexes || [],
   };
   showModal.value = true;
@@ -144,11 +164,24 @@ async function saveQuestion() {
     const payload = {
       ...form.value,
       options: form.value.responseType === 'text' ? [] : form.value.options.filter((o) => o.trim() !== ""),
-      // map conditional fields to explicit payload keys
-      // (showIfEnabled is only a UI flag, not sent to backend)
-      showIfQuestionId: form.value.showIfEnabled && form.value.showIfQuestionId ? Number(form.value.showIfQuestionId) : null,
-      showIfResponseIndexes: form.value.showIfEnabled ? (form.value.showIfResponseIndexes || []).map(i => Number(i)) : [],
-      showIfResponseValue: form.value.showIfEnabled && form.value.showIfResponseValue ? String(form.value.showIfResponseValue).trim() : "",
+      // Multi-parent rules
+      showIfRules: form.value.showIfEnabled
+        ? form.value.showIfRules
+            .filter(r => r.questionId)
+            .map(r => ({
+              questionId: Number(r.questionId),
+              responseIndexes: (r.responseIndexes || []).map(i => Number(i)),
+              responseValue: r.responseValue ? String(r.responseValue).trim() : "",
+            }))
+        : [],
+      showIfOperator: form.value.showIfEnabled ? form.value.showIfOperator : 'OR',
+      // Legacy single-parent: set from first rule for backward compat
+      showIfQuestionId: form.value.showIfEnabled && form.value.showIfRules.length > 0 && form.value.showIfRules[0].questionId
+        ? Number(form.value.showIfRules[0].questionId) : null,
+      showIfResponseIndexes: form.value.showIfEnabled && form.value.showIfRules.length > 0
+        ? (form.value.showIfRules[0].responseIndexes || []).map(i => Number(i)) : [],
+      showIfResponseValue: form.value.showIfEnabled && form.value.showIfRules.length > 0 && form.value.showIfRules[0].responseValue
+        ? String(form.value.showIfRules[0].responseValue).trim() : "",
       correctResponseIndexes: form.value.responseType === 'checkbox' ? (form.value.correctResponseIndexes || []).map(i => Number(i)) : [],
     };
     delete payload.showIfEnabled;
@@ -301,16 +334,28 @@ const availableLevels = computed(() => {
   return selectedFormation?.levels || [];
 });
 
-// Parent question options helper for conditional logic
-const parentQuestionOptions = computed(() => {
-  const pq = questions.value.find((q) => String(q.id) === String(form.value.showIfQuestionId));
-  if (!pq) return [];
-  if (!pq.options || pq.options.length === 0) return [];
+// Parent question options helper for conditional logic - per rule
+function getRuleParentOptions(rule) {
+  const pq = questions.value.find((q) => String(q.id) === String(rule.questionId));
+  if (!pq || !pq.options || pq.options.length === 0) return [];
   return pq.options.map((o, idx) => ({
     idx,
     label: typeof o === 'string' ? o : o.label,
   }));
-});
+}
+
+function getRuleParentType(rule) {
+  const pq = questions.value.find((q) => String(q.id) === String(rule.questionId));
+  return pq?.responseType || 'qcm';
+}
+
+function addShowIfRule() {
+  form.value.showIfRules.push({ questionId: "", responseIndexes: [], responseValue: "" });
+}
+
+function removeShowIfRule(idx) {
+  form.value.showIfRules.splice(idx, 1);
+}
 
 // Options de filtre par niveau (basées sur les questions chargées)
 const levelFilterOptions = computed(() => {
@@ -393,7 +438,10 @@ const groupedQuestions = computed(() => {
   return Array.from(map.values()).map((fg) => ({
     id: fg.id,
     label: fg.label,
-    levels: Array.from(fg.levels.values()),
+    levels: Array.from(fg.levels.values()).map((lg) => ({
+      ...lg,
+      questions: lg.questions.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    })),
   }));
 });
 </script>
@@ -786,46 +834,60 @@ const groupedQuestions = computed(() => {
                 </div>
               </div>
 
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Question conditionnelle ?</label>
                 <div class="flex items-center gap-3">
                   <div
-                    @click="form.showIfEnabled = !form.showIfEnabled"
+                    @click="form.showIfEnabled = !form.showIfEnabled; if (form.showIfEnabled && form.showIfRules.length === 0) addShowIfRule();"
                     class="px-6 py-3 rounded-2xl cursor-pointer transition-all font-bold text-sm text-center border"
                     :class="form.showIfEnabled ? 'bg-green-50 border-green-200 text-green-600' : 'bg-red-50 border-red-200 text-red-600'"
                   >
                     {{ form.showIfEnabled ? 'OUI' : 'NON' }}
                   </div>
+                  <template v-if="form.showIfEnabled && form.showIfRules.length > 1">
+                    <select
+                      v-model="form.showIfOperator"
+                      class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                    >
+                      <option value="OR">L'une des conditions (OU)</option>
+                      <option value="AND">Toutes les conditions (ET)</option>
+                    </select>
+                  </template>
                 </div>
 
-                <div v-if="form.showIfEnabled" class="space-y-2">
-                  <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Parent Question</label>
-                  <select v-model="form.showIfQuestionId" class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm">
-                    <option value="">-- Sélectionnez une question parent --</option>
-                    <option v-for="pq in questions.filter(q => q.id !== (editingQuestion && editingQuestion.id))" :key="pq.id" :value="pq.id">{{ pq.text }}</option>
-                  </select>
-
-                  <div v-if="form.showIfQuestionId">
-                    <div v-if="questions.find(q => String(q.id) === String(form.showIfQuestionId))?.responseType === 'text'" class="space-y-2">
-                      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Valeur attendue</label>
-                      <input v-model="form.showIfResponseValue" placeholder="Texte attendu" class="w-full px-6 py-3 bg-gray-50 rounded-xl outline-none" />
+                <div v-if="form.showIfEnabled" class="space-y-4">
+                  <div v-for="(rule, rIdx) in form.showIfRules" :key="rIdx" class="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-3 relative">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Condition {{ rIdx + 1 }}</span>
+                      <button v-if="form.showIfRules.length > 1" type="button" @click="removeShowIfRule(rIdx)" class="w-7 h-7 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-all">
+                        <span class="material-icons-outlined text-sm">close</span>
+                      </button>
                     </div>
+                    <select v-model="rule.questionId" class="w-full px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary rounded-xl outline-none transition-all font-bold text-sm">
+                      <option value="">-- Question parent --</option>
+                      <option v-for="pq in questions.filter(q => q.id !== (editingQuestion && editingQuestion.id) && (!q.formation || !form.formationId || q.formation.id === form.formationId))" :key="pq.id" :value="String(pq.id)">{{ pq.text }}</option>
+                    </select>
 
-                    <div v-else class="space-y-2">
-                      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Options déclenchantes</label>
-                      <div class="flex flex-wrap gap-2">
-                        <label v-for="opt in parentQuestionOptions" :key="opt.idx" class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-xl border">
-                          <input
-                            type="checkbox"
-                            :value="opt.idx"
-                            v-model="form.showIfResponseIndexes"
-                          />
-                          <span class="text-sm">{{ opt.label }}</span>
-                        </label>
+                    <div v-if="rule.questionId">
+                      <div v-if="getRuleParentType(rule) === 'text'" class="space-y-2">
+                        <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Valeur attendue</label>
+                        <input v-model="rule.responseValue" placeholder="Texte attendu" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none text-sm" />
                       </div>
-                      <p class="text-xs text-gray-400">Cochez les options qui doivent déclencher l'affichage de cette question.</p>
+                      <div v-else class="space-y-2">
+                        <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">Options déclenchantes</label>
+                        <div class="flex flex-wrap gap-2">
+                          <label v-for="opt in getRuleParentOptions(rule)" :key="opt.idx" class="flex items-center gap-2 px-3 py-1.5 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-brand-primary transition-all">
+                            <input type="checkbox" :value="opt.idx" v-model="rule.responseIndexes" class="rounded" />
+                            <span class="text-xs font-bold">{{ opt.label }}</span>
+                          </label>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  <button type="button" @click="addShowIfRule" class="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center gap-2">
+                    <span class="material-icons-outlined text-sm">add</span> Ajouter une condition
+                  </button>
                 </div>
               </div>
             </div>
