@@ -2,11 +2,12 @@
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
+import * as XLSX from "xlsx";
 
 const sessions = ref([]);
 const loading = ref(true);
 const searchQuery = ref("");
-const statusFilter = ref("all");
+const activeTab = ref("all");
 const formationFilter = ref("all");
 const selectedSession = ref(null);
 const editableSession = ref(null);
@@ -14,13 +15,17 @@ const showModal = ref(false);
 const savingSession = ref(false);
 const expandedLevel = ref(null);
 const questionsIndex = ref({});
+const selectedSessionIds = ref(new Set());
 
 // Pagination
 const page = ref(1);
 const pageSize = ref(25);
 
-// Reset page when filters change
-watch([searchQuery, statusFilter, formationFilter], () => { page.value = 1; });
+// Reset page and selections when filters change
+watch([searchQuery, activeTab, formationFilter], () => { 
+  page.value = 1; 
+  selectedSessionIds.value.clear();
+});
 
 function viewSession(session) {
   selectedSession.value = session;
@@ -44,8 +49,8 @@ const filteredSessions = computed(() => {
     const matchesSearch = !q || name.includes(q) || email.includes(q);
 
     const matchesStatus =
-      statusFilter.value === "all" ||
-      (statusFilter.value === "completed" ? s.isCompleted : !s.isCompleted);
+      activeTab.value === "all" ||
+      (activeTab.value === "completed" ? s.isCompleted : !s.isCompleted);
 
     const matchesFormation =
       formationFilter.value === "all" ||
@@ -60,6 +65,43 @@ const paginatedSessions = computed(() => {
   const start = (page.value - 1) * pageSize.value;
   return filteredSessions.value.slice(start, start + pageSize.value);
 });
+
+const isAllSelected = computed(() => {
+  return paginatedSessions.value.length > 0 && paginatedSessions.value.every(s => selectedSessionIds.value.has(s.id));
+});
+
+function toggleAllSelection(event) {
+  if (event.target.checked) {
+    paginatedSessions.value.forEach(s => selectedSessionIds.value.add(s.id));
+  } else {
+    paginatedSessions.value.forEach(s => selectedSessionIds.value.delete(s.id));
+  }
+}
+
+function toggleSelection(id) {
+  if (selectedSessionIds.value.has(id)) {
+    selectedSessionIds.value.delete(id);
+  } else {
+    selectedSessionIds.value.add(id);
+  }
+}
+
+async function deleteSelectedSessions() {
+  if (!selectedSessionIds.value.size) return;
+  if (!confirm(`Supprimer définitivement les ${selectedSessionIds.value.size} sessions sélectionnées ?`)) return;
+
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    await Promise.all(
+      Array.from(selectedSessionIds.value).map(id => axios.delete(`${apiBaseUrl}/sessions/${id}`))
+    );
+    selectedSessionIds.value.clear();
+    await fetchSessions();
+  } catch (error) {
+    console.error("Failed to delete selected sessions:", error);
+    alert("Erreur lors de la suppression groupée.");
+  }
+}
 
 async function fetchSessions() {
   loading.value = true;
@@ -108,6 +150,7 @@ async function saveSessionEdits() {
       // Au besoin, l'admin peut aussi corriger les blocs JSON complets
       prerequisiteScore: editableSession.value.prerequisiteScore,
       levelsScores: editableSession.value.levelsScores,
+      positionnementAnswers: editableSession.value.positionnementAnswers,
       complementaryQuestions: editableSession.value.complementaryQuestions,
       availabilities: editableSession.value.availabilities,
     };
@@ -152,10 +195,28 @@ async function deleteSession(session) {
   }
 }
 
-function exportToCSV() {
+function exportToExcel() {
   if (filteredSessions.value.length === 0) return;
 
-  const headers = [
+  // Collect all unique question IDs dynamically across all sessions
+  const questionIds = new Set();
+  filteredSessions.value.forEach(s => {
+    if (s.prerequisiteScore) Object.keys(s.prerequisiteScore).forEach(k => questionIds.add(k));
+    if (s.positionnementAnswers) {
+      Object.keys(s.positionnementAnswers).forEach(level => {
+        if (s.positionnementAnswers[level]) {
+          Object.keys(s.positionnementAnswers[level]).forEach(k => questionIds.add(k));
+        }
+      });
+    }
+    if (s.complementaryQuestions) Object.keys(s.complementaryQuestions).forEach(k => questionIds.add(k));
+    if (s.availabilities) Object.keys(s.availabilities).forEach(k => questionIds.add(k));
+  });
+
+  const qIdsArray = Array.from(questionIds);
+  const questionHeaders = qIdsArray.map(id => getQuestionLabel(id).replace(/"/g, '""'));
+
+  const baseHeaders = [
     "ID",
     "Stagiaire",
     "Email",
@@ -170,43 +231,72 @@ function exportToCSV() {
     "Niveau d'arrêt",
     "Recommandation finale",
   ];
-  const rows = filteredSessions.value.map((s) => [
-    s.id,
-    `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
-    s.stagiaire?.email || s.email || "",
-    s.telephone,
-    s.conseiller,
-    s.brand,
-    s.formationChoisie,
-    new Date(s.createdAt).toLocaleString(),
-    s.isCompleted ? "Terminé" : "En cours",
-    s.scorePretest || 0,
-    s.lastValidatedLevel || "",
-    s.stopLevel || "",
-    s.finalRecommendation || "",
-  ]);
 
-  const csvContent = [
-    headers.join(","),
-    ...rows.map((r) =>
-      r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","),
-    ),
-  ].join("\n");
+  const headers = [...baseHeaders, ...questionHeaders];
 
-  const blob = new Blob(["\ufeff" + csvContent], {
-    type: "text/csv;charset=utf-8;",
+  const rows = filteredSessions.value.map((s) => {
+    const baseRow = [
+      s.id,
+      `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
+      s.stagiaire?.email || s.email || "",
+      s.telephone || "",
+      s.conseiller || "",
+      s.brand || "",
+      s.formationChoisie || "",
+      new Date(s.createdAt).toLocaleString(),
+      s.isCompleted ? "Terminé" : "En cours",
+      s.scorePretest || 0,
+      s.lastValidatedLevel || "",
+      s.stopLevel || "",
+      s.finalRecommendation || "",
+    ];
+
+    const questionRow = qIdsArray.map(id => {
+      let ans = "";
+      if (s.prerequisiteScore && s.prerequisiteScore[id] !== undefined) ans = s.prerequisiteScore[id];
+      else if (s.complementaryQuestions && s.complementaryQuestions[id] !== undefined) ans = s.complementaryQuestions[id];
+      else if (s.availabilities && s.availabilities[id] !== undefined) ans = s.availabilities[id];
+      else if (s.positionnementAnswers) {
+        for (const level of Object.keys(s.positionnementAnswers)) {
+          if (s.positionnementAnswers[level] && s.positionnementAnswers[level][id] !== undefined) {
+            ans = s.positionnementAnswers[level][id];
+            break;
+          }
+        }
+      }
+      return Array.isArray(ans) ? ans.join(", ") : ans;
+    });
+
+    return [...baseRow, ...questionRow];
   });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute(
-    "download",
-    `sessions_export_${new Date().toISOString().split("T")[0]}.csv`,
-  );
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+
+  const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sessions");
+
+  XLSX.writeFile(workbook, `sessions_export_${new Date().toISOString().split("T")[0]}.xlsx`);
+}
+
+async function downloadPdf(session) {
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
+      responseType: 'blob'
+    });
+    
+    // Create a blob link to download
+    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Analyse_des_besoins_${session.prenom}_${session.nom}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download PDF:", error);
+    alert("Erreur lors du téléchargement du PDF.");
+  }
 }
 
 function exportSessionDetails(session) {
@@ -280,60 +370,89 @@ function toggleExpandedLevel(level) {
       </div>
     </div>
 
-      <div class="flex flex-wrap gap-4 items-center">
-        <!-- Export Button -->
+      <div class="flex items-center gap-6 border-b border-gray-100">
         <button
-          @click="exportToCSV"
-          class="w-full sm:w-auto px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all"
+          v-for="tab in [
+            { id: 'all', label: 'Toutes les sessions' },
+            { id: 'pending', label: 'En cours' },
+            { id: 'completed', label: 'Terminées' }
+          ]"
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          class="pb-4 pt-2 px-2 text-sm font-black uppercase tracking-widest transition-all relative"
+          :class="activeTab === tab.id ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'"
         >
-          <span class="material-icons-outlined text-sm">download</span>
-          CSV
+          {{ tab.label }}
+          <span 
+            v-if="activeTab === tab.id" 
+            class="absolute bottom-0 left-0 w-full h-1 bg-brand-primary rounded-t-full"
+          ></span>
         </button>
+      </div>
 
-        <!-- Search -->
-        <div class="relative flex-1 min-w-[200px]">
-          <span
-            class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
-            >search</span
+      <div class="flex flex-wrap gap-4 items-center justify-between">
+        <div class="flex flex-wrap gap-4 items-center">
+          <!-- Export Button -->
+          <button
+            @click="exportToExcel"
+            class="w-full sm:w-auto px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all"
           >
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Nom ou Email..."
-            class="w-full pl-12 pr-6 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
-          />
+            <span class="material-icons-outlined text-sm">download</span>
+            EXCEL
+          </button>
+
+          <!-- Search -->
+          <div class="relative flex-1 min-w-[200px]">
+            <span
+              class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
+              >search</span
+            >
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Nom ou Email..."
+              class="w-full pl-12 pr-6 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
+            />
+          </div>
+
+          <!-- Formation Filter -->
+          <select 
+            v-model="formationFilter"
+            class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+          >
+            <option value="all">Toutes Formations</option>
+            <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
+          </select>
+
+          <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
+            {{ filteredSessions.length }} session(s)
+          </span>
         </div>
 
-        <!-- Formation Filter -->
-        <select 
-          v-model="formationFilter"
-          class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+        <button 
+          v-if="selectedSessionIds.size > 0"
+          @click="deleteSelectedSessions"
+          class="px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2"
         >
-          <option value="all">Toutes Formations</option>
-          <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
-        </select>
-
-        <!-- Status Filter -->
-        <select 
-          v-model="statusFilter"
-          class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
-        >
-          <option value="all">Tous Statuts</option>
-          <option value="completed">Terminé</option>
-          <option value="pending">En cours</option>
-        </select>
-
-        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-          {{ filteredSessions.length }} session(s)
-        </span>
+          <span class="material-icons-outlined text-sm">delete</span>
+          Supprimer {{ selectedSessionIds.size }} sélection(s)
+        </button>
       </div>
 
     <div class="bg-white rounded-[40px] shadow-sm overflow-x-auto">
       <table class="w-full min-w-max text-left">
         <thead>
           <tr class="border-b border-gray-50 bg-gray-50/50">
+            <th class="px-6 py-6 w-10">
+              <input 
+                type="checkbox" 
+                :checked="isAllSelected"
+                @change="toggleAllSelection"
+                class="w-4 h-4 text-brand-primary bg-gray-100 border-gray-300 rounded focus:ring-brand-primary focus:ring-2"
+              >
+            </th>
             <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
+              class="px-4 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
             >
               Stagiaire
             </th>
@@ -377,7 +496,15 @@ function toggleExpandedLevel(level) {
             :key="session.id"
             class="hover:bg-blue-50/30 transition-colors group"
           >
-            <td class="px-8 py-6">
+            <td class="px-6 py-6">
+              <input 
+                type="checkbox" 
+                :checked="selectedSessionIds.has(session.id)"
+                @change="toggleSelection(session.id)"
+                class="w-4 h-4 text-brand-primary bg-gray-100 border-gray-300 rounded focus:ring-brand-primary focus:ring-2"
+              >
+            </td>
+            <td class="px-4 py-6">
               <div class="flex items-center gap-3">
                 <div
                   class="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-[10px]"
@@ -433,6 +560,13 @@ function toggleExpandedLevel(level) {
             </td>
             <td class="px-8 py-6">
               <div class="flex gap-2 justify-end">
+                <button
+                  @click="downloadPdf(session)"
+                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
+                  title="Télécharger le PDF"
+                >
+                  <span class="material-icons-outlined text-sm">picture_as_pdf</span>
+                </button>
                 <button
                   @click="viewSession(session)"
                   class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
@@ -646,7 +780,21 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
+                          <td class="px-4 py-2">
+                            <textarea
+                              v-if="Array.isArray(editableSession.prerequisiteScore[key])"
+                              :value="editableSession.prerequisiteScore[key].join(', ')"
+                              @input="editableSession.prerequisiteScore[key] = $event.target.value.split(',').map(s => s.trim())"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                            <textarea
+                              v-else
+                              v-model="editableSession.prerequisiteScore[key]"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -673,21 +821,19 @@ function toggleExpandedLevel(level) {
                         >
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">{{ level }}</td>
                           <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ entry?.score }}/{{ entry?.total }}
+                            <div class="flex items-center gap-1" @click.stop>
+                              <input type="number" v-model.number="entry.score" class="w-16 px-2 py-1 border border-gray-200 rounded-lg outline-none focus:border-brand-primary text-xs text-center bg-white" />
+                              <span>/ {{ entry?.total }}</span>
+                            </div>
                           </td>
                           <td class="px-4 py-3 text-xs text-gray-600">
                             {{ entry?.requiredCorrect ?? '—' }}
                           </td>
-                          <td class="px-4 py-3 text-xs">
-                            <span
-                              class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
-                              :class="entry?.validated ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400'"
-                            >
-                              <span class="material-icons-outlined text-[12px]">
-                                {{ entry?.validated ? 'check_circle' : 'cancel' }}
-                              </span>
-                              {{ entry?.validated ? 'OK' : 'NON' }}
-                            </span>
+                          <td class="px-4 py-3 text-xs" @click.stop>
+                            <label class="cursor-pointer relative inline-flex items-center">
+                              <input type="checkbox" v-model="entry.validated" class="sr-only peer" />
+                              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
                           </td>
                         </tr>
                       </tbody>
@@ -716,7 +862,21 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
+                          <td class="px-4 py-2">
+                            <textarea
+                              v-if="Array.isArray(editableSession.positionnementAnswers[expandedLevel][key])"
+                              :value="editableSession.positionnementAnswers[expandedLevel][key].join(', ')"
+                              @input="editableSession.positionnementAnswers[expandedLevel][key] = $event.target.value.split(',').map(s => s.trim())"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                            <textarea
+                              v-else
+                              v-model="editableSession.positionnementAnswers[expandedLevel][key]"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -737,7 +897,21 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
+                          <td class="px-4 py-2">
+                            <textarea
+                              v-if="Array.isArray(editableSession.complementaryQuestions[key])"
+                              :value="editableSession.complementaryQuestions[key].join(', ')"
+                              @input="editableSession.complementaryQuestions[key] = $event.target.value.split(',').map(s => s.trim())"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                            <textarea
+                              v-else
+                              v-model="editableSession.complementaryQuestions[key]"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -758,7 +932,21 @@ function toggleExpandedLevel(level) {
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
-                          <td class="px-4 py-3 text-xs text-gray-600" v-html="formatBoldText(Array.isArray(val) ? val.join(', ') : val)"></td>
+                          <td class="px-4 py-2">
+                            <textarea
+                              v-if="Array.isArray(editableSession.availabilities[key])"
+                              :value="editableSession.availabilities[key].join(', ')"
+                              @input="editableSession.availabilities[key] = $event.target.value.split(',').map(s => s.trim())"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                            <textarea
+                              v-else
+                              v-model="editableSession.availabilities[key]"
+                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                              rows="2"
+                            ></textarea>
+                          </td>
                         </tr>
                       </tbody>
                     </table>

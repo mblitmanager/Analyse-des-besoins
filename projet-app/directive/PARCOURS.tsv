@@ -1,0 +1,94 @@
+	PARCOURS	
+    Idéalement à implanter dans le back office pour être modulable
+WORD	Formation 1	Formation 2
+Si test pré requis informatique KO (1 "Non")	TOSA Digcomp Initial	TOSA Word Initial
+Si résultat du test < ou = à Initial	TOSA Word initial	TOSA Word basique
+Si résultat du test = Basique	TOSA Word basique	TOSA Word Opérationnel
+Si résultat du test = Opérationnel	TOSA Word Opérationnel	TOSA Word Avancé
+Si résultat du test = Avancé ou Expert	TOSA Word Avancé	TOSA Word Expert
+
+		
+EXCEL		
+Si test pré requis informatique KO (1 "Non")	TOSA Digcomp Initial	TOSA Excel Initial
+Si résultat du test < ou = à Initial 	TOSA Excel Initial	TOSA Excel basique
+Si résultat du test = Basique 	TOSA Excel basique	TOSA Excel Opérationnel
+Si résultat du test = Opérationnel	TOSA Excel Opérationnel	TOSA Excel Avancé
+Si résultat du test = Avancé ou Expert	TOSA Excel Avancé	TOSA Excel Expert
+		
+Anglais (ne plus modifier)		
+Si test = A1 - Revoir les bases et obtenir le niveau B1	A2	B1
+Si test = A2 - Consolider les bases et obtenir le niveau B1	A2	B1
+Si test = B1 - Développer l'autonomie et obtenir le niveau B1	A2	B1
+Si test = B2 - Renforcer les compétences	B1	B2
+Si test = C1 Se perfectionner	B2	C1
+		
+PPT		
+Si test pré requis informatique KO (= 1 "Non")	TOSA Digcomp Initial	TOSA PPT Initial
+Si résultat du test < ou = Initial	TOSA PPT Initial	TOSA PPT Basique
+Si résultat du test = Basique 	TOSA PPT Basique	TOSA PPT Opérationnel
+Si résultat du test = Opérationnel	TOSA PPT Opérationnel	TOSA PPT Avancé
+Si résultat du test = Avancé ou Expert	TOSA PPT Avancé	TOSA PPT Expert
+		
+DIGCOMP		
+Si résultat du test < à Initial	TOSA Digcomp Initial	TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)
+Si résultat du test = Initial	TOSA Digcomp Initial	TOSA Digcomp Basique
+Si résultat du test = Basique	TOSA Digcomp Basique	TOSA Digcomp Opérationnel
+Si résultat du test = Opérationnel	TOSA Digcomp Opérationnel	TOSA Digcomp Avancé
+Si résultat du test = Avancé ou Expert	TOSA Digcomp Avancé	TOSA Digcomp Expert
+		
+WORDPRESS		
+Si résultat du test = Initial	TOSA Wordpress Initial	TOSA Wordpress basique
+Si résultat du test = Basique ou Opérationnel	TOSA Wordpress basique	TOSA Wordpress opérationnel
+		
+SKETCHUP		
+Si résultat du test = Initial	ICDL Sketchup Initial	ICDL Sketchup basique
+Si résultat du test = Basique ou Opérationnel	ICDL Sketchup basique	ICDL Sketchup opérationnel
+Si résultat du test = Avancé ou Expert	ICDL Sketchup opérationnel	ICDL Sketchup Avancé
+		
+Français		
+Si résultat du test = Découverte	Voltaire Découverte	Voltaire Technique
+Si résultat du test = Technique	Voltaire Technique	Voltaire Professionnel
+Si résultat du test = Porfessionnel ou Affaires	Voltaire Professionel	Voltaire Affaires
+		
+OUTLOOK		
+Si résultat du test < ou = à Initial	TOSA Outlook initial	TOSA Outlook basique
+Si résultat du test = à Basique	TOSA Outlook basique	TOSA Outlook opérationnel
+Si résultat du test = Opérationnel	TOSA Outlook opérationnel	TOSA Outlook Avancé
+Si résultat du test = Avancé ou Expert	TOSA Outlook Avancé	TOSA Outlook Expert
+		
+PHOTOSHOP		
+Si résultat du test < ou = à Initial 	TOSA Photoshop initial	TOSA Photoshop basique
+Si résultat du test = à Basique 	TOSA Photoshop basique	TOSA Photoshop opérationnel
+Si résultat du test = Opérationnel	TOSA Photoshop opérationnel	TOSA Photoshop Avancé
+Si résultat du test = Avancé ou Expert	TOSA Photoshop Avancé	TOSA Photoshop Expert
+		
+GIMP		
+Si résultat du test = Initial	ICDL GIMP Initial	ICDL GIMP basique
+Si résultat du test = Basique ou Opérationnel	ICDL GIMP basique	ICDL GIMP opérationnel
+Si résultat du test = Avancé ou Expert	ICDL GIMP opérationnel	ICDL GIMP Avancé
+		
+		
+OUTILS COLL 		
+Si résultat du test < à initial	ICDL Outils Coll	ICDL Outils Coll
+Si résultat du test = Initial Ou Basique ou Opérationnel	ICDL OUTILS COLL	ICDL doc /sheets /slides(choix de formation à valider avec votre conseiller)
+Si supérieur ou égal au dernier niveau disponible	ICDL OUTILS COLL	ICDL doc /sheets /slides(choix de formation à valider avec votre conseiller)
+		
+DOCS / SHEETS / SLIDES(une de ces formations)		
+Si résultat du test < à initial	ICDL Outils Coll	ICDL Outils Coll
+Si résultat du test = Initial ou Basique ou Opérationnel	ICDL doc /sheets /slides	ICDL doc /sheets /slides
+Si résultat du test = Avancé ou Expert	ICDL doc /sheets /slides	ICDL doc /sheets /slides
+		
+		
+ILLUSTRATOR		
+Si résultat du test < ou = à Initial	TOSA Illustrator initial	TOSA Illustrator basique
+Si résultat du test = à Basique 	TOSA Illustrator basique	TOSA illustrator opérationnel
+Si résultat du test = Opérationnel	TOSA illustrator opérationnel	TOSA Illustrator Avancé
+Si résultat du test = Avancé ou Expert	TOSA Illustrator Avancé	TOSA Illustrator Expert
+		
+IA Inkrea		
+Test pré-requis technique uniquement	Inkrea IA	Inkrea IA
+
+Si par exemple, il obtient un niveau opérationnel ou avancé word il faudrait indiquer quelque chose comme « Il semble que vous maitrisiez très bien cette formation. Nous vous invitons à choisir une nouvelle formation » => si vraiment le bénéficiaire veut faire cette formation, on verra ce que l’on fait car on a selectionné les niveaux les plus demandés
+Pour Word, PowerPoint, Google Docs, Google Sheets, Google Slides, DigComp, Outlook (liste paramètrable dans le back office éviter de modifier du cote à l'avenir)
+
+Pour les formations Photoshop, GIMP, illustrator, Anglais, WordPress, Sketchup, si ne valide pas le niveau A1, initial ou découverte => on lui propose de choisir une autre formation (logique déjà en placer mais à filtrer sur ces formations uniquement)
