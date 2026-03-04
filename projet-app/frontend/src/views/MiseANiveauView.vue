@@ -18,6 +18,11 @@ const responses = ref({});
 const loading = ref(true);
 const submitting = ref(false);
 
+// Language warning state
+const showLanguageWarning = ref(false);
+const nonNativeFrench = ref(false);
+const insufficientFrenchLevel = ref(false);
+
 // validation state
 const unanswered = ref(false);
 
@@ -142,18 +147,9 @@ onMounted(async () => {
 });
 
 
-async function nextStep() {
-  // check unanswered (on filtered questions only)
-  unanswered.value = filteredQuestions.value.some(q => {
-    const ans = responses.value[q.id];
-    return ans === null || ans === "" || ans === undefined;
-  });
-  if (unanswered.value) {
-    alert("Veuillez répondre à toutes les questions avant de continuer.");
-    return;
-  }
-
+async function proceedToNextStep() {
   submitting.value = true;
+  showLanguageWarning.value = false;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     
@@ -168,6 +164,38 @@ async function nextStep() {
   } finally {
     submitting.value = false;
   }
+}
+
+async function nextStep() {
+  // check unanswered (on filtered questions only)
+  unanswered.value = filteredQuestions.value.some(q => {
+    const ans = responses.value[q.id];
+    return ans === null || ans === "" || ans === undefined;
+  });
+  if (unanswered.value) {
+    alert("Veuillez répondre à toutes les questions avant de continuer.");
+    return;
+  }
+
+  // Check French level requirement
+  const maternelleQ = questions.value.find(q => q.text.toLowerCase().includes("maternelle"));
+  const niveauQ = questions.value.find(q => q.text.toLowerCase().includes("votre niveau"));
+
+  if (maternelleQ && niveauQ) {
+    const isMaternelle = String(responses.value[maternelleQ.id]).toLowerCase() === 'oui';
+    const niveauStr = String(responses.value[niveauQ.id]).toUpperCase();
+    
+    nonNativeFrench.value = !isMaternelle;
+    insufficientFrenchLevel.value = ['A1', 'A2', 'B1'].some(lvl => niveauStr.includes(lvl));
+
+    if (nonNativeFrench.value && insufficientFrenchLevel.value) {
+      showLanguageWarning.value = true;
+      return; // Stop here and show modal
+    }
+  }
+
+  // If validation passes, proceed normally
+  await proceedToNextStep();
 }
 </script>
 
@@ -233,10 +261,55 @@ async function nextStep() {
       </div>
     </main>
 
+    <!-- Language Warning Modal -->
+    <transition name="modal">
+      <div v-if="showLanguageWarning" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-[#0d1b3e]/40 backdrop-blur-sm" @click="showLanguageWarning = false"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative overflow-hidden animate-scale-up border border-white/20">
+          <div class="p-8 md:p-10 text-center">
+            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span class="material-icons-outlined text-red-500 text-3xl">gavel</span>
+            </div>
+            <h3 class="text-2xl font-black heading-primary uppercase tracking-tight mb-4">Niveau de français insuffisant</h3>
+            <p class="text-gray-500 text-sm mb-8 leading-relaxed">
+              Votre niveau de français semble inférieur à B2. Un niveau B2 ou supérieur est fortement recommandé pour suivre cette formation dans de bonnes conditions.
+            </p>
+            <div class="flex flex-col gap-3">
+              <button 
+                @click="router.push('/formations')" 
+                class="w-full py-4 px-6 bg-brand-primary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-lg hover:-translate-y-0.5 transition-all text-center"
+              >
+                Choisir une autre formation
+              </button>
+              <button 
+                @click="proceedToNextStep" 
+                class="w-full py-4 px-6 bg-gray-50 text-gray-500 font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-gray-100 transition-colors text-center"
+              >
+                Continuer quand même
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <SiteFooter />
   </div>
 </template>
 
 <style scoped>
 /* No scoped styles needed as QuestionGroup/Item handle their own styling */
+.modal-enter-active, .modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-enter-from, .modal-leave-to {
+  opacity: 0;
+}
+.animate-scale-up {
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 </style>
