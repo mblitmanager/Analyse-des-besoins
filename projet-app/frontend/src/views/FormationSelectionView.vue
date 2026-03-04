@@ -390,31 +390,31 @@ const sectionParts = computed(() => {
             </div>
           </div>
         </transition>
-      </div>
-      <div class="pt-8 flex items-center justify-between gap-4 mt-10">
-          <button
-          @click="router.push('/prerequis')"
-          class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors"
-        >
-          <span class="material-icons-outlined text-lg">arrow_back</span>
-          Retour
-        </button>
 
-          <button
-          @click="selectFormation"
-          :disabled="submitting || !selectedFormation"
-          class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
-        >
-          <span>Continuer</span>
-          <span v-if="!submitting" class="material-icons-outlined text-lg"
-            >arrow_forward</span
-          >
-          <div
-            v-else
-            class="animate-spin border-2 border-white/60 border-t-white rounded-full h-4 w-4"
-          ></div>
-        </button>
+        <!-- Bottom Actions -->
+        <div class="pt-8 flex items-center justify-between gap-4 mt-10">
+          <div class="max-w-4xl mx-auto flex items-center justify-between gap-4 w-full">
+            <button
+              @click="router.push('/prerequis')"
+              class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-all hover:-translate-x-1"
+            >
+              <span class="material-icons-outlined text-lg">arrow_back</span>
+              Retour
+            </button>
+
+            <button
+              @click="selectFormation"
+              :disabled="submitting || !selectedFormation"
+              class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            >
+              <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+              <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
+              <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+            </button>
+          </div>
         </div>
+
+      </div>
     </main>
 
  
