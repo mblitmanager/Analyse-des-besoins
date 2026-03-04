@@ -493,10 +493,10 @@ const downloadPDF = async () => {
               >
                 <span class="material-icons-outlined">menu_book</span>
               </div>
-              <span
+              <!-- <span
                 class="px-3 py-1 bg-success-soft text-success rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Déjà Acquis</span
-              >
+              > -->
             </div>
             <h3 class="text-base font-bold heading-primary mb-2">
               Bases Informatiques

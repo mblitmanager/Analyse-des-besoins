@@ -469,7 +469,7 @@ const groupedQuestions = computed(() => {
     </div>
 
     <!-- Filters: Row 1 — Type pills -->
-    <div class="flex flex-wrap gap-2 p-2 bg-gray-200 rounded-2xl">
+    <div class="flex flex-wrap gap-2 p-2 bg-gray-100 rounded-2xl">
       <button
         type="button"
         v-for="t in visibleTypes"
@@ -477,7 +477,7 @@ const groupedQuestions = computed(() => {
         @click="filterType = t.value; fetchQuestions();"
         :aria-pressed="filterType === t.value"
         class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-        :class="filterType === t.value ? 'bg-white text-(--title-color) shadow-md' : 'text-gray-400 hover:text-gray-600'"
+        :class="filterType === t.value ? 'bg-white text-brand-primary shadow-md' : 'text-gray-400 hover:text-gray-600'"
       >
         {{ t.label }}
       </button>
@@ -488,14 +488,14 @@ const groupedQuestions = computed(() => {
       <select
         v-model="formationFilter"
         @change="() => { levelFilter = ''; fetchQuestions(); }"
-        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[170px]"
+        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[170px]"
       >
         <option value="">Toutes formations</option>
         <option v-for="f in formations" :key="f.id" :value="f.slug">{{ f.label }}</option>
       </select>
       <select
         v-model="levelFilter"
-        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[150px]"
+        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[150px]"
       >
         <option value="">Tous niveaux</option>
         <option v-for="lvl in levelFilterOptions" :key="lvl" :value="lvl">{{ lvl }}</option>
@@ -506,7 +506,7 @@ const groupedQuestions = computed(() => {
           v-model="searchTerm"
           type="search"
           placeholder="Rechercher..."
-          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-xs font-bold transition-all shadow-sm"
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
         />
       </div>
       <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
