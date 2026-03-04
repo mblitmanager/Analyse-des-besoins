@@ -24,9 +24,22 @@ const situation = ref([]);
 const showProposal = ref(false);
 
 const itSkillsTriggered = computed(() => {
-  return Object.values(responses.value).some(
-    (val) => String(val).toLowerCase() === "insuffisant"
-  );
+  const formation = localStorage.getItem("selected_formation_slug") || "";
+  const bureautiqueSlugs = ["word", "excel", "powerpoint", "outlook"];
+  
+  if (!bureautiqueSlugs.includes(formation.toLowerCase())) {
+    return false;
+  }
+
+  return Object.values(responses.value).some((val) => {
+    const s = String(val).toLowerCase();
+    return s === "insuffisant" || s === "jamais" || s === "non";
+  });
+});
+
+const currentFormationName = computed(() => {
+  const slug = localStorage.getItem("selected_formation_slug") || "Word";
+  return slug.charAt(0).toUpperCase() + slug.slice(1);
 });
 
 const needsPagination = computed(() => false);
@@ -124,9 +137,12 @@ async function submitPrerequis(force = false) {
     });
     
     if (showProposal.value) {
+       const formationSlug = localStorage.getItem("selected_formation_slug") || "Word";
+       const formationName = formationSlug.charAt(0).toUpperCase() + formationSlug.slice(1);
+       
        await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-          formationChoisie: "Parcours Initial (DigComp & Word)",
-          finalRecommendation: "DigComp Initial | Word Initial",
+          formationChoisie: `Parcours Initial (DigComp & ${formationName})`,
+          finalRecommendation: `DigComp Initial | ${formationName} Initial`,
        });
        router.push("/resultats");
     } else {
@@ -183,7 +199,9 @@ function refuseProposal() {
               </div>
               <div class="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
                 <span class="material-icons-outlined text-blue-600 mr-3">description</span>
-                <span class="font-bold text-blue-900">Word Initial</span>
+                <span class="font-bold text-blue-900">
+                  {{ currentFormationName }} Initial
+                </span>
               </div>
             </div>
             <div class="flex flex-col space-y-3">

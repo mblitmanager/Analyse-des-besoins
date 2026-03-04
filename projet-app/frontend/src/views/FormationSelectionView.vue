@@ -146,6 +146,8 @@ function chooseBureauFormation(f) {
   if (l.includes('google')) selectedSuite.value = 'google';
   else if (l.includes('microsoft') || l.includes('office')) selectedSuite.value = 'microsoft';
   showBureauModal.value = false;
+  // Auto-continue after selecting a bureautique formation
+  selectFormation();
 }
 
 // Build explicit sections per requested layout

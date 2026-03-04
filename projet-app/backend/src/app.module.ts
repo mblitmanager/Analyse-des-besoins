@@ -23,6 +23,8 @@ import { AdminModule } from './admin/admin.module';
 import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
 import { SettingsModule } from './settings/settings.module';
+import { ParcoursRule } from './entities/parcours-rule.entity';
+import { ParcoursModule } from './parcours/parcours.module';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { SettingsModule } from './settings/settings.module';
               WorkflowStep,
               User,
               Setting,
+              ParcoursRule,
             ],
             synchronize: true,
           };
@@ -71,6 +74,7 @@ import { SettingsModule } from './settings/settings.module';
             WorkflowStep,
             User,
             Setting,
+            ParcoursRule,
           ],
           synchronize: true,
         };
@@ -87,6 +91,7 @@ import { SettingsModule } from './settings/settings.module';
       WorkflowStep,
       User,
       Setting,
+      ParcoursRule,
     ]),
     FormationsModule,
     QuestionsModule,
@@ -97,6 +102,7 @@ import { SettingsModule } from './settings/settings.module';
     AuthModule,
     AdminModule,
     SettingsModule,
+    ParcoursModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedService, EmailService],
