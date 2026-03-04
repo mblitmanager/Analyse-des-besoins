@@ -6,6 +6,7 @@ import { Level } from './entities/level.entity';
 import { Question } from './entities/question.entity';
 import { Setting } from './entities/setting.entity';
 import { User } from './entities/user.entity';
+import { ParcoursRule } from './entities/parcours-rule.entity';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -20,6 +21,8 @@ export class SeedService implements OnApplicationBootstrap {
     private userRepo: Repository<User>,
     @InjectRepository(Setting)
     private settingRepo: Repository<Setting>,
+    @InjectRepository(ParcoursRule)
+    private parcoursRuleRepo: Repository<ParcoursRule>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -28,6 +31,7 @@ export class SeedService implements OnApplicationBootstrap {
     await this.seedWorkflow();
     await this.seedAdmin();
     await this.seedSettings();
+    await this.seedParcours();
     console.log('Seeding check complete!');
   }
 
@@ -647,5 +651,435 @@ export class SeedService implements OnApplicationBootstrap {
         }
       }
     }
+  }
+
+  private async seedParcours() {
+    const count = await this.parcoursRuleRepo.count();
+    if (count > 0) return;
+    console.log('Seeding parcours rules...');
+
+    const rules: Partial<ParcoursRule>[] = [
+      // WORD
+      {
+        formation: 'Word',
+        condition: 'Si test pré requis informatique KO (1 "Non")',
+        formation1: 'TOSA Digcomp Initial',
+        formation2: 'TOSA Word Initial',
+        order: 0,
+      },
+      {
+        formation: 'Word',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA Word Initial',
+        formation2: 'TOSA Word Basique',
+        order: 1,
+      },
+      {
+        formation: 'Word',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Word Basique',
+        formation2: 'TOSA Word Opérationnel',
+        order: 2,
+      },
+      {
+        formation: 'Word',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Word Opérationnel',
+        formation2: 'TOSA Word Avancé',
+        order: 3,
+      },
+      {
+        formation: 'Word',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Word Avancé',
+        formation2: 'TOSA Word Expert',
+        order: 4,
+      },
+
+      // EXCEL
+      {
+        formation: 'Excel',
+        condition: 'Si test pré requis informatique KO (1 "Non")',
+        formation1: 'TOSA Digcomp Initial',
+        formation2: 'TOSA Excel Initial',
+        order: 0,
+      },
+      {
+        formation: 'Excel',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA Excel Initial',
+        formation2: 'TOSA Excel Basique',
+        order: 1,
+      },
+      {
+        formation: 'Excel',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Excel Basique',
+        formation2: 'TOSA Excel Opérationnel',
+        order: 2,
+      },
+      {
+        formation: 'Excel',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Excel Opérationnel',
+        formation2: 'TOSA Excel Avancé',
+        order: 3,
+      },
+      {
+        formation: 'Excel',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Excel Avancé',
+        formation2: 'TOSA Excel Expert',
+        order: 4,
+      },
+
+      // ANGLAIS
+      {
+        formation: 'Anglais',
+        condition: 'Si test = A1 - Revoir les bases et obtenir le niveau B1',
+        formation1: 'A2',
+        formation2: 'B1',
+        order: 0,
+      },
+      {
+        formation: 'Anglais',
+        condition:
+          'Si test = A2 - Consolider les bases et obtenir le niveau B1',
+        formation1: 'A2',
+        formation2: 'B1',
+        order: 1,
+      },
+      {
+        formation: 'Anglais',
+        condition:
+          "Si test = B1 - Développer l'autonomie et obtenir le niveau B1",
+        formation1: 'A2',
+        formation2: 'B1',
+        order: 2,
+      },
+      {
+        formation: 'Anglais',
+        condition: 'Si test = B2 - Renforcer les compétences',
+        formation1: 'B1',
+        formation2: 'B2',
+        order: 3,
+      },
+      {
+        formation: 'Anglais',
+        condition: 'Si test = C1 Se perfectionner',
+        formation1: 'B2',
+        formation2: 'C1',
+        order: 4,
+      },
+
+      // PPT
+      {
+        formation: 'PowerPoint',
+        condition: 'Si test pré requis informatique KO (1 "Non")',
+        formation1: 'TOSA Digcomp Initial',
+        formation2: 'TOSA PPT Initial',
+        order: 0,
+      },
+      {
+        formation: 'PowerPoint',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA PPT Initial',
+        formation2: 'TOSA PPT Basique',
+        order: 1,
+      },
+      {
+        formation: 'PowerPoint',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA PPT Basique',
+        formation2: 'TOSA PPT Opérationnel',
+        order: 2,
+      },
+      {
+        formation: 'PowerPoint',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA PPT Opérationnel',
+        formation2: 'TOSA PPT Avancé',
+        order: 3,
+      },
+      {
+        formation: 'PowerPoint',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA PPT Avancé',
+        formation2: 'TOSA PPT Expert',
+        order: 4,
+      },
+
+      // DIGCOMP
+      {
+        formation: 'DigComp',
+        condition: 'Si résultat du test < Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2:
+          'TOSA Word/Excel/PPT Initial (choix à valider avec conseiller)',
+        order: 0,
+      },
+      {
+        formation: 'DigComp',
+        condition: 'Si résultat du test = Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2: 'TOSA Digcomp Basique',
+        order: 1,
+      },
+      {
+        formation: 'DigComp',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Digcomp Basique',
+        formation2: 'TOSA Digcomp Opérationnel',
+        order: 2,
+      },
+      {
+        formation: 'DigComp',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Digcomp Opérationnel',
+        formation2: 'TOSA Digcomp Avancé',
+        order: 3,
+      },
+      {
+        formation: 'DigComp',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Digcomp Avancé',
+        formation2: 'TOSA Digcomp Expert',
+        order: 4,
+      },
+
+      // WORDPRESS
+      {
+        formation: 'WordPress',
+        condition: 'Si résultat du test = Initial',
+        formation1: 'TOSA WordPress Initial',
+        formation2: 'TOSA WordPress Basique',
+        order: 0,
+      },
+      {
+        formation: 'WordPress',
+        condition: 'Si résultat du test = Basique ou Opérationnel',
+        formation1: 'TOSA WordPress Basique',
+        formation2: 'TOSA WordPress Opérationnel',
+        order: 1,
+      },
+
+      // SKETCHUP
+      {
+        formation: 'SketchUp',
+        condition: 'Si résultat du test = Initial',
+        formation1: 'ICDL SketchUp Initial',
+        formation2: 'ICDL SketchUp Basique',
+        order: 0,
+      },
+      {
+        formation: 'SketchUp',
+        condition: 'Si résultat du test = Basique ou Opérationnel',
+        formation1: 'ICDL SketchUp Basique',
+        formation2: 'ICDL SketchUp Opérationnel',
+        order: 1,
+      },
+      {
+        formation: 'SketchUp',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'ICDL SketchUp Opérationnel',
+        formation2: 'ICDL SketchUp Avancé',
+        order: 2,
+      },
+
+      // FRANÇAIS
+      {
+        formation: 'Français',
+        condition: 'Si résultat du test = Découverte',
+        formation1: 'Voltaire Découverte',
+        formation2: 'Voltaire Technique',
+        order: 0,
+      },
+      {
+        formation: 'Français',
+        condition: 'Si résultat du test = Technique',
+        formation1: 'Voltaire Technique',
+        formation2: 'Voltaire Professionnel',
+        order: 1,
+      },
+      {
+        formation: 'Français',
+        condition: 'Si résultat du test = Professionnel ou Affaires',
+        formation1: 'Voltaire Professionnel',
+        formation2: 'Voltaire Affaires',
+        order: 2,
+      },
+
+      // OUTLOOK
+      {
+        formation: 'Outlook',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA Outlook Initial',
+        formation2: 'TOSA Outlook Basique',
+        order: 0,
+      },
+      {
+        formation: 'Outlook',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Outlook Basique',
+        formation2: 'TOSA Outlook Opérationnel',
+        order: 1,
+      },
+      {
+        formation: 'Outlook',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Outlook Opérationnel',
+        formation2: 'TOSA Outlook Avancé',
+        order: 2,
+      },
+      {
+        formation: 'Outlook',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Outlook Avancé',
+        formation2: 'TOSA Outlook Expert',
+        order: 3,
+      },
+
+      // PHOTOSHOP
+      {
+        formation: 'Photoshop',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA Photoshop Initial',
+        formation2: 'TOSA Photoshop Basique',
+        order: 0,
+      },
+      {
+        formation: 'Photoshop',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Photoshop Basique',
+        formation2: 'TOSA Photoshop Opérationnel',
+        order: 1,
+      },
+      {
+        formation: 'Photoshop',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Photoshop Opérationnel',
+        formation2: 'TOSA Photoshop Avancé',
+        order: 2,
+      },
+      {
+        formation: 'Photoshop',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Photoshop Avancé',
+        formation2: 'TOSA Photoshop Expert',
+        order: 3,
+      },
+
+      // GIMP
+      {
+        formation: 'GIMP',
+        condition: 'Si résultat du test = Initial',
+        formation1: 'ICDL GIMP Initial',
+        formation2: 'ICDL GIMP Basique',
+        order: 0,
+      },
+      {
+        formation: 'GIMP',
+        condition: 'Si résultat du test = Basique ou Opérationnel',
+        formation1: 'ICDL GIMP Basique',
+        formation2: 'ICDL GIMP Opérationnel',
+        order: 1,
+      },
+      {
+        formation: 'GIMP',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'ICDL GIMP Opérationnel',
+        formation2: 'ICDL GIMP Avancé',
+        order: 2,
+      },
+
+      // OUTILS COLLABORATIFS
+      {
+        formation: 'Outils Collaboratifs Google',
+        condition: 'Si résultat du test < Initial',
+        formation1: 'ICDL Outils Coll',
+        formation2: 'ICDL Outils Coll',
+        order: 0,
+      },
+      {
+        formation: 'Outils Collaboratifs Google',
+        condition: 'Si résultat du test = Initial ou Basique ou Opérationnel',
+        formation1: 'ICDL Outils Coll',
+        formation2: 'ICDL Docs/Sheets/Slides (choix à valider avec conseiller)',
+        order: 1,
+      },
+      {
+        formation: 'Outils Collaboratifs Google',
+        condition: 'Si supérieur ou égal au dernier niveau disponible',
+        formation1: 'ICDL Outils Coll',
+        formation2: 'ICDL Docs/Sheets/Slides (choix à valider avec conseiller)',
+        order: 2,
+      },
+
+      // DOCS / SHEETS / SLIDES
+      {
+        formation: 'Google Docs/Sheets/Slides',
+        condition: 'Si résultat du test < Initial',
+        formation1: 'ICDL Outils Coll',
+        formation2: 'ICDL Outils Coll',
+        order: 0,
+      },
+      {
+        formation: 'Google Docs/Sheets/Slides',
+        condition: 'Si résultat du test = Initial ou Basique ou Opérationnel',
+        formation1: 'ICDL Docs/Sheets/Slides',
+        formation2: 'ICDL Docs/Sheets/Slides',
+        order: 1,
+      },
+      {
+        formation: 'Google Docs/Sheets/Slides',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'ICDL Docs/Sheets/Slides',
+        formation2: 'ICDL Docs/Sheets/Slides',
+        order: 2,
+      },
+
+      // ILLUSTRATOR
+      {
+        formation: 'Illustrator',
+        condition: 'Si résultat du test <= Initial',
+        formation1: 'TOSA Illustrator Initial',
+        formation2: 'TOSA Illustrator Basique',
+        order: 0,
+      },
+      {
+        formation: 'Illustrator',
+        condition: 'Si résultat du test = Basique',
+        formation1: 'TOSA Illustrator Basique',
+        formation2: 'TOSA Illustrator Opérationnel',
+        order: 1,
+      },
+      {
+        formation: 'Illustrator',
+        condition: 'Si résultat du test = Opérationnel',
+        formation1: 'TOSA Illustrator Opérationnel',
+        formation2: 'TOSA Illustrator Avancé',
+        order: 2,
+      },
+      {
+        formation: 'Illustrator',
+        condition: 'Si résultat du test = Avancé ou Expert',
+        formation1: 'TOSA Illustrator Avancé',
+        formation2: 'TOSA Illustrator Expert',
+        order: 3,
+      },
+
+      // IA INKREA
+      {
+        formation: 'IA Inkrea',
+        condition: 'Test pré-requis technique uniquement',
+        formation1: 'Inkrea IA',
+        formation2: 'Inkrea IA',
+        order: 0,
+      },
+    ];
+
+    const entities = this.parcoursRuleRepo.create(rules);
+    await this.parcoursRuleRepo.save(entities);
+    console.log(`Seeded ${entities.length} parcours rules.`);
   }
 }

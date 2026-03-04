@@ -11,7 +11,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
 import { PdfService } from '../pdf/pdf.service';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { Res } from '@nestjs/common';
 
 export class CreateSessionDto {
