@@ -225,8 +225,24 @@ async function nextStep() {
     filteredQuestions.value.forEach((q) => {
       const answer = currentResponses.value[q.id];
       positionnementAnswers.value[currentLevel.label][q.id] = answer;
-      if (answer === q.options[q.correctResponseIndex]) {
-        correctCount++;
+
+      if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
+        // Multi-select: compare selected options against correctResponseIndexes
+        if (Array.isArray(answer) && Array.isArray(q.correctResponseIndexes)) {
+          const correctOptions = q.correctResponseIndexes.map(i => q.options[i]).sort();
+          const selectedSorted = [...answer].sort();
+          if (
+            correctOptions.length === selectedSorted.length &&
+            correctOptions.every((v, i) => v === selectedSorted[i])
+          ) {
+            correctCount++;
+          }
+        }
+      } else {
+        // Single-choice (qcm): compare single answer against correct option
+        if (answer === q.options[q.correctResponseIndex]) {
+          correctCount++;
+        }
       }
     });
 
@@ -301,30 +317,73 @@ async function finishTest() {
   let l1 = ensureNiveau(currentLevel.label);
   let l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
 
-  // Special rules for English formations
   const isEnglish = (formationSlug && formationSlug.toLowerCase().includes("anglais")) || 
                     (formationLabel && formationLabel.toLowerCase().includes("anglais"));
-  
+  const isFrench = (formationSlug && formationSlug.toLowerCase().includes("fran\u00e7ais")) || 
+                   (formationLabel && formationLabel.toLowerCase().includes("fran\u00e7ais"));
+
+  const stopLabel = currentLevel.label.toUpperCase();
+
   if (isEnglish) {
-    const stopLabel = currentLevel.label.toUpperCase();
     if (["A1", "A2", "B1"].some(l => stopLabel.includes(l))) {
-      // Fails A1, A2, or B1 -> A2 & B1
       const a2 = levels.value.find(l => l.label.toUpperCase().includes("A2"))?.label || "A2";
       const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
       l1 = ensureNiveau(a2);
       l2 = ensureNiveau(b1);
     } else if (stopLabel.includes("B2")) {
-      // Reached/Failed B2 -> B1 & B2
       const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
       const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
       l1 = ensureNiveau(b1);
       l2 = ensureNiveau(b2);
     } else if (stopLabel.includes("C1")) {
-      // Failed C1 -> B2 & C1
       const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
       const c1 = levels.value.find(l => l.label.toUpperCase().includes("C1"))?.label || "C1";
       l1 = ensureNiveau(b2);
       l2 = ensureNiveau(c1);
+    }
+  } else if (isFrench) {
+    if (stopLabel.includes("DÉCOUVERTE") || stopLabel.includes("DECOUVERTE")) {
+      const l_dec = levels.value.find(l => l.label.toUpperCase().includes("DECOUVERTE") || l.label.toUpperCase().includes("DÉCOUVERTE"))?.label || "Découverte";
+      const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
+      l1 = ensureNiveau(l_dec);
+      l2 = ensureNiveau(l_tech);
+    } else if (stopLabel.includes("TECHNIQUE") || stopLabel.includes("PROFESSIONNEL")) {
+      // Pour "Technique" OU "Professionnel", on recommande Technique & Professionnel
+      const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
+      const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
+      l1 = ensureNiveau(l_tech);
+      l2 = ensureNiveau(l_pro);
+    } else if (stopLabel.includes("AFFAIRES")) {
+      const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
+      const l_aff = levels.value.find(l => l.label.toUpperCase().includes("AFFAIRES"))?.label || "Affaires";
+      l1 = ensureNiveau(l_pro);
+      l2 = ensureNiveau(l_aff);
+    }
+  } else {
+    // Generic logic : modifications spécifiques (ex: échec OPÉRATIONNEL => Basique & Opérationnel)
+    if (stopLabel.includes("INITIAL")) {
+      const l_ini = levels.value.find(l => l.label.toUpperCase().includes("INITIAL"))?.label || "Initial";
+      const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
+      l1 = ensureNiveau(l_ini);
+      l2 = ensureNiveau(l_bas);
+    } else if (stopLabel.includes("BASIQUE") || stopLabel.includes("OPÉRATIONNEL") || stopLabel.includes("OPERATIONNEL")) {
+      // Échec Basique OU Opérationnel -> Basique & Opérationnel
+      const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
+      const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
+      l1 = ensureNiveau(l_bas);
+      l2 = ensureNiveau(l_ope);
+    } else if (stopLabel.includes("AVANCÉ") || stopLabel.includes("AVANCE")) {
+      // Échec Avancé -> Opérationnel & Avancé
+      const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
+      const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
+      l1 = ensureNiveau(l_ope);
+      l2 = ensureNiveau(l_ava);
+    } else if (stopLabel.includes("EXPERT")) {
+      // Échec Expert -> Avancé & Expert
+      const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
+      const l_exp = levels.value.find(l => l.label.toUpperCase().includes("EXPERT"))?.label || "Expert";
+      l1 = ensureNiveau(l_ava);
+      l2 = ensureNiveau(l_exp);
     }
   }
 
@@ -596,9 +655,9 @@ async function saveAndExit() {
                         >
                           {{ q.text }}
                         </h3>
-                        <p class="text-xs md:text-sm text-gray-400 font-medium">
+                        <!-- <p class="text-xs md:text-sm text-gray-400 font-medium">
                           Sélectionnez la réponse correcte pour valider ce point.
-                        </p>
+                        </p> -->
                       </div>
                     </div>
 

@@ -10,6 +10,9 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
+import { PdfService } from '../pdf/pdf.service';
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
 
 export class CreateSessionDto {
   brand: string;
@@ -35,11 +38,32 @@ export class UpdateSessionDto {
 
 @Controller('sessions')
 export class SessionsController {
-  constructor(private readonly sessionsService: SessionsService) {}
+  constructor(
+    private readonly sessionsService: SessionsService,
+    private readonly pdfService: PdfService,
+  ) {}
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sessionsService.findOne(id);
+  }
+
+  @Get(':id/pdf')
+  async downloadPdf(@Param('id') id: string, @Res() res: Response) {
+    const session = await this.sessionsService.findOne(id);
+    if (!session) {
+      return res.status(404).send('Session not found');
+    }
+
+    const pdfBuffer = await this.pdfService.generateSessionPdf(session as any);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="Analyse_des_besoins_${session.prenom}_${session.nom}.pdf"`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    res.end(pdfBuffer);
   }
 
   @Get()

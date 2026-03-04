@@ -342,31 +342,139 @@ export class SessionsService {
     }
 
     // ── Generic parcours logic (non-language formations) ──
+    const isFrenchFormation =
+      session.formationChoisie &&
+      String(session.formationChoisie).toLowerCase().includes('français');
+
     // Use stopLevel if available, as it represents the target level where the user struggled
     const stopLevelLabel = session.stopLevel;
+    const stopLevelUpper = (stopLevelLabel || '').toUpperCase();
+
+    // Fallback if stopLevelIdx is needed for generic logic when condition not met
     const stopLevelIdx = stopLevelLabel
       ? levels.findIndex((l) => l.label === stopLevelLabel)
       : -1;
 
-    if (stopLevelIdx !== -1) {
-      l1 = ensureNiveau(levels[stopLevelIdx].label);
-      if (stopLevelIdx < levels.length - 1) {
-        l2 = ensureNiveau(levels[stopLevelIdx + 1].label);
+    if (isFrenchFormation) {
+      if (
+        stopLevelUpper.includes('DÉCOUVERTE') ||
+        stopLevelUpper.includes('DECOUVERTE')
+      ) {
+        const l_dec =
+          levels.find(
+            (l) =>
+              l.label.toUpperCase().includes('DÉCOUVERTE') ||
+              l.label.toUpperCase().includes('DECOUVERTE'),
+          )?.label || 'Découverte';
+        const l_tech =
+          levels.find((l) => l.label.toUpperCase().includes('TECHNIQUE'))
+            ?.label || 'Technique';
+        l1 = ensureNiveau(l_dec);
+        l2 = ensureNiveau(l_tech);
+      } else if (
+        stopLevelUpper.includes('TECHNIQUE') ||
+        stopLevelUpper.includes('PROFESSIONNEL')
+      ) {
+        const l_tech =
+          levels.find((l) => l.label.toUpperCase().includes('TECHNIQUE'))
+            ?.label || 'Technique';
+        const l_pro =
+          levels.find((l) => l.label.toUpperCase().includes('PROFESSIONNEL'))
+            ?.label || 'Professionnel';
+        l1 = ensureNiveau(l_tech);
+        l2 = ensureNiveau(l_pro);
+      } else if (stopLevelUpper.includes('AFFAIRES')) {
+        const l_pro =
+          levels.find((l) => l.label.toUpperCase().includes('PROFESSIONNEL'))
+            ?.label || 'Professionnel';
+        const l_aff =
+          levels.find((l) => l.label.toUpperCase().includes('AFFAIRES'))
+            ?.label || 'Affaires';
+        l1 = ensureNiveau(l_pro);
+        l2 = ensureNiveau(l_aff);
       } else {
-        l2 = l1;
+        l1 = '';
+        l2 = '';
       }
     } else {
-      // Fallback to score logic (for legacy or manual sessions)
-      if (lastValidatedIdx < levels.length - 1) {
-        l1 = ensureNiveau(levels[lastValidatedIdx + 1].label);
-        if (lastValidatedIdx + 1 < levels.length - 1) {
-          l2 = ensureNiveau(levels[lastValidatedIdx + 2].label);
-        } else {
-          l2 = l1;
-        }
+      // General tools / IT courses
+      if (stopLevelUpper.includes('INITIAL')) {
+        const l_ini =
+          levels.find((l) => l.label.toUpperCase().includes('INITIAL'))
+            ?.label || 'Initial';
+        const l_bas =
+          levels.find((l) => l.label.toUpperCase().includes('BASIQUE'))
+            ?.label || 'Basique';
+        l1 = ensureNiveau(l_ini);
+        l2 = ensureNiveau(l_bas);
+      } else if (
+        stopLevelUpper.includes('BASIQUE') ||
+        stopLevelUpper.includes('OPÉRATIONNEL') ||
+        stopLevelUpper.includes('OPERATIONNEL')
+      ) {
+        const l_bas =
+          levels.find((l) => l.label.toUpperCase().includes('BASIQUE'))
+            ?.label || 'Basique';
+        const l_ope =
+          levels.find(
+            (l) =>
+              l.label.toUpperCase().includes('OPÉRATIONNEL') ||
+              l.label.toUpperCase().includes('OPERATIONNEL'),
+          )?.label || 'Opérationnel';
+        l1 = ensureNiveau(l_bas);
+        l2 = ensureNiveau(l_ope);
+      } else if (
+        stopLevelUpper.includes('AVANCÉ') ||
+        stopLevelUpper.includes('AVANCE')
+      ) {
+        const l_ope =
+          levels.find(
+            (l) =>
+              l.label.toUpperCase().includes('OPÉRATIONNEL') ||
+              l.label.toUpperCase().includes('OPERATIONNEL'),
+          )?.label || 'Opérationnel';
+        const l_ava =
+          levels.find(
+            (l) =>
+              l.label.toUpperCase().includes('AVANCÉ') ||
+              l.label.toUpperCase().includes('AVANCE'),
+          )?.label || 'Avancé';
+        l1 = ensureNiveau(l_ope);
+        l2 = ensureNiveau(l_ava);
+      } else if (stopLevelUpper.includes('EXPERT')) {
+        const l_ava =
+          levels.find(
+            (l) =>
+              l.label.toUpperCase().includes('AVANCÉ') ||
+              l.label.toUpperCase().includes('AVANCE'),
+          )?.label || 'Avancé';
+        const l_exp =
+          levels.find((l) => l.label.toUpperCase().includes('EXPERT'))?.label ||
+          'Expert';
+        l1 = ensureNiveau(l_ava);
+        l2 = ensureNiveau(l_exp);
       } else {
-        l1 = ensureNiveau(levels[levels.length - 1].label);
-        l2 = l1;
+        // Ultimate fallback
+        if (stopLevelIdx !== -1) {
+          l1 = ensureNiveau(levels[stopLevelIdx].label);
+          if (stopLevelIdx < levels.length - 1) {
+            l2 = ensureNiveau(levels[stopLevelIdx + 1].label);
+          } else {
+            l2 = l1;
+          }
+        } else {
+          if (lastValidatedIdx < levels.length - 1) {
+            l1 = ensureNiveau(levels[lastValidatedIdx + 1].label);
+            if (lastValidatedIdx + 1 < levels.length - 1) {
+              l2 = ensureNiveau(levels[lastValidatedIdx + 2].label);
+            } else {
+              l2 = l1;
+            }
+          } else {
+            l1 = ensureNiveau(levels[levels.length - 1].label);
+            l2 = l1;
+          }
+        }
       }
     }
 
