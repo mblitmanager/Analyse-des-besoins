@@ -669,7 +669,15 @@ export class SeedService implements OnApplicationBootstrap {
       },
       {
         formation: 'Word',
-        condition: 'Si résultat du test <= Initial',
+        condition: 'Si résultat du test < à Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2:
+          'TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)',
+        order: 0.5,
+      },
+      {
+        formation: 'Word',
+        condition: 'Si résultat du test = Initial',
         formation1: 'TOSA Word Initial',
         formation2: 'TOSA Word Basique',
         order: 1,
@@ -706,7 +714,15 @@ export class SeedService implements OnApplicationBootstrap {
       },
       {
         formation: 'Excel',
-        condition: 'Si résultat du test <= Initial',
+        condition: 'Si résultat du test < à Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2:
+          'TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)',
+        order: 0.5,
+      },
+      {
+        formation: 'Excel',
+        condition: 'Si résultat du test = Initial',
         formation1: 'TOSA Excel Initial',
         formation2: 'TOSA Excel Basique',
         order: 1,
@@ -782,7 +798,15 @@ export class SeedService implements OnApplicationBootstrap {
       },
       {
         formation: 'PowerPoint',
-        condition: 'Si résultat du test <= Initial',
+        condition: 'Si résultat du test < à Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2:
+          'TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)',
+        order: 0.5,
+      },
+      {
+        formation: 'PowerPoint',
+        condition: 'Si résultat du test = Initial',
         formation1: 'TOSA PPT Initial',
         formation2: 'TOSA PPT Basique',
         order: 1,
@@ -812,10 +836,10 @@ export class SeedService implements OnApplicationBootstrap {
       // DIGCOMP
       {
         formation: 'DigComp',
-        condition: 'Si résultat du test < Initial',
+        condition: 'Si résultat du test < à Initial',
         formation1: 'TOSA Digcomp Initial',
         formation2:
-          'TOSA Word/Excel/PPT Initial (choix à valider avec conseiller)',
+          'TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)',
         order: 0,
       },
       {
@@ -912,10 +936,18 @@ export class SeedService implements OnApplicationBootstrap {
       // OUTLOOK
       {
         formation: 'Outlook',
-        condition: 'Si résultat du test <= Initial',
+        condition: 'Si résultat du test < à Initial',
+        formation1: 'TOSA Digcomp Initial',
+        formation2:
+          'TOSA Word/Excel /ppt Initial(choix de formation à valider avec votre conseiller)',
+        order: 0.5,
+      },
+      {
+        formation: 'Outlook',
+        condition: 'Si résultat du test = Initial',
         formation1: 'TOSA Outlook Initial',
         formation2: 'TOSA Outlook Basique',
-        order: 0,
+        order: 1,
       },
       {
         formation: 'Outlook',
