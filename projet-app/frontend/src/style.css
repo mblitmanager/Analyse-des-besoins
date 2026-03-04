@@ -1,20 +1,19 @@
 @import "tailwindcss";
 
-
 @layer components {
   .Wizi-label {
     display: block;
-    font-size: .875rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    letter-spacing: .01em;
+    letter-spacing: 0.01em;
     color: var(--title-color);
-    margin-bottom: .375rem;
+    margin-bottom: 0.375rem;
   }
-  
+
   .Wizi-input {
     background-color: #f9fafb; /* gray-50 fallback */
     border-color: #e5e7eb; /* gray-200 */
-    border-radius: 0.75rem; /* rounded-xl */
+    border-radius: 1rem; /* rounded-2xl */
     display: block;
     width: 100%;
     padding: 0.75rem 1rem;
@@ -25,7 +24,7 @@
   .Wizi-card {
     background-color: #ffffff;
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: 2.5rem; /* rounded-[40px] */
     border: 1px solid #f3f4f6; /* gray-100 */
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
@@ -34,7 +33,7 @@
 /* CSS variables for theming */
 :root {
   --brand-primary: #3b82f6;
-  --brand-secondary: #0D1B3E;
+  --brand-secondary: #0d1b3e;
   --brand-accent: #60a5fa;
   /* Palette personnalisée */
   --title-color: #315264;
@@ -45,30 +44,37 @@
 
 [data-brand="aopia"] {
   --brand-primary: #1d4ed8;
-  --brand-secondary: #0D1B3E;
+  --brand-secondary: #0d1b3e;
   --brand-accent: #3b82f6;
 }
 
 [data-brand="like"] {
   --brand-primary: #ef4444;
-  --brand-secondary: #0D1B3E;
+  --brand-secondary: #0d1b3e;
   --brand-accent: #f87171;
 }
 
 [data-brand="nsconseil"] {
   --brand-primary: #22c55e; /* Green for NS Conseil example */
-  --brand-secondary: #0D1B3E;
+  --brand-secondary: #0d1b3e;
   --brand-accent: #4ade80;
 }
 
 body {
-  background-color: #F8FAFC;
+  background-color: #f8fafc;
   color: #111827;
   margin: 0;
   padding: 0;
   min-height: 100vh;
   /* Paragraph / body font */
-  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    "Roboto",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 }
 
 #app {
@@ -79,7 +85,14 @@ body {
 .heading-primary {
   color: var(--title-color);
   /* Title font: Segoe UI preferred */
-  font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    "Segoe UI",
+    "Segoe UI Variable",
+    system-ui,
+    -apple-system,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 }
 
 .section-title {
@@ -101,12 +114,24 @@ body {
 }
 
 /* Ensure headings (h1..h6) use Segoe UI */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    "Segoe UI",
+    "Segoe UI Variable",
+    system-ui,
+    -apple-system,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 }
 
 .muted-heading {
-  color: rgba(49,82,99,0.8);
+  color: rgba(49, 82, 99, 0.8);
 }
 
 /* Success / positive helpers */
@@ -119,33 +144,48 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bg-success-soft {
-  background-color: rgba(34,197,94,0.12);
+  background-color: rgba(34, 197, 94, 0.12);
 }
 
 /* Make all primary buttons use the shared accent palette as requested
    Background: var(--accent-color) (#eab973)
    Text: var(--title-color) (#315264) */
-button, input[type="button"], input[type="submit"], .btn, .btn-primary {
+button,
+input[type="button"],
+input[type="submit"],
+.btn,
+.btn-primary {
   background-color: var(--accent-color);
   color: var(--title-color);
   padding: 0.6rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 1rem; /* rounded-2xl */
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  box-shadow: 0 6px 18px rgba(234,185,115,0.12);
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  box-shadow: 0 6px 18px rgba(234, 185, 115, 0.12);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
 }
 
-button:hover, input[type="button"]:hover, input[type="submit"]:hover, .btn:hover, .btn-primary:hover {
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+.btn:hover,
+.btn-primary:hover {
   filter: brightness(0.98);
   transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(234,185,115,0.18);
+  box-shadow: 0 10px 22px rgba(234, 185, 115, 0.18);
 }
 
-button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .btn:disabled, .btn-primary:disabled {
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled,
+.btn:disabled,
+.btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -158,18 +198,30 @@ button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .
   background-color: var(--accent-color);
   color: var(--title-color);
   padding: 0.6rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 1rem; /* rounded-2xl */
   font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 0;
-  box-shadow: 0 6px 18px rgba(234,185,115,0.12);
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  box-shadow: 0 6px 18px rgba(234, 185, 115, 0.12);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
 }
 
-.btn-accent:hover { filter: brightness(0.98); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(234,185,115,0.18); }
-.btn-accent:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-accent:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(234, 185, 115, 0.18);
+}
+.btn-accent:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 /* Generic button helpers */
 .btn {
@@ -177,14 +229,14 @@ button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: 1rem; /* rounded-2xl */
   font-weight: 700;
   transition: all 0.12s ease;
 }
 
 .btn-outline {
   background: transparent;
-  border: 1px solid rgba(49,82,99,0.08);
+  border: 1px solid rgba(49, 82, 99, 0.08);
   color: var(--title-color);
 }
 
@@ -200,25 +252,34 @@ button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, .
 }
 
 /* Header (bandeau) and footer styling per requested palette */
-header, .site-header {
+header,
+.site-header {
   background-color: #eae2d6; /* #eab973 */
   color: var(--section-color); /* #428496 */
 }
 
-header a, header a:visited, .site-header a {
+header a,
+header a:visited,
+.site-header a {
   color: var(--section-color);
 }
 
 /* Ensure headings/labels inside header use the header text color */
-header .Wizi-label, header .heading-primary, header h1, header h2, header h3 {
+header .Wizi-label,
+header .heading-primary,
+header h1,
+header h2,
+header h3 {
   color: var(--section-color);
 }
 
-footer, .site-footer {
+footer,
+.site-footer {
   background-color: #eae2d6; /* #eab973 */
   color: var(--title-color); /* #315264 */
 }
 
-footer a, .site-footer a {
+footer a,
+.site-footer a {
   color: var(--section-color);
 }

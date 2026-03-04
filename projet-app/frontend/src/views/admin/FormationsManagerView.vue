@@ -225,7 +225,7 @@ onMounted(fetchFormations);
           v-model="searchTerm"
           type="search"
           placeholder="Rechercher par nom, slug ou catégorie..."
-          class="w-full pl-12 pr-6 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
+          class="w-full pl-12 pr-6 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
         />
       </div>
       <select

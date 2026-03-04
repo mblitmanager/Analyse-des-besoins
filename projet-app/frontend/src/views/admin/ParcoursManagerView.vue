@@ -207,7 +207,7 @@ onMounted(async () => {
     <div class="flex flex-wrap gap-3 items-center">
       <select
         v-model="activeFormation"
-        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
+        class="px-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
       >
         <option value="">Toutes les formations</option>
         <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
@@ -218,7 +218,7 @@ onMounted(async () => {
           v-model="searchTerm"
           type="search"
           placeholder="Rechercher par condition ou formation..."
-          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-xl text-xs font-bold transition-all shadow-sm"
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
         />
       </div>
       <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">

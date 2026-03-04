@@ -115,7 +115,7 @@ onMounted(fetchUsers);
     </div>
 
     <!-- Users List -->
-    <div class="bg-white rounded-4xl border border-gray-100 shadow-sm overflow-hidden p-4">
+    <div class="bg-white rounded-[40px] border border-gray-50 shadow-sm overflow-hidden p-6">
       <!-- Toolbar: search + filter + page size -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div class="flex items-center gap-3 w-full md:w-1/2">
@@ -143,24 +143,24 @@ onMounted(fetchUsers);
 
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-gray-50/50">
+          <tr class="border-b border-gray-50 bg-gray-50/50">
             <th
-              class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100"
+              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left"
             >
               Email
             </th>
             <th
-              class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100"
+              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
             >
               Rôle
             </th>
             <th
-              class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100"
+              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
             >
               Créé le
             </th>
             <th
-              class="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 text-right"
+              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right"
             >
               Actions
             </th>

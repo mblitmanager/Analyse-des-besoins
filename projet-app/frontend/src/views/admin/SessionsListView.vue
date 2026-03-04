@@ -418,7 +418,7 @@ function toggleExpandedLevel(level) {
           <!-- Formation Filter -->
           <select 
             v-model="formationFilter"
-            class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+            class="w-full sm:w-auto px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
           >
             <option value="all">Toutes Formations</option>
             <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
@@ -443,7 +443,7 @@ function toggleExpandedLevel(level) {
       <table class="w-full min-w-max text-left">
         <thead>
           <tr class="border-b border-gray-50 bg-gray-50/50">
-            <th class="px-6 py-6 w-10">
+            <th class="px-8 py-6 w-10">
               <input 
                 type="checkbox" 
                 :checked="isAllSelected"
