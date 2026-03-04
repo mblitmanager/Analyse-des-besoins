@@ -8,6 +8,7 @@ import html2canvas from "html2canvas";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import AppLogo from '../components/AppLogo.vue';
+import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -18,6 +19,13 @@ const loading = ref(true);
 const pdfContent = ref(null);
 const downloadingPDF = ref(false);
 const levels = ref([]);
+
+// High level alert settings
+const alertSettings = ref({
+  formations: [],
+  thresholdOrder: 2
+});
+const showHighLevelAlert = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -139,6 +147,7 @@ async function loadResultats() {
     const response = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = response.data;
     await loadLevelsForFormation();
+    await fetchAlertSettings();
   } catch (error) {
     console.error("Failed to load results:", error);
   } finally {
@@ -164,9 +173,58 @@ function niveauDe(text) {
   return 'aeiouyàâéèêëïîôùûüh'.includes(first) ? "d'" : 'de ';
 }
 
+async function fetchAlertSettings() {
+  try {
+    const [formsRes, thresholdRes] = await Promise.all([
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_ALERT_FORMATIONS`),
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_THRESHOLD_ORDER`)
+    ]);
+    
+    if (formsRes.data?.value) {
+      alertSettings.value.formations = formsRes.data.value.split(',').map(s => s.trim());
+    }
+    if (thresholdRes.data?.value) {
+      alertSettings.value.thresholdOrder = parseInt(thresholdRes.data.value) || 2;
+    }
+  } catch (error) {
+    console.warn("Failed to fetch high level alert settings:", error);
+  }
+}
+
 const goNext = () => {
+  if (shouldShowAlert.value && !showHighLevelAlert.value) {
+    showHighLevelAlert.value = true;
+    return;
+  }
   const nextRoute = store.getNextRoute("/resultats");
   router.push(nextRoute || "/complementary");
+};
+
+const shouldShowAlert = computed(() => {
+  if (!session.value || !alertSettings.value.formations.length) return false;
+  
+  // 1. Check if current formation is in alert list
+  const isTargetFormation = alertSettings.value.formations.some(f => 
+    session.value.formationChoisie?.toLowerCase().includes(f.toLowerCase())
+  );
+  if (!isTargetFormation) return false;
+
+  // 2. Check achievement level
+  const currentLevel = levels.value.find(l => l.label === session.value.stopLevel);
+  if (!currentLevel) return false;
+
+  return currentLevel.order >= alertSettings.value.thresholdOrder;
+});
+
+const handleContinueAlert = () => {
+  showHighLevelAlert.value = false;
+  const nextRoute = store.getNextRoute("/resultats");
+  router.push(nextRoute || "/complementary");
+};
+
+const handleChangeFormation = () => {
+  showHighLevelAlert.value = false;
+  router.push("/formations");
 };
 
 const generateSimplePdf = () => {
@@ -741,6 +799,15 @@ const downloadPDF = async () => {
     </main>
 
     <SiteFooter />
+
+    <HighLevelAlertModal 
+      :show="showHighLevelAlert"
+      :formation="session?.formationChoisie"
+      :level="session?.stopLevel"
+      @close="showHighLevelAlert = false"
+      @continue="handleContinueAlert"
+      @changeFormation="handleChangeFormation"
+    />
   </div>
 </template>
 
