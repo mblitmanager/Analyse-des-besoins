@@ -150,6 +150,33 @@ export class SessionsService {
         ? session.finalRecommendation.split(' & ')
         : [session.finalRecommendation];
 
+      // Build allAnswers for visibility checks
+      const allAnswers = {
+        ...(session.prerequisiteScore || {}),
+        ...(session.complementaryQuestions || {}),
+        ...(session.availabilities || {}),
+        ...(session.miseANiveauAnswers || {}),
+        ...(session.positionnementAnswers || {}),
+      };
+
+      const formationLabel = session.formationChoisie;
+
+      // Inline filter: remove nulls, filter by formation and visibility
+      const filterAnswers = (answers: any) => {
+        if (!answers) return {};
+        const result: Record<string, any> = {};
+        Object.entries(answers).forEach(([key, val]) => {
+          if (val === null || val === undefined || val === '') return;
+          const idNum = Number(key);
+          const q = questions.find((x) => x.id === idNum);
+          if (!q) return;
+          if (q.formation && q.formation.label !== formationLabel) return;
+          if (!isQuestionVisible(q, allAnswers, questions)) return;
+          result[key] = val;
+        });
+        return result;
+      };
+
       return {
         recommendation: session.finalRecommendation,
         recommendations,
@@ -157,14 +184,18 @@ export class SessionsService {
         finalLevel: { label: session.lastValidatedLevel || 'Inconnu' } as Level,
         lastValidatedLevel: session.lastValidatedLevel,
         stopLevel: session.stopLevel,
-        qTextById, // Correctly mapped question texts
-        filteredMiseAnswers: session.miseANiveauAnswers || {},
-        filteredPrerequis: session.prerequisiteScore || {},
-        filteredComplementaryAnswers: session.complementaryQuestions || {},
-        filteredAvailabilities: session.availabilities || {},
-        miseTitle: 'Mise à niveau (réponses)',
-        isQuestionRuleOverride: false, // Default if not in entity (or check if stored in metadata)
-        ruleResultType: null, // Default
+        qTextById,
+        filteredMiseAnswers: filterAnswers(session.miseANiveauAnswers),
+        filteredPrerequis: filterAnswers(session.prerequisiteScore),
+        filteredComplementaryAnswers: filterAnswers(
+          session.complementaryQuestions,
+        ),
+        filteredAvailabilities: filterAnswers(session.availabilities),
+        miseTitle: session.formationChoisie
+          ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
+          : 'Mise à niveau (réponses)',
+        isQuestionRuleOverride: false,
+        ruleResultType: null,
       };
     }
 
