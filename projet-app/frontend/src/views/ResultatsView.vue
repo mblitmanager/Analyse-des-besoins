@@ -651,7 +651,7 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <div v-if="parcoursOptions.length <= 1"
+        <div v-if="parcoursOptions.length <= 1 && !session.finalRecommendation?.includes('&')"
           class="relative bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <!-- Pack Header -->
