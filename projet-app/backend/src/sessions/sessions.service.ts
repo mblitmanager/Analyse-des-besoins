@@ -160,7 +160,7 @@ export class SessionsService {
         qTextById, // Correctly mapped question texts
         filteredMiseAnswers: session.miseANiveauAnswers || {},
         filteredPrerequis: session.prerequisiteScore || {},
-        filteredComplementaryAnswers: {}, // Not in entity
+        filteredComplementaryAnswers: session.complementaryQuestions || {},
         filteredAvailabilities: session.availabilities || {},
         miseTitle: 'Mise à niveau (réponses)',
         isQuestionRuleOverride: false, // Default if not in entity (or check if stored in metadata)
