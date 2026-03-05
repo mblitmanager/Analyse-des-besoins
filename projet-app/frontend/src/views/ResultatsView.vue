@@ -739,33 +739,48 @@ const downloadPDF = async () => {
           </div>
         </div>
 
-        <!-- Final CTA -->
-        <div class="mt-12 text-center space-y-6">
-          <p
-            class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm"
-          >
-            Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous
-            pour le valider. Un conseiller vous accompagnera pour les démarches
-            administratives.
-          </p>
+        <div class="pt-12 flex flex-col items-center gap-8 border-t border-gray-50 mt-12 w-full">
+          <div class="flex flex-col sm:flex-row items-center justify-between w-full">
+            <!-- Retour button -->
+            <button
+              @click="router.push('/formations')"
+              class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all"
+            >
+              <span class="material-icons-outlined text-lg">arrow_back</span>
+              Retour
+            </button>
 
-          <button
-            v-if="!isBlocked"
-            @click="goNext"
-            class="px-12 py-4 btn-primary font-bold shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
-          >
-            <span>Valider ce parcours et continuer</span>
-            <span class="material-icons-outlined text-lg">arrow_forward</span>
-          </button>
-          
-          <button
-            v-else
-            @click="handleChangeFormation"
-            class="px-12 py-4 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl shadow-lg hover:bg-brand-primary/10 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
-          >
-            <span>Changer de formation</span>
-            <span class="material-icons-outlined text-lg">grid_view</span>
-          </button>
+            <!-- Final CTA -->
+            <div class="flex flex-col items-center gap-6">
+              <p
+                class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm text-center"
+              >
+                Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous
+                pour le valider.
+              </p>
+
+              <button
+                v-if="!isBlocked"
+                @click="goNext"
+                class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto"
+              >
+                <span>Valider ce parcours et continuer</span>
+                <span class="material-icons-outlined text-lg">arrow_forward</span>
+              </button>
+              
+              <button
+                v-else
+                @click="handleChangeFormation"
+                class="px-12 py-4 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl shadow-lg hover:bg-brand-primary/10 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
+              >
+                <span>Changer de formation</span>
+                <span class="material-icons-outlined text-lg">grid_view</span>
+              </button>
+            </div>
+
+            <!-- Placeholder for alignment -->
+            <div class="hidden sm:block w-24"></div>
+          </div>
 
           <p
             class="text-xs font-medium text-gray-400 uppercase tracking-widest italic"

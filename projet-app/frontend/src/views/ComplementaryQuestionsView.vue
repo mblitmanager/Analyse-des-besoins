@@ -281,39 +281,29 @@ function skipStep() {
           </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div
-          class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4"
-        >
+        <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12 w-full">
+          <!-- Retour button -->
           <button
             @click="router.push('/resultats')"
-            class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
+            class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all disabled:opacity-20"
+            :disabled="submitting"
           >
-            <span class="material-icons-outlined">arrow_back</span>
-            Précédent
+            <span class="material-icons-outlined text-lg">arrow_back</span>
+            Retour
           </button>
-          <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <!-- <button
-              @click="skipStep"
-              class="px-6 py-4 text-gray-400 hover:text-gray-600 font-bold text-sm transition-all border-2 border-transparent hover:border-gray-100 rounded-2xl"
-            >
-              Passer cette étape
-            </button> -->
-            <button
-              @click="nextStep"
-              :disabled="submitting"
-              class="flex-1 sm:w-64 px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 text-base"
-            >
-              <span>Continuer</span>
-              <span v-if="!submitting" class="material-icons-outlined text-xl"
-                >arrow_forward</span
-              >
-              <div
-                v-else
-                class="animate-spin border-2 border-white/30 border-t-white rounded-full h-5 w-5"
-              ></div>
-            </button>
-          </div>
+
+          <button
+            @click="nextStep"
+            :disabled="submitting"
+            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+          >
+            <span>Continuer</span>
+            <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+            <div
+              v-else
+              class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
+            ></div>
+          </button>
         </div>
       </div>
     </main>
