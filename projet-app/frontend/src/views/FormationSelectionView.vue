@@ -122,13 +122,30 @@ const groupedFormations = computed(() => {
   return groups;
 });
 
-// Section styles configuration
+// Section styles configuration with accent colors
 const sectionStyles = {
-  bureautique: { color: '#a4c2f4', bg: '#a4c2f415' },
-  langues: { color: '#f5cece', bg: '#f5cece15' },
-  creation: { color: '#d9ebd3', bg: '#d9ebd315' },
-  internet: { color: '#ebd1dc', bg: '#ebd1dc15' }
+  bureautique: { color: '#a4c2f4', bg: '#a4c2f415', accent: '#3b82f6', accentBg: '#eff6ff' },
+  langues: { color: '#f5cece', bg: '#f5cece15', accent: '#e11d48', accentBg: '#fff1f2' },
+  creation: { color: '#d9ebd3', bg: '#d9ebd315', accent: '#16a34a', accentBg: '#f0fdf4' },
+  internet: { color: '#ebd1dc', bg: '#ebd1dc15', accent: '#9333ea', accentBg: '#faf5ff' }
 };
+
+// Helper to get accent color for a given formation
+function getSectionAccent(form) {
+  if (!form) return { accent: '#3b82f6', accentBg: '#eff6ff' };
+  for (const sec of sections.value) {
+    if (sec.subSections) {
+      for (const sub of sec.subSections) {
+        if (sub.items.some(i => i.id === form.id)) return sec.style;
+      }
+    } else if (sec.items?.some(i => i.id === form.id)) {
+      return sec.style;
+    }
+  }
+  return { accent: '#3b82f6', accentBg: '#eff6ff' };
+}
+
+const selectedAccent = computed(() => getSectionAccent(selectedFormation.value));
 
 // Build explicit sections per requested layout
 const sections = computed(() => {
@@ -215,16 +232,17 @@ function selectBureau(form, suite) {
                     @click="selectBureau(form, sub.suite)"
                     class="formation-card relative"
                     :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
+                    :style="selectedFormation?.id === form.id ? { borderColor: selectedAccent.accent, boxShadow: `0 15px 30px -10px ${selectedAccent.accent}33` } : {}"
                   >
                     <div class="flex items-center gap-4">
-                       <div :class="selectedFormation?.id === form.id ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                       <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm" :style="selectedFormation?.id === form.id ? { backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 16px -4px ${selectedAccent.accent}40` } : { backgroundColor: 'white', color: '#9ca3af' }">
                           <span class="material-icons-outlined text-xl">{{ sub.suite === 'microsoft' ? 'description' : 'cloud' }}</span>
                        </div>
-                       <span class="formation-card__label" :class="{'text-[#2563eb]': selectedFormation?.id === form.id}">{{ form.label }}</span>
+                       <span class="formation-card__label" :style="selectedFormation?.id === form.id ? { color: selectedAccent.accent } : {}">{{ form.label }}</span>
                     </div>
 
                     <!-- Selected badge -->
-                    <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-[#2563eb] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
+                    <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up" :style="{ backgroundColor: selectedAccent.accent }">
                       <span class="material-icons-outlined text-[14px] font-bold">check</span>
                     </div>
                   </button>
@@ -240,22 +258,36 @@ function selectBureau(form, suite) {
                 @click="selectedFormation = form; if(section.key!=='bureautique') selectedSuite=''"
                 class="formation-card relative"
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
+                :style="selectedFormation?.id === form.id ? { borderColor: selectedAccent.accent, boxShadow: `0 15px 30px -10px ${selectedAccent.accent}33` } : {}"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                   <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm" :style="selectedFormation?.id === form.id ? { backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 16px -4px ${selectedAccent.accent}40` } : { backgroundColor: 'white', color: '#9ca3af' }">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'star' }}</span>
                    </div>
-                   <span class="formation-card__label" :class="{'text-[#2563eb]': selectedFormation?.id === form.id}">{{ form.label }}</span>
+                   <span class="formation-card__label" :style="selectedFormation?.id === form.id ? { color: selectedAccent.accent } : {}">{{ form.label }}</span>
                 </div>
 
                 <!-- Selected badge -->
-                <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-[#2563eb] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
+                <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up" :style="{ backgroundColor: selectedAccent.accent }">
                   <span class="material-icons-outlined text-[14px] font-bold">check</span>
                 </div>
               </button>
             </div>
           </div>
         </div>
+
+        <!-- Selected Formation Feedback -->
+        <transition name="fade-slide">
+          <div v-if="selectedFormation" class="mt-8 p-4 rounded-2xl border flex items-center gap-4 animate-scale-up" :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderColor: selectedAccent.accent + '30' }">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+              <span class="material-icons-outlined">check_circle</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+              <p class="text-sm font-black text-[#0d1b3e]">{{ selectedFormation.label }}</p>
+            </div>
+          </div>
+        </transition>
 
         <!-- Bottom Actions -->
         <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12">

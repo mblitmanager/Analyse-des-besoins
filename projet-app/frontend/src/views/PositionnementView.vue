@@ -9,6 +9,13 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from "../components/HighLevelAlertModal.vue";
 
+// Display helper: strips the letter prefix (e.g. "A1 - Revoir les bases" => "Revoir les bases")
+function displayLevel(label) {
+  if (!label) return '';
+  if (label.includes(' - ')) return label.split(' - ').slice(1).join(' - ').trim();
+  return label;
+}
+
 const store = useAppStore();
 const router = useRouter();
 
@@ -687,7 +694,7 @@ async function saveAndExit() {
               class="flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
             >
               <span class="material-icons-outlined text-sm">trending_up</span>
-              Évaluation du niveau {{ levels[currentLevelIndex]?.label }}
+              Évaluation du niveau {{ displayLevel(levels[currentLevelIndex]?.label) }}
             </div>
           </div>
 
@@ -703,10 +710,10 @@ async function saveAndExit() {
                   {{ currentLevelIndex === 0 ? "Comment fonctionne ce test ?" : "Bravo, vous progressez !" }}
                 </h3>
                 <p class="text-blue-50 text-sm leading-relaxed" v-if="currentLevelIndex === 0">
-                  Ce test est adaptatif. Il commence par le niveau <strong>{{ levels[0]?.label }}</strong>. Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
+                  Ce test est adaptatif. Il commence par le niveau <strong>{{ displayLevel(levels[0]?.label) }}</strong>. Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
                 </p>
                 <p class="text-blue-50 text-sm leading-relaxed" v-else>
-                  Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau <strong>{{ levels[currentLevelIndex]?.label }}</strong> afin d'affiner votre programme de formation.
+                  Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau <strong>{{ displayLevel(levels[currentLevelIndex]?.label) }}</strong> afin d'affiner votre programme de formation.
                 </p>
               </div>
             </div>
@@ -750,7 +757,7 @@ async function saveAndExit() {
             class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
           ></div>
           <p class="text-gray-400 font-medium italic text-sm">
-            Préparation du module {{ levels[currentLevelIndex]?.label }}...
+             Préparation du module {{ displayLevel(levels[currentLevelIndex]?.label) }}...
           </p>
         </div>
 
