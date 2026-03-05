@@ -25,6 +25,7 @@ export class PdfService {
     availabilityAnswers?: Record<string, any>;
     miseANiveauAnswers?: Record<string, any>;
     qTextById?: Record<number, string>;
+    highLevelContinue?: boolean;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
@@ -91,6 +92,18 @@ export class PdfService {
       this.drawTable(doc, beneficiary, darkText, grayText, lightBg);
 
       // ─── Formation + Recommendation ───
+      if (data.highLevelContinue) {
+        doc.moveDown(0.5);
+        doc
+          .fillColor('#991B1B')
+          .font('Helvetica-Bold')
+          .fontSize(10)
+          .text(
+            '⚠️ Le beneficiaire a obtenu un score eleve pour cette formation, mais a souhaite maintenir sa demande.',
+            { align: 'center' },
+          );
+        doc.moveDown(0.5);
+      }
       doc.moveDown(0.5);
       this.sectionTitle(doc, 'Formation et Résultat');
 

@@ -178,6 +178,17 @@ async function deleteRule(rule) {
   }
 }
 
+async function toggleRuleActive(rule) {
+  try {
+    const newState = !(rule.isActive !== false);
+    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState });
+    rule.isActive = newState;
+  } catch (error) {
+    console.error("Failed to toggle rule:", error);
+    alert("Erreur lors de la mise à jour.");
+  }
+}
+
 async function fetchFormations() {
   try {
     const res = await axios.get(`${apiBaseUrl}/formations`);
@@ -225,6 +236,7 @@ function addFormationLevel() {
     label: "",
     order: formationForm.value.levels.length,
     successThreshold: 0,
+    isActive: true,
   });
 }
 
@@ -390,12 +402,25 @@ onMounted(async () => {
                     <h4 class="text-sm font-black uppercase tracking-widest text-gray-700">Paliers de Compétence</h4>
                     <button @click="addFormationLevel" class="text-[10px] font-black text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-xl transition-all">Ajouter niveau</button>
                   </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div v-for="(lvl, idx) in formationForm.levels" :key="idx" class="flex items-center gap-3 bg-gray-50 p-4 rounded-3xl border border-gray-100 group">
-                      <input type="number" v-model="lvl.order" class="w-12 h-10 bg-white rounded-xl text-center font-bold text-xs" />
-                      <input type="text" v-model="lvl.label" class="flex-1 h-10 bg-white rounded-xl px-4 font-bold text-xs" placeholder="Label" />
-                      <input type="number" v-model="lvl.successThreshold" class="w-16 h-10 bg-white rounded-xl text-center font-bold text-xs" title="Seuil" />
-                      <button @click="removeFormationLevel(idx)" class="text-gray-300 hover:text-red-500 transition-all"><span class="material-icons-outlined text-sm">remove_circle</span></button>
+                  <div class="grid grid-cols-1 gap-4">
+                    <div v-for="(lvl, idx) in formationForm.levels" :key="idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-4 rounded-3xl border border-gray-100 group transition-all" :class="!lvl.isActive ? 'opacity-50 grayscale' : ''">
+                      <div class="flex items-center gap-3 flex-1">
+                        <input type="number" v-model="lvl.order" class="w-12 h-10 bg-white rounded-xl text-center font-bold text-xs" title="Ordre" />
+                        <input type="text" v-model="lvl.label" class="flex-1 h-10 bg-white rounded-xl px-4 font-bold text-xs" placeholder="Label" />
+                        <input type="number" v-model="lvl.successThreshold" class="w-16 h-10 bg-white rounded-xl text-center font-bold text-xs" title="Seuil" />
+                      </div>
+                      <div class="flex items-center gap-4 justify-between sm:justify-end">
+                        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-gray-100 shadow-sm">
+                          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ lvl.isActive !== false ? 'Actif' : 'Inactif' }}</span>
+                          <div class="relative inline-block w-8 h-4 rounded-full transition-colors duration-200" :class="lvl.isActive !== false ? 'bg-green-400' : 'bg-gray-300'">
+                            <input type="checkbox" v-model="lvl.isActive" class="opacity-0 w-0 h-0" />
+                            <span class="absolute left-1 top-1 bg-white w-2 h-2 rounded-full transition-transform duration-200" :class="lvl.isActive !== false ? 'transform translate-x-4' : ''"></span>
+                          </div>
+                        </label>
+                        <button @click="removeFormationLevel(idx)" class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-200 transition-all">
+                          <span class="material-icons-outlined text-sm">delete</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                </div>
@@ -451,6 +476,7 @@ onMounted(async () => {
             v-for="(rule, idx) in filteredRules"
             :key="rule.id"
             class="hover:bg-blue-50/30 transition-colors"
+            :class="rule.isActive === false ? 'opacity-40 grayscale' : ''"
           >
             <td class="px-8 py-5 text-xs font-black text-gray-300">{{ idx + 1 }}</td>
             <td class="px-8 py-5">
@@ -467,7 +493,12 @@ onMounted(async () => {
               </span>
             </td>
             <td class="px-8 py-5">
-              <div class="flex gap-2 justify-end">
+              <div class="flex gap-2 justify-end items-center">
+                <label class="flex items-center gap-1.5 cursor-pointer bg-gray-50 px-2.5 py-1.5 rounded-xl border border-gray-100 shadow-sm" :title="rule.isActive !== false ? 'Actif' : 'Inactif'">
+                  <div class="relative inline-block w-7 h-3.5 rounded-full transition-colors duration-200" :class="rule.isActive !== false ? 'bg-green-400' : 'bg-gray-300'" @click.prevent="toggleRuleActive(rule)">
+                    <span class="absolute left-0.5 top-0.5 bg-white w-2.5 h-2.5 rounded-full transition-transform duration-200" :class="rule.isActive !== false ? 'transform translate-x-3' : ''"></span>
+                  </div>
+                </label>
                 <button
                   @click="openEditForm(rule)"
                   class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"

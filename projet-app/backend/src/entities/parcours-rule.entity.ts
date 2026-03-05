@@ -19,4 +19,7 @@ export class ParcoursRule {
 
   @Column({ type: 'int', default: 0 })
   order: number;
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 }

@@ -64,6 +64,9 @@ export class Session {
   @Column({ nullable: true })
   lastValidatedLevel: string;
 
+  @Column({ default: false })
+  highLevelContinue: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

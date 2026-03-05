@@ -32,7 +32,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
   if (session.value.finalRecommendation)
-    return session.value.finalRecommendation.replace(/ \| /g, " / ");
+    return session.value.finalRecommendation;
 
   const level =
     session.value.lastValidatedLevel || session.value.stopLevel || "";
@@ -44,9 +44,7 @@ const recommendedLabel = computed(() => {
       displayLevel = `Niveau ${displayLevel}`;
   }
 
-  return `${session.value.formationChoisie || ""}${
-    displayLevel ? " - " + displayLevel : ""
-  }`.trim();
+  return `${session.value.formationChoisie || ""} - ${displayLevel}`.trim();
 });
 
 // helper for adapting messaging when prereq shows insuffisant
@@ -88,8 +86,8 @@ const parcoursOptions = computed(() => {
   const rec = session.value.finalRecommendation || "";
   if (!rec) return [];
   
-  if (rec.includes(" | ")) {
-    return rec.split(" | ").map(s => s.trim());
+  if (rec.includes(" & ")) {
+    return rec.split(" & ").map(s => s.trim());
   }
 
   // Try to split older format "Formation - Level1 & Level2"
@@ -216,7 +214,14 @@ const shouldShowAlert = computed(() => {
   return currentLevel.order >= alertSettings.value.thresholdOrder;
 });
 
-const handleContinueAlert = () => {
+const handleContinueAlert = async () => {
+  try {
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      highLevelContinue: true
+    });
+  } catch (error) {
+    console.error("Failed to update session with highLevelContinue flag", error);
+  }
   showHighLevelAlert.value = false;
   const nextRoute = store.getNextRoute("/resultats");
   router.push(nextRoute || "/complementary");
