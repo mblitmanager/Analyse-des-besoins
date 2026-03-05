@@ -134,6 +134,14 @@ function skipStep() {
   router.push(nextRoute || "/validation");
 }
 
+function getOptionIcon(opt) {
+  const o = opt.toLowerCase();
+  if (o.includes("matin")) return "light_mode";
+  if (o.includes("après-midi") || o.includes("apres-midi")) return "wb_twilight";
+  if (o.includes("12h") || o.includes("14h") || o.includes("midi") || o.includes("déjeuner")) return "restaurant";
+  if (o.includes("journée") || o.includes("journee")) return "wb_sunny";
+  return null;
+}
 </script>
 
 <template>
@@ -177,7 +185,7 @@ function skipStep() {
 
       <div v-else class="space-y-6">
         <div
-          class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
+          class="bg-[#5fa0a] rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <!-- <div
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
@@ -203,9 +211,65 @@ function skipStep() {
                 <p class="text-base font-bold heading-primary">{{ q.text }}</p>
               </div>
 
+              <!-- QCM Type (Selection Cards) -->
+              <div
+                v-if="q.responseType === 'qcm' || q.metadata?.type === 'qcm' || (q.options?.length > 0 && q.metadata?.type !== 'multi_select')"
+                :class="q.text.includes('moment êtes-vous disponible') ? 'grid grid-cols-2 md:grid-cols-4 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'"
+              >
+                <label
+                  v-for="opt in q.options"
+                  :key="opt"
+                  class="option-card"
+                  :class="[
+                    responses[q.id] === opt ? 'option-card--selected' : 'option-card--default',
+                    q.text.includes('moment êtes-vous disponible') ? 'flex-col py-6 px-4 text-center' : 'flex-row py-4 px-6'
+                  ]"
+                >
+                  <input
+                    type="radio"
+                    :name="'q-' + q.id"
+                    v-model="responses[q.id]"
+                    :value="opt"
+                    class="hidden"
+                  />
+                  <!-- Icon for availability time slots -->
+                  <div 
+                    v-if="q.text.includes('moment êtes-vous disponible') && getOptionIcon(opt)"
+                    class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300"
+                    :class="responses[q.id] === opt ? 'bg-[brand-primary] text-[#eab973] shadow-lg shadow-brand-primary/20' : 'bg-gray-100 text-gray-400'"
+                  >
+                    <span class="material-icons-outlined text-2xl">{{ getOptionIcon(opt) }}</span>
+                  </div>
+
+                  <div class="flex-1 flex flex-col items-center">
+                    <span 
+                      class="option-card__label" 
+                      :class="{'text-center': q.text.includes('moment êtes-vous disponible'), 'font-black uppercase tracking-widest text-[11px]': q.text.includes('moment êtes-vous disponible')}"
+                      v-html="formatBoldText(opt)"
+                    ></span>
+                  </div>
+
+                  <div 
+                    v-if="!q.text.includes('moment êtes-vous disponible')"
+                    class="option-card__radio" 
+                    :class="responses[q.id] === opt ? 'option-card__radio--selected' : 'option-card__radio--default'"
+                  >
+                    <div v-if="responses[q.id] === opt" class="option-card__radio-dot"></div>
+                  </div>
+
+                  <!-- Checkmark for specific vertical cards -->
+                  <div 
+                    v-if="q.text.includes('moment êtes-vous disponible') && responses[q.id] === opt"
+                    class="absolute top-3 right-3 w-5 h-5 bg-brand-primary rounded-full flex items-center justify-center text-white scale-110 shadow-sm"
+                  >
+                    <span class="material-icons-outlined text-[12px] bg-transparent font-bold">check</span>
+                  </div>
+                </label>
+              </div>
+
               <!-- Multi-Select Type (créneaux) -->
               <div
-                v-if="q.metadata?.type === 'multi_select'"
+                v-else-if="q.metadata?.type === 'multi_select'"
                 class="grid grid-cols-1 md:grid-cols-3 gap-2"
               >
                 <label
@@ -320,32 +384,33 @@ function skipStep() {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  min-height: 3.5rem;
-  background: #f3f4f6;
-  border: 2px solid #e5e7eb;
-  border-radius: 1rem;
+  background: #f8fafc;
+  border: 2px solid #f1f5f9;
+  border-radius: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .option-card--default:hover {
-  border-color: #d1d5db;
-  background: #e9ebee;
+  border-color: #e2e8f0;
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
 }
 
 .option-card--selected {
   border-color: var(--color-brand-primary, #3b82f6);
-  background: #eef2ff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  background: white;
+  box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
 }
 
 .option-card__label {
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #1f2937;
-  text-align: left;
-  flex: 1;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
 }
 
 .option-card--selected .option-card__label {
