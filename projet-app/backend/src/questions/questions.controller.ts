@@ -71,6 +71,12 @@ export class QuestionsController {
     return this.questionsService.updateOrder(orders);
   }
 
+  @Get(':id/is-used')
+  @UseGuards(JwtAuthGuard)
+  getIsUsed(@Param('id') id: number) {
+    return this.questionsService.getIsUsed(id);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(
