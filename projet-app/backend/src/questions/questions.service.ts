@@ -336,6 +336,32 @@ export class QuestionsService {
     return { success: true };
   }
 
+  async getIsUsed(id: number) {
+    // 1. Check showIfQuestionId
+    const countLegacy = await this.questionRepo.count({
+      where: { showIfQuestionId: id },
+    });
+    if (countLegacy > 0) return true;
+
+    // 2. Check showIfRules (JSON search)
+    // Using raw query for JSON efficiency if needed, but for now we can just search if we found any with showIfRules
+    const allWithRules = await this.questionRepo.find({
+      where: { showIfRules: IsNull() ? undefined : ({} as any) }, // This is a bit hacky in TypeORM to get those with rules
+    });
+
+    for (const q of allWithRules) {
+      if (q.showIfRules && Array.isArray(q.showIfRules)) {
+        if (
+          q.showIfRules.some((rule) => Number(rule.questionId) === Number(id))
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   async remove(id: number) {
     const question = await this.questionRepo.findOne({ where: { id } });
     if (question) {

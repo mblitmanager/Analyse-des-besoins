@@ -56,10 +56,10 @@ onMounted(async () => {
       params: formationSlug ? { scope: "auto", formation: formationSlug } : { scope: "global" },
     });
     
-    // Filter for Screen 2 questions
-    const itKeywords = ["ordinateur", "windows", "internet", "dossier", "clavier", "souris"];
+    // Exclude questions already handled in Section 1 (Job and Situation)
+    const excludedKeywords = ["métier", "situation actuelle"];
     questions.value = (res.data || []).filter(q => 
-      itKeywords.some(kw => q.text.toLowerCase().includes(kw))
+      !excludedKeywords.some(kw => q.text.toLowerCase().includes(kw))
     );
 
     const initialResponses = {};

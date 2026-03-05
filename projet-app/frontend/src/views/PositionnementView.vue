@@ -39,6 +39,7 @@ const allowSkip = ref(true); // admin toggle for skipping this step
 const lowScoreThreshold = ref(3); // default: warn if < 3 correct answers
 const lastScoreDetails = ref({ correctCount: 0, total: 0 });
 const skipFormationWarning = ref(false);
+const formation = ref(null);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -59,6 +60,15 @@ async function loadLevels() {
     }
   } catch {
     levels.value = [];
+  }
+}
+
+async function loadFormation() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/formations/${formationSlug}`);
+    formation.value = res.data;
+  } catch (error) {
+    console.error("Failed to load formation details:", error);
   }
 }
 
@@ -177,6 +187,7 @@ onMounted(async () => {
     router.push("/");
     return;
   }
+  await loadFormation();
   await loadLevels();
   await restoreProgressFromSession();
   await fetchPaginationSetting();
@@ -251,8 +262,12 @@ async function nextStep() {
 
     const percentage = (correctCount / filteredQuestions.value.length) * 100;
 
-    // Check if score is below warning threshold (if not already skipped)
-    if (!skipFormationWarning.value && currentLevelIndex.value === 0 && correctCount < lowScoreThreshold.value) {
+    const shouldWarn = !skipFormationWarning.value && 
+                       (formation.value?.enableLowScoreWarning !== false) &&
+                       currentLevelIndex.value === 0 && 
+                       correctCount < lowScoreThreshold.value;
+
+    if (shouldWarn) {
       lastScoreDetails.value = { correctCount, total: filteredQuestions.value.length };
       showFormationWarning.value = true;
       submitting.value = false;

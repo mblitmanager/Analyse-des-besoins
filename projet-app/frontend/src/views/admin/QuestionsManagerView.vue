@@ -229,8 +229,19 @@ async function toggleStatus(q) {
 }
 
 async function deleteQuestion(id) {
-  if (!confirm("Êtes-vous sûr de vouloir supprimer cette question ?")) return;
   try {
+    // 1. Check if used
+    const checkRes = await axios.get(`${apiBaseUrl}/questions/${id}/is-used`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    let confirmMsg = "Êtes-vous sûr de vouloir supprimer cette question ?";
+    if (checkRes.data === true) {
+      confirmMsg = "Attention : Cette question est utilisée comme condition d'affichage pour d'autres questions. Sa suppression affectera les règles de ces questions. Voulez-vous continuer ?";
+    }
+
+    if (!confirm(confirmMsg)) return;
+
     await axios.delete(`${apiBaseUrl}/questions/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -268,13 +279,19 @@ function moveQuestion(levelGroup, index, direction) {
   const toQ = levelGroup.questions[index + direction];
   if (!fromQ || !toQ) return;
 
-  const idxA = questions.value.findIndex((q) => q.id === fromQ.id);
-  const idxB = questions.value.findIndex((q) => q.id === toQ.id);
-  if (idxA === -1 || idxB === -1) return;
+  // Swap the "order" attribute so the computed sort picks it up
+  const tempOrder = fromQ.order;
+  fromQ.order = toQ.order;
+  toQ.order = tempOrder;
 
-  const copy = [...questions.value];
-  [copy[idxA], copy[idxB]] = [copy[idxB], copy[idxA]];
-  questions.value = copy;
+  // If they were same (e.g. 0 or null), force distinct values
+  if (fromQ.order === toQ.order) {
+    fromQ.order = index + 1;
+    toQ.order = index + direction + 1;
+  }
+
+  // Trigger reactivity
+  questions.value = [...questions.value];
 }
 
 async function saveOrder(questionsList) {
