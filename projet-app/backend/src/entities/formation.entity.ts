@@ -54,6 +54,9 @@ export class Formation {
   @Column({ type: 'varchar', length: 12, default: 'global' })
   miseANiveauQuestionsScope: 'global' | 'formation' | 'both';
 
+  @Column({ default: true })
+  enableLowScoreWarning: boolean;
+
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 

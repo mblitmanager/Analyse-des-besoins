@@ -20,6 +20,11 @@ export class FormationsController {
     return this.formationsService.findAll(isClientContext);
   }
 
+  @Get(':slug')
+  findOneBySlug(@Param('slug') slug: string) {
+    return this.formationsService.findBySlug(slug);
+  }
+
   @Get(':slug/levels')
   findLevelsBySlug(@Param('slug') slug: string) {
     return this.formationsService.findLevelsBySlug(slug);

@@ -49,6 +49,7 @@ const form = ref({
   complementaryQuestionsScope: "global",
   availabilitiesQuestionsScope: "global",
   miseANiveauQuestionsScope: "global",
+  enableLowScoreWarning: true,
   levels: [],
 });
 
@@ -88,6 +89,7 @@ function openAddModal() {
     complementaryQuestionsScope: "global",
     availabilitiesQuestionsScope: "global",
     miseANiveauQuestionsScope: "global",
+    enableLowScoreWarning: true,
     levels: [],
   };
   showModal.value = true;
@@ -434,21 +436,23 @@ onMounted(fetchFormations);
                   />
                 </div>
               </div>
+                </div>
+              </div>
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >En Ligne ?</label
+                  >Alerte score faible ?</label
                 >
                 <div
-                  @click="form.isActive = !form.isActive"
+                  @click="form.enableLowScoreWarning = !form.enableLowScoreWarning"
                   class="w-full px-6 py-4 rounded-2xl cursor-pointer transition-all font-bold text-sm text-center border"
                   :class="
-                    form.isActive
-                      ? 'bg-green-50 border-green-200 text-green-600'
+                    form.enableLowScoreWarning
+                      ? 'bg-blue-50 border-blue-200 text-blue-600'
                       : 'bg-gray-50 border-gray-200 text-gray-400'
                   "
                 >
-                  {{ form.isActive ? "OUI" : "NON" }}
+                  {{ form.enableLowScoreWarning ? "OUI" : "NON" }}
                 </div>
               </div>
             </div>
