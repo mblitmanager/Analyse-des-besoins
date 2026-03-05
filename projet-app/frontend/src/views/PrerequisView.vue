@@ -156,6 +156,11 @@ function refuseProposal() {
   showProposal.value = false;
   submitPrerequis(true); 
 }
+const recommendedFormations = computed(() => {
+  if (!proposalMessage.value) return [];
+  // Split by | or & and trim
+  return proposalMessage.value.split(/[|&]/).map(f => f.trim());
+});
 </script>
 
 <template>
@@ -185,9 +190,23 @@ function refuseProposal() {
               <span class="material-icons-outlined text-4xl">lightbulb</span>
             </div>
             <h2 class="text-2xl font-black text-blue-900 mb-4 text-center">Parcours Recommandé</h2>
-            <p class="text-gray-600 mb-8 text-center leading-relaxed">
-              {{ proposalMessage }}
+            <p class="text-gray-500 mb-6 text-center text-sm font-medium">
+              Afin de sécuriser votre parcours, nous vous suggérons de débuter par :
             </p>
+
+            <div class="flex flex-col gap-3 mb-8">
+              <div 
+                v-for="(f, i) in recommendedFormations" 
+                :key="i"
+                class="px-5 py-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300"
+                :style="{ animationDelay: `${i * 100}ms` }"
+              >
+                <div class="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-brand-primary">
+                  <span class="material-icons-outlined">school</span>
+                </div>
+                <span class="text-blue-900 font-bold text-sm">{{ f }}</span>
+              </div>
+            </div>
             
             <div class="flex flex-col space-y-3">
               <button @click="acceptProposal" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
