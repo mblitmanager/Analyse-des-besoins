@@ -217,14 +217,14 @@ function selectBureau(form, suite) {
                     :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
                   >
                     <div class="flex items-center gap-4">
-                       <div :class="selectedFormation?.id === form.id ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                       <div :class="selectedFormation?.id === form.id ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
                           <span class="material-icons-outlined text-xl">{{ sub.suite === 'microsoft' ? 'description' : 'cloud' }}</span>
                        </div>
-                       <span class="formation-card__label" :class="{'text-brand-primary': selectedFormation?.id === form.id}">{{ form.label }}</span>
+                       <span class="formation-card__label" :class="{'text-[#2563eb]': selectedFormation?.id === form.id}">{{ form.label }}</span>
                     </div>
 
                     <!-- Selected badge -->
-                    <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
+                    <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-[#2563eb] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
                       <span class="material-icons-outlined text-[14px] font-bold">check</span>
                     </div>
                   </button>
@@ -242,14 +242,14 @@ function selectBureau(form, suite) {
                 :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
               >
                 <div class="flex items-center gap-4">
-                   <div :class="selectedFormation?.id === form.id ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                   <div :class="selectedFormation?.id === form.id ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'star' }}</span>
                    </div>
-                   <span class="formation-card__label" :class="{'text-brand-primary': selectedFormation?.id === form.id}">{{ form.label }}</span>
+                   <span class="formation-card__label" :class="{'text-[#2563eb]': selectedFormation?.id === form.id}">{{ form.label }}</span>
                 </div>
 
                 <!-- Selected badge -->
-                <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
+                <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 bg-[#2563eb] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up">
                   <span class="material-icons-outlined text-[14px] font-bold">check</span>
                 </div>
               </button>
@@ -379,10 +379,10 @@ function selectBureau(form, suite) {
 }
 
 .formation-card--selected {
-  border-color: #3b82f6; /* brand-primary */
+  border-color: #2563eb; /* blue-600 */
   border-width: 2px;
   background: white;
-  box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.25);
   transform: translateY(-4px) scale(1.02);
   z-index: 5;
 }
