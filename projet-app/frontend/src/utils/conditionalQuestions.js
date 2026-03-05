@@ -22,7 +22,7 @@
  * @param {Object} responses - The current responses in the form { questionId: value }.
  * @returns {Array} - The filtered list of questions.
  */
-export function filterConditionalQuestions(questions, responses) {
+export function filterConditionalQuestions(questions, responses, allQuestions = questions) {
   if (!questions) return [];
 
   return questions.filter(q => {
@@ -30,10 +30,10 @@ export function filterConditionalQuestions(questions, responses) {
     if (q.showIfRules && Array.isArray(q.showIfRules) && q.showIfRules.length > 0) {
       const op = (q.showIfOperator || 'OR').toUpperCase();
       if (op === 'AND') {
-        return q.showIfRules.every(rule => isConditionMet(rule, responses, questions));
+        return q.showIfRules.every(rule => isConditionMet(rule, responses, allQuestions));
       }
       // OR: at least one rule must be met
-      return q.showIfRules.some(rule => isConditionMet(rule, responses, questions));
+      return q.showIfRules.some(rule => isConditionMet(rule, responses, allQuestions));
     }
 
     // 2. Check showIfQuestionId (Direct dependency)
@@ -43,7 +43,7 @@ export function filterConditionalQuestions(questions, responses) {
         responseIndexes: q.showIfResponseIndexes,
         responseValue: q.showIfResponseValue
       };
-      return isConditionMet(rule, responses, questions);
+      return isConditionMet(rule, responses, allQuestions);
     }
 
     // 3. Check legacy metadata.visibility

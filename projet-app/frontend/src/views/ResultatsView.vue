@@ -740,16 +740,7 @@ const downloadPDF = async () => {
         </div>
 
         <div class="pt-12 flex flex-col items-center gap-8 border-t border-gray-50 mt-12 w-full">
-          <div class="flex flex-col sm:flex-row items-center justify-between w-full">
-            <!-- Retour button -->
-            <!-- <button
-              @click="router.push('/formations')"
-              class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all"
-            >
-              <span class="material-icons-outlined text-lg">arrow_back</span>
-              Retour
-            </button> -->
-
+          <div class="flex flex-col items-center justify-center w-full">
             <!-- Final CTA -->
             <div class="flex flex-col items-center gap-6">
               <p
