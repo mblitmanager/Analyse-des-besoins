@@ -1008,14 +1008,14 @@ async function saveAndExit() {
 
             <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12 w-full">
               <!-- Retour button -->
-              <button
+              <!-- <button
                 @click="router.push('/formations')"
                 class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all disabled:opacity-20"
                 :disabled="submitting"
               >
                 <span class="material-icons-outlined text-lg">arrow_back</span>
                 Retour
-              </button>
+              </button> -->
 
               <div class="flex items-center gap-4">
                 <template v-if="isPaginated">

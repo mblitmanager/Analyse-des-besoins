@@ -291,13 +291,13 @@ function selectBureau(form, suite) {
 
         <!-- Bottom Actions -->
         <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12">
-          <button
+          <!-- <button
             @click="router.push('/prerequis')"
             class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all"
           >
             <span class="material-icons-outlined text-lg">arrow_back</span>
             Retour
-          </button>
+          </button> -->
 
           <button
             @click="selectFormation"
