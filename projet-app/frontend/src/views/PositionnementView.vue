@@ -7,6 +7,7 @@ import { formatBoldText } from "../utils/formatText";
 import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
+import HighLevelAlertModal from "../components/HighLevelAlertModal.vue";
 
 const store = useAppStore();
 const router = useRouter();
@@ -29,6 +30,8 @@ const showResults = ref(false);
 const finalRecommendation = ref("");
 const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
+const showHighLevelAlert = ref(false);
+const highLevelValidated = ref("");
 
 // Low score warning modal
 const showFormationWarning = ref(false);
@@ -378,7 +381,7 @@ async function finishTest(overrideSession = null) {
           if (matchedRule) break;
         }
       }
-      
+
       // Fallback: use the last active rule
       if (!matchedRule) {
         matchedRule = formationRules[formationRules.length - 1];
@@ -477,24 +480,54 @@ async function finishTest(overrideSession = null) {
   }
 
   // 2. Identify last validated level so far
-  let finalLevel = "Débutant";
+  let finalLevelLabel = "Débutant";
   levels.value.forEach((l) => {
     if (levelsScores.value[l.label]?.validated) {
-      finalLevel = l.label;
+      finalLevelLabel = l.label;
     }
   });
 
-  // 3. Update session
+  // 3. CHECK FOR HIGH LEVEL ALERT (Avancé/Expert)
+  const isHighLevel = ["AVANCÉ", "AVANCE", "EXPERT"].some(hl => 
+    finalLevelLabel.toUpperCase().includes(hl)
+  );
+
+  if (isHighLevel && !showResults.value) {
+    highLevelValidated.value = finalLevelLabel;
+    showHighLevelAlert.value = true;
+    submitting.value = false;
+    // We update the session anyway so it's saved
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      levelsScores: levelsScores.value,
+      finalRecommendation: finalRecommendation.value,
+      stopLevel: currentLevel.label,
+      lastValidatedLevel: finalLevelLabel,
+      positionnementAnswers: positionnementAnswers.value,
+    });
+    return; // Stop here, modal will trigger showResults = true
+  }
+
+  // 4. Update session
   await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
     levelsScores: levelsScores.value,
     finalRecommendation: finalRecommendation.value,
     stopLevel: currentLevel.label,
-    lastValidatedLevel: finalLevel,
+    lastValidatedLevel: finalLevelLabel,
     positionnementAnswers: positionnementAnswers.value,
   });
 
   showResults.value = true;
+  submitting.value = false;
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function handleHighLevelContinue() {
+  showResults.value = true;
+  showHighLevelAlert.value = false;
+}
+
+function handleHighLevelChangeFormation() {
+  router.push("/formations");
 }
 
 function finishStep() {
@@ -985,12 +1018,12 @@ async function saveAndExit() {
               </template>
 
               <template v-else>
-                <button
+                <!-- <button
                   @click="router.push('/formations')"
                   class="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
                 >
                   Précédent
-                </button>
+                </button> -->
                 <button
                   @click="nextStep"
                   :disabled="
@@ -1064,11 +1097,19 @@ async function saveAndExit() {
           Continuer quand même
         </button>
       </div>
-
-    </div>
-  </div>
-</transition>
+            </div>
+          </div>
+      </transition>
     </main>
+
+    <HighLevelAlertModal
+      :show="showHighLevelAlert"
+      :formation="formationLabel"
+      :level="highLevelValidated"
+      @continue="handleHighLevelContinue"
+      @changeFormation="handleHighLevelChangeFormation"
+      @close="showHighLevelAlert = false"
+    />
     <SiteFooter />
   </div>
 </template>

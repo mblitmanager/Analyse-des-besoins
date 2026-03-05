@@ -112,23 +112,9 @@ const parcoursOptions = computed(() => {
   return [rec];
 });
 
-// override display options based on stopLevel and levels list
+// display options based on calculated parcoursOr explicit recommendations
 const displayOptions = computed(() => {
   if (!session.value) return [];
-  
-  const isEnglish = (session.value.formationSlug && session.value.formationSlug.toLowerCase().includes("anglais")) || 
-                    (session.value.formationChoisie && String(session.value.formationChoisie).toLowerCase().includes("anglais"));
-
-  if (session.value.stopLevel && levels.value.length && !isEnglish) {
-    const idx = levels.value.findIndex((l) => l.label === session.value.stopLevel);
-    if (idx >= 0) {
-      const arr = [session.value.stopLevel];
-      if (idx < levels.value.length - 1) {
-        arr.push(levels.value[idx + 1].label);
-      }
-      return arr;
-    }
-  }
   return parcoursOptions.value;
 });
 

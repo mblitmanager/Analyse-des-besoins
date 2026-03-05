@@ -107,6 +107,59 @@ export class SessionsService {
   }
 
   private async getRecommendationData(session: Session) {
+    // 0. Fetch all question texts and details for filtering and labeling
+    // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
+    const ids = new Set<number>();
+    const addIds = (obj: any) => {
+      if (!obj) return;
+      Object.keys(obj).forEach((k) => {
+        const n = Number(k);
+        if (!isNaN(n)) ids.add(n);
+      });
+    };
+    addIds(session.prerequisiteScore);
+    addIds(session.complementaryQuestions);
+    addIds(session.availabilities);
+    addIds(session.miseANiveauAnswers);
+    addIds(session.positionnementAnswers);
+
+    const questions = ids.size
+      ? await this.questionRepo.find({
+          where: { id: In([...ids]) },
+          relations: ['formation'],
+        })
+      : [];
+
+    const qTextById: Record<number, string> = {};
+    questions.forEach((q) => {
+      qTextById[q.id] = q.text;
+    });
+
+    // If a recommendation is already set (e.g., from a positioning test), use it directly
+    // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
+    if (session.finalRecommendation) {
+      const recommendations = session.finalRecommendation.includes(' & ')
+        ? session.finalRecommendation.split(' & ')
+        : [session.finalRecommendation];
+
+      return {
+        recommendation: session.finalRecommendation,
+        recommendations,
+        scoreFinal: session.scorePretest || 0,
+        finalLevel: { label: session.lastValidatedLevel || 'Inconnu' } as Level,
+        lastValidatedLevel: session.lastValidatedLevel,
+        stopLevel: session.stopLevel,
+        qTextById, // Correctly mapped question texts
+        filteredMiseAnswers: session.miseANiveauAnswers || {},
+        filteredPrerequis: session.prerequisiteScore || {},
+        filteredComplementaryAnswers: {}, // Not in entity
+        filteredAvailabilities: session.availabilities || {},
+        miseTitle: 'Mise à niveau (réponses)',
+        isQuestionRuleOverride: false, // Default if not in entity (or check if stored in metadata)
+        ruleResultType: null, // Default
+      };
+    }
+
     // 1. Evaluate Question Rules first (gives absolute priority)
     const questionRules = await this.questionRuleRepo.find({
       where: { isActive: true },
@@ -165,7 +218,7 @@ export class SessionsService {
                 ],
                 scoreFinal: 0,
                 finalLevel: null,
-                qTextById: {},
+                qTextById,
                 filteredMiseAnswers: session.miseANiveauAnswers,
                 miseTitle: 'Questions complémentaires',
                 isQuestionRuleOverride: true, // Flag for frontend if needed
@@ -187,7 +240,7 @@ export class SessionsService {
         ],
         scoreFinal: 0,
         finalLevel: { label: 'Initial' } as Level,
-        qTextById: {},
+        qTextById,
         filteredMiseAnswers: session.miseANiveauAnswers,
         miseTitle: 'Mise à niveau (réponses)',
       };
@@ -213,13 +266,19 @@ export class SessionsService {
       const stopUpper = stopLevelLabel.toUpperCase();
       let matchedRule: ParcoursRule | null = null;
 
-      // Check if there are any prerequisite failures
+      // Check if there are any prerequisite failures based on configurable settings
+      const failureValuesStr = await this.settingsService.getValue(
+        'PREREQUISITE_FAILURE_VALUES',
+        'non,insuffisant,jamais',
+      );
+      const failureValues = failureValuesStr
+        .split(',')
+        .map((v) => v.trim().toLowerCase());
+
       const hasPrereqFailure =
         session.prerequisiteScore &&
-        Object.values(session.prerequisiteScore).some(
-          (v) =>
-            String(v).toLowerCase() === 'insuffisant' ||
-            String(v).toLowerCase() === 'non',
+        Object.values(session.prerequisiteScore).some((v) =>
+          failureValues.includes(String(v).toLowerCase()),
         );
 
       // 1. Try to find a rule with matching stop level HIGHEST PRIORITY
@@ -296,7 +355,7 @@ export class SessionsService {
           recommendations: proposedParcours,
           scoreFinal,
           finalLevel,
-          qTextById: {},
+          qTextById,
           filteredMiseAnswers: session.miseANiveauAnswers,
           filteredPrerequis: session.prerequisiteScore,
           filteredComplementaryAnswers: session.complementaryQuestions,
@@ -311,7 +370,7 @@ export class SessionsService {
         recommendation: 'Formation non reconnue',
         scoreFinal: 0,
         finalLevel: null,
-        qTextById: {},
+        qTextById,
       };
     }
 
@@ -338,32 +397,6 @@ export class SessionsService {
         break;
       }
     }
-
-    // Index texte des questions
-    const ids = new Set<number>();
-    const addIds = (obj: Record<string, any> | undefined | null) => {
-      if (!obj) return;
-      Object.keys(obj).forEach((k) => {
-        const n = Number(k);
-        if (!Number.isNaN(n)) ids.add(n);
-      });
-    };
-    addIds(session.prerequisiteScore);
-    addIds(session.complementaryQuestions);
-    addIds(session.availabilities);
-    addIds(session.miseANiveauAnswers);
-    addIds(session.positionnementAnswers);
-
-    const questions = ids.size
-      ? await this.questionRepo.find({
-          where: { id: In([...ids]) },
-          relations: ['formation'],
-        })
-      : [];
-    const qTextById: Record<number, string> = {};
-    questions.forEach((q) => {
-      qTextById[q.id] = q.text;
-    });
 
     const allAnswers = {
       ...(session.prerequisiteScore || {}),

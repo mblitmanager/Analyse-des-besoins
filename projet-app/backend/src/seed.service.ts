@@ -72,6 +72,12 @@ export class SeedService implements OnApplicationBootstrap {
         description:
           "Autoriser le saut automatique de l'étape 'mise à niveau' en l'absence de questions",
       },
+      {
+        key: 'PREREQUISITE_FAILURE_VALUES',
+        value: 'non,insuffisant,jamais',
+        description:
+          'Valeurs considérées comme un échec aux prérequis (séparées par des virgules)',
+      },
     ];
 
     for (const s of settings) {

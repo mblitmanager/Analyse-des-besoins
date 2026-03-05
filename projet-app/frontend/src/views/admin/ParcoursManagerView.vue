@@ -252,7 +252,10 @@ function removeFormationLevel(index) {
 // Watch the formation field to auto-fetch levels
 watch(() => newRule.value.formation, async (val) => {
   if (val) {
-    await fetchLevelsForFormation(val);
+    const matched = formationsList.value.find(f => f.label === val);
+    if (matched) {
+      await fetchLevelsForFormation(val);
+    }
   } else {
     selectedFormationLevels.value = [];
   }
@@ -271,23 +274,33 @@ watch(conditionLevel, (val) => {
   }
 });
 
+// Helper to build formation string (Formation + Level)
+const buildTargetString = (form, level) => {
+  if (form && level) return `${form} ${level}`;
+  return form || "";
+};
+
 // Auto-build formation1 string
 watch([f1Formation, f1Level], ([form, level]) => {
   if (isInitializingForm) return;
-  if (form && level) {
-    newRule.value.formation1 = `${form} ${level}`;
-  } else if (form) {
-    newRule.value.formation1 = form;
+  newRule.value.formation1 = buildTargetString(form, level);
+  
+  // If formation matches a known one, fetch its levels
+  if (form) {
+    const matched = formationsList.value.find(f => f.label === form);
+    if (matched) fetchLevelsForFormation(form);
   }
 });
 
 // Auto-build formation2 string
 watch([f2Formation, f2Level], ([form, level]) => {
   if (isInitializingForm) return;
-  if (form && level) {
-    newRule.value.formation2 = `${form} ${level}`;
-  } else if (form) {
-    newRule.value.formation2 = form;
+  newRule.value.formation2 = buildTargetString(form, level);
+  
+  // If formation matches a known one, fetch its levels
+  if (form) {
+    const matched = formationsList.value.find(f => f.label === form);
+    if (matched) fetchLevelsForFormation(form);
   }
 });
 
@@ -563,27 +576,24 @@ onMounted(async () => {
         <div class="p-8 space-y-6">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Formation concernée</label>
-            <select
+            <input
               v-model="newRule.formation"
+              list="formations-list"
+              placeholder="Sélectionnez ou saisissez une formation"
               class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-            >
-              <option value="" disabled>Sélectionnez une formation</option>
-              <option v-for="f in formationsList" :key="f.id" :value="f.label">{{ f.label }}</option>
-            </select>
+            />
           </div>
 
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Condition (Niveau du test)</label>
             <div class="flex items-center gap-3">
               <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Si résultat =</span>
-              <select
+              <input
                 v-model="conditionLevel"
+                list="levels-list-main"
+                placeholder="Choisir un niveau"
                 class="flex-1 px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-                :disabled="!selectedFormationLevels.length"
-              >
-                <option value="" disabled>Choisir un niveau</option>
-                <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label">{{ lvl.label }}</option>
-              </select>
+              />
             </div>
             <input
               v-model="newRule.condition"
@@ -609,21 +619,18 @@ onMounted(async () => {
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-3">
               <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Formation 1</label>
-              <select
+              <input
                 v-model="f1Formation"
+                list="formations-list"
+                placeholder="Formation"
                 class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-              >
-                <option value="" disabled>Formation</option>
-                <option v-for="f in formationsList" :key="f.id" :value="f.label">{{ f.label }}</option>
-              </select>
-              <select
+              />
+              <input
                 v-model="f1Level"
+                list="levels-list-f1"
+                placeholder="Niveau"
                 class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-                :disabled="!selectedFormationLevels.length"
-              >
-                <option value="" disabled>Niveau</option>
-                <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label">{{ lvl.label }}</option>
-              </select>
+              />
               <input
                 v-model="newRule.formation1"
                 type="text"
@@ -633,21 +640,18 @@ onMounted(async () => {
             </div>
             <div class="space-y-3">
               <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Formation 2</label>
-              <select
+              <input
                 v-model="f2Formation"
+                list="formations-list"
+                placeholder="Formation"
                 class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-              >
-                <option value="" disabled>Formation</option>
-                <option v-for="f in formationsList" :key="f.id" :value="f.label">{{ f.label }}</option>
-              </select>
-              <select
+              />
+              <input
                 v-model="f2Level"
+                list="levels-list-f2"
+                placeholder="Niveau"
                 class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-                :disabled="!selectedFormationLevels.length"
-              >
-                <option value="" disabled>Niveau</option>
-                <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label">{{ lvl.label }}</option>
-              </select>
+              />
               <input
                 v-model="newRule.formation2"
                 type="text"
@@ -656,6 +660,20 @@ onMounted(async () => {
               />
             </div>
           </div>
+
+          <!-- Datalists for custom inputs -->
+          <datalist id="formations-list">
+            <option v-for="f in formationsList" :key="f.id" :value="f.label" />
+          </datalist>
+          <datalist id="levels-list-main">
+            <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
+          </datalist>
+          <datalist id="levels-list-f1">
+            <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
+          </datalist>
+          <datalist id="levels-list-f2">
+            <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
+          </datalist>
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Ordre d'affichage</label>
             <input
