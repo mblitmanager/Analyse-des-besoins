@@ -39,11 +39,11 @@ function handleChangeFormation() {
           </h3>
           
           <div class="space-y-4 mb-10">
-            <p class="text-gray-500 text-center leading-relaxed">
-              Il semble que vous maîtrisez déjà très bien la formation <span class="font-black text-blue-900">{{ formation }}</span>. 
+            <p class="text-gray-500 text-center leading-relaxed text-lg">
+              Vous avez validé le niveau <strong class="text-blue-900">{{ level }}</strong>, qui est déjà supérieur au niveau cible de notre formation <strong class="text-blue-900">{{ formation }}</strong>.
             </p>
             <p class="text-gray-500 text-center leading-relaxed font-medium">
-              Nous vous suggérons d'explorer une <span class="text-brand-primary font-bold">nouvelle formation</span> pour enrichir encore plus vos compétences, mais le choix vous appartient !
+              Voulez-vous continuer avec le parcours proposé ou changer de formation ?
             </p>
           </div>
           

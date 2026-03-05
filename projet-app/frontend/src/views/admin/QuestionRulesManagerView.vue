@@ -1,12 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
-import { useAppStore } from "../../stores/app";
-import { useRouter } from "vue-router";
 import SiteHeader from "../../components/SiteHeader.vue";
-
-const store = useAppStore();
-const router = useRouter();
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const rules = ref([]);
@@ -15,10 +10,6 @@ const questions = ref([]);
 const loading = ref(true);
 
 onMounted(async () => {
-  if (!store.isAdmin) {
-    router.push("/auth");
-    return;
-  }
   await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions()]);
   loading.value = false;
 });

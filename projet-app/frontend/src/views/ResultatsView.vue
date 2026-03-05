@@ -31,6 +31,12 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
+  
+  // If a rule override is present, use its specific recommendation
+  if (session.value.isQuestionRuleOverride && session.value.recommendation) {
+    return session.value.recommendation;
+  }
+
   if (session.value.finalRecommendation)
     return session.value.finalRecommendation;
 
@@ -80,8 +86,11 @@ const recommendedLevel2 = computed(() => {
 
 const parcoursOptions = computed(() => {
   if (!session.value) return [];
-  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length)
+  
+  // If we have an explicit list of recommendations from backend rules/logic
+  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length) {
     return session.value.recommendations.map(r => String(r));
+  }
 
   const rec = session.value.finalRecommendation || "";
   if (!rec) return [];
@@ -121,6 +130,12 @@ const displayOptions = computed(() => {
     }
   }
   return parcoursOptions.value;
+});
+
+const nextLevel = computed(() => recommendedLevel2.value);
+
+const isBlocked = computed(() => {
+  return session.value?.isQuestionRuleOverride && session.value?.ruleResultType === 'BLOCK';
 });
 
 async function loadLevelsForFormation() {
@@ -551,11 +566,11 @@ const downloadPDF = async () => {
             class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
             <div class="flex items-start justify-between mb-5">
-              <div
+              <!-- <div
                 class="w-9 h-9 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-blue-400 transition-all text-sm"
               >
                 <span class="material-icons-outlined">menu_book</span>
-              </div>
+              </div> -->
               <!-- <span
                 class="px-3 py-1 bg-success-soft text-success rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Déjà Acquis</span
@@ -577,15 +592,15 @@ const downloadPDF = async () => {
           </div>
 
           <div
-            v-if="session.stopLevel"
+            v-if="session.stopLevel && session.scorePretest !== -1"
             class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
             <div class="flex items-start justify-between mb-5">
-              <div
+              <!-- <div
                 class="w-9 h-9 bg-orange-600/10 text-orange-600 rounded-lg flex items-center justify-center group-hover:bg-orange-600 group-hover:text-blue-400 transition-all text-sm"
               >
                 <span class="material-icons-outlined">translate</span>
-              </div>
+              </div> -->
               <span
                 class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Niveau {{ session.stopLevel }}</span
@@ -596,6 +611,28 @@ const downloadPDF = async () => {
             </h3>
             <p class="text-sm text-gray-400 leading-relaxed">
               Le parcours choisi vous permettra de valider le niveau {{ session.stopLevel }}.
+            </p>
+          </div>
+          <div
+            v-else-if="session.scorePretest === -1"
+            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
+          >
+             <div class="flex items-start justify-between mb-5">
+              <div
+                class="w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-blue-400 transition-all text-sm"
+              >
+                <span class="material-icons-outlined">history_edu</span>
+              </div>
+              <span
+                class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-widest"
+                >Bilan Initial</span
+              >
+            </div>
+            <h3 class="text-base font-bold heading-primary mb-2">
+              Évaluation Initiale
+            </h3>
+            <p class="text-sm text-gray-400 leading-relaxed">
+              Ce parcours correspond à un démarrage pour acquérir les bases fondamentales.
             </p>
           </div>
         </div>
@@ -625,16 +662,16 @@ const downloadPDF = async () => {
               <span
                 class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest mb-3"
               >
-                {{ recommendedLevel2 ? "Programme Pack Duo" : "Niveau recommandé" }} :
+                {{ recommendedLevel2 ? "Programme Pack Duo" : (isBlocked ? "Information importante" : "Niveau recommandé") }} :
               </span>
               <h3 class="text-2xl md:text-3xl font-bold mb-3">
                 {{ recommendedLabel || 'Parcours personnalisé' }}
               </h3>
               <p class="opacity-80 text-base md:text-lg max-w-xl">
-                Ce parcours est construit à partir de vos réponses aux
-                prérequis, au test de positionnement et aux questions
-                complémentaires, afin d'adapter la formation à votre niveau
-                actuel.
+                {{ isBlocked 
+                   ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
+                   : "Ce parcours est construit à partir de vos réponses aux prérequis, au test de positionnement et aux questions complémentaires, afin d'adapter la formation à votre niveau actuel." 
+                }}
               </p>
             </div>
 
@@ -786,11 +823,21 @@ const downloadPDF = async () => {
           </p>
 
           <button
+            v-if="!isBlocked"
             @click="goNext"
             class="px-12 py-4 btn-primary font-bold shadow-lg shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
           >
             <span>Valider ce parcours et continuer</span>
             <span class="material-icons-outlined text-lg">arrow_forward</span>
+          </button>
+          
+          <button
+            v-else
+            @click="handleChangeFormation"
+            class="px-12 py-4 bg-white border-2 border-brand-primary text-brand-primary font-bold rounded-2xl shadow-lg hover:bg-brand-primary/10 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto text-base"
+          >
+            <span>Changer de formation</span>
+            <span class="material-icons-outlined text-lg">grid_view</span>
           </button>
 
           <p
