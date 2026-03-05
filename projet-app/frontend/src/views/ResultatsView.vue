@@ -643,7 +643,7 @@ const downloadPDF = async () => {
           <h2
             class="text-base font-bold section-title uppercase tracking-widest"
           >
-            Votre Parcours Personnalisé
+            Le parcours personnalisé que nous vous proposons
           </h2>
         </div>
 
