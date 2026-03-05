@@ -138,7 +138,7 @@ function skipStep() {
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
           Questions Complémentaires
         </h1>
-        <p class="text-gray-400 text-base md:text-lg">
+        <p class="text-gray-400 text-base md:text-lg">On y est presque !<br>
           Quelques informations supplémentaires pour personnaliser votre
           parcours.
         </p>

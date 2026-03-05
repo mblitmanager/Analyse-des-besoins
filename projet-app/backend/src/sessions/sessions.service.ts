@@ -207,7 +207,8 @@ export class SessionsService {
           if (conditionMet) {
             if (
               rule.resultType === 'CUSTOM_MESSAGE' ||
-              rule.resultType === 'BLOCK'
+              rule.resultType === 'BLOCK' ||
+              rule.resultType === 'FORMATION_RECOMMENDATION'
             ) {
               return {
                 recommendation:
@@ -220,8 +221,11 @@ export class SessionsService {
                 finalLevel: null,
                 qTextById,
                 filteredMiseAnswers: session.miseANiveauAnswers,
-                miseTitle: 'Questions complémentaires',
-                isQuestionRuleOverride: true, // Flag for frontend if needed
+                miseTitle:
+                  rule.resultType === 'FORMATION_RECOMMENDATION'
+                    ? 'Recommandation basée sur vos prérequis'
+                    : 'Questions complémentaires',
+                isQuestionRuleOverride: true, // Flag for frontend
                 ruleResultType: rule.resultType,
               };
             }
