@@ -79,6 +79,10 @@ export class SessionsService {
         const data = await this.getRecommendationData(session);
         (session as any).recommendations = data.recommendations;
 
+        // Ensure visibility flags are passed to the frontend
+        (session as any).isQuestionRuleOverride = data.isQuestionRuleOverride;
+        (session as any).ruleResultType = data.ruleResultType;
+
         // Ensure values are synced if not already stored
         if (!session.finalRecommendation) {
           session.finalRecommendation = data.recommendation;
