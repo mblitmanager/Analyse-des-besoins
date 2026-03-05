@@ -25,6 +25,7 @@ const navItems = [
   { label: "Formations", icon: "school", route: "/admin/formations" },
   { label: "Parcours", icon: "route", route: "/admin/parcours" },
   { label: "Règles Questions", icon: "rule", route: "/admin/question-rules" },
+  { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
   { label: "Administrateurs", icon: "group", route: "/admin/users" },
   { label: "Paramètres", icon: "settings", route: "/admin/settings" },
 ];

@@ -133,6 +133,11 @@ const router = createRouter({
           path: 'question-rules',
           name: 'admin-question-rules',
           component: () => import('../views/admin/QuestionRulesManagerView.vue')
+        },
+        {
+          path: 'test-validation',
+          name: 'admin-test-validation',
+          component: () => import('../views/admin/TestValidationView.vue')
         }
       ]
     }
