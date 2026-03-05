@@ -7,6 +7,7 @@ import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
 import { Question } from '../entities/question.entity';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
+import { QuestionRule } from '../entities/question-rule.entity';
 import { EmailModule } from '../email/email.module';
 import { SettingsModule } from '../settings/settings.module';
 import { PdfModule } from '../pdf/pdf.module';
@@ -19,6 +20,7 @@ import { PdfModule } from '../pdf/pdf.module';
       Stagiaire,
       Question,
       ParcoursRule,
+      QuestionRule,
     ]),
     EmailModule,
     SettingsModule,

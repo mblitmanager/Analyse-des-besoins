@@ -29,13 +29,10 @@ function handleChangeFormation() {
       <!-- Modal Container -->
       <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-xl relative overflow-hidden animate-scale-up border border-white/20">
         <!-- Top accent gradient -->
-        <div class="h-2 bg-gradient-to-r from-blue-400 via-brand-primary to-indigo-500"></div>
+        <div class="h-2 bg-blue-200"></div>
         
         <div class="p-8 md:p-12">
           <!-- Icon Header -->
-          <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner transform rotate-3">
-             <span class="material-icons-outlined text-4xl transform -rotate-3">auto_awesome</span>
-          </div>
           
           <h3 class="text-2xl md:text-3xl font-black heading-primary text-center mb-4 leading-tight">
             {{ title }}
@@ -46,7 +43,7 @@ function handleChangeFormation() {
               Il semble que vous maîtrisez déjà très bien la formation <span class="font-black text-blue-900">{{ formation }}</span>. 
             </p>
             <p class="text-gray-500 text-center leading-relaxed font-medium">
-              Nous vous suggérons d'explorer une <span class="text-brand-primary font-bold">nouvelle thématique</span> pour enrichir encore plus vos compétences, mais le choix vous appartient !
+              Nous vous suggérons d'explorer une <span class="text-brand-primary font-bold">nouvelle formation</span> pour enrichir encore plus vos compétences, mais le choix vous appartient !
             </p>
           </div>
           

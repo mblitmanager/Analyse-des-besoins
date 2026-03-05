@@ -108,21 +108,26 @@ export class PdfService {
       this.sectionTitle(doc, 'Formation et Résultat');
 
       const recommendations = (data.finalRecommendation || '').split(' | ');
-      const formationInfo = [
+      const formationInfo: string[][] = [
         ['Formation choisie', data.formationChoisie || 'N/A'],
         ...recommendations.map((r, i) => [
           i === 0 ? 'Recommandation(s)' : '',
           r,
         ]),
-        [
-          'Score final',
-          data.scoreFinal !== undefined ? `${data.scoreFinal}%` : 'N/A',
-        ],
       ];
+      if (data.scoreFinal !== undefined && data.scoreFinal !== -1) {
+        formationInfo.push(['Score final', `${data.scoreFinal}%`]);
+      } else if (data.scoreFinal === undefined) {
+        formationInfo.push(['Score final', 'N/A']);
+      }
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
 
       // ─── Level Scores ───
-      if (data.levelsScores && Object.keys(data.levelsScores).length > 0) {
+      if (
+        data.scoreFinal !== -1 &&
+        data.levelsScores &&
+        Object.keys(data.levelsScores).length > 0
+      ) {
         doc.moveDown(0.5);
         this.sectionTitle(doc, 'Scores par niveau');
         const levelRows = Object.entries(data.levelsScores).map(
