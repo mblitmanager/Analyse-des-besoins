@@ -22,6 +22,13 @@ export class FormationsService {
     });
   }
 
+  async findBySlug(slug: string) {
+    return this.formationRepo.findOne({
+      where: { slug },
+      relations: ['levels'],
+    });
+  }
+
   async findLevelsBySlug(slug: string) {
     return this.levelRepo.find({
       where: { formation: { slug } },
