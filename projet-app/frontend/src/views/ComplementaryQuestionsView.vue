@@ -281,17 +281,7 @@ function skipStep() {
           </div>
         </div>
 
-        <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12 w-full">
-          <!-- Retour button -->
-          <!-- <button
-            @click="router.push('/resultats')"
-            class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all disabled:opacity-20"
-            :disabled="submitting"
-          >
-            <span class="material-icons-outlined text-lg">arrow_back</span>
-            Retour
-          </button> -->
-
+        <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12 w-full">
           <button
             @click="nextStep"
             :disabled="submitting"
