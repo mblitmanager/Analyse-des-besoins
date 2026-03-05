@@ -299,7 +299,7 @@ function getQuestionText(id) {
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Question Concernée</label>
               <select v-model.number="ruleForm.questionId" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary focus:bg-white outline-none transition-colors text-sm font-bold text-gray-800 max-h-40">
                 <option :value="null">-- Toutes les questions du workflow (non recommandé pour les conditions spécifiques) --</option>
-                <option v-for="q in questions.filter(q => !ruleForm.workflow || q.type === ruleForm.workflow)" :key="q.id" :value="q.id">
+                <option v-for="q in questions.filter(q => (!ruleForm.workflow || q.type === ruleForm.workflow) && q.isActive !== false)" :key="q.id" :value="q.id">
                   ID: {{ q.id }} - {{ q.text }}
                 </option>
               </select>
