@@ -196,7 +196,12 @@ export class SessionsService {
 
           switch (rule.operator) {
             case 'EQUALS':
-              conditionMet = actual === target;
+              if (target.includes(',')) {
+                const targets = target.split(',').map((t) => t.trim());
+                conditionMet = targets.includes(actual);
+              } else {
+                conditionMet = actual === target;
+              }
               break;
             case 'CONTAINS':
               conditionMet = actual.includes(target);

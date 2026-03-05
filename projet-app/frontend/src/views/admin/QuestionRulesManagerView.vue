@@ -7,10 +7,11 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const rules = ref([]);
 const workflows = ref([]);
 const questions = ref([]);
+const formations = ref([]);
 const loading = ref(true);
 
 onMounted(async () => {
-  await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions()]);
+  await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions(), fetchFormations()]);
   loading.value = false;
 });
 
@@ -34,13 +35,28 @@ async function fetchWorkflows() {
 
 async function fetchQuestions() {
   try {
-    // We fetch all questions so we can map them when creating rules
     const res = await axios.get(`${apiBaseUrl}/questions`);
     questions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
   }
 }
+
+async function fetchFormations() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+    formations.value = res.data;
+  } catch (error) {
+    console.error("Failed to fetch formations:", error);
+  }
+}
+
+const selectedQuestion = computed(() => {
+  if (!ruleForm.value.questionId) return null;
+  return questions.value.find(q => q.id === ruleForm.value.questionId);
+});
+
+const isMultiSelectValue = ref(false);
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -74,6 +90,8 @@ function openAddModal() {
 function openEditModal(rule) {
   editingRule.value = { ...rule };
   ruleForm.value = { ...rule };
+  // Check if expectedValue looks like a comma-separated list
+  isMultiSelectValue.value = String(rule.expectedValue || "").includes(",");
   showEditModal.value = true;
 }
 
@@ -300,11 +318,61 @@ function getQuestionText(id) {
                     <option value="GREATER_THAN">Est supérieur à (>)</option>
                   </select>
                 </div>
-                <div>
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Valeur Attendue</label>
-                  <input v-model="ruleForm.expectedValue" type="text" placeholder="Ex: Non" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm" />
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400">Valeur Attendue</label>
+                    <button 
+                      v-if="selectedQuestion?.options?.length > 0"
+                      type="button" 
+                      @click="isMultiSelectValue = !isMultiSelectValue"
+                      class="text-[9px] font-bold uppercase tracking-widest text-brand-primary hover:underline"
+                    >
+                      {{ isMultiSelectValue ? 'Valeur unique' : 'Plusieurs valeurs (OU)' }}
+                    </button>
+                  </div>
+
+                  <!-- Multi-select for options -->
+                  <div v-if="selectedQuestion?.options?.length > 0 && isMultiSelectValue" class="flex flex-wrap gap-2 p-3 bg-white border border-gray-100 rounded-xl max-h-32 overflow-y-auto">
+                    <label 
+                      v-for="opt in selectedQuestion.options" 
+                      :key="opt"
+                      class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                      :class="ruleForm.expectedValue?.split(',').includes(opt) ? 'bg-brand-primary text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'"
+                    >
+                      <input 
+                        type="checkbox" 
+                        class="hidden" 
+                        :value="opt" 
+                        :checked="ruleForm.expectedValue?.split(',').includes(opt)"
+                        @change="(e) => {
+                          let current = ruleForm.expectedValue ? ruleForm.expectedValue.split(',') : [];
+                          if (e.target.checked) current.push(opt);
+                          else current = current.filter(v => v !== opt);
+                          ruleForm.expectedValue = current.filter(v => v).join(',');
+                        }"
+                      />
+                      {{ opt }}
+                    </label>
+                  </div>
+
+                  <!-- Single select for options -->
+                  <select 
+                    v-else-if="selectedQuestion?.options?.length > 0" 
+                    v-model="ruleForm.expectedValue" 
+                    required 
+                    class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"
+                  >
+                    <option value="" disabled>Choisir une option</option>
+                    <option v-for="opt in selectedQuestion.options" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+
+                  <!-- Direct input -->
+                  <input v-else v-model="ruleForm.expectedValue" type="text" placeholder="Ex: Non" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm" />
                 </div>
               </div>
+              <p v-if="isMultiSelectValue" class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">
+                💡 Plusieurs valeurs sélectionnées : la règle s'appliquera si la réponse est l'une d'entre elles.
+              </p>
             </div>
 
             <!-- Résultat -->
@@ -322,8 +390,22 @@ function getQuestionText(id) {
                 </p>
               </div>
               <div v-if="ruleForm.resultType !== 'BLOCK'">
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Message / Recommandation</label>
-                <textarea v-model="ruleForm.resultMessage" rows="3" :placeholder="ruleForm.resultType === 'FORMATION_RECOMMENDATION' ? 'Ex: DigComp Initial & Word Initial' : 'Texte à afficher à l\'utilisateur...'" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"></textarea>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                  {{ ruleForm.resultType === 'FORMATION_RECOMMENDATION' ? 'Formation Recommandée' : 'Message personnalisé' }}
+                </label>
+                
+                <select 
+                  v-if="ruleForm.resultType === 'FORMATION_RECOMMENDATION'" 
+                  v-model="ruleForm.resultMessage" 
+                  required 
+                  class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"
+                >
+                  <option value="" disabled>Sélectionner une formation</option>
+                  <option value="DigComp Initial & Word Initial">Parcours Initial Standard (DigComp Initial & Word Initial)</option>
+                  <option v-for="f in formations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                </select>
+
+                <textarea v-else v-model="ruleForm.resultMessage" rows="3" placeholder="Texte à afficher à l'utilisateur..." class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"></textarea>
               </div>
             </div>
 
