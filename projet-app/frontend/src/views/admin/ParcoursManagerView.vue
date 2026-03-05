@@ -39,6 +39,7 @@ const newRule = ref({
   formation1: "",
   formation2: "",
   order: 0,
+  requirePrerequisiteFailure: false,
 });
 
 // Dynamic helpers for form building
@@ -104,6 +105,7 @@ function openNewForm() {
     formation1: "",
     formation2: "",
     order: filteredRules.value.length,
+    requirePrerequisiteFailure: false,
   };
   showForm.value = true;
 }
@@ -114,7 +116,10 @@ let isInitializingForm = false;
 async function openEditForm(rule) {
   isInitializingForm = true;
   editingRule.value = rule;
-  newRule.value = { ...rule };
+  newRule.value = { 
+    ...rule,
+    requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure
+  };
   
   // Fetch levels first so dropdowns are populated and enabled
   if (rule.formation) {
@@ -468,6 +473,7 @@ onMounted(async () => {
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Condition</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 1</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 2</th>
+            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fail Prereq?</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
           </tr>
         </thead>
@@ -491,6 +497,10 @@ onMounted(async () => {
               <span class="inline-block px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
                 {{ rule.formation2 }}
               </span>
+            </td>
+            <td class="px-8 py-5">
+              <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
+              <span v-else class="text-[10px] font-bold text-gray-300 uppercase">NON</span>
             </td>
             <td class="px-8 py-5">
               <div class="flex gap-2 justify-end items-center">
@@ -581,6 +591,19 @@ onMounted(async () => {
               class="w-full mt-2 px-4 py-2 border border-dashed border-gray-200 rounded-xl text-xs text-gray-400 outline-none focus:border-brand-primary"
               placeholder="Condition générée automatiquement (modifiable)"
             />
+          </div>
+
+          <div class="flex items-center gap-3 p-4 bg-red-50/50 rounded-2xl border border-red-100">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <div class="relative inline-block w-10 h-5 rounded-full transition-colors duration-200" :class="newRule.requirePrerequisiteFailure ? 'bg-red-500' : 'bg-gray-300'">
+                <input type="checkbox" v-model="newRule.requirePrerequisiteFailure" class="opacity-0 w-0 h-0" />
+                <span class="absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform duration-200" :class="newRule.requirePrerequisiteFailure ? 'transform translate-x-5' : ''"></span>
+              </div>
+              <div>
+                <span class="text-xs font-black text-gray-700 uppercase tracking-widest block leading-none mb-1">Condition de Prérequis</span>
+                <span class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Activer si cette règle ne s'applique qu'en cas d'échec aux prérequis</span>
+              </div>
+            </label>
           </div>
 
           <div class="grid grid-cols-2 gap-4">

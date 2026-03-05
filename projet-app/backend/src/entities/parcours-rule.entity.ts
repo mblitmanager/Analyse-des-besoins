@@ -17,9 +17,12 @@ export class ParcoursRule {
   @Column({ type: 'varchar', length: 255 })
   formation2: string; // e.g. "TOSA Word Basique"
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'float', default: 0 })
   order: number;
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  requirePrerequisiteFailure: boolean;
 }

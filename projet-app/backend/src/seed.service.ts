@@ -1110,7 +1110,12 @@ export class SeedService implements OnApplicationBootstrap {
       },
     ];
 
-    const entities = this.parcoursRuleRepo.create(rules);
+    const entities = this.parcoursRuleRepo.create(
+      rules.map((rule) => ({
+        ...rule,
+        requirePrerequisiteFailure: false,
+      })),
+    );
     await this.parcoursRuleRepo.save(entities);
     console.log(`Seeded ${entities.length} parcours rules.`);
   }

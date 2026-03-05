@@ -213,18 +213,28 @@ export class SessionsService {
       const stopUpper = stopLevelLabel.toUpperCase();
       let matchedRule: ParcoursRule | null = null;
 
-      // Try to find a rule whose condition mentions the stop level
-      for (let i = activeRules.length - 1; i >= 0; i--) {
-        if (
-          activeRules[i].condition.toUpperCase().includes(stopUpper) &&
-          stopUpper
-        ) {
-          matchedRule = activeRules[i];
-          break;
-        }
-      }
+      // Check if there are any prerequisite failures
+      const hasPrereqFailure =
+        session.prerequisiteScore &&
+        Object.values(session.prerequisiteScore).some(
+          (v) =>
+            String(v).toLowerCase() === 'insuffisant' ||
+            String(v).toLowerCase() === 'non',
+        );
 
-      // If no direct match, walk backwards through levels
+      // 1. Try to find a rule with matching stop level HIGHEST PRIORITY
+      // We prioritize rules that match the stop level AND correctly match the prereq failure status
+      const potentialMatches = activeRules.filter((r) =>
+        r.condition.toUpperCase().includes(stopUpper),
+      );
+
+      // Prioritize rule matching both stopLevel and prereq status
+      matchedRule =
+        potentialMatches.find(
+          (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
+        ) || null;
+
+      // 2. If no direct match on stopLevel + prereq, walk backwards through levels
       if (!matchedRule) {
         const stopIdx = levels.findIndex((l) => l.label === stopLevelLabel);
         for (
@@ -233,19 +243,28 @@ export class SessionsService {
           lvlIdx--
         ) {
           const lvlUpper = levels[lvlIdx].label.toUpperCase();
-          for (let i = activeRules.length - 1; i >= 0; i--) {
-            if (activeRules[i].condition.toUpperCase().includes(lvlUpper)) {
-              matchedRule = activeRules[i];
-              break;
-            }
-          }
+          const lvlMatches = activeRules.filter((r) =>
+            r.condition.toUpperCase().includes(lvlUpper),
+          );
+          matchedRule =
+            lvlMatches.find(
+              (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
+            ) ||
+            lvlMatches[0] ||
+            null;
+
           if (matchedRule) break;
         }
       }
 
-      // Fallback: last active rule
+      // Fallback: last active rule that matches prereq status if possible
       if (!matchedRule) {
-        matchedRule = activeRules[activeRules.length - 1];
+        matchedRule =
+          activeRules
+            .reverse()
+            .find(
+              (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
+            ) || activeRules[0];
       }
 
       if (matchedRule) {
