@@ -74,7 +74,11 @@ export class SessionsService {
     });
     if (!session) throw new NotFoundException('Session not found');
 
-    if (session.formationChoisie) {
+    if (
+      session.formationChoisie ||
+      (session.prerequisiteScore &&
+        Object.keys(session.prerequisiteScore).length > 0)
+    ) {
       try {
         const data = await this.getRecommendationData(session);
         (session as any).recommendations = data.recommendations;
