@@ -128,6 +128,11 @@ const router = createRouter({
           path: 'users',
           name: 'admin-users',
           component: () => import('../views/admin/AdminUsersView.vue')
+        },
+        {
+          path: 'question-rules',
+          name: 'admin-question-rules',
+          component: () => import('../views/admin/QuestionRulesManagerView.vue')
         }
       ]
     }

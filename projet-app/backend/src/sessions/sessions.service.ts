@@ -8,6 +8,7 @@ import { EmailService } from '../email/email.service';
 import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
+import { ParcoursRule } from '../entities/parcours-rule.entity';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -22,6 +23,8 @@ export class SessionsService {
     private stagiaireRepo: Repository<Stagiaire>,
     @InjectRepository(Question)
     private questionRepo: Repository<Question>,
+    @InjectRepository(ParcoursRule)
+    private parcoursRuleRepo: Repository<ParcoursRule>,
     private emailService: EmailService,
     private settingsService: SettingsService,
     private pdfService: PdfService,
@@ -122,6 +125,91 @@ export class SessionsService {
     });
 
     const levels = allLevels.filter((l) => l.isActive !== false);
+
+    // ── Try active parcours rules first ──
+    const activeRules = await this.parcoursRuleRepo.find({
+      where: { formation: session.formationChoisie as string, isActive: true },
+      order: { order: 'ASC' },
+    });
+
+    if (activeRules.length > 0 && levels.length > 0) {
+      const stopLevelLabel = session.stopLevel || '';
+      const stopUpper = stopLevelLabel.toUpperCase();
+      let matchedRule: ParcoursRule | null = null;
+
+      // Try to find a rule whose condition mentions the stop level
+      for (let i = activeRules.length - 1; i >= 0; i--) {
+        if (
+          activeRules[i].condition.toUpperCase().includes(stopUpper) &&
+          stopUpper
+        ) {
+          matchedRule = activeRules[i];
+          break;
+        }
+      }
+
+      // If no direct match, walk backwards through levels
+      if (!matchedRule) {
+        const stopIdx = levels.findIndex((l) => l.label === stopLevelLabel);
+        for (
+          let lvlIdx = stopIdx >= 0 ? stopIdx : levels.length - 1;
+          lvlIdx >= 0;
+          lvlIdx--
+        ) {
+          const lvlUpper = levels[lvlIdx].label.toUpperCase();
+          for (let i = activeRules.length - 1; i >= 0; i--) {
+            if (activeRules[i].condition.toUpperCase().includes(lvlUpper)) {
+              matchedRule = activeRules[i];
+              break;
+            }
+          }
+          if (matchedRule) break;
+        }
+      }
+
+      // Fallback: last active rule
+      if (!matchedRule) {
+        matchedRule = activeRules[activeRules.length - 1];
+      }
+
+      if (matchedRule) {
+        const f1 = matchedRule.formation1 || '';
+        const f2 = matchedRule.formation2 || '';
+        const proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
+        const finalRecommendationValue = proposedParcours.join(' & ');
+
+        const levelsEntries: any[] = session.levelsScores
+          ? Object.values(session.levelsScores)
+          : [];
+        const totalAnswered: number = levelsEntries.reduce(
+          (acc: number, e: any) => acc + (Number(e?.total) || 0),
+          0 as number,
+        );
+        const totalCorrect: number = levelsEntries.reduce(
+          (acc: number, e: any) => acc + (Number(e?.score) || 0),
+          0 as number,
+        );
+        const scoreFinal =
+          totalAnswered > 0
+            ? Math.round((totalCorrect / totalAnswered) * 100)
+            : 0;
+
+        const finalLevel = levels[levels.length - 1];
+
+        return {
+          recommendation: finalRecommendationValue,
+          recommendations: proposedParcours,
+          scoreFinal,
+          finalLevel,
+          qTextById: {},
+          filteredMiseAnswers: session.miseANiveauAnswers,
+          filteredPrerequis: session.prerequisiteScore,
+          filteredComplementaryAnswers: session.complementaryQuestions,
+          filteredAvailabilities: session.availabilities,
+          miseTitle: 'Mise à niveau (réponses)',
+        };
+      }
+    }
 
     if (levels.length === 0) {
       return {

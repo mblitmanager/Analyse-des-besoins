@@ -308,119 +308,148 @@ async function nextStep() {
 async function finishTest() {
   const currentLevel = levels.value[currentLevelIndex.value];
   
-  // 1. Determine final recommendation
   const ensureNiveau = (label) => {
     if (!label) return label;
     return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
   };
 
-  // ── Highest Active Level Rule ──
-  // If the user validated the LAST active level, recommend only that level (no duo)
-  const isLastActiveLevel = currentLevelIndex.value === levels.value.length - 1;
-  const passedLastLevel = levelsScores.value[currentLevel.label]?.validated;
-  
-  if (passedLastLevel && isLastActiveLevel) {
-    const singleLevel = ensureNiveau(currentLevel.label);
-    finalRecommendation.value = `${formationLabel} - ${singleLevel}`;
+  // ── Try to use active parcours rules for the recommendation ──
+  let usedParcoursRule = false;
+  try {
+    const rulesRes = await axios.get(`${apiBaseUrl}/parcours`);
+    const allRules = rulesRes.data || [];
+    // Filter rules for this formation that are active, ordered by their order field
+    const formationRules = allRules
+      .filter(r => r.formation === formationLabel && r.isActive !== false)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    let finalLevel = "Débutant";
-    levels.value.forEach((l) => {
-      if (levelsScores.value[l.label]?.validated) {
-        finalLevel = l.label;
+    if (formationRules.length > 0) {
+      // Determine the stop level (where the user stopped/failed)
+      const stopLabel = currentLevel.label.toUpperCase();
+      
+      // Find the matching rule for the stop level, or the last active rule if no match
+      let matchedRule = null;
+      
+      // Try to find a rule whose condition mentions the stop level
+      for (let i = formationRules.length - 1; i >= 0; i--) {
+        const condUpper = formationRules[i].condition.toUpperCase();
+        if (condUpper.includes(stopLabel)) {
+          matchedRule = formationRules[i];
+          break;
+        }
       }
-    });
+      
+      // If no direct match (e.g., user passed ALL levels but the high-level rules are disabled),
+      // walk backwards through levels to find the last matching active rule
+      if (!matchedRule) {
+        for (let lvlIdx = currentLevelIndex.value; lvlIdx >= 0; lvlIdx--) {
+          const lvlLabel = levels.value[lvlIdx].label.toUpperCase();
+          for (let i = formationRules.length - 1; i >= 0; i--) {
+            const condUpper = formationRules[i].condition.toUpperCase();
+            if (condUpper.includes(lvlLabel)) {
+              matchedRule = formationRules[i];
+              break;
+            }
+          }
+          if (matchedRule) break;
+        }
+      }
+      
+      // Fallback: use the last active rule
+      if (!matchedRule) {
+        matchedRule = formationRules[formationRules.length - 1];
+      }
 
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-      levelsScores: levelsScores.value,
-      finalRecommendation: finalRecommendation.value,
-      stopLevel: currentLevel.label,
-      lastValidatedLevel: finalLevel,
-      positionnementAnswers: positionnementAnswers.value,
-    });
-
-    showResults.value = true;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return;
+      if (matchedRule) {
+        const f1 = matchedRule.formation1 || "";
+        const f2 = matchedRule.formation2 || "";
+        if (f2 && f1 !== f2) {
+          finalRecommendation.value = `${f1} & ${f2}`;
+        } else {
+          finalRecommendation.value = f1;
+        }
+        usedParcoursRule = true;
+      }
+    }
+  } catch (error) {
+    console.warn("Could not fetch parcours rules, using fallback logic:", error);
   }
 
-  let l1 = ensureNiveau(currentLevel.label);
-  let l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
+  // ── Fallback: hardcoded logic if no parcours rules matched ──
+  if (!usedParcoursRule) {
+    let l1 = ensureNiveau(currentLevel.label);
+    let l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
 
-  const isEnglish = (formationSlug && formationSlug.toLowerCase().includes("anglais")) || 
-                    (formationLabel && formationLabel.toLowerCase().includes("anglais"));
-  const isFrench = (formationSlug && formationSlug.toLowerCase().includes("fran\u00e7ais")) || 
-                   (formationLabel && formationLabel.toLowerCase().includes("fran\u00e7ais"));
+    const isEnglish = (formationSlug && formationSlug.toLowerCase().includes("anglais")) || 
+                      (formationLabel && formationLabel.toLowerCase().includes("anglais"));
+    const isFrench = (formationSlug && formationSlug.toLowerCase().includes("fran\u00e7ais")) || 
+                     (formationLabel && formationLabel.toLowerCase().includes("fran\u00e7ais"));
 
-  const stopLabel = currentLevel.label.toUpperCase();
+    const stopLabel = currentLevel.label.toUpperCase();
 
-  if (isEnglish) {
-    if (["A1", "A2", "B1"].some(l => stopLabel.includes(l))) {
-      const a2 = levels.value.find(l => l.label.toUpperCase().includes("A2"))?.label || "A2";
-      const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
-      l1 = ensureNiveau(a2);
-      l2 = ensureNiveau(b1);
-    } else if (stopLabel.includes("B2")) {
-      const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
-      const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
-      l1 = ensureNiveau(b1);
-      l2 = ensureNiveau(b2);
-    } else if (stopLabel.includes("C1")) {
-      const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
-      const c1 = levels.value.find(l => l.label.toUpperCase().includes("C1"))?.label || "C1";
-      l1 = ensureNiveau(b2);
-      l2 = ensureNiveau(c1);
+    if (isEnglish) {
+      if (["A1", "A2", "B1"].some(l => stopLabel.includes(l))) {
+        const a2 = levels.value.find(l => l.label.toUpperCase().includes("A2"))?.label || "A2";
+        const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
+        l1 = ensureNiveau(a2);
+        l2 = ensureNiveau(b1);
+      } else if (stopLabel.includes("B2")) {
+        const b1 = levels.value.find(l => l.label.toUpperCase().includes("B1"))?.label || "B1";
+        const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
+        l1 = ensureNiveau(b1);
+        l2 = ensureNiveau(b2);
+      } else if (stopLabel.includes("C1")) {
+        const b2 = levels.value.find(l => l.label.toUpperCase().includes("B2"))?.label || "B2";
+        const c1 = levels.value.find(l => l.label.toUpperCase().includes("C1"))?.label || "C1";
+        l1 = ensureNiveau(b2);
+        l2 = ensureNiveau(c1);
+      }
+    } else if (isFrench) {
+      if (stopLabel.includes("DÉCOUVERTE") || stopLabel.includes("DECOUVERTE")) {
+        const l_dec = levels.value.find(l => l.label.toUpperCase().includes("DECOUVERTE") || l.label.toUpperCase().includes("DÉCOUVERTE"))?.label || "Découverte";
+        const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
+        l1 = ensureNiveau(l_dec);
+        l2 = ensureNiveau(l_tech);
+      } else if (stopLabel.includes("TECHNIQUE") || stopLabel.includes("PROFESSIONNEL")) {
+        const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
+        const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
+        l1 = ensureNiveau(l_tech);
+        l2 = ensureNiveau(l_pro);
+      } else if (stopLabel.includes("AFFAIRES")) {
+        const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
+        const l_aff = levels.value.find(l => l.label.toUpperCase().includes("AFFAIRES"))?.label || "Affaires";
+        l1 = ensureNiveau(l_pro);
+        l2 = ensureNiveau(l_aff);
+      }
+    } else {
+      if (stopLabel.includes("INITIAL")) {
+        const l_ini = levels.value.find(l => l.label.toUpperCase().includes("INITIAL"))?.label || "Initial";
+        const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
+        l1 = ensureNiveau(l_ini);
+        l2 = ensureNiveau(l_bas);
+      } else if (stopLabel.includes("BASIQUE") || stopLabel.includes("OPÉRATIONNEL") || stopLabel.includes("OPERATIONNEL")) {
+        const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
+        const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
+        l1 = ensureNiveau(l_bas);
+        l2 = ensureNiveau(l_ope);
+      } else if (stopLabel.includes("AVANCÉ") || stopLabel.includes("AVANCE")) {
+        const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
+        const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
+        l1 = ensureNiveau(l_ope);
+        l2 = ensureNiveau(l_ava);
+      } else if (stopLabel.includes("EXPERT")) {
+        const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
+        const l_exp = levels.value.find(l => l.label.toUpperCase().includes("EXPERT"))?.label || "Expert";
+        l1 = ensureNiveau(l_ava);
+        l2 = ensureNiveau(l_exp);
+      }
     }
-  } else if (isFrench) {
-    if (stopLabel.includes("DÉCOUVERTE") || stopLabel.includes("DECOUVERTE")) {
-      const l_dec = levels.value.find(l => l.label.toUpperCase().includes("DECOUVERTE") || l.label.toUpperCase().includes("DÉCOUVERTE"))?.label || "Découverte";
-      const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
-      l1 = ensureNiveau(l_dec);
-      l2 = ensureNiveau(l_tech);
-    } else if (stopLabel.includes("TECHNIQUE") || stopLabel.includes("PROFESSIONNEL")) {
-      // Pour "Technique" OU "Professionnel", on recommande Technique & Professionnel
-      const l_tech = levels.value.find(l => l.label.toUpperCase().includes("TECHNIQUE"))?.label || "Technique";
-      const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
-      l1 = ensureNiveau(l_tech);
-      l2 = ensureNiveau(l_pro);
-    } else if (stopLabel.includes("AFFAIRES")) {
-      const l_pro = levels.value.find(l => l.label.toUpperCase().includes("PROFESSIONNEL"))?.label || "Professionnel";
-      const l_aff = levels.value.find(l => l.label.toUpperCase().includes("AFFAIRES"))?.label || "Affaires";
-      l1 = ensureNiveau(l_pro);
-      l2 = ensureNiveau(l_aff);
-    }
-  } else {
-    // Generic logic : modifications spécifiques (ex: échec OPÉRATIONNEL => Basique & Opérationnel)
-    if (stopLabel.includes("INITIAL")) {
-      const l_ini = levels.value.find(l => l.label.toUpperCase().includes("INITIAL"))?.label || "Initial";
-      const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
-      l1 = ensureNiveau(l_ini);
-      l2 = ensureNiveau(l_bas);
-    } else if (stopLabel.includes("BASIQUE") || stopLabel.includes("OPÉRATIONNEL") || stopLabel.includes("OPERATIONNEL")) {
-      // Échec Basique OU Opérationnel -> Basique & Opérationnel
-      const l_bas = levels.value.find(l => l.label.toUpperCase().includes("BASIQUE"))?.label || "Basique";
-      const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
-      l1 = ensureNiveau(l_bas);
-      l2 = ensureNiveau(l_ope);
-    } else if (stopLabel.includes("AVANCÉ") || stopLabel.includes("AVANCE")) {
-      // Échec Avancé -> Opérationnel & Avancé
-      const l_ope = levels.value.find(l => l.label.toUpperCase().includes("OPERATIONNEL") || l.label.toUpperCase().includes("OPÉRATIONNEL"))?.label || "Opérationnel";
-      const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
-      l1 = ensureNiveau(l_ope);
-      l2 = ensureNiveau(l_ava);
-    } else if (stopLabel.includes("EXPERT")) {
-      // Échec Expert -> Avancé & Expert
-      const l_ava = levels.value.find(l => l.label.toUpperCase().includes("AVANCE") || l.label.toUpperCase().includes("AVANCÉ"))?.label || "Avancé";
-      const l_exp = levels.value.find(l => l.label.toUpperCase().includes("EXPERT"))?.label || "Expert";
-      l1 = ensureNiveau(l_ava);
-      l2 = ensureNiveau(l_exp);
-    }
-  }
 
-  if (l2 && l1 !== l2) {
-    finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
-  } else {
-    finalRecommendation.value = `${formationLabel} - ${l1}`;
+    if (l2 && l1 !== l2) {
+      finalRecommendation.value = `${formationLabel} - ${l1} & ${l2}`;
+    } else {
+      finalRecommendation.value = `${formationLabel} - ${l1}`;
+    }
   }
 
   // 2. Identify last validated level so far
@@ -432,7 +461,6 @@ async function finishTest() {
   });
 
   // 3. Update session
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
   await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
     levelsScores: levelsScores.value,
     finalRecommendation: finalRecommendation.value,
