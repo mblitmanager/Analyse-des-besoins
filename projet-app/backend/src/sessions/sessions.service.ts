@@ -150,18 +150,13 @@ export class SessionsService {
         ? session.finalRecommendation.split(' & ')
         : [session.finalRecommendation];
 
-      // Build allAnswers for visibility checks
-      const allAnswers = {
-        ...(session.prerequisiteScore || {}),
-        ...(session.complementaryQuestions || {}),
-        ...(session.availabilities || {}),
-        ...(session.miseANiveauAnswers || {}),
-        ...(session.positionnementAnswers || {}),
-      };
-
       const formationLabel = session.formationChoisie;
 
-      // Inline filter: remove nulls, filter by formation and visibility
+      // Inline filter: remove nulls, filter by formation
+      // Note: we do NOT apply isQuestionVisible here because the answers
+      // were already validated during the live questionnaire flow.
+      // Re-checking visibility with serialized session data can cause
+      // false negatives for conditional child questions.
       const filterAnswers = (answers: any) => {
         if (!answers) return {};
         const result: Record<string, any> = {};
@@ -171,7 +166,6 @@ export class SessionsService {
           const q = questions.find((x) => x.id === idNum);
           if (!q) return;
           if (q.formation && q.formation.label !== formationLabel) return;
-          if (!isQuestionVisible(q, allAnswers, questions)) return;
           result[key] = val;
         });
         return result;

@@ -246,10 +246,10 @@ async function nextStep() {
         <!-- Bottom Actions -->
         <div class="pt-8 flex items-center justify-between gap-4 mt-10">
           <div class="max-w-4xl mx-auto flex items-center justify-between gap-4 w-full">
-            <button @click="router.push('/formations')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-all hover:-translate-x-1">
+            <!-- <button @click="router.push('/formations')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-all hover:-translate-x-1">
               <span class="material-icons-outlined text-lg">arrow_back</span>
               Retour
-            </button>
+            </button> -->
 
             <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
