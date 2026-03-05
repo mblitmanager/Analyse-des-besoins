@@ -435,6 +435,7 @@ onMounted(fetchFormations);
                     class="w-12 h-12 rounded-xl border-none cursor-pointer"
                   />
                 </div>
+              </div>
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"

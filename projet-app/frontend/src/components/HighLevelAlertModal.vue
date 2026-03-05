@@ -22,7 +22,7 @@ function handleChangeFormation() {
 
 <template>
   <transition name="modal">
-    <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div v-if="show" class="fixed inset-0 z-100 flex items-center justify-center p-4">
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-[#0d1b3e]/60 backdrop-blur-md" @click="$emit('close')"></div>
       

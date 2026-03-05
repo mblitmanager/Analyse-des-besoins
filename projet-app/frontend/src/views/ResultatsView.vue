@@ -37,8 +37,14 @@ const recommendedLabel = computed(() => {
     return session.value.recommendation;
   }
 
-  if (session.value.finalRecommendation)
-    return session.value.finalRecommendation;
+  const rec = session.value.finalRecommendation || "";
+  
+  // If we have a combined path (multiple levels), use the specific label requested by the user
+  if (rec.includes("&") || rec.includes(" et ") || (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 1)) {
+    return "Consolider les bases et développer votre autonomie";
+  }
+
+  if (rec) return rec;
 
   const level =
     session.value.lastValidatedLevel || session.value.stopLevel || "";
@@ -95,8 +101,12 @@ const parcoursOptions = computed(() => {
   const rec = session.value.finalRecommendation || "";
   if (!rec) return [];
   
+  // Support both " & " and " et " separators
   if (rec.includes(" & ")) {
     return rec.split(" & ").map(s => s.trim());
+  }
+  if (rec.includes(" et ")) {
+    return rec.split(" et ").map(s => s.trim());
   }
 
   // Try to split older format "Formation - Level1 & Level2"
@@ -398,7 +408,7 @@ const downloadPDF = async () => {
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
-        <div v-if="session" class="flex items-center gap-4">
+        <!-- <div v-if="session" class="flex items-center gap-4"><div v-if="session" class="flex items-center gap-4">
           <button
             @click="downloadPDF"
             :disabled="downloadingPDF"
@@ -424,7 +434,7 @@ const downloadPDF = async () => {
               >{{ session.prenom }} {{ session.nom }}</span
             >
           </div>
-        </div>
+        </div> -->
       </template>
     </SiteHeader>
 
@@ -447,11 +457,11 @@ const downloadPDF = async () => {
     >
       <!-- Success Banner -->
       <div class="text-center mb-14 relative">
-        <div
+        <!-- <div
           class="w-14 h-14 bg-success-soft text-success rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce shadow-sm"
         >
           <span class="material-icons-outlined text-2xl">celebration</span>
-        </div>
+        </div> -->
         <h1
           class="text-3xl md:text-4xl font-extrabold heading-primary mb-4 tracking-tight"
         >
@@ -637,162 +647,93 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <div v-if="parcoursOptions.length <= 1 && !session.finalRecommendation?.includes('&')"
+        <div v-if="parcoursOptions.length > 0"
           class="relative bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
-          <!-- Pack Header -->
+          <!-- Compact Header -->
           <div
-            class="bg-brand-primary p-8 md:p-10 text-blue-400 relative overflow-hidden"
+            class="bg-brand-primary/5 p-6 md:p-8 border-b border-brand-primary/10 relative overflow-hidden"
           >
             <div class="relative z-10">
               <span
-                class="inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest mb-3"
+                class="inline-block px-3 py-1 bg-brand-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest mb-2"
               >
-                {{ recommendedLevel2 ? "Programme Pack Duo" : (isBlocked ? "Information importante" : "Niveau recommandé") }} :
+                Nous vous proposons le parcours :
               </span>
-              <h3 class="text-2xl md:text-3xl font-bold mb-3">
-                {{ recommendedLabel || 'Parcours personnalisé' }}
+              <h3 class="text-xl md:text-2xl font-extrabold text-brand-primary">
+                {{ recommendedLabel }}
               </h3>
-              <p class="opacity-80 text-base md:text-lg max-w-xl">
+              <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
                 {{ isBlocked 
                    ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
-                   : "Ce parcours est construit à partir de vos réponses aux prérequis, au test de positionnement et aux questions complémentaires, afin d'adapter la formation à votre niveau actuel." 
+                   : "Ce parcours est optimisé selon vos compétences pour vous garantir une progression efficace." 
                 }}
               </p>
             </div>
-
-            <!-- Decorative Elements -->
-            <div
-              class="absolute -right-16 -top-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"
-            ></div>
-            <div class="absolute right-12 top-12 opacity-20 scale-[3]">
-              <span class="material-icons-outlined text-9xl">bolt</span>
+            <!-- Subtle decoration -->
+            <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-5">
+              <span class="material-icons-outlined text-7xl">auto_awesome</span>
             </div>
           </div>
 
-          <div class="p-6 md:p-8 space-y-10">
+          <div class="p-6 md:p-8 space-y-6">
             <!-- Step 1 in Path -->
-            <div class="flex items-start gap-6 relative">
+            <div class="flex items-start gap-5 relative">
               <div
-                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-bold text-sm relative z-10"
+                class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center shrink-0 font-bold text-xs relative z-10 shadow-sm"
               >
                 1
               </div>
               <div class="flex-1">
-                <div
-                  class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
-                >
-                  <h4 class="text-lg font-bold heading-primary">
-                    {{ recommendedLevel1 ? (session.formationChoisie + ' - ' + recommendedLevel1.label) : recommendedLabel }}
-                  </h4>
-                </div>
-                <p class="text-gray-400 mb-4 font-medium text-sm">
+                <h4 class="text-base font-bold text-gray-800">
+                  {{ recommendedLevel1 ? (session.formationChoisie + ' - ' + recommendedLevel1.label) : (parcoursOptions[0] || recommendedLabel) }}
+                </h4>
+                <p class="text-gray-400 font-medium text-xs mt-1">
                   {{ recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
                 </p>
-                <div class="flex items-center gap-6">
-                
-                  <div
-                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
-                  >
-                    <span class="material-icons-outlined text-sm"
-                      >person_outline</span
-                    >
-                    Coach dédié
-                  </div>
-                </div>
               </div>
 
               <!-- Connector Line -->
-              <div
-                class="absolute left-[18px] top-9 bottom-[-2.2rem] w-px bg-gray-100"
+              <div v-if="parcoursOptions.length > 1 || nextLevel"
+                class="absolute left-[15px] top-8 -bottom-6 w-px bg-brand-primary/10"
               ></div>
             </div>
 
-            <!-- Blue Plus -->
-            <div class="ml-5 flex items-center justify-center">
+            <!-- Optimized Separator -->
+            <div v-if="parcoursOptions.length > 1 || nextLevel" class="ml-4 flex items-center">
               <div
-                class="w-7 h-7 rounded-full bg-brand-primary text-blue-400 flex items-center justify-center shadow-lg shadow-brand-primary/30 relative z-10 text-sm"
+                class="w-6 h-6 rounded-full bg-white border border-brand-primary/20 text-brand-primary flex items-center justify-center relative z-10 shadow-sm"
               >
-                <span class="material-icons-outlined text-sm">add</span>
+                <span class="material-icons-outlined text-xs">add</span>
               </div>
             </div>
 
-            <!-- Step 2 in Path : niveau suivant dans l'ordre de la formation -->
-            <div v-if="nextLevel" class="flex items-start gap-6">
+            <!-- Step 2 in Path -->
+            <div v-if="nextLevel || (parcoursOptions.length > 1)" class="flex items-start gap-5">
               <div
-                class="w-9 h-9 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 font-bold text-sm"
+                class="w-8 h-8 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center shrink-0 font-bold text-xs relative z-10"
               >
                 2
               </div>
               <div class="flex-1">
-                <div
-                  class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2"
-                >
-                  <h4 class="text-lg font-bold heading-primary">
-                    {{ session.formationChoisie }} - {{ recommendedLevel2?.label }}
-                  </h4>
-                </div>
-                <p class="text-gray-400 mb-4 font-medium text-sm">
+                <h4 class="text-base font-bold text-gray-800">
+                  {{ recommendedLevel2 ? (session.formationChoisie + ' - ' + recommendedLevel2.label) : (parcoursOptions[1] || 'Niveau Suivant') }}
+                </h4>
+                <p class="text-gray-400 font-medium text-xs mt-1">
                   {{ recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
                 </p>
-                <div class="flex items-center gap-6">
-                  <!-- <div
-                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
-                  >
-                    <span class="material-icons-outlined text-sm"
-                      >schedule</span
-                    >
-                    40h
-                  </div> -->
-                  <div
-                    class="flex items-center gap-2 text-xs font-medium text-gray-400"
-                  >
-                    <span class="material-icons-outlined text-sm"
-                      >verified_user</span
-                    >
-                    Certification incluse
-                  </div>
-                </div>
               </div>
             </div>
             
-            <!-- Fallback if only 1 level (unlikely with Pack Duo but safer) -->
-            <div v-else class="text-center py-4 text-gray-400 italic text-sm">
+            <div v-if="parcoursOptions.length <= 1 && !nextLevel" class="text-center py-3 text-gray-400 italic text-xs border-t border-gray-50 mt-4">
               Parcours de formation complet.
             </div>
 
-            <!-- Financement Box -->
-            <div
-          class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-white text-center"
-        >
-              <div
-                class="shrink-0 w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center text-sm"
-              >
-                <span class="material-icons-outlined">info</span>
-              </div>
-              <p class="text-sm font-medium">
-                Ce parcours "Pack Duo" est entièrement finançable par votre CPF
-                (Mon Compte Formation).
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div v-for="(lvl, idx) in displayOptions" :key="idx" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="bg-brand-primary p-6 text-[#428496] relative overflow-hidden">
-              <div class="relative z-10">
-                <h3 class="text-xl font-bold mb-1">Niveau {{ lvl }}</h3>
-              </div>
-            </div>
-            <div class="p-6">
-              <p class="text-gray-500 text-sm mb-4">
-                <template v-if="idx === 0">
-                  Ce parcours est calculé à partir de vos réponses et peut être validé ou discuté avec un conseiller.
-                </template>
-                <template v-else>
-                  Si vous avez validé le niveau précédent, vous pouvez passer à ce niveau.
-                </template>
+            <!-- Compact Financement Box -->
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex items-center gap-3">
+              <span class="material-icons-outlined text-brand-primary text-lg">verified</span>
+              <p class="text-[11px] font-semibold text-gray-600">
+                Parcours certifiant et 100% finançable (CPF, Employeur).
               </p>
             </div>
           </div>

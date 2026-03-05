@@ -157,7 +157,7 @@ function getQuestionText(id) {
         <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"></div>
       </div>
 
-      <div v-else class="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-white">
+      <div v-else class="bg-white rounded-4xl shadow-xl overflow-hidden border border-white">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -314,13 +314,16 @@ function getQuestionText(id) {
                 <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Type de Résultat</label>
                 <select v-model="ruleForm.resultType" required class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm">
                   <option value="CUSTOM_MESSAGE">Afficher un message spécifique</option>
-                  <option value="FORMATION_RECOMMENDATION">Recommander une formation</option>
+                  <option value="FORMATION_RECOMMENDATION">Recommander une formation (ex: DigComp Initial)</option>
                   <option value="BLOCK">Bloquer la progression</option>
                 </select>
+                <p v-if="ruleForm.resultType === 'FORMATION_RECOMMENDATION'" class="mt-2 text-[10px] text-orange-600 font-bold uppercase tracking-wider">
+                  ⚠️ Indiquez le label exact de la formation cible (ex: "DigComp Initial & Word Initial")
+                </p>
               </div>
               <div v-if="ruleForm.resultType !== 'BLOCK'">
                 <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Message / Recommandation</label>
-                <textarea v-model="ruleForm.resultMessage" rows="3" placeholder="Texte à afficher à l'utilisateur..." class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"></textarea>
+                <textarea v-model="ruleForm.resultMessage" rows="3" :placeholder="ruleForm.resultType === 'FORMATION_RECOMMENDATION' ? 'Ex: DigComp Initial & Word Initial' : 'Texte à afficher à l\'utilisateur...'" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"></textarea>
               </div>
             </div>
 
