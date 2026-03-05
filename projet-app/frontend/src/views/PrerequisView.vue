@@ -274,15 +274,20 @@ function refuseProposal() {
           </div>
         </div>
 
-        <!-- Bottom Actions -->
-        <div class="pt-8 flex items-center justify-between gap-4 mt-10">
-          <button @click="router.push('/')" class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-[10px] hover:text-gray-600 transition-colors">
+        <div class="pt-12 flex items-center justify-between border-t border-gray-50 mt-12">
+          <button
+            @click="router.push('/')"
+            class="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-all"
+          >
             <span class="material-icons-outlined text-lg">arrow_back</span>
             Retour
           </button>
-
-          <button @click="submitPrerequis()" :disabled="submitting"
-                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+ 
+          <button
+            @click="submitPrerequis()"
+            :disabled="submitting"
+            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+          >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
             <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
