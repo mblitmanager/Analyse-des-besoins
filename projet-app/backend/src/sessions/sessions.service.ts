@@ -116,10 +116,12 @@ export class SessionsService {
 
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
-    const levels = await this.levelRepo.find({
+    const allLevels = await this.levelRepo.find({
       where: { formation: { label: session.formationChoisie as string } },
       order: { order: 'ASC' },
     });
+
+    const levels = allLevels.filter((l) => l.isActive !== false);
 
     if (levels.length === 0) {
       return {
@@ -245,6 +247,53 @@ export class SessionsService {
       return label.toLowerCase().includes('niveau') ? label : `Niveau ${label}`;
     };
 
+    // ── Highest Active Level Validated Rule ──
+    let stopLevelLabel = session.stopLevel;
+    let stopLevelIdx = stopLevelLabel
+      ? levels.findIndex((l) => l.label === stopLevelLabel)
+      : -1;
+
+    const passedStopLevel =
+      session.levelsScores &&
+      stopLevelLabel &&
+      session.levelsScores[stopLevelLabel]?.validated;
+    const isHighestActiveLevel = stopLevelIdx === levels.length - 1;
+
+    if (passedStopLevel && isHighestActiveLevel) {
+      const recommendationLevel = ensureNiveau(stopLevelLabel);
+      const proposedParcours = [recommendationLevel];
+      const finalRecommendationValue = proposedParcours.join(' & ');
+
+      const levelsEntries: any[] = session.levelsScores
+        ? Object.values(session.levelsScores)
+        : [];
+      const totalAnswered: number = levelsEntries.reduce(
+        (acc: number, e: any) => acc + (Number(e?.total) || 0),
+        0 as number,
+      );
+      const totalCorrect: number = levelsEntries.reduce(
+        (acc: number, e: any) => acc + (Number(e?.score) || 0),
+        0 as number,
+      );
+      const scoreFinal =
+        totalAnswered > 0
+          ? Math.round((totalCorrect / totalAnswered) * 100)
+          : 0;
+
+      return {
+        recommendation: finalRecommendationValue,
+        recommendations: proposedParcours,
+        scoreFinal,
+        finalLevel,
+        qTextById,
+        filteredMiseAnswers,
+        filteredPrerequis,
+        filteredComplementaryAnswers,
+        filteredAvailabilities,
+        miseTitle,
+      };
+    }
+
     // ── Special rule for language formations (LANGUES category) ──
     // Check if this formation belongs to the LANGUES category
     const isLangueFormation =
@@ -307,7 +356,7 @@ export class SessionsService {
       // If language-specific rules matched, use them
       if (l1 && l2) {
         const proposedParcours = l1 === l2 ? [l1] : [l1, l2];
-        const finalRecommendationValue = proposedParcours.join(' | ');
+        const finalRecommendationValue = proposedParcours.join(' & ');
 
         // Score final global
         const levelsEntries: any[] = session.levelsScores
@@ -347,11 +396,11 @@ export class SessionsService {
       String(session.formationChoisie).toLowerCase().includes('français');
 
     // Use stopLevel if available, as it represents the target level where the user struggled
-    const stopLevelLabel = session.stopLevel;
+    stopLevelLabel = session.stopLevel;
     const stopLevelUpper = (stopLevelLabel || '').toUpperCase();
 
     // Fallback if stopLevelIdx is needed for generic logic when condition not met
-    const stopLevelIdx = stopLevelLabel
+    stopLevelIdx = stopLevelLabel
       ? levels.findIndex((l) => l.label === stopLevelLabel)
       : -1;
 
@@ -486,7 +535,7 @@ export class SessionsService {
     }
 
     // Set combined string for backward compatibility and DB storage
-    const finalRecommendationValue = proposedParcours.join(' | ');
+    const finalRecommendationValue = proposedParcours.join(' & ');
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores
@@ -621,6 +670,7 @@ export class SessionsService {
         qTextById,
       )}
       ${renderAnswersTable(miseTitle, filteredMiseAnswers, qTextById)}
+      ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Le bénéficiaire a obtenu un score élevé pour cette formation, et a souhaité maintenir sa demande.</div>` : ''}
     `;
 
     // Determine admin recipients from settings (can be comma-separated)
@@ -647,6 +697,7 @@ export class SessionsService {
       availabilityAnswers: filteredAvailabilities as Record<string, any>,
       miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
+      highLevelContinue: session.highLevelContinue,
     });
 
     const now = new Date();

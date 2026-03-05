@@ -35,29 +35,20 @@ const recommendedLabel = computed(() => {
 
   if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
 
-  return `${session.value.formationChoisie || ""}${
-    level ? " - " + level : ""
-  }`.trim();
+  return `${session.value.formationChoisie || ""} - ${level}`.trim();
 });
 
 const recommendedLabelParts = computed(() => {
   if (!recommendedLabel.value) return [];
-  // Split by common separators
-  const parts = recommendedLabel.value.split(/ \| | & | \/ | - /);
-  // The first part is usually the formation name if we used the "Formation - Level" format
-  // If we only have levels, we return them.
-  // Actually, if it's "Photoshop - B1 & B2", we want ["Photoshop", "B1", "B2"] or just the levels.
+  // Split the exact ' & ' string returned by the backend (e.g., "Niveau Opérationnel & Niveau Avancé")
+  const rawParts = recommendedLabel.value.split(/ & | \/ /);
   
-  // Let's simplify: split by " | ", " & ", or " / " and remove the formation prefix if it exists in each part
-  const rawParts = recommendedLabel.value.split(/ \| | & | \/ /);
   return rawParts.map(p => {
       let cleaned = p.trim();
       if (session.value?.formationChoisie && cleaned.startsWith(session.value.formationChoisie)) {
           cleaned = cleaned.replace(session.value.formationChoisie, "").replace(/^- /, "").trim();
       }
       
-      // Add 'Niveau ' prefix if missing and it's not the full recommended label (which might be "Parcours personnalisé")
-      // Also avoid adding it if the label already contains "Initial" (special case for DigComp/Word Initial)
       const lowerCleaned = cleaned.toLowerCase();
       if (cleaned && 
           !lowerCleaned.includes("niveau") && 

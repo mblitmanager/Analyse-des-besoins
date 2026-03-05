@@ -50,7 +50,7 @@ async function loadLevels() {
       `${apiBaseUrl}/formations/${formationSlug}/levels`,
     );
     if (res.data && res.data.length > 0) {
-      levels.value = res.data; // Keep full level objects
+      levels.value = res.data.filter(l => l.isActive !== false); // Keep only active levels
     } else {
       levels.value = [];
     }
@@ -313,7 +313,37 @@ async function finishTest() {
     if (!label) return label;
     return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
   };
+
+  // ── Highest Active Level Rule ──
+  // If the user validated the LAST active level, recommend only that level (no duo)
+  const isLastActiveLevel = currentLevelIndex.value === levels.value.length - 1;
+  const passedLastLevel = levelsScores.value[currentLevel.label]?.validated;
   
+  if (passedLastLevel && isLastActiveLevel) {
+    const singleLevel = ensureNiveau(currentLevel.label);
+    finalRecommendation.value = `${formationLabel} - ${singleLevel}`;
+
+    let finalLevel = "Débutant";
+    levels.value.forEach((l) => {
+      if (levelsScores.value[l.label]?.validated) {
+        finalLevel = l.label;
+      }
+    });
+
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      levelsScores: levelsScores.value,
+      finalRecommendation: finalRecommendation.value,
+      stopLevel: currentLevel.label,
+      lastValidatedLevel: finalLevel,
+      positionnementAnswers: positionnementAnswers.value,
+    });
+
+    showResults.value = true;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
   let l1 = ensureNiveau(currentLevel.label);
   let l2 = ensureNiveau(levels.value[currentLevelIndex.value + 1]?.label);
 

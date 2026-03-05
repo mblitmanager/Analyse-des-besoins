@@ -22,6 +22,9 @@ export class Level {
   @Column()
   successThreshold: number;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @Column({ type: 'varchar', nullable: true })
   recommendationLabel: string;
 
