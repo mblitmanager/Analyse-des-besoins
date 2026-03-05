@@ -281,11 +281,27 @@ async function nextStep() {
 
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
       positionnementAnswers: positionnementAnswers.value,
     });
+
+    const session = patchRes.data;
+
+    // Check for Rule Overrides (Absolute Priority)
+    if (session.isQuestionRuleOverride) {
+      if (session.ruleResultType === 'BLOCK') {
+        // Stop everything and go to results
+        router.push("/resultats");
+        return;
+      }
+      // If it's just a message/recommendation, we might still finish the test early
+      // depending on the rule. For now, let's treat any override during positionnement
+      // as a reason to show results.
+      await finishTest(session); 
+      return;
+    }
 
     // 3. Adaptive logic: check if transition to next level is allowed
     const canProgress = correctCount >= requiredCorrect;
@@ -305,9 +321,17 @@ async function nextStep() {
   }
 }
 
-async function finishTest() {
+async function finishTest(overrideSession = null) {
   const currentLevel = levels.value[currentLevelIndex.value];
   
+  if (overrideSession?.isQuestionRuleOverride) {
+    // If a backend rule already decided the result, use it immediately
+    finalRecommendation.value = overrideSession.recommendation || "";
+    showResults.value = true;
+    submitting.value = false;
+    return;
+  }
+
   const ensureNiveau = (label) => {
     if (!label) return label;
     return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;

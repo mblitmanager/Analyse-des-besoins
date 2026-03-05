@@ -23,19 +23,7 @@ const metier = ref("");
 const situation = ref([]);
 const showProposal = ref(false);
 
-const itSkillsTriggered = computed(() => {
-  const formation = localStorage.getItem("selected_formation_slug") || "";
-  const bureautiqueSlugs = ["word", "excel", "powerpoint", "outlook"];
-  
-  if (!bureautiqueSlugs.includes(formation.toLowerCase())) {
-    return false;
-  }
-
-  return Object.values(responses.value).some((val) => {
-    const s = String(val).toLowerCase();
-    return s === "insuffisant" || s === "jamais" || s === "non";
-  });
-});
+const itSkillsTriggered = computed(() => false); // Now handled by backend rules
 
 const currentFormationName = computed(() => {
   const slug = localStorage.getItem("selected_formation_slug") || "Word";
@@ -102,6 +90,8 @@ onMounted(async () => {
   }
 });
 
+const proposalMessage = ref("");
+
 async function submitPrerequis(force = false) {
   const isForced = force === true;
   if (!metier.value || !situation.value.length) {
@@ -115,45 +105,51 @@ async function submitPrerequis(force = false) {
     return;
   }
 
-  if (itSkillsTriggered.value && !showProposal.value && !isForced) {
-    showProposal.value = true;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    return;
-  }
-
   submitting.value = true;
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     
     // Clear responses for questions that are currently hidden before saving
-    // Pass ALL questions fetched from API, not just the IT subset
     clearHiddenResponses(questions.value, responses.value);
 
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    // 1. Save answers first
+    const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       metier: metier.value,
-      situation: situation.value, // already an array from checkboxes
+      situation: situation.value,
       prerequisiteScore: responses.value,
     });
     
-    if (showProposal.value) {
-       const formationSlug = localStorage.getItem("selected_formation_slug") || "Word";
-       const formationName = formationSlug.charAt(0).toUpperCase() + formationSlug.slice(1);
-       
-       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-          formationChoisie: `Parcours Initial (DigComp & ${formationName})`,
-          finalRecommendation: `DigComp Initial | ${formationName} Initial`,
-       });
-       router.push("/resultats");
-    } else {
-       router.push("/formations");
+    const session = patchRes.data;
+
+    // 2. Check if a Question Rule was triggered
+    if (session.isQuestionRuleOverride && !isForced) {
+      if (session.ruleResultType === 'BLOCK') {
+        // Direct jump to results if it's a block
+        router.push("/resultats");
+        return;
+      } else {
+        // Show proposal if it's a custom message
+        proposalMessage.value = session.recommendation || "Nous vous suggérons un parcours de renforcement.";
+        showProposal.value = true;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
     }
+
+    // Normal flow
+    router.push("/formations");
   } catch (error) {
     console.error("Failed to submit:", error);
     alert("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
+}
+
+async function acceptProposal() {
+  // If they accept, we just go to results (the backend already calculated the override)
+  router.push("/resultats");
 }
 
 function refuseProposal() {
@@ -182,7 +178,7 @@ function refuseProposal() {
       </div>
 
       <div v-else class="space-y-8 animate-in fade-in duration-500">
-        <!-- Overlay Proposition Spéciale -->
+        <!-- Overlay Proposition Spéciale (Dynamique via QuestionRules) -->
         <div v-if="showProposal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/40 backdrop-blur-sm">
           <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-blue-100 animate-in fade-in zoom-in duration-300">
             <div class="h-20 w-20 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
@@ -190,22 +186,11 @@ function refuseProposal() {
             </div>
             <h2 class="text-2xl font-black text-blue-900 mb-4 text-center">Parcours Recommandé</h2>
             <p class="text-gray-600 mb-8 text-center leading-relaxed">
-              Au vu de vos réponses sur les compétences numériques de base, nous vous suggérons de débuter par un renforcement initial :
+              {{ proposalMessage }}
             </p>
-            <div class="space-y-3 mb-8">
-              <div class="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                <span class="material-icons-outlined text-blue-600 mr-3">star_outline</span>
-                <span class="font-bold text-blue-900">DigComp Initial</span>
-              </div>
-              <div class="flex items-center p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                <span class="material-icons-outlined text-blue-600 mr-3">description</span>
-                <span class="font-bold text-blue-900">
-                  {{ currentFormationName }} Initial
-                </span>
-              </div>
-            </div>
+            
             <div class="flex flex-col space-y-3">
-              <button @click="submitPrerequis()" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
+              <button @click="acceptProposal" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
                 Accepter et voir mon bilan
               </button>
               <button @click="refuseProposal" class="w-full py-4 text-gray-500 font-bold text-sm hover:text-blue-900 transition-colors">
