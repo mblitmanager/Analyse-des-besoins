@@ -9,6 +9,7 @@ import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
+import { QuestionRule } from '../entities/question-rule.entity';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -25,6 +26,8 @@ export class SessionsService {
     private questionRepo: Repository<Question>,
     @InjectRepository(ParcoursRule)
     private parcoursRuleRepo: Repository<ParcoursRule>,
+    @InjectRepository(QuestionRule)
+    private questionRuleRepo: Repository<QuestionRule>,
     private emailService: EmailService,
     private settingsService: SettingsService,
     private pdfService: PdfService,
@@ -104,11 +107,84 @@ export class SessionsService {
   }
 
   private async getRecommendationData(session: Session) {
+    // 1. Evaluate Question Rules first (gives absolute priority)
+    const questionRules = await this.questionRuleRepo.find({
+      where: { isActive: true },
+      order: { workflow: 'ASC', order: 'ASC' },
+    });
+
+    if (questionRules.length > 0) {
+      // Evaluate rules against session answers
+      for (const rule of questionRules) {
+        // Only evaluate if rule formation matches session formation, or if rule is global
+        if (rule.formation && rule.formation !== session.formationChoisie) {
+          continue;
+        }
+
+        // Determine which answer set to check based on workflow
+        let answers: Record<string, any> = {};
+        if (rule.workflow === 'prerequis')
+          answers = session.prerequisiteScore || {};
+        else if (rule.workflow === 'mise_a_niveau')
+          answers = session.miseANiveauAnswers || {};
+        else continue;
+
+        if (rule.questionId) {
+          const userAnswer = answers[rule.questionId];
+          let conditionMet = false;
+
+          // Normalize values for comparison
+          const normalize = (v: any) =>
+            String(v || '')
+              .trim()
+              .toLowerCase();
+          const target = normalize(rule.expectedValue);
+          const actual = normalize(userAnswer);
+
+          switch (rule.operator) {
+            case 'EQUALS':
+              conditionMet = actual === target;
+              break;
+            case 'CONTAINS':
+              conditionMet = actual.includes(target);
+              break;
+            // Additional operators can be added here
+          }
+
+          if (conditionMet) {
+            if (
+              rule.resultType === 'CUSTOM_MESSAGE' ||
+              rule.resultType === 'BLOCK'
+            ) {
+              return {
+                recommendation:
+                  rule.resultMessage ||
+                  'Message personnalisé basé sur vos réponses.',
+                recommendations: [
+                  rule.resultMessage || 'Recommandation personnalisée',
+                ],
+                scoreFinal: 0,
+                finalLevel: null,
+                qTextById: {},
+                filteredMiseAnswers: session.miseANiveauAnswers,
+                miseTitle: 'Questions complémentaires',
+                isQuestionRuleOverride: true, // Flag for frontend if needed
+                ruleResultType: rule.resultType,
+              };
+            }
+          }
+        }
+      }
+    }
+
     // Handle special "Parcours Initial" virtual formation
-    if (session.formationChoisie === 'Parcours Initial (DigComp & Word)') {
+    if (session.formationChoisie?.startsWith('Parcours Initial')) {
       return {
-        recommendation: 'DigComp Initial | Word Initial',
-        recommendations: ['DigComp Initial', 'Word Initial'],
+        recommendation:
+          session.finalRecommendation || 'DigComp Initial & Word Initial',
+        recommendations: [
+          session.finalRecommendation || 'DigComp Initial & Word Initial',
+        ],
         scoreFinal: 0,
         finalLevel: { label: 'Initial' } as Level,
         qTextById: {},
