@@ -7,6 +7,7 @@ import { Question } from './entities/question.entity';
 import { Setting } from './entities/setting.entity';
 import { User } from './entities/user.entity';
 import { ParcoursRule } from './entities/parcours-rule.entity';
+import { QuestionRule } from './entities/question-rule.entity';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -23,6 +24,8 @@ export class SeedService implements OnApplicationBootstrap {
     private settingRepo: Repository<Setting>,
     @InjectRepository(ParcoursRule)
     private parcoursRuleRepo: Repository<ParcoursRule>,
+    @InjectRepository(QuestionRule)
+    private questionRuleRepo: Repository<QuestionRule>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -32,6 +35,7 @@ export class SeedService implements OnApplicationBootstrap {
     await this.seedAdmin();
     await this.seedSettings();
     await this.seedParcours();
+    await this.seedQuestionRules();
     console.log('Seeding check complete!');
   }
 
@@ -272,12 +276,12 @@ export class SeedService implements OnApplicationBootstrap {
       },
       {
         text: 'Savoir allumer un ordinateur, utiliser le clavier et la souris',
-        options: ['Acquis', 'Moyen', 'Insuffisant'],
+        options: ['Oui', 'Non'],
         type: 'prerequis',
       },
       {
         text: "Se repérer dans l'environnement Windows (bureau, menu démarrer, fenêtres, icônes...)",
-        options: ['Acquis', 'Moyen', 'Insuffisant'],
+        options: ['Oui', 'Non'],
         type: 'prerequis',
       },
       {
@@ -330,6 +334,13 @@ export class SeedService implements OnApplicationBootstrap {
           type: 'prerequis' as any,
         });
         console.log(`Prerequisite question "${qData.text}" created.`);
+      } else {
+        // Update options if they changed to ensure rules sync
+        if (JSON.stringify(exists.options) !== JSON.stringify(qData.options)) {
+          exists.options = qData.options;
+          await this.questionRepo.save(exists);
+          console.log(`Prerequisite question "${qData.text}" options updated.`);
+        }
       }
     }
 
@@ -1124,5 +1135,56 @@ export class SeedService implements OnApplicationBootstrap {
     );
     await this.parcoursRuleRepo.save(entities);
     console.log(`Seeded ${entities.length} parcours rules.`);
+  }
+
+  private async seedQuestionRules() {
+    const rules = [
+      {
+        text: 'Fréquence d’utilisation d’un ordinateur',
+        value: 'Jamais',
+        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+      },
+      {
+        text: 'Savoir allumer un ordinateur, utiliser le clavier et la souris',
+        value: 'Non',
+        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+      },
+      {
+        text: "Se repérer dans l'environnement Windows (bureau, menu démarrer, fenêtres, icônes...)",
+        value: 'Non',
+        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+      },
+    ];
+
+    for (const rule of rules) {
+      const question = await this.questionRepo.findOne({
+        where: { text: rule.text, type: 'prerequis' as any },
+      });
+
+      if (question) {
+        const exists = await this.questionRuleRepo.findOne({
+          where: {
+            workflow: 'prerequis',
+            questionId: question.id,
+            expectedValue: rule.value,
+          },
+        });
+
+        if (!exists) {
+          const newRule = this.questionRuleRepo.create({
+            workflow: 'prerequis',
+            questionId: question.id,
+            operator: 'EQUALS',
+            expectedValue: rule.value,
+            resultType: 'FORMATION_RECOMMENDATION',
+            resultMessage: rule.recommendation,
+            isActive: true,
+            order: 0,
+          });
+          await this.questionRuleRepo.save(newRule);
+          console.log(`Question rule for "${rule.text}" seeded.`);
+        }
+      }
+    }
   }
 }
