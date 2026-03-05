@@ -679,11 +679,11 @@ const downloadPDF = async () => {
           <div class="p-6 md:p-8 space-y-6">
             <!-- Step 1 in Path -->
             <div class="flex items-start gap-5 relative">
-              <div
+              <!-- <div
                 class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center shrink-0 font-bold text-xs relative z-10 shadow-sm"
               >
                 1
-              </div>
+              </div> -->
               <div class="flex-1">
                 <h4 class="text-base font-bold text-gray-800">
                   {{ recommendedLevel1 ? (session.formationChoisie + ' - ' + recommendedLevel1.label) : (parcoursOptions[0] || recommendedLabel) }}
@@ -710,11 +710,11 @@ const downloadPDF = async () => {
 
             <!-- Step 2 in Path -->
             <div v-if="nextLevel || (parcoursOptions.length > 1)" class="flex items-start gap-5">
-              <div
+              <!-- <div
                 class="w-8 h-8 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center shrink-0 font-bold text-xs relative z-10"
               >
                 2
-              </div>
+              </div> -->
               <div class="flex-1">
                 <h4 class="text-base font-bold text-gray-800">
                   {{ recommendedLevel2 ? (session.formationChoisie + ' - ' + recommendedLevel2.label) : (parcoursOptions[1] || 'Niveau Suivant') }}
