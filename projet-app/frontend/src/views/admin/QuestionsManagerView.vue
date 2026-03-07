@@ -163,7 +163,7 @@ async function saveQuestion() {
     // Filter out empty options
     const payload = {
       ...form.value,
-      options: form.value.responseType === 'text' ? [] : form.value.options.filter((o) => o.trim() !== ""),
+      options: (form.value.responseType === 'text' || form.value.responseType === 'dropdown') ? form.value.options.filter((o) => o.trim() !== "") : form.value.options.filter((o) => o.trim() !== ""),
       // Multi-parent rules
       showIfRules: form.value.showIfEnabled
         ? form.value.showIfRules
@@ -797,6 +797,7 @@ const groupedQuestions = computed(() => {
                   <option value="qcm">Multiple (QCM)</option>
                   <option value="checkbox">Cases à cocher</option>
                   <option value="text">Texte libre</option>
+                  <option value="dropdown">Liste déroulante</option>
                 </select>
               </div>
 
@@ -922,11 +923,11 @@ const groupedQuestions = computed(() => {
               ></textarea>
             </div>
 
-            <div v-if="form.responseType === 'qcm' || form.responseType === 'checkbox'" class="space-y-4">
+            <div v-if="form.responseType === 'qcm' || form.responseType === 'checkbox' || form.responseType === 'dropdown'" class="space-y-4">
               <div class="flex items-center justify-between px-1">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest"
-                  >{{ form.responseType === 'qcm' ? 'Options de Réponse' : 'Cases à cocher' }}</label
+                  >{{ form.responseType === 'qcm' ? 'Options de Réponse' : form.responseType === 'dropdown' ? 'Options de la liste' : 'Cases à cocher' }}</label
                 >
                 <button
                   type="button"

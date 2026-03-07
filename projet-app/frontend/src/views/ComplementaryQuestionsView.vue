@@ -268,6 +268,20 @@ function skipStep() {
                   class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
                 ></textarea>
 
+                <!-- Dropdown Type (Liste déroulante) -->
+                <div v-else-if="q.responseType === 'dropdown'" class="relative">
+                  <select
+                    v-model="responses[q.id]"
+                    class="w-full px-5 py-4 pr-10 bg-white border-2 border-gray-100 rounded-2xl focus:border-brand-primary outline-none transition-all text-sm font-semibold text-gray-700 appearance-none shadow-sm cursor-pointer hover:border-gray-200"
+                  >
+                    <option value="" disabled>Sélectionnez une option...</option>
+                    <option v-for="opt in q.options" :key="opt" :value="typeof opt === 'string' ? opt : opt.label">
+                      {{ typeof opt === 'string' ? opt : opt.label }}
+                    </option>
+                  </select>
+                  <span class="material-icons-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">expand_more</span>
+                </div>
+
                 <!-- Default Text Type (texte libre) -->
                 <input
                   v-else

@@ -114,11 +114,16 @@ async function submitPrerequis(force = false) {
     clearHiddenResponses(questions.value, responses.value);
 
     // 1. Save answers first
-    const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    const patchPayload = {
       metier: metier.value,
       situation: situation.value,
       prerequisiteScore: responses.value,
-    });
+    };
+    if (isForced) {
+      patchPayload.ignoreQuestionRules = true;
+    }
+
+    const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, patchPayload);
     
     const session = patchRes.data;
 

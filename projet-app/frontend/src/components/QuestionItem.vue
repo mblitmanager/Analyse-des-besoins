@@ -70,6 +70,26 @@ const isEmpty = computed(() => {
       </label>
     </div>
 
+    <!-- TYPE: DROPDOWN (Select list) -->
+    <div v-else-if="props.question.responseType === 'dropdown'" class="mt-2">
+      <div class="relative">
+        <select
+          v-model="props.responses[props.question.id]"
+          class="w-full px-5 py-4 pr-10 bg-white border-2 border-gray-100 rounded-2xl focus:border-brand-primary outline-none transition-all text-sm font-semibold text-gray-700 appearance-none shadow-sm cursor-pointer hover:border-gray-200"
+        >
+          <option value="" disabled>Sélectionnez une option...</option>
+          <option
+            v-for="opt in props.question.options"
+            :key="opt"
+            :value="typeof opt === 'string' ? opt : opt.label"
+          >
+            {{ typeof opt === 'string' ? opt : opt.label }}
+          </option>
+        </select>
+        <span class="material-icons-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">expand_more</span>
+      </div>
+    </div>
+
     <!-- TYPE: TEXT (Free input) -->
     <div v-else-if="props.question.responseType === 'text'" class="mt-2">
       <textarea 

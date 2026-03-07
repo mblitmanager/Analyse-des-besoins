@@ -943,6 +943,24 @@ async function saveAndExit() {
                         ></textarea>
                       </div>
 
+                      <!-- Dropdown (Liste déroulante) -->
+                      <div v-else-if="questions[currentQuestionIndex].responseType === 'dropdown'" class="relative">
+                        <select
+                          v-model="currentResponses[questions[currentQuestionIndex].id]"
+                          class="w-full px-6 py-5 pr-12 bg-gray-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-4xl outline-none transition-all font-bold text-base text-gray-700 appearance-none cursor-pointer"
+                        >
+                          <option value="" disabled>Sélectionnez une option...</option>
+                          <option
+                            v-for="opt in questions[currentQuestionIndex].options"
+                            :key="opt"
+                            :value="typeof opt === 'string' ? opt : opt.label"
+                          >
+                            {{ typeof opt === 'string' ? opt : opt.label }}
+                          </option>
+                        </select>
+                        <span class="material-icons-outlined absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xl">expand_more</span>
+                      </div>
+
                       <div v-else class="grid grid-cols-1 gap-4">
                         <label
                           v-for="(option, oIdx) in questions[currentQuestionIndex].options"
@@ -990,7 +1008,7 @@ async function saveAndExit() {
           >
             <div class="flex items-center gap-3">
               <div
-                class="shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-blue-400 text-sm"
+                class="shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"
               >
                 <span class="material-icons-outlined">auto_fix_high</span>
               </div>
@@ -1006,64 +1024,56 @@ async function saveAndExit() {
               </div>
             </div>
 
-            <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12 w-full">
-              <div class="flex items-center gap-4">
-                <template v-if="isPaginated">
-                  <button
-                    v-if="currentQuestionIndex > 0"
-                    @click="currentQuestionIndex--"
-                    class="px-6 py-3 text-xs font-bold text-gray-400 hover:text-brand-primary transition-all flex items-center gap-2 uppercase tracking-widest"
-                  >
-                    Question précédente
-                  </button>
-                  
-                  <button
-                    v-if="currentQuestionIndex < filteredQuestions.length - 1"
-                    @click="currentQuestionIndex++"
-                    :disabled="!currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                    class="px-8 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
-                  >
-                    <span>Question Suivante</span>
-                    <span class="material-icons-outlined text-lg">arrow_forward</span>
-                  </button>
+            <!-- Boutons de navigation alignés à droite -->
+            <div class="flex items-center gap-3">
+              <template v-if="isPaginated">
+                <button
+                  v-if="currentQuestionIndex > 0"
+                  @click="currentQuestionIndex--"
+                  class="px-6 py-3 text-xs font-bold text-gray-400 hover:text-brand-primary transition-all flex items-center gap-2 uppercase tracking-widest"
+                >
+                  Question précédente
+                </button>
+                
+                <button
+                  v-if="currentQuestionIndex < filteredQuestions.length - 1"
+                  @click="currentQuestionIndex++"
+                  :disabled="!currentResponses[filteredQuestions[currentQuestionIndex].id]"
+                  class="px-8 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                >
+                  <span>Question Suivante</span>
+                  <span class="material-icons-outlined text-lg">arrow_forward</span>
+                </button>
 
-                  <button
-                    v-else
-                    @click="nextStep"
-                    :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                    class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
-                  >
-                    <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
-                    <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
-                    <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
-                  </button>
-                </template>
+                <button
+                  v-else
+                  @click="nextStep"
+                  :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
+                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                >
+                  <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
+                  <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
+                  <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
+                </button>
+              </template>
 
-                <template v-else>
-                  <button
-                    @click="nextStep"
-                    :disabled="
-                      submitting ||
-                      Object.entries(currentResponses).some(([id, r]) => {
-                        const q = questions.find(qv => qv.id == id);
-                        return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
-                      })
-                    "
-                    class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
-                  >
-                    <span>{{
-                      currentLevelIndex === levels.length - 1
-                        ? "Terminer"
-                        : "Suivant"
-                    }}</span>
-                    <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
-                    <div
-                      v-else
-                      class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
-                    ></div>
-                  </button>
-                </template>
-              </div>
+              <template v-else>
+                <button
+                  @click="nextStep"
+                  :disabled="
+                    submitting ||
+                    Object.entries(currentResponses).some(([id, r]) => {
+                      const q = questions.find(qv => qv.id == id);
+                      return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
+                    })
+                  "
+                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                >
+                  <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer" : "Suivant" }}</span>
+                  <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
+                  <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
+                </button>
+              </template>
             </div>
           </div>
         </div>

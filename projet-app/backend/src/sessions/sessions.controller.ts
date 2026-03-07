@@ -34,6 +34,7 @@ export class UpdateSessionDto {
   finalRecommendation?: string;
   complementaryQuestions?: any;
   availabilities?: any;
+  ignoreQuestionRules?: boolean;
 }
 
 @Controller('sessions')

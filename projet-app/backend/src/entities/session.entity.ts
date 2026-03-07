@@ -67,6 +67,9 @@ export class Session {
   @Column({ default: false })
   highLevelContinue: boolean;
 
+  @Column({ default: false })
+  ignoreQuestionRules: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
