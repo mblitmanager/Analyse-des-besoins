@@ -28,4 +28,10 @@ export class ParcoursRule {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   certification: string;
+
+  @Column({ type: 'simple-json', nullable: true })
+  prerequisiteQuestionIds: number[];
+
+  @Column({ type: 'varchar', length: 10, default: 'OR' })
+  prerequisiteLogic: 'AND' | 'OR';
 }
