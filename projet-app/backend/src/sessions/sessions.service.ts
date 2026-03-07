@@ -317,11 +317,27 @@ export class SessionsService {
         .split(',')
         .map((v) => v.trim().toLowerCase());
 
-      const hasPrereqFailure =
-        session.prerequisiteScore &&
-        Object.values(session.prerequisiteScore).some((v) =>
-          failureValues.includes(String(v).toLowerCase()),
-        );
+      const checkPrereqFailure = (rule?: ParcoursRule): boolean => {
+        if (!session.prerequisiteScore) return false;
+
+        const qScores = session.prerequisiteScore;
+        const targetIds = rule?.prerequisiteQuestionIds;
+        const logic = rule?.prerequisiteLogic || 'OR';
+
+        // Helper to check if a specific value is a failure
+        const isFailure = (v: any) =>
+          failureValues.includes(String(v).toLowerCase());
+
+        if (targetIds && targetIds.length > 0) {
+          const results = targetIds.map((id) => isFailure(qScores[id]));
+          return logic === 'AND'
+            ? results.every((r) => r)
+            : results.some((r) => r);
+        }
+
+        // Default: at least one failure across all questions
+        return Object.values(qScores).some((v) => isFailure(v));
+      };
 
       const cleanLabel = (l: string) =>
         (l || '')
@@ -374,7 +390,7 @@ export class SessionsService {
       const validRules = activeRules.filter(
         (r) =>
           evaluateRuleCondition(r) &&
-          !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
+          !!r.requirePrerequisiteFailure === checkPrereqFailure(r),
       );
 
       // 2. Select the first matched rule (implicitly by ID/creation order as they come from DB)
@@ -382,14 +398,12 @@ export class SessionsService {
         matchedRule = validRules[0];
       }
 
-      // Fallback: last active rule that matches prereq status if possible
+      // Fallback: search for a rule that matches ONLY the prereq status if no score condition matched
       if (!matchedRule) {
         matchedRule =
-          activeRules
-            .reverse()
-            .find(
-              (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
-            ) || activeRules[0];
+          activeRules.find(
+            (r) => !!r.requirePrerequisiteFailure === checkPrereqFailure(r),
+          ) || null;
       }
 
       if (matchedRule) {

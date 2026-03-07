@@ -41,10 +41,13 @@ const newRule = ref({
   order: 0,
   requirePrerequisiteFailure: false,
   certification: "",
+  prerequisiteQuestionIds: [],
+  prerequisiteLogic: "OR",
 });
 
 // Dynamic helpers for form building
 const selectedFormationLevels = ref([]);
+const prereqQuestions = ref([]); // List of all prerequisite questions for selection
 const conditionLevel = ref("");
 const conditionOperator = ref("=");
 const f1Formation = ref("");
@@ -109,6 +112,8 @@ function openNewForm() {
     order: filteredRules.value.length,
     requirePrerequisiteFailure: false,
     certification: "",
+    prerequisiteQuestionIds: [],
+    prerequisiteLogic: "OR",
   };
   conditionOperator.value = "=";
   showForm.value = true;
@@ -123,7 +128,9 @@ async function openEditForm(rule) {
   newRule.value = { 
     ...rule,
     requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure,
-    certification: rule.certification || ""
+    certification: rule.certification || "",
+    prerequisiteQuestionIds: rule.prerequisiteQuestionIds || [],
+    prerequisiteLogic: rule.prerequisiteLogic || "OR"
   };
   
   // Fetch levels first so dropdowns are populated and enabled
@@ -629,7 +636,7 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="flex items-center gap-3 p-4 bg-red-50/50 rounded-2xl border border-red-100">
+          <div class="space-y-4 p-4 bg-red-50/50 rounded-2xl border border-red-100">
             <label class="flex items-center gap-3 cursor-pointer">
               <div class="relative inline-block w-10 h-5 rounded-full transition-colors duration-200" :class="newRule.requirePrerequisiteFailure ? 'bg-red-500' : 'bg-gray-300'">
                 <input type="checkbox" v-model="newRule.requirePrerequisiteFailure" class="opacity-0 w-0 h-0" />
@@ -640,6 +647,42 @@ onMounted(async () => {
                 <span class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Activer si cette règle ne s'applique qu'en cas d'échec aux prérequis</span>
               </div>
             </label>
+
+            <!-- Granular Prereq Selection -->
+            <transition name="fade">
+              <div v-if="newRule.requirePrerequisiteFailure" class="space-y-4 pt-2 border-t border-red-100/50">
+                <div>
+                  <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Questions cibles (Optionnel)</label>
+                  <div class="max-h-32 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                    <label v-for="q in prereqQuestions" :key="q.id" class="flex items-start gap-2 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors group">
+                      <input type="checkbox" :value="q.id" v-model="newRule.prerequisiteQuestionIds" class="mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary h-3 w-3" />
+                      <span class="text-[10px] font-bold text-gray-600 leading-tight group-hover:text-brand-primary">{{ q.text }}</span>
+                    </label>
+                  </div>
+                  <p class="text-[8px] text-gray-400 mt-2 font-medium italic">Si aucune question n'est sélectionnée, l'échec d'un prérequis quelconque déclenchera la règle.</p>
+                </div>
+
+                <div v-if="newRule.prerequisiteQuestionIds.length > 1">
+                  <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Logique de validation</label>
+                  <div class="flex gap-2">
+                    <button 
+                      @click="newRule.prerequisiteLogic = 'OR'"
+                      class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
+                      :class="newRule.prerequisiteLogic === 'OR' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border border-gray-100'"
+                    >
+                      AU MOINS UNE (OU)
+                    </button>
+                    <button 
+                      @click="newRule.prerequisiteLogic = 'AND'"
+                      class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
+                      :class="newRule.prerequisiteLogic === 'AND' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border border-gray-100'"
+                    >
+                      TOUTES (ET)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </transition>
           </div>
 
           <div>
@@ -720,3 +763,63 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.btn-primary {
+  background: black;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heading-primary {
+  color: #1e3a8a;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@keyframes scale-up {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scale-up {
+  animation: scale-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+</style>
