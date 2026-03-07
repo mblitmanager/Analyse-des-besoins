@@ -376,32 +376,34 @@ async function finishTest(overrideSession = null) {
       // Determine the stop level (where the user stopped/failed)
       const stopLabel = currentLevel.label.toUpperCase();
       
-      // Find the matching rule for the stop level, or the last active rule if no match
-      let matchedRule = null;
-      
-      // Try to find a rule whose condition mentions the stop level
-      for (let i = formationRules.length - 1; i >= 0; i--) {
-        const condUpper = formationRules[i].condition.toUpperCase();
-        if (condUpper.includes(stopLabel)) {
-          matchedRule = formationRules[i];
-          break;
-        }
-      }
-      
-      // If no direct match (e.g., user passed ALL levels but the high-level rules are disabled),
-      // walk backwards through levels to find the last matching active rule
-      if (!matchedRule) {
-        for (let lvlIdx = currentLevelIndex.value; lvlIdx >= 0; lvlIdx--) {
-          const lvlLabel = levels.value[lvlIdx].label.toUpperCase();
-          for (let i = formationRules.length - 1; i >= 0; i--) {
-            const condUpper = formationRules[i].condition.toUpperCase();
-            if (condUpper.includes(lvlLabel)) {
-              matchedRule = formationRules[i];
-              break;
-            }
+      const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
+      const evaluateRuleCondition = (rule) => {
+        const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+        
+        if (condMatch) {
+          const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
+          const targetStr = cleanLabel(condMatch[2]);
+          const targetIdx = levels.value.findIndex((l) => cleanLabel(l.label) === targetStr);
+
+          if (targetIdx === -1) return false;
+          
+          switch (operator) {
+            case '=': return currentLevelIndex.value === targetIdx;
+            case '<': return currentLevelIndex.value < targetIdx;
+            case '≤': return currentLevelIndex.value <= targetIdx;
+            case '>': return currentLevelIndex.value > targetIdx;
+            case '≥': return currentLevelIndex.value >= targetIdx;
+            default: return false;
           }
-          if (matchedRule) break;
         }
+        return cleanLabel(rule.condition).includes(cleanLabel(stopLabel));
+      };
+
+      const validRules = formationRules.filter(r => evaluateRuleCondition(r));
+
+      let matchedRule = null;
+      if (validRules.length > 0) {
+        matchedRule = validRules[0]; // already sorted by ascending order (highest priority first)
       }
 
       // Fallback: use the last active rule
@@ -413,7 +415,7 @@ async function finishTest(overrideSession = null) {
         const f1 = matchedRule.formation1 || "";
         const f2 = matchedRule.formation2 || "";
         if (f2 && f1 !== f2) {
-          finalRecommendation.value = `${f1} & ${f2}`;
+          finalRecommendation.value = `${f1} | ${f2}`;
         } else {
           finalRecommendation.value = f1;
         }
@@ -632,7 +634,20 @@ async function saveAndExit() {
           <div
             class="inline-block px-10 py-6 bg-[#eab973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500"
           >
+            <div
+              v-if="finalRecommendation.includes(' | ')"
+              class="flex flex-col gap-2"
+            >
+              <span
+                v-for="(part, idx) in finalRecommendation.split(' | ')"
+                :key="idx"
+                class="text-[#315264] font-black text-2xl md:text-3xl tracking-tight"
+              >
+                {{ part }}
+              </span>
+            </div>
             <span
+              v-else
               class="text-[#315264] font-black text-3xl md:text-4xl tracking-tight"
             >
               {{ finalRecommendation }}
