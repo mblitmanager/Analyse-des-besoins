@@ -54,7 +54,7 @@ const recommendedLabelParts = computed(() => {
           !lowerCleaned.includes("niveau") && 
           !lowerCleaned.includes("initial") &&
           cleaned !== "Parcours personnalisé") {
-          cleaned = `Niveau ${cleaned}`;
+          cleaned = `${cleaned}`;
       }
       
       return cleaned;

@@ -1,10 +1,16 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
+
+// Ref attaché à la bannière inline
+const inlineBannerRef = ref(null);
+// Sticky visible quand la bannière inline est hors du viewport
+const showStickyBar = ref(false);
+let observer = null;
 
 const store = useAppStore();
 const router = useRouter();
@@ -37,6 +43,23 @@ onMounted(() => {
     return;
   }
   fetchFormations();
+
+  // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
+  observer = new IntersectionObserver(
+    ([entry]) => {
+      // Visible dans le viewport = pas sticky, sinon sticky
+      showStickyBar.value = !entry.isIntersecting;
+    },
+    { threshold: 0.1 }
+  );
+  // On démarre l'observation après que la bannière soit montée
+  setTimeout(() => {
+    if (inlineBannerRef.value) observer.observe(inlineBannerRef.value);
+  }, 300);
+});
+
+onUnmounted(() => {
+  if (observer) observer.disconnect();
 });
 
 async function selectFormation() {
@@ -125,7 +148,12 @@ const groupedFormations = computed(() => {
 // Section styles configuration with accent colors
 const sectionStyles = {
   bureautique: { color: '#a4c2f4', bg: '#a4c2f415', accent: '#3b82f6', accentBg: '#eff6ff' },
-  langues: { color: '#f5cece', bg: '#f5cece15', accent: '#e11d48', accentBg: '#fff1f2' },
+  langues :{
+  color: '#FFA500',       // texte orange
+  bg: '#FFA50015',        // fond très clair orange (15% opacity)
+  accent: '#FF7F50',      // accent plus vif (corail/orange)
+  accentBg: '#FFF5E5',    // fond accent clair
+},
   creation: { color: '#d9ebd3', bg: '#d9ebd315', accent: '#16a34a', accentBg: '#f0fdf4' },
   internet: { color: '#ebd1dc', bg: '#ebd1dc15', accent: '#9333ea', accentBg: '#faf5ff' }
 };
@@ -276,18 +304,20 @@ function selectBureau(form, suite) {
           </div>
         </div>
 
-        <!-- Selected Formation Feedback -->
-        <transition name="fade-slide">
-          <div v-if="selectedFormation" class="mt-8 p-4 rounded-2xl border flex items-center gap-4 animate-scale-up" :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderColor: selectedAccent.accent + '30' }">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-              <span class="material-icons-outlined">check_circle</span>
+        <!-- Selected Formation Feedback (inline - sert de référence pour l'observer) -->
+        <div ref="inlineBannerRef">
+          <transition name="fade-slide">
+            <div v-if="selectedFormation" class="mt-8 p-4 rounded-2xl border flex items-center gap-4 animate-scale-up" :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderColor: selectedAccent.accent + '30' }">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+                <span class="material-icons-outlined">check_circle</span>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+                <p class="text-sm font-black text-[#0d1b3e]">{{ selectedFormation.label }}</p>
+              </div>
             </div>
-            <div>
-              <p class="text-xs font-bold uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
-              <p class="text-sm font-black text-[#0d1b3e]">{{ selectedFormation.label }}</p>
-            </div>
-          </div>
-        </transition>
+          </transition>
+        </div>
 
         <!-- Bottom Actions -->
         <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12">
@@ -305,6 +335,37 @@ function selectBureau(form, suite) {
     </main>
 
     <SiteFooter />
+
+    <!-- Sticky Bottom Bar - apparaît quand la bannière inline sort du viewport -->
+    <transition name="sticky-slide">
+      <div
+        v-if="selectedFormation && showStickyBar"
+        class="fixed bottom-0 left-0 right-0 z-50 px-4 py-3 shadow-2xl"
+        :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderTop: `2px solid ${selectedAccent.accent}30` }"
+      >
+        <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+              <span class="material-icons-outlined text-base">check_circle</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+              <p class="text-sm font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</p>
+            </div>
+          </div>
+          <button
+            @click="selectFormation"
+            :disabled="submitting"
+            class="px-7 py-3 font-black uppercase tracking-widest text-xs rounded-xl shadow-lg transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-40 shrink-0"
+            :style="{ backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 20px -4px ${selectedAccent.accent}50` }"
+          >
+            <span v-if="submitting" class="material-icons-outlined animate-spin text-base">sync</span>
+            <span>{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
+            <span v-if="!submitting" class="material-icons-outlined text-base">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -349,6 +410,13 @@ function selectBureau(form, suite) {
 }
 .fade-slide-enter-from { opacity: 0; transform: translateY(20px); }
 .fade-slide-leave-to { opacity: 0; transform: translateY(-20px); }
+
+/* Sticky bottom bar animation */
+.sticky-slide-enter-active, .sticky-slide-leave-active {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.sticky-slide-enter-from { transform: translateY(100%); opacity: 0; }
+.sticky-slide-leave-to { transform: translateY(100%); opacity: 0; }
 
 .modal-enter-active, .modal-leave-active {
   transition: opacity 0.3s ease;

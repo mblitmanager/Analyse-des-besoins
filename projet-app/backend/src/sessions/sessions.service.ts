@@ -199,7 +199,7 @@ export class SessionsService {
       order: { workflow: 'ASC', order: 'ASC' },
     });
 
-    if (questionRules.length > 0) {
+    if (questionRules.length > 0 && !session.ignoreQuestionRules) {
       // Evaluate rules against session answers
       for (const rule of questionRules) {
         // Only evaluate if rule formation matches session formation, or if rule is global
@@ -323,39 +323,75 @@ export class SessionsService {
           failureValues.includes(String(v).toLowerCase()),
         );
 
-      // 1. Try to find a rule with matching stop level HIGHEST PRIORITY
-      // We prioritize rules that match the stop level AND correctly match the prereq failure status
-      const potentialMatches = activeRules.filter((r) =>
-        r.condition.toUpperCase().includes(stopUpper),
+      const stopIdx = levels.findIndex((l) => l.label === stopLevelLabel);
+      const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
+        // Condition is expected to be like "Si résultat du test < Basique" or "< Basique"
+        const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+
+        // Ensure both target strings match regardless of "Niveau" prefix
+        const cleanLabel = (l: string) =>
+          l
+            .replace(/^Niveau\s+/i, '')
+            .trim()
+            .toUpperCase();
+
+        if (condMatch) {
+          const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
+          const targetStr = cleanLabel(condMatch[2]);
+          const targetIdx = levels.findIndex(
+            (l) => cleanLabel(l.label) === targetStr,
+          );
+
+          // If the target level doesn't exist in the formation, rule cannot be evaluated
+          if (targetIdx === -1) return false;
+
+          // Note: if user didn't even pass Level 0, their index should be handled correctly.
+          // In the current architecture, stopIdx represents the first failed level.
+          // Example: [Débutant, Initial, Basique]. If they fail Débutant, stopIdx = 0.
+
+          switch (operator) {
+            case '=':
+              return stopIdx === targetIdx;
+            case '<':
+              return stopIdx < targetIdx;
+            case '≤':
+              return stopIdx <= targetIdx;
+            case '>':
+              return stopIdx > targetIdx;
+            case '≥':
+              return stopIdx >= targetIdx;
+            default:
+              return false;
+          }
+        }
+
+        // Fallback for old rules without operators (implicit = or substring match)
+        return rule.condition.toUpperCase().includes(stopUpper);
+      };
+
+      // 1. Evaluate all active rules to see which ones match the user's score AND prereq failure status
+      const validRules = activeRules.filter(
+        (r) =>
+          evaluateRuleCondition(r) &&
+          !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
       );
 
-      // Prioritize rule matching both stopLevel and prereq status
-      matchedRule =
-        potentialMatches.find(
-          (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
-        ) || null;
+      // 2. Select the rule with the highest priority (lowest order number).
+      // If multiple rules matched and had the same order, pick the first one.
+      if (validRules.length > 0) {
+        // Sort by order just in case they aren't already sorted
+        validRules.sort((a, b) => a.order - b.order);
+        matchedRule = validRules[0];
+      }
 
-      // 2. If no direct match on stopLevel + prereq, walk backwards through levels
+      // Fallback: last active rule that matches prereq status if possible, regardless of score conditions
       if (!matchedRule) {
-        const stopIdx = levels.findIndex((l) => l.label === stopLevelLabel);
-        for (
-          let lvlIdx = stopIdx >= 0 ? stopIdx : levels.length - 1;
-          lvlIdx >= 0;
-          lvlIdx--
-        ) {
-          const lvlUpper = levels[lvlIdx].label.toUpperCase();
-          const lvlMatches = activeRules.filter((r) =>
-            r.condition.toUpperCase().includes(lvlUpper),
-          );
-          matchedRule =
-            lvlMatches.find(
+        matchedRule =
+          activeRules
+            .reverse()
+            .find(
               (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
-            ) ||
-            lvlMatches[0] ||
-            null;
-
-          if (matchedRule) break;
-        }
+            ) || activeRules[0];
       }
 
       // Fallback: last active rule that matches prereq status if possible

@@ -172,7 +172,7 @@ function getOptionIcon(opt) {
           Vos Disponibilités
         </h1>
         <p class="text-gray-400 text-base md:text-lg">
-          Planifions ensemble votre parcours de formation.
+           Nous nous adaptons à votre emploi du temps.
         </p>
         
       </div>
@@ -185,7 +185,7 @@ function getOptionIcon(opt) {
 
       <div v-else class="space-y-6">
         <div
-          class="bg-[#5fa0a] rounded-3xl shadow-xl border border-white overflow-hidden"
+          class="bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <!-- <div
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
@@ -211,19 +211,16 @@ function getOptionIcon(opt) {
                 <p class="text-base font-bold heading-primary">{{ q.text }}</p>
               </div>
 
-              <!-- QCM Type (Selection Cards) -->
+              <!-- QCM Type (Selection Cards) - Design icon/colonne appliqué à toutes les questions -->
               <div
-                v-if="q.responseType === 'qcm' || q.metadata?.type === 'qcm' || (q.options?.length > 0 && q.metadata?.type !== 'multi_select')"
-                :class="q.text.includes('moment êtes-vous disponible') ? 'grid grid-cols-2 md:grid-cols-4 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'"
+                v-if="(q.responseType === 'qcm' || q.metadata?.type === 'qcm' || (q.options?.length > 0 && q.metadata?.type !== 'multi_select')) && q.responseType !== 'dropdown'"
+                class="grid grid-cols-2 md:grid-cols-4 gap-4"
               >
                 <label
                   v-for="opt in q.options"
                   :key="opt"
-                  class="option-card"
-                  :class="[
-                    responses[q.id] === opt ? 'option-card--selected' : 'option-card--default',
-                    q.text.includes('moment êtes-vous disponible') ? 'flex-col py-6 px-4 text-center' : 'flex-row py-4 px-6'
-                  ]"
+                  class="option-card flex-col! py-6! px-4! text-center!"
+                  :class="responses[q.id] === opt ? 'option-card--selected' : 'option-card--default'"
                 >
                   <input
                     type="radio"
@@ -232,37 +229,28 @@ function getOptionIcon(opt) {
                     :value="opt"
                     class="hidden"
                   />
-                  <!-- Icon for availability time slots -->
+                  <!-- Icône dynamique selon la réponse -->
                   <div 
-                    v-if="q.text.includes('moment êtes-vous disponible') && getOptionIcon(opt)"
+                    v-if="getOptionIcon(opt)"
                     class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300"
-                    :class="responses[q.id] === opt ? 'bg-[brand-primary] text-[#eab973] shadow-lg shadow-brand-primary/20' : 'bg-gray-100 text-gray-400'"
+                    :class="responses[q.id] === opt ? 'bg-brand-primary/10 text-brand-primary shadow-lg shadow-brand-primary/20' : 'bg-gray-100 text-gray-400'"
                   >
                     <span class="material-icons-outlined text-2xl">{{ getOptionIcon(opt) }}</span>
                   </div>
 
                   <div class="flex-1 flex flex-col items-center">
                     <span 
-                      class="option-card__label" 
-                      :class="{'text-center': q.text.includes('moment êtes-vous disponible'), 'font-black uppercase tracking-widest text-[11px]': q.text.includes('moment êtes-vous disponible')}"
+                      class="option-card__label text-center! font-black! uppercase! tracking-widest! text-[11px]!"
                       v-html="formatBoldText(opt)"
                     ></span>
                   </div>
 
+                  <!-- Checkmark sélection -->
                   <div 
-                    v-if="!q.text.includes('moment êtes-vous disponible')"
-                    class="option-card__radio" 
-                    :class="responses[q.id] === opt ? 'option-card__radio--selected' : 'option-card__radio--default'"
-                  >
-                    <div v-if="responses[q.id] === opt" class="option-card__radio-dot"></div>
-                  </div>
-
-                  <!-- Checkmark for specific vertical cards -->
-                  <div 
-                    v-if="q.text.includes('moment êtes-vous disponible') && responses[q.id] === opt"
+                    v-if="responses[q.id] === opt"
                     class="absolute top-3 right-3 w-5 h-5 bg-brand-primary rounded-full flex items-center justify-center text-white scale-110 shadow-sm"
                   >
-                    <span class="material-icons-outlined text-[12px] bg-transparent font-bold">check</span>
+                    <span class="material-icons-outlined text-[12px] font-bold">check</span>
                   </div>
                 </label>
               </div>
@@ -318,6 +306,20 @@ function getOptionIcon(opt) {
                 class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition-all text-sm text-gray-700 shadow-sm"
               ></textarea>
 
+              <!-- Dropdown Type (Liste déroulante) -->
+              <div v-else-if="q.responseType === 'dropdown'" class="relative">
+                <select
+                  v-model="responses[q.id]"
+                  class="w-full px-5 py-4 pr-10 bg-white border-2 border-gray-100 rounded-2xl focus:border-brand-primary outline-none transition-all text-sm font-semibold text-gray-700 appearance-none shadow-sm cursor-pointer hover:border-gray-200"
+                >
+                  <option value="" disabled>Sélectionnez une option...</option>
+                  <option v-for="opt in q.options" :key="opt" :value="typeof opt === 'string' ? opt : opt.label">
+                    {{ typeof opt === 'string' ? opt : opt.label }}
+                  </option>
+                </select>
+                <span class="material-icons-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-lg">expand_more</span>
+              </div>
+
               <!-- Default Text Type -->
               <input
                 v-else
@@ -331,40 +333,25 @@ function getOptionIcon(opt) {
         </div>
 
         <!-- Footer Actions -->
-        <div
-          class="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4"
-        >
+        <!-- Footer Actions -->
+        <div class="pt-8 flex flex-row justify-between items-center gap-4 border-t border-gray-100 mt-4">
           <button
             @click="router.push('/complementary')"
-            class="flex items-center gap-2 text-gray-400 font-medium hover:text-gray-600 transition-colors text-sm"
+            class="px-6 py-4 flex items-center gap-2 text-gray-400 font-bold hover:text-brand-primary hover:bg-white transition-all text-sm rounded-2xl border-2 border-transparent hover:border-gray-100"
           >
             <span class="material-icons-outlined">arrow_back</span>
             Précédent
           </button>
-          <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <!-- <button
-              @click="skipStep"
-              class="px-6 py-4 text-gray-400 hover:text-gray-600 font-bold text-sm transition-all border-2 border-transparent hover:border-gray-100 rounded-2xl"
-            >
-              Passer cette étape
-            </button> -->
-        <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12 w-full">
+
           <button
             @click="nextStep"
             :disabled="submitting"
             class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span>Valider mes disponibilités</span>
-            <span v-if="!submitting" class="material-icons-outlined text-xl"
-              >event_available</span
-            >
-            <div
-              v-else
-              class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"
-            ></div>
+            <span v-if="!submitting" class="material-icons-outlined text-xl">event_available</span>
+            <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
           </button>
-        </div>
-          </div>
         </div>
       </div>
     </main>

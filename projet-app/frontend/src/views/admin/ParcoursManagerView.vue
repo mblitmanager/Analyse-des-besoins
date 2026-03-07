@@ -45,6 +45,7 @@ const newRule = ref({
 // Dynamic helpers for form building
 const selectedFormationLevels = ref([]);
 const conditionLevel = ref("");
+const conditionOperator = ref("=");
 const f1Formation = ref("");
 const f1Level = ref("");
 const f2Formation = ref("");
@@ -107,6 +108,7 @@ function openNewForm() {
     order: filteredRules.value.length,
     requirePrerequisiteFailure: false,
   };
+  conditionOperator.value = "=";
   showForm.value = true;
 }
 
@@ -127,8 +129,14 @@ async function openEditForm(rule) {
   }
 
   // Parse condition
-  const condMatch = rule.condition.match(/[=≤<] (.*)$/);
-  conditionLevel.value = condMatch ? condMatch[1] : "";
+  const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+  if (condMatch) {
+    conditionOperator.value = condMatch[1].replace('<=', '≤').replace('>=', '≥');
+    conditionLevel.value = condMatch[2];
+  } else {
+    conditionOperator.value = "=";
+    conditionLevel.value = rule.condition.replace(/Si résultat du test( =)?( )?/, "").trim(); // Fallback for old rules
+  }
 
   // Parse formation 1
   const f1 = formationsList.value.find(f => rule.formation1?.startsWith(f.label));
@@ -267,10 +275,10 @@ watch(() => newRule.value.formation, async (val) => {
   }
 });
 
-// Auto-build condition string when conditionLevel changes
-watch(conditionLevel, (val) => {
+// Auto-build condition string when conditionLevel or conditionOperator changes
+watch([conditionLevel, conditionOperator], ([val, op]) => {
   if (val && !isInitializingForm) {
-    newRule.value.condition = `Si résultat du test = ${val}`;
+    newRule.condition = `Si résultat du test ${op} ${val}`;
   }
 });
 
@@ -587,7 +595,17 @@ onMounted(async () => {
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Condition (Niveau du test)</label>
             <div class="flex items-center gap-3">
-              <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Si résultat =</span>
+              <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Si résultat du test</span>
+              <select
+                v-model="conditionOperator"
+                class="px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white text-center cursor-pointer"
+              >
+                <option value="=">=</option>
+                <option value="<"><</option>
+                <option value="≤">≤</option>
+                <option value=">">></option>
+                <option value="≥">≥</option>
+              </select>
               <input
                 v-model="conditionLevel"
                 list="levels-list-main"

@@ -30,12 +30,12 @@ export class SeedService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     console.log('Checking and seeding data...');
-    await this.seedFormations();
-    await this.seedWorkflow();
-    await this.seedAdmin();
+    // await this.seedFormations();
+    // await this.seedWorkflow();
+    // await this.seedAdmin();
     await this.seedSettings();
-    await this.seedParcours();
-    await this.seedQuestionRules();
+    // await this.seedParcours();
+    // await this.seedQuestionRules();
     console.log('Seeding check complete!');
   }
 
