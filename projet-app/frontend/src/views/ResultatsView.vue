@@ -40,7 +40,7 @@ const recommendedLabel = computed(() => {
   const rec = session.value.finalRecommendation || "";
   
   // If we have a combined path (multiple levels), use the specific label requested by the user
-  if (rec.includes("&") || rec.includes(" et ") || (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 1)) {
+  if (rec.includes("&") || rec.includes(" et ") || rec.includes(" | ") || (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 1)) {
     return "Consolider les bases et développer votre autonomie";
   }
 
@@ -72,54 +72,77 @@ const recommendedLevel1 = computed(() => {
   const opts = parcoursOptions.value;
   if (!opts.length) return null;
   
-  // Extract first level from first option
-  const firstOpt = opts[0];
-  const label = firstOpt.split(/ et | \+ | & | \| /)[0]?.trim();
-  return levels.value.find(l => l.label === label) || null;
+  const label = opts[0]?.trim();
+  if (!label) return null;
+
+  // Try exact match first
+  let level = levels.value.find(l => l.label === label);
+  if (level) return level;
+
+  // Try to find if label contains any level label (matching from longest to shortest to avoid partial match issues like A1 in A11)
+  const sortedLevels = [...levels.value].sort((a, b) => b.label.length - a.label.length);
+  return sortedLevels.find(l => label.toLowerCase().includes(l.label.toLowerCase())) || null;
 });
 
 const recommendedLevel2 = computed(() => {
   if (!session.value || !levels.value.length) return null;
   const opts = parcoursOptions.value;
-  if (!opts.length) return null;
+  if (opts.length < 2) return null;
 
-  const firstOpt = opts[0];
-  const parts = firstOpt.split(/ et | \+ | & | \| /);
-  if (parts.length < 2) return null;
-  const label = parts[1].trim();
-  return levels.value.find(l => l.label === label) || null;
+  const label = opts[1]?.trim();
+  if (!label) return null;
+
+  let level = levels.value.find(l => l.label === label);
+  if (level) return level;
+
+  const sortedLevels = [...levels.value].sort((a, b) => b.label.length - a.label.length);
+  return sortedLevels.find(l => label.toLowerCase().includes(l.label.toLowerCase())) || null;
 });
+
+function getStepTitle(index) {
+  const opt = parcoursOptions.value[index];
+  if (!opt) return "";
+  
+  const level = index === 0 ? recommendedLevel1.value : recommendedLevel2.value;
+  
+  // If we found a level, and the option is NOT already exactly that level title
+  // we try to format it as "Formation - Level" for consistency
+  if (level && session.value.formationChoisie) {
+     const standardTitle = `${session.value.formationChoisie} - ${level.label}`;
+     // If the manual option is just the level, or even just the level name without formation
+     if (opt.toLowerCase() === level.label.toLowerCase() || standardTitle.toLowerCase().includes(opt.toLowerCase())) {
+        return standardTitle;
+     }
+  }
+  
+  return opt;
+}
 
 const parcoursOptions = computed(() => {
   if (!session.value) return [];
   
   // If we have an explicit list of recommendations from backend rules/logic
+  let rawOptions = [];
   if (Array.isArray(session.value.recommendations) && session.value.recommendations.length) {
-    return session.value.recommendations.map(r => String(r));
+    rawOptions = session.value.recommendations.map(r => String(r));
+  } else {
+    const rec = session.value.finalRecommendation || "";
+    if (rec) rawOptions = [rec];
   }
 
-  const rec = session.value.finalRecommendation || "";
-  if (!rec) return [];
-  
-  // Support both " & " and " et " separators
-  if (rec.includes(" & ")) {
-    return rec.split(" & ").map(s => s.trim());
-  }
-  if (rec.includes(" et ")) {
-    return rec.split(" et ").map(s => s.trim());
-  }
+  if (rawOptions.length === 0) return [];
 
-  // Try to split older format "Formation - Level1 & Level2"
-  if (rec.includes("&")) {
-    const parts = rec.split("-")[1]?.trim().split("&");
-    if (parts && parts.length >= 2) {
-      return [
-        `${session.value.formationChoisie || ""} - ${parts[0].trim()}`.trim(),
-        `${session.value.formationChoisie || ""} - ${parts[1].trim()}`.trim(),
-      ];
-    }
-  }
-  return [rec];
+  // Flatten and split all options by separators: " | ", " & ", " et "
+  const finalOpts = [];
+  rawOptions.forEach(opt => {
+    const parts = opt.split(/ \| | & | et /);
+    parts.forEach(p => {
+      const trimmed = p.trim();
+      if (trimmed) finalOpts.push(trimmed);
+    });
+  });
+
+  return finalOpts;
 });
 
 // display options based on calculated parcoursOr explicit recommendations
@@ -557,7 +580,7 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 gap-5">
           <div
             class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
@@ -587,16 +610,11 @@ const downloadPDF = async () => {
             </p>
           </div>
 
-          <div
+          <!-- <div
             v-if="session.stopLevel && session.scorePretest !== -1"
             class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
             <div class="flex items-start justify-between mb-5">
-              <!-- <div
-                class="w-9 h-9 bg-orange-600/10 text-orange-600 rounded-lg flex items-center justify-center group-hover:bg-orange-600 group-hover:text-blue-400 transition-all text-sm"
-              >
-                <span class="material-icons-outlined">translate</span>
-              </div> -->
               <span
                 class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-bold uppercase tracking-widest"
                 >Niveau {{ session.stopLevel }}</span
@@ -630,7 +648,7 @@ const downloadPDF = async () => {
             <p class="text-sm text-gray-400 leading-relaxed">
               Ce parcours correspond à un démarrage pour acquérir les bases fondamentales.
             </p>
-          </div>
+          </div> -->
         </div>
       </section>
 
@@ -686,7 +704,7 @@ const downloadPDF = async () => {
               </div> -->
               <div class="flex-1">
                 <h4 class="text-base font-bold text-gray-800">
-                  {{ recommendedLevel1 ? (session.formationChoisie + ' - ' + recommendedLevel1.label) : (parcoursOptions[0] || recommendedLabel) }}
+                  {{ getStepTitle(0) || recommendedLabel }}
                 </h4>
                 <p class="text-gray-400 font-medium text-xs mt-1">
                   {{ recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
@@ -717,7 +735,7 @@ const downloadPDF = async () => {
               </div> -->
               <div class="flex-1">
                 <h4 class="text-base font-bold text-gray-800">
-                  {{ recommendedLevel2 ? (session.formationChoisie + ' - ' + recommendedLevel2.label) : (parcoursOptions[1] || 'Niveau Suivant') }}
+                  {{ getStepTitle(1) || 'Niveau Suivant' }}
                 </h4>
                 <p class="text-gray-400 font-medium text-xs mt-1">
                   {{ recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}

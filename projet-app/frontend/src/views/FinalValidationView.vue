@@ -40,8 +40,8 @@ const recommendedLabel = computed(() => {
 
 const recommendedLabelParts = computed(() => {
   if (!recommendedLabel.value) return [];
-  // Split the exact ' & ' string returned by the backend (e.g., "Niveau Opérationnel & Niveau Avancé")
-  const rawParts = recommendedLabel.value.split(/ & | \/ /);
+  // Split the exact ' & ' string or ' | ' returned by the logic
+  const rawParts = recommendedLabel.value.split(/ & | \/ | \| /);
   
   return rawParts.map(p => {
       let cleaned = p.trim();

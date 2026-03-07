@@ -47,7 +47,7 @@ async function fetchSettings() {
   try {
     const [settingsRes, workflowRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/settings`),
-      axios.get(`${apiBaseUrl}/workflow`)
+      axios.get(`${apiBaseUrl}/workflow?all=true`)
     ]);
     settings.value = settingsRes.data;
     workflowSteps.value = workflowRes.data;

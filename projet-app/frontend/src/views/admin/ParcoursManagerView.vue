@@ -278,7 +278,7 @@ watch(() => newRule.value.formation, async (val) => {
 // Auto-build condition string when conditionLevel or conditionOperator changes
 watch([conditionLevel, conditionOperator], ([val, op]) => {
   if (val && !isInitializingForm) {
-    newRule.condition = `Si résultat du test ${op} ${val}`;
+    newRule.value.condition = `Si résultat du test ${op} ${val}`;
   }
 });
 
