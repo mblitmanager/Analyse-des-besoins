@@ -18,6 +18,8 @@ export class QuestionsService {
     private questionRepo: Repository<Question>,
     @InjectRepository(Formation)
     private formationRepo: Repository<Formation>,
+    @InjectRepository(Level)
+    private levelRepo: Repository<Level>,
   ) {}
 
   async findQuestions(
@@ -124,16 +126,30 @@ export class QuestionsService {
   }
 
   async findByLevel(formationSlug: string, levelLabel: string) {
+    // 1. Find the level entity first to get its ID, applying normalization
+    const levels = await this.levelRepo.find({
+      where: { formation: { slug: formationSlug } },
+    });
+
+    const clean = (s: string) =>
+      s
+        .replace(/^Niveau\s+/i, '')
+        .trim()
+        .toLowerCase();
+    const target = clean(levelLabel);
+
+    // Find the level that matches the target label
+    const level = levels.find((l) => clean(l.label) === target);
+
+    if (!level) return [];
+
     const questions = await this.questionRepo.find({
       where: {
         type: 'positionnement',
         isActive: true,
-        level: {
-          label: levelLabel,
-          formation: { slug: formationSlug },
-        },
+        level: { id: level.id },
       },
-      relations: ['level', 'level.formation'],
+      relations: ['level'],
       order: { order: 'ASC' },
     });
 
