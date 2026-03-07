@@ -377,22 +377,9 @@ export class SessionsService {
           !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
       );
 
-      // 2. Select the rule with the highest priority (lowest order number).
-      // If multiple rules matched and had the same order, pick the first one.
+      // 2. Select the first matched rule (implicitly by ID/creation order as they come from DB)
       if (validRules.length > 0) {
-        // Sort by order just in case they aren't already sorted
-        validRules.sort((a, b) => a.order - b.order);
         matchedRule = validRules[0];
-      }
-
-      // Fallback: last active rule that matches prereq status if possible, regardless of score conditions
-      if (!matchedRule) {
-        matchedRule =
-          activeRules
-            .reverse()
-            .find(
-              (r) => !!r.requirePrerequisiteFailure === !!hasPrereqFailure,
-            ) || activeRules[0];
       }
 
       // Fallback: last active rule that matches prereq status if possible

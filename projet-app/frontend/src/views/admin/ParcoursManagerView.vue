@@ -493,7 +493,7 @@ onMounted(async () => {
       <table class="w-full min-w-max text-left">
         <thead>
           <tr class="border-b border-gray-50 bg-gray-50/50">
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-10">#</th>
+            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-10">ID</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Condition</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 1</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 2</th>
@@ -509,7 +509,7 @@ onMounted(async () => {
             class="hover:bg-blue-50/30 transition-colors"
             :class="rule.isActive === false ? 'opacity-40 grayscale' : ''"
           >
-            <td class="px-8 py-5 text-xs font-black text-gray-300">{{ idx + 1 }}</td>
+            <td class="px-8 py-5 text-xs font-black text-gray-300">{{ rule.id }}</td>
             <td class="px-8 py-5">
               <span class="text-xs font-bold text-gray-700">{{ rule.condition }}</span>
             </td>
@@ -709,14 +709,7 @@ onMounted(async () => {
           <datalist id="levels-list-f2">
             <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
           </datalist>
-          <div>
-            <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Ordre d'affichage</label>
-            <input
-              v-model.number="newRule.order"
-              type="number"
-              class="w-24 px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all"
-            />
-          </div>
+          <!-- Form Actions -->
           <button
             @click="saveRule"
             class="w-full py-4 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-black transition-all"
