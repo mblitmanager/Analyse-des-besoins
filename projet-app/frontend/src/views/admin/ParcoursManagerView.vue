@@ -40,6 +40,7 @@ const newRule = ref({
   formation2: "",
   order: 0,
   requirePrerequisiteFailure: false,
+  certification: "",
 });
 
 // Dynamic helpers for form building
@@ -107,6 +108,7 @@ function openNewForm() {
     formation2: "",
     order: filteredRules.value.length,
     requirePrerequisiteFailure: false,
+    certification: "",
   };
   conditionOperator.value = "=";
   showForm.value = true;
@@ -120,7 +122,8 @@ async function openEditForm(rule) {
   editingRule.value = rule;
   newRule.value = { 
     ...rule,
-    requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure
+    requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure,
+    certification: rule.certification || ""
   };
   
   // Fetch levels first so dropdowns are populated and enabled
@@ -494,6 +497,7 @@ onMounted(async () => {
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Condition</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 1</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 2</th>
+            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Certif.</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fail Prereq?</th>
             <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
           </tr>
@@ -518,6 +522,10 @@ onMounted(async () => {
               <span class="inline-block px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
                 {{ rule.formation2 }}
               </span>
+            </td>
+            <td class="px-8 py-5">
+              <span v-if="rule.certification" class="text-xs font-bold text-brand-primary uppercase">{{ rule.certification }}</span>
+              <span v-else class="text-[10px] text-gray-300 italic">Aucune</span>
             </td>
             <td class="px-8 py-5">
               <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
@@ -632,6 +640,15 @@ onMounted(async () => {
                 <span class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Activer si cette règle ne s'applique qu'en cas d'échec aux prérequis</span>
               </div>
             </label>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Certification associée</label>
+            <input
+              v-model="newRule.certification"
+              placeholder="Ex : ICDL, TOSA, RS..."
+              class="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-4">

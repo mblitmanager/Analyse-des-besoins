@@ -323,17 +323,18 @@ export class SessionsService {
           failureValues.includes(String(v).toLowerCase()),
         );
 
-      const stopIdx = levels.findIndex((l) => l.label === stopLevelLabel);
+      const cleanLabel = (l: string) =>
+        (l || '')
+          .replace(/^Niveau\s+/i, '')
+          .trim()
+          .toUpperCase();
+
+      const stopIdx = levels.findIndex(
+        (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
+      );
       const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
         // Condition is expected to be like "Si résultat du test < Basique" or "< Basique"
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
-
-        // Ensure both target strings match regardless of "Niveau" prefix
-        const cleanLabel = (l: string) =>
-          l
-            .replace(/^Niveau\s+/i, '')
-            .trim()
-            .toUpperCase();
 
         if (condMatch) {
           const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
@@ -439,6 +440,7 @@ export class SessionsService {
           filteredComplementaryAnswers: session.complementaryQuestions,
           filteredAvailabilities: session.availabilities,
           miseTitle: 'Mise à niveau (réponses)',
+          certification: matchedRule.certification,
         };
       }
     }

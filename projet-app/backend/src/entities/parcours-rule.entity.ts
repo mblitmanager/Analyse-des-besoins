@@ -25,4 +25,7 @@ export class ParcoursRule {
 
   @Column({ type: 'boolean', default: false })
   requirePrerequisiteFailure: boolean;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  certification: string;
 }
