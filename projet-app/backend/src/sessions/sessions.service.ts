@@ -308,6 +308,11 @@ export class SessionsService {
       const stopUpper = stopLevelLabel.toUpperCase();
       let matchedRule: ParcoursRule | null = null;
 
+      // Fetch all prerequisite questions once to map indices for rules
+      const allPrereqs = await this.questionRepo.find({
+        where: { type: 'prerequis' },
+      });
+
       // Check if there are any prerequisite failures based on configurable settings
       const failureValuesStr = await this.settingsService.getValue(
         'PREREQUISITE_FAILURE_VALUES',
@@ -321,22 +326,44 @@ export class SessionsService {
         if (!session.prerequisiteScore) return false;
 
         const qScores = session.prerequisiteScore;
-        const targetIds = rule?.prerequisiteQuestionIds;
+        const conditions = rule?.prerequisiteConditions;
         const logic = rule?.prerequisiteLogic || 'OR';
 
-        // Helper to check if a specific value is a failure
-        const isFailure = (v: any) =>
+        // Helper to check if a specific value is a failure using global failure keywords
+        const isGenericFailure = (v: any) =>
           failureValues.includes(String(v).toLowerCase());
 
-        if (targetIds && targetIds.length > 0) {
-          const results = targetIds.map((id) => isFailure(qScores[id]));
+        if (conditions && conditions.length > 0) {
+          const results = conditions.map((cond) => {
+            const userResponse = qScores[cond.questionId];
+            if (!userResponse) return false;
+
+            // If no specific response indexes are defined, use keyword-based failure detection
+            if (!cond.responseIndexes || cond.responseIndexes.length === 0) {
+              return isGenericFailure(userResponse);
+            }
+
+            // Otherwise, check if user's response (string) matches any of the target option strings
+            const question = allPrereqs.find((q) => q.id === cond.questionId);
+            if (!question || !question.options) return false;
+
+            return cond.responseIndexes.some((idx) => {
+              const targetOption = question.options[idx];
+              return (
+                targetOption &&
+                String(userResponse).toLowerCase() ===
+                  String(targetOption).toLowerCase()
+              );
+            });
+          });
+
           return logic === 'AND'
             ? results.every((r) => r)
             : results.some((r) => r);
         }
 
-        // Default: at least one failure across all questions
-        return Object.values(qScores).some((v) => isFailure(v));
+        // Default behavior: check for any generic failure across all answers if no specific conditions are set
+        return Object.values(qScores).some((v) => isGenericFailure(v));
       };
 
       const cleanLabel = (l: string) =>

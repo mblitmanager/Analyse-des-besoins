@@ -41,7 +41,7 @@ const newRule = ref({
   order: 0,
   requirePrerequisiteFailure: false,
   certification: "",
-  prerequisiteQuestionIds: [],
+  prerequisiteConditions: [],
   prerequisiteLogic: "OR",
 });
 
@@ -112,7 +112,7 @@ function openNewForm() {
     order: filteredRules.value.length,
     requirePrerequisiteFailure: false,
     certification: "",
-    prerequisiteQuestionIds: [],
+    prerequisiteConditions: [],
     prerequisiteLogic: "OR",
   };
   conditionOperator.value = "=";
@@ -129,7 +129,7 @@ async function openEditForm(rule) {
     ...rule,
     requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure,
     certification: rule.certification || "",
-    prerequisiteQuestionIds: rule.prerequisiteQuestionIds || [],
+    prerequisiteConditions: rule.prerequisiteConditions || [],
     prerequisiteLogic: rule.prerequisiteLogic || "OR"
   };
   
@@ -172,6 +172,36 @@ async function openEditForm(rule) {
   // Small delay to ensure DOM updates before clearing flag if needed, 
   // but here we can just do it after.
   setTimeout(() => { isInitializingForm = false; }, 100);
+}
+
+function togglePrereqQuestion(questionId) {
+  const index = newRule.value.prerequisiteConditions.findIndex(c => c.questionId === questionId);
+  if (index === -1) {
+    newRule.value.prerequisiteConditions.push({ questionId, responseIndexes: [] });
+  } else {
+    newRule.value.prerequisiteConditions.splice(index, 1);
+  }
+}
+
+function isPrereqQuestionSelected(questionId) {
+  return (newRule.value.prerequisiteConditions || []).some(c => c.questionId === questionId);
+}
+
+function togglePrereqOption(questionId, optIndex) {
+  const cond = newRule.value.prerequisiteConditions.find(c => c.questionId === questionId);
+  if (!cond) return;
+  
+  const idx = cond.responseIndexes.indexOf(optIndex);
+  if (idx === -1) {
+    cond.responseIndexes.push(optIndex);
+  } else {
+    cond.responseIndexes.splice(idx, 1);
+  }
+}
+
+function isPrereqOptionSelected(questionId, optIndex) {
+  const cond = (newRule.value.prerequisiteConditions || []).find(c => c.questionId === questionId);
+  return cond ? cond.responseIndexes.includes(optIndex) : false;
 }
 
 async function saveRule() {
@@ -254,6 +284,19 @@ async function fetchLevelsForFormation(label) {
   }
 }
 
+// Questions management
+async function fetchPrereqQuestions() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
+      params: { scope: "global" },
+    });
+    console.log("Prereq questions fetched:", res.data);
+    prereqQuestions.value = res.data || [];
+  } catch (error) {
+    console.error("Failed to fetch prereq questions:", error);
+  }
+}
+
 function addFormationLevel() {
   formationForm.value.levels.push({
     label: "",
@@ -333,7 +376,7 @@ watch(selectedCategory, (newCat) => {
 });
 
 onMounted(async () => {
-  await Promise.all([fetchFormations(), fetchRules()]);
+  await Promise.all([fetchFormations(), fetchRules(), fetchPrereqQuestions()]);
 });
 </script>
 
@@ -535,8 +578,16 @@ onMounted(async () => {
               <span v-else class="text-[10px] text-gray-300 italic">Aucune</span>
             </td>
             <td class="px-8 py-5">
-              <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
-              <span v-else class="text-[10px] font-bold text-gray-300 uppercase">NON</span>
+              <div class="flex flex-col gap-1">
+                <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
+                <span v-else class="text-[10px] font-bold text-gray-300 uppercase">NON</span>
+                
+                <div v-if="rule.prerequisiteConditions && rule.prerequisiteConditions?.length > 0" class="flex flex-wrap gap-1 mt-1">
+                  <span v-for="c in rule.prerequisiteConditions" :key="c.questionId" class="px-1.5 py-0.5 bg-red-50 text-red-600 rounded text-[8px] font-bold border border-red-100" :title="'Question ID: ' + c.questionId">
+                    Q#{{ c.questionId }}{{ c.responseIndexes?.length ? ` (${c.responseIndexes.length} rép.)` : '' }}
+                  </span>
+                </div>
+              </div>
             </td>
             <td class="px-8 py-5">
               <div class="flex gap-2 justify-end items-center">
@@ -651,21 +702,44 @@ onMounted(async () => {
             <!-- Granular Prereq Selection -->
             <transition name="fade">
               <div v-if="newRule.requirePrerequisiteFailure" class="space-y-4 pt-2 border-t border-red-100/50">
-                <div>
-                  <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Questions cibles (Optionnel)</label>
-                  <div class="max-h-32 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                    <label v-for="q in prereqQuestions" :key="q.id" class="flex items-start gap-2 p-2 rounded-lg hover:bg-white cursor-pointer transition-colors group">
-                      <input type="checkbox" :value="q.id" v-model="newRule.prerequisiteQuestionIds" class="mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary h-3 w-3" />
-                      <span class="text-[10px] font-bold text-gray-600 leading-tight group-hover:text-brand-primary">{{ q.text }}</span>
-                    </label>
+                <div class="mb-4">
+                  <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Sélectionner les questions cibles</label>
+                  <div class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar bg-gray-50/50 p-2 rounded-xl border border-gray-100">
+                    <div v-for="q in prereqQuestions" :key="q.id" class="flex flex-col gap-1 p-2 rounded-lg hover:bg-white border border-transparent hover:border-gray-100 transition-all group">
+                      <div class="flex items-start gap-2 cursor-pointer" @click="togglePrereqQuestion(q.id)">
+                        <input 
+                          type="checkbox" 
+                          :checked="isPrereqQuestionSelected(q.id)" 
+                          @click.stop="togglePrereqQuestion(q.id)"
+                          class="mt-0.5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary h-3 w-3" 
+                        />
+                        <span class="text-[10px] font-bold text-gray-600 leading-tight group-hover:text-brand-primary">{{ q.text }}</span>
+                      </div>
+                      
+                      <!-- Options de réponse si la question est sélectionnée -->
+                      <div v-if="isPrereqQuestionSelected(q.id) && q.options && q.options.length" class="ml-5 mt-1 flex flex-wrap gap-1">
+                        <span class="text-[8px] text-gray-400 w-full mb-0.5 font-medium">Réponses déclenchant la règle :</span>
+                        <button 
+                          v-for="(opt, optIdx) in q.options" 
+                          :key="optIdx"
+                          type="button"
+                          @click="togglePrereqOption(q.id, optIdx)"
+                          class="px-2 py-0.5 rounded-full text-[8px] font-bold transition-all border"
+                          :class="isPrereqOptionSelected(q.id, optIdx) ? 'bg-blue-500 text-white border-blue-500' : 'bg-gray-50 text-gray-400 border-gray-200 hover:border-gray-300'"
+                        >
+                          {{ opt }}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <p class="text-[8px] text-gray-400 mt-2 font-medium italic">Si aucune question n'est sélectionnée, l'échec d'un prérequis quelconque déclenchera la règle.</p>
+                  <p class="text-[8px] text-gray-400 mt-2 font-medium italic">Si aucune question n'est sélectionnée, l'échec d'un prérequis quelconque déclenchera la règle. Si aucune réponse n'est cochée pour une question, le comportement par défaut (échec 'non', 'insuffisant'...) s'appliquera.</p>
                 </div>
 
-                <div v-if="newRule.prerequisiteQuestionIds.length > 1">
+                <div v-if="newRule.prerequisiteConditions.length > 1">
                   <label class="text-[9px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Logique de validation</label>
                   <div class="flex gap-2">
                     <button 
+                      type="button"
                       @click="newRule.prerequisiteLogic = 'OR'"
                       class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
                       :class="newRule.prerequisiteLogic === 'OR' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border border-gray-100'"
@@ -673,6 +747,7 @@ onMounted(async () => {
                       AU MOINS UNE (OU)
                     </button>
                     <button 
+                      type="button"
                       @click="newRule.prerequisiteLogic = 'AND'"
                       class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
                       :class="newRule.prerequisiteLogic === 'AND' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border border-gray-100'"
