@@ -110,7 +110,7 @@ export class PdfService {
           .font('Helvetica-Bold')
           .fontSize(10)
           .text(
-            '⚠️ Le beneficiaire a obtenu un score eleve pour cette formation, mais a souhaite maintenir sa demande.',
+            '⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.',
             { align: 'center' },
           );
         doc.moveDown(0.5);

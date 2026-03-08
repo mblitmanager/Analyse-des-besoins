@@ -1005,7 +1005,7 @@ export class SessionsService {
         qTextById,
       )}
       ${renderAnswersTable(miseTitle, filteredMiseAnswers, qTextById)}
-      ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Le bénéficiaire a obtenu un score élevé pour cette formation, et a souhaité maintenir sa demande.</div>` : ''}
+      ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div>` : ''}
     `;
 
     // Determine admin recipients from settings (can be comma-separated)
