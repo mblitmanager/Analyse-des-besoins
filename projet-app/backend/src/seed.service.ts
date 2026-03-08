@@ -104,6 +104,12 @@ export class SeedService implements OnApplicationBootstrap {
         description:
           "Passer automatiquement l'étape des questions complémentaires",
       },
+      {
+        key: 'AUTO_SEND_EMAIL',
+        value: 'true',
+        description:
+          "Envoyer automatiquement le bilan par email à l'administrateur",
+      },
     ];
 
     for (const s of settings) {

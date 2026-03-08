@@ -26,6 +26,7 @@ export class PdfService {
     miseANiveauAnswers?: Record<string, any>;
     qTextById?: Record<number, string>;
     highLevelContinue?: boolean;
+    isP3Mode?: boolean;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
@@ -64,6 +65,16 @@ export class PdfService {
         .fontSize(22)
         .fillColor(brandBlue)
         .text('Analyse des besoins', { align: 'center' });
+
+      if (data.isP3Mode) {
+        doc
+          .fontSize(12)
+          .fillColor('#4338CA')
+          .font('Helvetica-Bold')
+          .text('P3 - PARCOURS COMPLÉMENTAIRE', { align: 'center' });
+        doc.font('Helvetica'); // Reset
+      }
+
       doc
         .fontSize(10)
         .fillColor(grayText)
