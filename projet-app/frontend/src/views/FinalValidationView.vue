@@ -340,6 +340,7 @@ function startP3() {
           </button>
           
           <button
+            v-if="!store.isP3Mode"
             @click="startP3"
             class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >

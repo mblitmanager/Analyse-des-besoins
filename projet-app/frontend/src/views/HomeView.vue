@@ -31,6 +31,9 @@ async function startTest() {
 
   loading.value = true;
   try {
+    // Reset P3 mode for new sessions
+    store.setP3Mode(false);
+    
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const response = await fetch(`${apiBaseUrl}/sessions`, {

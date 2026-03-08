@@ -101,6 +101,17 @@ export class SessionsService {
   }
 
   async update(id: string, data: Partial<Session>) {
+    // If formation is changed, reset progress to avoid mixing results from different formations
+    if (data.formationChoisie) {
+      const resetData = data as any;
+      resetData.levelsScores = {};
+      resetData.stopLevel = null;
+      resetData.lastValidatedLevel = null;
+      resetData.positionnementAnswers = {};
+      resetData.finalRecommendation = null;
+      resetData.scorePretest = null;
+    }
+
     await this.sessionRepo.update(id, data);
     return this.findOne(id);
   }
