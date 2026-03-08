@@ -30,7 +30,10 @@ export class ParcoursRule {
   certification: string;
 
   @Column({ type: 'simple-json', nullable: true })
-  prerequisiteQuestionIds: number[];
+  prerequisiteConditions: Array<{
+    questionId: number;
+    responseIndexes: number[];
+  }>;
 
   @Column({ type: 'varchar', length: 10, default: 'OR' })
   prerequisiteLogic: 'AND' | 'OR';

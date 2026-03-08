@@ -52,15 +52,18 @@ export class QuestionsService {
 
     // Default to global if no formation or scope still unresolved
     if (!formationSlug || activeScope === 'global') {
-      return this.questionRepo.find({
+      console.log(`Searching global questions for type: ${type}`);
+      const qs = await this.questionRepo.find({
         where: {
           type,
           isActive: true,
-          formation: undefined,
+          formation: IsNull(),
         } as FindOptionsWhere<Question>,
         order: { order: 'ASC' },
         relations: ['formation', 'level'],
       });
+      console.log(`Found ${qs.length} questions`);
+      return qs;
     }
 
     // If scope specifically requested formation only
@@ -91,7 +94,7 @@ export class QuestionsService {
       where: {
         type,
         isActive: true,
-        formation: undefined,
+        formation: IsNull(),
       } as FindOptionsWhere<Question>,
       order: { order: 'ASC' },
       relations: ['formation', 'level'],
