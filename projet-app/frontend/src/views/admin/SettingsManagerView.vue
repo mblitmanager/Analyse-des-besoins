@@ -18,20 +18,12 @@ const token = localStorage.getItem("admin_token");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const getSettingIcon = (key) => {
-  if (key.includes('EMAIL')) return 'mail';
-  if (key.includes('PHONE')) return 'phone';
-  if (key.includes('PLATFORM')) return 'branding_watermark';
-  if (key.includes('PAGINATED')) return 'auto_stories';
+  if (key.includes('AUTO_SKIP')) return 'fast_forward';
   return 'settings';
 };
 
 const getSettingColor = (key) => {
-  if (key.includes('EMAIL')) return 'text-blue-500 bg-blue-50';
-  if (key.includes('PHONE')) return 'text-green-500 bg-green-50';
-  if (key.includes('PLATFORM')) return 'text-purple-500 bg-purple-50';
-  if (key.includes('PAGINATED')) {
-    return key.includes('PREREQUIS') ? 'text-orange-500 bg-orange-50' : 'text-indigo-500 bg-indigo-50';
-  }
+  if (key.includes('AUTO_SKIP')) return 'text-red-500 bg-red-50';
   return 'text-gray-500 bg-gray-50';
 };
 

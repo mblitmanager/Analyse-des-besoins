@@ -77,6 +77,12 @@ export class SeedService implements OnApplicationBootstrap {
           "Autoriser le saut automatique de l'étape 'mise à niveau' en l'absence de questions",
       },
       {
+        key: 'AUTO_SKIP_POSITIONNEMENT',
+        value: 'true',
+        description:
+          "Autoriser le saut automatique de l'étape 'positionnement' en l'absence de questions",
+      },
+      {
         key: 'PREREQUISITE_FAILURE_VALUES',
         value: 'non,insuffisant,jamais',
         description:
