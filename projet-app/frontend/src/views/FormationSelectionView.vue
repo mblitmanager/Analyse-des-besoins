@@ -104,7 +104,11 @@ async function selectFormation() {
       selectedFormation.value.label,
     );
     if (selectedSuite.value) localStorage.setItem('selected_suite', selectedSuite.value);
-    const nextRoute = store.getNextRoute("/formations");
+    
+    // Update the real workflow path based on the selected formation
+    await store.updateActualWorkflow();
+    
+    const nextRoute = store.getNextRouteWithQuestions("/formations");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);
@@ -274,7 +278,9 @@ function selectBureau(form, suite) {
 
     <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
-        <h2 class="text-sm text-gray-400 font-bold uppercase tracking-widest mb-2">Etape 1/5</h2>
+        <h2 class="text-sm text-gray-400 font-bold uppercase tracking-widest mb-2">
+          Etape {{ store.getProgress("/formations").current }}/{{ store.getProgress("/formations").total }}
+        </h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
           Quelle formation souhaitez-vous suivre ?
         </h1>

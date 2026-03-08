@@ -224,6 +224,10 @@ onMounted(async () => {
   await fetchPaginationSetting();
   await fetchLowScoreThreshold();
   await fetchSkipSetting();
+  // ensure workflow is loaded
+  if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
+    await store.updateActualWorkflow();
+  }
   if (!showResults.value) {
     await loadLevelQuestions();
   }
@@ -718,7 +722,9 @@ async function saveAndExit() {
             class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
           >
             <div>
-              <h2 class="text-[25px] text-gray-400 text-center font-bold uppercase tracking-widest">Etape 3/5</h2>
+              <h2 class="text-[25px] text-gray-400 text-center font-bold uppercase tracking-widest">
+                Etape {{ store.getProgress("/positionnement").current }}/{{ store.getProgress("/positionnement").total }}
+              </h2>
               <h1
                 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2"
               >
