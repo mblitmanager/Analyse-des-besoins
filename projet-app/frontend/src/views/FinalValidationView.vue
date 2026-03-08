@@ -69,6 +69,9 @@ const answeredPrereqCount = computed(() => {
 });
 
 onMounted(async () => {
+  if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
+    await store.updateActualWorkflow();
+  }
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -127,13 +130,13 @@ function startP3() {
         >
           Validation Finale
         </h1>
-        <!-- <div class="flex items-center justify-between mb-2 px-1">
+        <div class="flex items-center justify-between mb-2 px-1">
           <span
             class="text-[10px] text-gray-400 font-bold uppercase tracking-widest"
             >Progression</span
           >
           <span class="text-[10px] text-brand-primary font-bold"
-            >Étape 8/8</span
+            >Étape {{ store.getProgress("/validation").current }}/{{ store.getProgress("/validation").total }}</span
           >
         </div>
         <div
@@ -141,9 +144,9 @@ function startP3() {
         >
           <div
             class="h-full bg-brand-primary transition-all duration-700"
-            style="width: 100%"
+            :style="{ width: store.getProgress('/validation').percentage + '%' }"
           ></div>
-        </div> -->
+        </div>
         <p
           class="text-gray-400 text-center mb-10 font-bold uppercase tracking-widest text-xs"
         >

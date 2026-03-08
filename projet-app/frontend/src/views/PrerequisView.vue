@@ -37,6 +37,9 @@ function isQuestionVisible(q) {
 }
 
 onMounted(async () => {
+  if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
+    await store.updateActualWorkflow();
+  }
   if (!sessionId) {
     router.push("/");
     return;
@@ -172,12 +175,18 @@ const recommendedFormations = computed(() => {
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
     <SiteHeader>
       <template #actions>
-        <!-- <div class="hidden md:flex flex-col items-end mr-4">
+        <div class="hidden md:flex flex-col items-end mr-4">
           <div class="flex items-center gap-2 mb-1">
             <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyse des besoins</span>
-            <span class="text-[10px] text-brand-primary font-bold">Étape 2 / 2</span>
+            <span class="text-[10px] text-brand-primary font-bold">Étape {{ store.getProgress("/prerequis").current }} / {{ store.getProgress("/prerequis").total }}</span>
           </div>
-        </div> -->
+          <div class="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/prerequis').percentage + '%' }"
+            ></div>
+          </div>
+        </div>
       </template>
     </SiteHeader>
 

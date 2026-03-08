@@ -22,8 +22,8 @@ onMounted(async () => {
     router.push("/");
     return;
   }
-  if (store.workflowSteps.length === 0) {
-    await store.fetchWorkflow();
+  if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
+    await store.updateActualWorkflow();
   }
   try {
     const apiBaseUrl =
@@ -79,7 +79,7 @@ async function nextStep() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       complementaryQuestions: responses.value,
     });
-    const nextRoute = store.getNextRoute("/complementary");
+    const nextRoute = await store.getNextRouteWithQuestions("/complementary");
     router.push(nextRoute || "/availabilities");
   } catch (error) {
     console.error("Failed to save complementary questions:", error);
@@ -106,7 +106,7 @@ function shouldShowQuestion(q) {
 }
 
 function skipStep() {
-  const nextRoute = store.getNextRoute("/complementary");
+  const nextRoute = await store.getNextRouteWithQuestions("/complementary");
   router.push(nextRoute || "/availabilities");
 }
 </script>
@@ -134,7 +134,9 @@ function skipStep() {
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
-        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">Etape 4/5</h2>
+        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">
+          Etape {{ store.getProgress("/complementary").current }}/{{ store.getProgress("/complementary").total }}
+        </h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
           Questions Complémentaires
         </h1>

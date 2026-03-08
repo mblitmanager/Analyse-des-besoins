@@ -49,8 +49,8 @@ onMounted(async () => {
     router.push("/");
     return;
   }
-  if (store.workflowSteps.length === 0) {
-    await store.fetchWorkflow();
+  if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
+    await store.updateActualWorkflow();
   }
   try {
     const apiBaseUrl =
@@ -120,7 +120,7 @@ async function nextStep() {
     // Submit session (sends official email report with PDF)
     await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
 
-    const nextRoute = store.getNextRoute("/availabilities");
+    const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
     router.push(nextRoute || "/validation");
   } catch (error) {
     console.error("Failed to save availabilities:", error);
@@ -130,7 +130,7 @@ async function nextStep() {
 }
 
 function skipStep() {
-  const nextRoute = store.getNextRoute("/availabilities");
+  const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
   router.push(nextRoute || "/validation");
 }
 
@@ -167,7 +167,9 @@ function getOptionIcon(opt) {
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <div class="text-center mb-10">
-        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">Etape 5/5</h2>
+        <h2 class="text-[25px] text-gray-400 font-bold uppercase tracking-widest">
+          Etape {{ store.getProgress("/availabilities").current }}/{{ store.getProgress("/availabilities").total }}
+        </h2>
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">
           Vos Disponibilités
         </h1>

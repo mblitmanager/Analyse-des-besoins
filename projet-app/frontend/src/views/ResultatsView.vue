@@ -543,13 +543,13 @@ const downloadPDF = async () => {
       </section>
 
       <!-- Progress Bar -->
-      <!-- <div
+      <div
         class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
       >
         <div class="flex items-center justify-between mb-2 px-1">
           <span
             class="text-xs font-bold section-title uppercase tracking-widest"
-            >Bilan Personnel</span
+            >Progression globale</span
           >
           <span
             class="text-xs font-bold text-brand-primary uppercase tracking-widest"
@@ -562,10 +562,12 @@ const downloadPDF = async () => {
         >
           <div
             class="h-full bg-brand-primary transition-all duration-700"
-            :style="{ width: store.getProgress('/resultats').percentage + '%' }"
+            :style="{
+              width: store.getProgress('/resultats').percentage + '%',
+            }"
           ></div>
         </div>
-      </div> -->
+      </div>
 
       <!-- Strengths Section -->
       <section class="mb-14">
