@@ -70,6 +70,9 @@ export class Session {
   @Column({ default: false })
   ignoreQuestionRules: boolean;
 
+  @Column({ default: false })
+  isP3Mode: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

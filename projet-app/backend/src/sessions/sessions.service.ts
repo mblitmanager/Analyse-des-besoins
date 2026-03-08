@@ -1033,6 +1033,7 @@ export class SessionsService {
       miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
       highLevelContinue: session.highLevelContinue,
+      isP3Mode: session.isP3Mode,
     });
 
     const now = new Date();
@@ -1079,45 +1080,57 @@ export class SessionsService {
       });
     }
 
-    // Send the email with PDF attachment to configured admin(s)
-    await this.emailService.sendReport(
-      adminEmail,
-      `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
-      `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
-        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
-        <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
-        
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        
-        <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
-        <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
-        <p><strong>Formation :</strong> ${session.formationChoisie}</p>
-        <p><strong>Recommandations :</strong></p>
-        <div style="margin-bottom: 20px;">
-          ${recommendation
-            .split(' | ')
-            .map(
-              (r) =>
-                `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
-            )
-            .join('')}
-        </div>
-        
-        <div style="margin-top: 30px;">
-          ${extraContent}
-        </div>
-        
-        <div style="margin-top: 20px; text-align: right;">
-          <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
-          <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
-        </div>
-
-        <p style="font-size: 11px; color: #999; margin-top: 40px;">
-          Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
-        </p>
-      </div>`,
-      emailAttachments,
+    // Send the email with PDF attachment to configured admin(s) if setting is enabled
+    const autoSendEmail = await this.settingsService.getValue(
+      'AUTO_SEND_EMAIL',
+      'true',
     );
+
+    if (autoSendEmail !== 'false') {
+      await this.emailService.sendReport(
+        adminEmail,
+        `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+        `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+        ${session.isP3Mode ? `<div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"><span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE</span></div>` : ''}
+        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
+          <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          
+          <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
+          <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
+          <p><strong>Formation :</strong> ${session.formationChoisie}</p>
+          <p><strong>Recommandations :</strong></p>
+          <div style="margin-bottom: 20px;">
+            ${recommendation
+              .split(' | ')
+              .map(
+                (r) =>
+                  `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
+              )
+              .join('')}
+          </div>
+          
+          <div style="margin-top: 30px;">
+            ${extraContent}
+          </div>
+          
+          <div style="margin-top: 20px; text-align: right;">
+            <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
+            <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
+          </div>
+
+          <p style="font-size: 11px; color: #999; margin-top: 40px;">
+            Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
+          </p>
+        </div>`,
+        emailAttachments,
+      );
+    } else {
+      console.log(
+        `[SessionsService] Skipping report email for session ${id} (AUTO_SEND_EMAIL is false)`,
+      );
+    }
 
     return this.update(id, {
       finalRecommendation: recommendation,

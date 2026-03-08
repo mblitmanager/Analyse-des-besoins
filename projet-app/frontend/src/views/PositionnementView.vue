@@ -84,33 +84,57 @@ async function restoreProgressFromSession() {
     const res = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const session = res.data;
 
-    if (session.levelsScores) {
+    if (session.levelsScores && Object.keys(session.levelsScores).length > 0) {
       levelsScores.value = session.levelsScores;
+    } else if (store.isP3Mode) {
+      // Fresh start of P2 in P3 mode: Check if we should carry over progress
+      const prevFormation = localStorage.getItem('p3_prev_formation');
+      const prevOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
+
+      // Same formation: start AFTER previous results
+      if (prevFormation === formationLabel && prevOrder > 0) {
+        // Pre-validate dummy entries for previously achieved levels
+        levels.value.forEach((lvl, idx) => {
+          if (idx < prevOrder) {
+            levelsScores.value[lvl.label] = {
+              score: 10,
+              total: 10,
+              percentage: 100,
+              validated: true,
+              isP3CarryOver: true
+            };
+          }
+        });
+        currentLevelIndex.value = Math.min(prevOrder, levels.value.length - 1);
+        
+        // Cleanup P3 storage to avoid reuse if refreshed
+        localStorage.removeItem('p3_prev_formation');
+        localStorage.removeItem('p3_prev_level_order');
+      }
     }
 
-    // Si la session est déjà terminée côté backend, afficher directement le résultat
+    // If session is already finalized on backend, show results directly
     if (session.finalRecommendation && session.stopLevel) {
       finalRecommendation.value = session.finalRecommendation;
       showResults.value = true;
       return;
     }
 
-    // Sinon, déterminer à quel niveau reprendre en fonction des niveaux validés
-    if (session.levelsScores && Array.isArray(levels.value) && levels.value.length) {
+    // Determine current level index from existing levelsScores (for normal restoration)
+    if (Object.keys(levelsScores.value).length > 0 && Array.isArray(levels.value) && levels.value.length) {
       let lastValidatedIndex = -1;
       levels.value.forEach((lvl, idx) => {
-        const entry = session.levelsScores[lvl.label];
+        const entry = levelsScores.value[lvl.label];
         if (entry && entry.validated) {
           lastValidatedIndex = idx;
         }
       });
 
       if (lastValidatedIndex >= 0) {
-        // On reprend au niveau suivant celui qui a été validé
+        // Start at the level after the last validated one
         if (lastValidatedIndex < levels.value.length - 1) {
           currentLevelIndex.value = lastValidatedIndex + 1;
         } else {
-          // Tous les niveaux définis sont déjà validés : on reste sur le dernier
           currentLevelIndex.value = lastValidatedIndex;
         }
       }

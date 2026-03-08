@@ -19,12 +19,20 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const getSettingIcon = (key) => {
   if (key.includes('AUTO_SKIP')) return 'fast_forward';
+  if (key.includes('EMAIL')) return 'mail';
+  if (key.includes('PHONE')) return 'phone';
+  if (key.includes('PLATFORM')) return 'branding_watermark';
+  if (key.includes('PAGINATED')) return 'auto_stories';
   return 'settings';
 };
 
 const getSettingColor = (key) => {
-  if (key.includes('AUTO_SKIP')) return 'text-red-500 bg-red-50';
-  return 'text-gray-500 bg-gray-50';
+  if (key.includes('AUTO_SKIP')) return 'bg-orange-100 text-orange-600';
+  if (key.includes('EMAIL')) return 'bg-blue-100 text-blue-600';
+  if (key.includes('PHONE')) return 'bg-green-100 text-green-600';
+  if (key.includes('PLATFORM')) return 'bg-purple-100 text-purple-600';
+  if (key.includes('PAGINATED')) return 'bg-indigo-100 text-indigo-600';
+  return 'bg-gray-100 text-gray-600';
 };
 
 const isBoolean = (value) => value === 'true' || value === 'false';

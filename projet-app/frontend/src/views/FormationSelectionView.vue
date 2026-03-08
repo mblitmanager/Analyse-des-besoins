@@ -84,6 +84,7 @@ async function selectFormation() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const payload = {
       formationChoisie: selectedFormation.value.label,
+      isP3Mode: store.isP3Mode,
     };
     if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique') {
       payload.bureautiqueSuite = selectedSuite.value;
@@ -94,6 +95,10 @@ async function selectFormation() {
       "selected_formation_slug",
       selectedFormation.value.slug,
     );
+    if (store.isP3Mode && currentSession.value) {
+      localStorage.setItem('p3_prev_formation', currentSession.value.formationChoisie || "");
+      localStorage.setItem('p3_prev_level_order', String(currentSession.value.stopLevelOrder || 0));
+    }
     localStorage.setItem(
       "selected_formation_label",
       selectedFormation.value.label,
