@@ -22,6 +22,7 @@ const selectedFormation = ref(null);
 const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 
 const formations = ref([]);
+const currentSession = ref(null);
 
 async function fetchFormations() {
   try {
@@ -42,6 +43,13 @@ onMounted(() => {
     router.push("/");
     return;
   }
+  
+  // Fetch session data first for P3 filtering
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  axios.get(`${apiBaseUrl}/sessions/${sessionId}`).then(res => {
+    currentSession.value = res.data;
+  }).catch(err => console.error("Failed to fetch session for P3 filtering", err));
+
   fetchFormations();
 
   // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
@@ -179,7 +187,45 @@ const selectedAccent = computed(() => getSectionAccent(selectedFormation.value))
 const sections = computed(() => {
   const map = new Map(groupedFormations.value.map((g) => [g.category, g.items]));
 
-  const bureauItems = map.get('bureautique') || [];
+  // P3 Filtering Logic
+  const isP3 = store.isP3Mode;
+  const lastFormation = currentSession.value?.formationChoisie || "";
+  const lastLevel = (currentSession.value?.stopLevel || "").toLowerCase();
+  const lastLevelOrder = currentSession.value?.stopLevelOrder || 0; // Backend should ideally provide this, but we can fall back
+
+  // Simple heuristic if order not provided: Initial=1, Basique=2, Opérationnel=3, etc.
+  const getLevelOrder = (lvl) => {
+    if (lvl.includes('initial')) return 1;
+    if (lvl.includes('basique')) return 2;
+    if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
+    if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
+    if (lvl.includes('expert')) return 5;
+    return 0;
+  };
+
+  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastLevel);
+  const isBureautiqueLast = lastFormation.toLowerCase().includes('word') || 
+                            lastFormation.toLowerCase().includes('excel') || 
+                            lastFormation.toLowerCase().includes('ppt') || 
+                            lastFormation.toLowerCase().includes('powerpoint') || 
+                            lastFormation.toLowerCase().includes('outlook');
+
+  let filteredBureauItems = map.get('bureautique') || [];
+  let filteredOtherCategories = true; // By default show others
+
+  if (isP3 && isBureautiqueLast) {
+    if (currentLevelOrder <= 2) { // Initial (1) or Basique (2)
+      // Proposer: la suite dans la même formation (Niveau Opérationnel)
+      // OU le niveau initial dans une autre formation bureautique
+      // (On laisse les bureautique visibles pour l'instant, mais on pourrait affiner le texte)
+    } else if (currentLevelOrder >= 3) { // Opérationnel (3) or more
+      // Basique et opérationnel au minimum => Possibilité de choisir une formation dans une autre catégorie.
+      // On bloque la catégorie Bureautique
+      filteredBureauItems = [];
+    }
+  }
+
+  const bureauItems = filteredBureauItems;
   const microsoft = bureauItems.filter(f => {
     const l = f.label.toLowerCase();
     return l.includes('microsoft') || l.includes('office') || l.includes('word') || l.includes('excel') || l.includes('ppt') || l.includes('powerpoint') || l.includes('outlook');
@@ -199,12 +245,13 @@ const sections = computed(() => {
       subSections: [
         { title: '1. Microsoft Office', items: microsoft, suite: 'microsoft' },
         { title: '2. Google Workspace', items: google, suite: 'google' }
-      ]
+      ],
+      hidden: bureauItems.length === 0
     },
     { key: 'langues', title: 'Langues', items: langs, style: sectionStyles.langues },
     { key: 'creation', title: 'Création', items: [...creation, ...ia], style: sectionStyles.creation },
     { key: 'internet', title: 'Internet', items: digcompGroup, style: sectionStyles.internet },
-  ];
+  ].filter(s => !s.hidden);
 });
 
 function selectBureau(form, suite) {

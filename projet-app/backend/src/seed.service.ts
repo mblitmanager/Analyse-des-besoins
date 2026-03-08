@@ -82,6 +82,22 @@ export class SeedService implements OnApplicationBootstrap {
         description:
           'Valeurs considérées comme un échec aux prérequis (séparées par des virgules)',
       },
+      {
+        key: 'AUTO_SKIP_PREREQUIS',
+        value: 'false',
+        description: "Passer automatiquement l'étape des prérequis",
+      },
+      {
+        key: 'AUTO_SKIP_AVAILABILITIES',
+        value: 'false',
+        description: "Passer automatiquement l'étape des disponibilités",
+      },
+      {
+        key: 'AUTO_SKIP_COMPLEMENTARY',
+        value: 'false',
+        description:
+          "Passer automatiquement l'étape des questions complémentaires",
+      },
     ];
 
     for (const s of settings) {

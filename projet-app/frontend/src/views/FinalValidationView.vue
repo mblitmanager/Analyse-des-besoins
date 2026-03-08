@@ -99,7 +99,13 @@ async function validate() {
 
 
 function goHome() {
-  router.push('/');
+  store.setP3Mode(false);
+  router.push("/");
+}
+
+function startP3() {
+  store.setP3Mode(true);
+  router.push("/formations");
 }
 </script>
 
@@ -332,14 +338,14 @@ function goHome() {
             <span>Accueil</span>
             <span class="material-icons-outlined">home</span>
           </button>
-          <!-- <button
-            @click="validate"
+          
+          <button
+            @click="startP3"
             class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
-            <span>Soumettre</span>
-            <span class="material-icons-outlined">rocket_launch</span>
-          </button> -->
-          
+            <span>Ajouter un autre parcours</span>
+            <span class="material-icons-outlined">add_circle_outline</span>
+          </button>
         </div>
       </div>
 

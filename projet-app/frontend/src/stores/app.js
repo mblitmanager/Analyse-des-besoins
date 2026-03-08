@@ -5,7 +5,14 @@ import router from '../router';
 export const useAppStore = defineStore('app', () => {
   const brand = ref('aopia') // Default brand
   const isDirectLink = ref(true)
+  const isP3Mode = ref(localStorage.getItem('is_p3_mode') === 'true')
   const workflowSteps = ref([]);
+
+  function setP3Mode(active) {
+    isP3Mode.value = active;
+    if (active) localStorage.setItem('is_p3_mode', 'true');
+    else localStorage.removeItem('is_p3_mode');
+  }
 
   function setBrand(newBrand) {
     if (['aopia', 'like', 'nsconseil'].includes(newBrand)) {
@@ -103,41 +110,66 @@ export const useAppStore = defineStore('app', () => {
     while (next) {
       const step = workflowSteps.value.find(s => s.route === next);
       if (!step) break;
-      const code = step.code.toLowerCase();
+      const code = step.code.toUpperCase();
+      
+      // Global and P3 skip logic
+      let forceSkip = false;
+      if (isP3Mode.value) {
+        // In P3 mode, we skip P1 (PREREQUIS), Availabilities, and Complementary questions
+        if (code === 'PREREQUIS' || code === 'AVAILABILITIES' || code === 'COMPLEMENTARY') {
+          forceSkip = true;
+        }
+      }
+
+      // Check global auto-skip settings
+      if (!forceSkip) {
+        const skipSettingKey = `AUTO_SKIP_${code}`;
+        const autoSkip = await fetchSetting(skipSettingKey);
+        if (autoSkip === 'true') {
+          forceSkip = true;
+        }
+      }
+
+      if (forceSkip) {
+        next = getNextRoute(next);
+        continue;
+      }
+
       try {
         // when checking for questions we need the same formation-aware filter
-        let url = `${apiBaseUrl}/questions/workflow/${code}`;
+        const codeLower = code.toLowerCase();
+        let url = `${apiBaseUrl}/questions/workflow/${codeLower}`;
         let params = '';
         if (formationSlug) {
           params = `?formation=${formationSlug}&scope=auto`;
         } else {
           params = `?scope=global`;
         }
-      const res = await fetch(url + params);
-      if (res.ok) {
-        const text = await res.text();
-        if (!text) return [];
-        const questions = JSON.parse(text);
-        if (Array.isArray(questions)) {
-          let skipThisStep = questions.length === 0;
+        const res = await fetch(url + params);
+        if (res.ok) {
+          const text = await res.text();
+          if (!text) return [];
+          const questions = JSON.parse(text);
+          if (Array.isArray(questions)) {
+            let skipThisStep = questions.length === 0;
 
-          // Special logic for mise_a_niveau/positionnement:
-          // We unified the logic: default to true (skip if 0 questions),
-          // but if AUTO_SKIP_XXX is explicitly 'false', we do NOT skip.
-          if (code.includes('mise') || code === 'positionnement') {
-            const settingKey = code.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
-            const autoSkipValue = await fetchSetting(settingKey);
-            if (autoSkipValue === 'false') {
-              skipThisStep = false;
+            // Special logic for mise_a_niveau/positionnement:
+            // We unified the logic: default to true (skip if 0 questions),
+            // but if AUTO_SKIP_XXX is explicitly 'false', we do NOT skip.
+            if (codeLower.includes('mise') || codeLower === 'positionnement') {
+              const settingKey = codeLower.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
+              const autoSkipValue = await fetchSetting(settingKey);
+              if (autoSkipValue === 'false') {
+                skipThisStep = false;
+              }
+            }
+
+            if (skipThisStep) {
+              next = getNextRoute(next);
+              continue;
             }
           }
-
-          if (skipThisStep) {
-            next = getNextRoute(next);
-            continue;
-          }
         }
-      }
       } catch (e) {
         // if the fetch fails just stop skipping
         console.error('Error while checking questions for step', code, e);
@@ -170,6 +202,8 @@ export const useAppStore = defineStore('app', () => {
     isDirectLink, 
     workflowSteps, 
     setBrand, 
+    isP3Mode,
+    setP3Mode,
     fetchWorkflow, 
     fetchSetting,
     getNextRoute, 
