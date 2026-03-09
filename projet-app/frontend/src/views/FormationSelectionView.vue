@@ -362,16 +362,34 @@ function selectBureau(form, suite) {
           </div>
         </div>
 
-        <!-- Selected Formation Feedback (inline - sert de référence pour l'observer) -->
-        <div ref="inlineBannerRef">
+        <!-- Selected Formation Feedback (prominent inline banner) -->
+        <div ref="inlineBannerRef" class="mt-12">
           <transition name="fade-slide">
-            <div v-if="selectedFormation" class="mt-8 p-4 rounded-2xl border flex items-center gap-4 animate-scale-up" :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderColor: selectedAccent.accent + '30' }">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-                <span class="material-icons-outlined">check_circle</span>
+            <div v-if="selectedFormation" 
+                 class="p-6 md:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden" 
+                 :style="{ 
+                   backgroundColor: 'white',
+                   borderColor: selectedAccent.accent + '40',
+                   boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25`
+                 }">
+              <!-- Decorative background element -->
+              <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-10 pointer-events-none" :style="{ backgroundColor: selectedAccent.accent }"></div>
+              
+              <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-lg" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+                <span class="material-icons-outlined text-3xl">verified</span>
               </div>
-              <div>
-                <p class="text-xs font-bold uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
-                <p class="text-sm font-black text-[#0d1b3e]">{{ selectedFormation.label }}</p>
+              <div class="text-center md:text-left flex-1">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+                <h3 class="text-2xl md:text-3xl font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</h3>
+                <div v-if="selectedSuite" class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                   <span class="material-icons-outlined text-xs">{{ selectedSuite === 'microsoft' ? 'description' : 'cloud' }}</span>
+                   {{ selectedSuite === 'microsoft' ? 'Microsoft Office' : 'Google Workspace' }}
+                </div>
+              </div>
+              <div class="hidden lg:block h-12 w-px bg-gray-100 mx-4"></div>
+              <div class="flex items-center gap-2 text-gray-400">
+                <span class="material-icons-outlined text-sm">info</span>
+                <span class="text-xs font-bold italic">Cliquez sur « Continuer » pour valider</span>
               </div>
             </div>
           </transition>
@@ -402,24 +420,25 @@ function selectBureau(form, suite) {
         :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderTop: `2px solid ${selectedAccent.accent}30` }"
       >
         <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-              <span class="material-icons-outlined text-base">check_circle</span>
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-lg animate-pulse" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+              <span class="material-icons-outlined text-xl">verified</span>
             </div>
             <div>
-              <p class="text-[10px] font-black uppercase tracking-widest" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
-              <p class="text-sm font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</p>
+              <p class="text-[10px] font-black uppercase tracking-[0.2em]" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+              <p class="text-base md:text-lg font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</p>
             </div>
           </div>
           <button
             @click="selectFormation"
             :disabled="submitting"
-            class="px-7 py-3 font-black uppercase tracking-widest text-xs rounded-xl shadow-lg transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-40 shrink-0"
-            :style="{ backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 20px -4px ${selectedAccent.accent}50` }"
+            class="px-8 py-3.5 font-black uppercase tracking-widest text-xs rounded-xl shadow-2xl transform hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-40 shrink-0"
+            :style="{ backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 12px 24px -6px ${selectedAccent.accent}60` }"
           >
-            <span v-if="submitting" class="material-icons-outlined animate-spin text-base">sync</span>
-            <span>{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
-            <span v-if="!submitting" class="material-icons-outlined text-base">arrow_forward</span>
+            <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
+            <span class="hidden sm:inline">{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
+            <span class="sm:hidden">{{ submitting ? '...' : 'Continuer' }}</span>
+            <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
           </button>
         </div>
       </div>
