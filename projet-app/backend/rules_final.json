@@ -1,0 +1,14 @@
+[
+  {
+    "id": 8,
+    "requirePrerequisiteFailure": false,
+    "prerequisiteConditions": null,
+    "prerequisiteLogic": "OR"
+  },
+  {
+    "id": 7,
+    "requirePrerequisiteFailure": true,
+    "prerequisiteConditions": "[{\"questionId\":470,\"responseIndexes\":[1]},{\"questionId\":477,\"responseIndexes\":[1]},{\"questionId\":2101,\"responseIndexes\":[1]}]",
+    "prerequisiteLogic": "OR"
+  }
+]

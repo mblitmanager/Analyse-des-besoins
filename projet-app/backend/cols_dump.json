@@ -1,0 +1,42 @@
+[
+  {
+    "column_name": "id",
+    "data_type": "integer",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "formation",
+    "data_type": "character varying",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "condition",
+    "data_type": "character varying",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "formation1",
+    "data_type": "character varying",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "formation2",
+    "data_type": "character varying",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "isActive",
+    "data_type": "boolean",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "requirePrerequisiteFailure",
+    "data_type": "boolean",
+    "is_nullable": "NO"
+  },
+  {
+    "column_name": "order",
+    "data_type": "double precision",
+    "is_nullable": "NO"
+  }
+]

@@ -40,8 +40,8 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   async seedSettings() {
-    const count = await this.settingRepo.count();
-    if (count > 0) return; // Don't re-seed if settings already exist
+    // const count = await this.settingRepo.count();
+    // if (count > 0) return; // Don't re-seed if settings already exist
 
     const settings = [
       {

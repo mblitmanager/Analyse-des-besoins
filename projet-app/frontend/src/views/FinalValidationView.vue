@@ -77,9 +77,8 @@ onMounted(async () => {
   
   // Check if P3 is enabled in settings
   const p3Setting = await store.fetchSetting('ENABLE_P3');
-  if (p3Setting === 'false') {
-    isP3Enabled.value = false;
-  }
+  // Only enable if the setting is explicitly 'true'. If missing or 'false', disable it.
+  isP3Enabled.value = (p3Setting === 'true');
 
   try {
     const apiBaseUrl =

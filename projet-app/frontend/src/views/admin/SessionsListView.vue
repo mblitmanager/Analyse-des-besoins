@@ -17,6 +17,10 @@ const expandedLevel = ref(null);
 const questionsIndex = ref({});
 const selectedSessionIds = ref(new Set());
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const token = localStorage.getItem("admin_token");
+const headers = { Authorization: `Bearer ${token}` };
+
 // Pagination
 const page = ref(1);
 const pageSize = ref(25);
@@ -91,9 +95,8 @@ async function deleteSelectedSessions() {
   if (!confirm(`Supprimer définitivement les ${selectedSessionIds.value.size} sessions sélectionnées ?`)) return;
 
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await Promise.all(
-      Array.from(selectedSessionIds.value).map(id => axios.delete(`${apiBaseUrl}/sessions/${id}`))
+      Array.from(selectedSessionIds.value).map(id => axios.delete(`${apiBaseUrl}/sessions/${id}`, { headers }))
     );
     selectedSessionIds.value.clear();
     await fetchSessions();
@@ -106,9 +109,7 @@ async function deleteSelectedSessions() {
 async function fetchSessions() {
   loading.value = true;
   try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const res = await axios.get(`${apiBaseUrl}/sessions`);
+    const res = await axios.get(`${apiBaseUrl}/sessions`, { headers });
     sessions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch sessions:", error);
@@ -119,8 +120,6 @@ async function fetchSessions() {
 
 async function fetchQuestionsIndex() {
   try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const res = await axios.get(`${apiBaseUrl}/questions`);
     const index = {};
     res.data.forEach((q) => {
@@ -136,8 +135,6 @@ async function saveSessionEdits() {
   if (!editableSession.value) return;
   savingSession.value = true;
   try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
     const payload = {
       // Champs administratifs modifiables
@@ -158,6 +155,7 @@ async function saveSessionEdits() {
     await axios.patch(
       `${apiBaseUrl}/sessions/${editableSession.value.id}`,
       payload,
+      { headers }
     );
 
     await fetchSessions();
@@ -185,9 +183,7 @@ async function deleteSession(session) {
     return;
   }
   try {
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    await axios.delete(`${apiBaseUrl}/sessions/${session.id}`);
+    await axios.delete(`${apiBaseUrl}/sessions/${session.id}`, { headers });
     await fetchSessions();
   } catch (error) {
     console.error("Failed to delete session:", error);
