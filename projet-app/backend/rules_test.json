@@ -1,0 +1,22 @@
+[
+  {
+    "id": 7,
+    "formation": "Excel",
+    "condition": "Si résultat du test = Initial",
+    "formation1": "DigComp Initial",
+    "formation2": "Excel Initial",
+    "isActive": true,
+    "requirePrerequisiteFailure": true,
+    "order": 0
+  },
+  {
+    "id": 8,
+    "formation": "Excel",
+    "condition": "Si résultat du test = Initial",
+    "formation1": "Excel Initial",
+    "formation2": "Excel Basique",
+    "isActive": true,
+    "requirePrerequisiteFailure": false,
+    "order": 1
+  }
+]

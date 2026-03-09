@@ -34,7 +34,10 @@ export class ParcoursService {
     id: number,
     data: Partial<ParcoursRule>,
   ): Promise<ParcoursRule | null> {
-    await this.repo.update(id, data);
+    const existing = await this.repo.findOneBy({ id });
+    if (!existing) return null;
+    const updated = this.repo.merge(existing, data);
+    await this.repo.save(updated);
     return this.findOne(id);
   }
 
