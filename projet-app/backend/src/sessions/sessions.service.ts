@@ -185,7 +185,7 @@ export class SessionsService {
       return {
         recommendation: session.finalRecommendation,
         recommendations,
-        scoreFinal: session.scorePretest || 0,
+        scorePretest: session.scorePretest || 0,
         finalLevel: { label: session.lastValidatedLevel || 'Inconnu' } as Level,
         lastValidatedLevel: session.lastValidatedLevel,
         stopLevel: session.stopLevel,
@@ -201,6 +201,7 @@ export class SessionsService {
           : 'Mise à niveau (réponses)',
         isQuestionRuleOverride: false,
         ruleResultType: null,
+        levels: [], // Legacy/Fallback case usually questions aren't linked to levels here
       };
     }
 
@@ -214,7 +215,12 @@ export class SessionsService {
       // Evaluate rules against session answers
       for (const rule of questionRules) {
         // Only evaluate if rule formation matches session formation, or if rule is global
-        if (rule.formation && rule.formation !== session.formationChoisie) {
+        if (rule.formationId) {
+          if (rule.formationId !== formation?.id) continue;
+        } else if (
+          rule.formation &&
+          rule.formation !== session.formationChoisie
+        ) {
           continue;
         }
 
@@ -266,7 +272,7 @@ export class SessionsService {
                 recommendations: [
                   rule.resultMessage || 'Recommandation personnalisée',
                 ],
-                scoreFinal: 0,
+                scorePretest: 0,
                 finalLevel: null,
                 qTextById,
                 filteredMiseAnswers: session.miseANiveauAnswers,
@@ -276,6 +282,7 @@ export class SessionsService {
                     : 'Questions complémentaires',
                 isQuestionRuleOverride: true, // Flag for frontend
                 ruleResultType: rule.resultType,
+                levels: [],
               };
             }
           }
@@ -291,18 +298,28 @@ export class SessionsService {
         recommendations: [
           session.finalRecommendation || 'DigComp Initial & Word Initial',
         ],
-        scoreFinal: 0,
+        scorePretest: 0,
         finalLevel: { label: 'Initial' } as Level,
         qTextById,
         filteredMiseAnswers: session.miseANiveauAnswers,
         miseTitle: 'Mise à niveau (réponses)',
+        levels: [],
       };
     }
 
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
+    const formation = await this.sessionRepo.manager
+      .getRepository('Formation')
+      .findOne({
+        where: [
+          { slug: session.formationChoisie as string },
+          { label: session.formationChoisie as string },
+        ],
+      });
+
     const allLevels = await this.levelRepo.find({
-      where: { formation: { label: session.formationChoisie as string } },
+      where: { formation: { id: formation?.id } },
       order: { order: 'ASC' },
     });
 
@@ -310,7 +327,15 @@ export class SessionsService {
 
     // ── Try active parcours rules first ──
     const activeRules = await this.parcoursRuleRepo.find({
-      where: { formation: session.formationChoisie as string, isActive: true },
+      where: [
+        { formationId: formation?.id, isActive: true },
+        // Legacy fallback if formationId is not yet populated
+        {
+          formation: session.formationChoisie as string,
+          isActive: true,
+          formationId: undefined,
+        },
+      ],
       order: { order: 'ASC' },
     });
 
@@ -467,7 +492,7 @@ export class SessionsService {
           (acc: number, e: any) => acc + (Number(e?.score) || 0),
           0 as number,
         );
-        const scoreFinal =
+        const scorePretest =
           totalAnswered > 0
             ? Math.round((totalCorrect / totalAnswered) * 100)
             : 0;
@@ -477,7 +502,7 @@ export class SessionsService {
         return {
           recommendation: finalRecommendationValue,
           recommendations: proposedParcours,
-          scoreFinal,
+          scorePretest,
           finalLevel,
           qTextById,
           filteredMiseAnswers: session.miseANiveauAnswers,
@@ -486,16 +511,29 @@ export class SessionsService {
           filteredAvailabilities: session.availabilities,
           miseTitle: 'Mise à niveau (réponses)',
           certification: matchedRule.certification,
+          levels,
         };
       }
+    }
+
+    // 4. CHECK FOR EXPLICIT QUESTION OVERRIDES (Question Rules)
+    const overrideSession = (session as any).overrideData;
+    if (overrideSession?.isQuestionRuleOverride) {
+      return {
+        recommendation: overrideSession.recommendations,
+        isQuestionRuleOverride: overrideSession.isQuestionRuleOverride,
+        ruleResultType: overrideSession.ruleResultType,
+        levels,
+      };
     }
 
     if (levels.length === 0) {
       return {
         recommendation: 'Formation non reconnue',
-        scoreFinal: 0,
+        scorePretest: 0,
         finalLevel: null,
         qTextById,
+        levels: [],
       };
     }
 
@@ -632,6 +670,7 @@ export class SessionsService {
         filteredComplementaryAnswers,
         filteredAvailabilities,
         miseTitle,
+        levels,
       };
     }
 
@@ -844,26 +883,18 @@ export class SessionsService {
         l1 = ensureNiveau(l_ava);
         l2 = ensureNiveau(l_exp);
       } else {
-        // Ultimate fallback
-        if (stopLevelIdx !== -1) {
-          l1 = ensureNiveau(levels[stopLevelIdx].label);
-          if (stopLevelIdx < levels.length - 1) {
-            l2 = ensureNiveau(levels[stopLevelIdx + 1].label);
-          } else {
-            l2 = l1;
-          }
+        // Ultimate fallback: Use actual levels order if no keyword matches
+        const currentIdx =
+          stopLevelIdx !== -1 ? stopLevelIdx : lastValidatedIdx + 1;
+        const safeIdx = Math.min(Math.max(0, currentIdx), levels.length - 1);
+
+        l1 = ensureNiveau(levels[safeIdx].label);
+
+        // Only propose a second level if we have one and it's not a high-level jump
+        if (safeIdx < levels.length - 1) {
+          l2 = ensureNiveau(levels[safeIdx + 1].label);
         } else {
-          if (lastValidatedIdx < levels.length - 1) {
-            l1 = ensureNiveau(levels[lastValidatedIdx + 1].label);
-            if (lastValidatedIdx + 1 < levels.length - 1) {
-              l2 = ensureNiveau(levels[lastValidatedIdx + 2].label);
-            } else {
-              l2 = l1;
-            }
-          } else {
-            l1 = ensureNiveau(levels[levels.length - 1].label);
-            l2 = l1;
-          }
+          l2 = l1;
         }
       }
     }
@@ -919,6 +950,7 @@ export class SessionsService {
       filteredComplementaryAnswers,
       filteredAvailabilities,
       miseTitle,
+      levels,
     } = await this.getRecommendationData(session);
 
     if (!finalLevel) {
@@ -1140,7 +1172,11 @@ export class SessionsService {
 
     return this.update(id, {
       finalRecommendation: recommendation,
-      stopLevel: finalLevel ? finalLevel.label : 'Initial',
+      stopLevel: finalLevel
+        ? finalLevel.label
+        : levels.length > 0
+          ? levels[0].label
+          : 'Initial',
       scorePretest: scoreFinal,
       emailSentAt: new Date(),
       isCompleted: true,

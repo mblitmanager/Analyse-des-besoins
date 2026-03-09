@@ -202,17 +202,26 @@ const sections = computed(() => {
   const lastLevel = (currentSession.value?.stopLevel || "").toLowerCase();
   const lastLevelOrder = currentSession.value?.stopLevelOrder || 0; // Backend should ideally provide this, but we can fall back
 
-  // Simple heuristic if order not provided: Initial=1, Basique=2, Opérationnel=3, etc.
-  const getLevelOrder = (lvl) => {
-    if (lvl.includes('initial')) return 1;
-    if (lvl.includes('basique')) return 2;
-    if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
-    if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
-    if (lvl.includes('expert')) return 5;
-    return 0;
+  // Dynamic level order from formation data
+  const getLevelOrder = (formationLabel, levelLabel) => {
+    const f = formations.value.find(form => form.label === formationLabel);
+    if (!f || !f.levels) {
+      // Fallback for legacy keywords if formation not found or has no levels in memory
+      const lvl = levelLabel.toLowerCase();
+      if (lvl.includes('initial')) return 1;
+      if (lvl.includes('basique')) return 2;
+      if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
+      if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
+      if (lvl.includes('expert')) return 5;
+      return 0;
+    }
+    const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
+    const target = clean(levelLabel);
+    const l = f.levels.find(lvl => clean(lvl.label) === target);
+    return l ? (l.order || 0) : 0;
   };
 
-  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastLevel);
+  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastFormation, lastLevel);
   const isBureautiqueLast = lastFormation.toLowerCase().includes('word') || 
                             lastFormation.toLowerCase().includes('excel') || 
                             lastFormation.toLowerCase().includes('ppt') || 

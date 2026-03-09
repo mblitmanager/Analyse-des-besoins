@@ -397,7 +397,11 @@ async function finishTest(overrideSession = null) {
     const allRules = rulesRes.data || [];
     // Filter rules for this formation that are active, ordered by their order field
     const formationRules = allRules
-      .filter(r => r.formation === formationLabel && r.isActive !== false)
+      .filter(r => {
+        const matchesId = formation.value?.id && Number(r.formationId) === Number(formation.value.id);
+        const matchesLabel = r.formation === formationLabel;
+        return (matchesId || matchesLabel) && r.isActive !== false;
+      })
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (formationRules.length > 0) {

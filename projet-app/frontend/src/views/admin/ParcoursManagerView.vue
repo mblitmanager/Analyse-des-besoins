@@ -35,6 +35,7 @@ const formationForm = ref({
 
 const newRule = ref({
   formation: "",
+  formationId: null,
   condition: "",
   formation1: "",
   formation2: "",
@@ -106,6 +107,7 @@ function openNewForm() {
   editingRule.value = null;
   newRule.value = {
     formation: currentFormation.value?.label || "",
+    formationId: currentFormation.value?.id || null,
     condition: "",
     formation1: "",
     formation2: "",
@@ -315,9 +317,11 @@ watch(() => newRule.value.formation, async (val) => {
   if (val) {
     const matched = formationsList.value.find(f => f.label === val);
     if (matched) {
+      newRule.value.formationId = matched.id;
       await fetchLevelsForFormation(val);
     }
   } else {
+    newRule.value.formationId = null;
     selectedFormationLevels.value = [];
   }
   // Reset dependent fields ONLY if we are not initializing the form (editing)

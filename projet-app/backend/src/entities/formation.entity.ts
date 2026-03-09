@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Level } from './level.entity';
+import { ParcoursRule } from './parcours-rule.entity';
 
 @Entity('formations')
 export class Formation {
@@ -62,4 +63,7 @@ export class Formation {
 
   @OneToMany('Question', 'formation')
   questions: any[];
+
+  @OneToMany(() => ParcoursRule, (rule) => rule.formationEntity)
+  parcoursRules: ParcoursRule[];
 }
