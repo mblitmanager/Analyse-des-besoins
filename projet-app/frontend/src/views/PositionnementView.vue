@@ -186,7 +186,7 @@ async function loadLevelQuestions() {
     currentResponses.value = initialResponses;
     
     // Auto-skip or finish if no questions found for this level
-    if (questions.value.length === 0 || filteredQuestions.value.length === 0) {
+    if (questions.value.length === 0) {
       if (currentLevelIndex.value === 0) {
         if (allowSkip.value) {
           const nextRoute = await store.getNextRouteWithQuestions("/positionnement");

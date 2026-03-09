@@ -121,8 +121,10 @@ export const useAppStore = defineStore('app', () => {
         }
       }
 
-      // Check global auto-skip settings
-      if (!forceSkip) {
+      // Check global auto-skip settings (Skip unconditionally if 'true')
+      // NOTE: We EXCLUDE MISE_A_NIVEAU and POSITIONNEMENT from unconditional skip
+      // because they should only skip if QUESTIONS are missing (as per user UI).
+      if (!forceSkip && !codeLower.includes('mise') && codeLower !== 'positionnement') {
         const skipSettingKey = `AUTO_SKIP_${code}`;
         const autoSkip = await fetchSetting(skipSettingKey);
         if (autoSkip === 'true') {
@@ -154,8 +156,10 @@ export const useAppStore = defineStore('app', () => {
             let skipThisStep = questions.length === 0;
 
             // Special logic for mise_a_niveau/positionnement:
-            // We unified the logic: default to true (skip if 0 questions),
-            // but if AUTO_SKIP_XXX is explicitly 'false', we do NOT skip.
+            // They skip naturally if questions.length === 0.
+            // BUT: if the setting is explicitly 'false', we FORCE them to show even if 0 questions.
+            // (Note: The user UI says 'Allow skip if no questions', so if it's 'true' or missing, 
+            // the questions.length === 0 will handle the skip. If 'false', we prevent the skip.)
             if (codeLower.includes('mise') || codeLower === 'positionnement') {
               const settingKey = codeLower.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
               const autoSkipValue = await fetchSetting(settingKey);
@@ -221,7 +225,7 @@ export const useAppStore = defineStore('app', () => {
         }
       }
 
-      if (!forceSkip) {
+      if (!forceSkip && !codeLower.includes('mise') && codeLower !== 'positionnement') {
         const skipSettingKey = `AUTO_SKIP_${code}`;
         const autoSkip = await fetchSetting(skipSettingKey);
         if (autoSkip === 'true') {
