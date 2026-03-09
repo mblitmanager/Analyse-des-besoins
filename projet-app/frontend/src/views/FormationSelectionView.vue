@@ -108,7 +108,7 @@ async function selectFormation() {
     // Update the real workflow path based on the selected formation
     await store.updateActualWorkflow();
     
-    const nextRoute = store.getNextRouteWithQuestions("/formations");
+    const nextRoute = await store.getNextRouteWithQuestions("/formations");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);

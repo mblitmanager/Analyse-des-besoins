@@ -68,10 +68,19 @@ const answeredPrereqCount = computed(() => {
   return Object.keys(session.value.prerequisiteScore).length;
 });
 
+const isP3Enabled = ref(true);
+
 onMounted(async () => {
   if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
     await store.updateActualWorkflow();
   }
+  
+  // Check if P3 is enabled in settings
+  const p3Setting = await store.fetchSetting('ENABLE_P3');
+  if (p3Setting === 'false') {
+    isP3Enabled.value = false;
+  }
+
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -343,7 +352,7 @@ function startP3() {
           </button>
           
           <button
-            v-if="!store.isP3Mode"
+            v-if="!store.isP3Mode && isP3Enabled"
             @click="startP3"
             class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
