@@ -129,7 +129,7 @@ async function nextStep() {
   }
 }
 
-function skipStep() {
+async function skipStep() {
   const nextRoute = await store.getNextRouteWithQuestions("/availabilities");
   router.push(nextRoute || "/validation");
 }

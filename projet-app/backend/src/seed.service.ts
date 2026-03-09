@@ -110,6 +110,12 @@ export class SeedService implements OnApplicationBootstrap {
         description:
           "Envoyer automatiquement le bilan par email à l'administrateur",
       },
+      {
+        key: 'ENABLE_P3',
+        value: 'true',
+        description:
+          'Activer la fonctionnalité "Ajouter un autre parcours" (P3) à la fin',
+      },
     ];
 
     for (const s of settings) {

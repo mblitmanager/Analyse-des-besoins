@@ -105,10 +105,11 @@ function shouldShowQuestion(q) {
   return true;
 }
 
-function skipStep() {
+async function skipStep() {
   const nextRoute = await store.getNextRouteWithQuestions("/complementary");
   router.push(nextRoute || "/availabilities");
 }
+
 </script>
 
 <template>
