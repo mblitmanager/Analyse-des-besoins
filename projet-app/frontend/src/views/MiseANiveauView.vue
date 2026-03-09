@@ -108,7 +108,7 @@ onMounted(async () => {
     // if there are no relevant questions (including after filtering):
     // - skip automatically only when configuration allows
     // - otherwise keep the page loaded so the user can click «Continuer» manually
-    if (questions.value.length === 0 || filteredQuestions.value.length === 0) {
+    if (questions.value.length === 0) {
       if (allowSkip.value) {
         const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
         router.push(nextRoute || "/positionnement");
