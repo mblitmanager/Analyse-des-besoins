@@ -111,6 +111,7 @@ export const useAppStore = defineStore('app', () => {
       const step = workflowSteps.value.find(s => s.route === next);
       if (!step) break;
       const code = step.code.toUpperCase();
+      const codeLower = code.toLowerCase();
       
       // Global and P3 skip logic
       let forceSkip = false;
@@ -139,7 +140,6 @@ export const useAppStore = defineStore('app', () => {
 
       try {
         // when checking for questions we need the same formation-aware filter
-        const codeLower = code.toLowerCase();
         let url = `${apiBaseUrl}/questions/workflow/${codeLower}`;
         let params = '';
         if (formationSlug) {
@@ -216,6 +216,7 @@ export const useAppStore = defineStore('app', () => {
 
     for (const step of workflowSteps.value) {
       const code = step.code.toUpperCase();
+      const codeLower = code.toLowerCase();
       
       // Global and P3 skip logic
       let forceSkip = false;
@@ -237,7 +238,6 @@ export const useAppStore = defineStore('app', () => {
 
       // Check for questions
       try {
-        const codeLower = code.toLowerCase();
         let url = `${apiBaseUrl}/questions/workflow/${codeLower}`;
         let params = formationSlug ? `?formation=${formationSlug}&scope=auto` : `?scope=global`;
         
