@@ -197,14 +197,107 @@ export const useAppStore = defineStore('app', () => {
     return { current: 1, total: 1, percentage: 0, label: '' };
   }
 
+  const actualWorkflowSteps = ref([]);
+  const isUpdatingWorkflow = ref(false);
+
+  async function updateActualWorkflow() {
+    if (workflowSteps.value.length === 0) {
+      await fetchWorkflow();
+    }
+    
+    isUpdatingWorkflow.value = true;
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const formationSlug = localStorage.getItem('selected_formation_slug');
+    const actual = [];
+
+    for (const step of workflowSteps.value) {
+      const code = step.code.toUpperCase();
+      
+      // Global and P3 skip logic
+      let forceSkip = false;
+      if (isP3Mode.value) {
+        if (code === 'PREREQUIS' || code === 'AVAILABILITIES' || code === 'COMPLEMENTARY') {
+          forceSkip = true;
+        }
+      }
+
+      if (!forceSkip) {
+        const skipSettingKey = `AUTO_SKIP_${code}`;
+        const autoSkip = await fetchSetting(skipSettingKey);
+        if (autoSkip === 'true') {
+          forceSkip = true;
+        }
+      }
+
+      if (forceSkip) continue;
+
+      // Check for questions
+      try {
+        const codeLower = code.toLowerCase();
+        let url = `${apiBaseUrl}/questions/workflow/${codeLower}`;
+        let params = formationSlug ? `?formation=${formationSlug}&scope=auto` : `?scope=global`;
+        
+        const res = await fetch(url + params);
+        if (res.ok) {
+          const questions = await res.json();
+          if (Array.isArray(questions)) {
+            let skipThisStep = questions.length === 0;
+
+            if (codeLower.includes('mise') || codeLower === 'positionnement') {
+              const settingKey = codeLower.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
+              const autoSkipValue = await fetchSetting(settingKey);
+              if (autoSkipValue === 'false') {
+                skipThisStep = false;
+              }
+            }
+
+            if (!skipThisStep) {
+              actual.push(step);
+            }
+          }
+        } else {
+          // If API fails, keep the step as safe fallback
+          actual.push(step);
+        }
+      } catch (e) {
+        actual.push(step);
+      }
+    }
+    
+    actualWorkflowSteps.value = actual;
+    isUpdatingWorkflow.value = false;
+  }
+
+  function getProgress(currentPath) {
+    const list = actualWorkflowSteps.value.length > 0 ? actualWorkflowSteps.value : workflowSteps.value;
+    
+    let currentIndex = list.findIndex(s => s.route === currentPath);
+    if (currentIndex === -1 && currentPath === '/') {
+        currentIndex = list.findIndex(s => s.code === 'IDENTIFICATION');
+    }
+
+    if (currentIndex !== -1) {
+      return {
+        current: currentIndex + 1,
+        total: list.length,
+        percentage: ((currentIndex + 1) / list.length) * 100,
+        label: list[currentIndex].label
+      };
+    }
+    return { current: 1, total: Math.max(1, list.length), percentage: 0, label: '' };
+  }
+
   return { 
     brand, 
     isDirectLink, 
     workflowSteps, 
+    actualWorkflowSteps,
+    isUpdatingWorkflow,
     setBrand, 
     isP3Mode,
     setP3Mode,
     fetchWorkflow, 
+    updateActualWorkflow,
     fetchSetting,
     getNextRoute, 
     getNextRouteWithQuestions,
