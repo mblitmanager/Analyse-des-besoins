@@ -1,0 +1,107 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "AOPIA" [ref=e8]
+  - main [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - heading "Etape 3/5" [level=2] [ref=e14]
+            - heading "Test de positionnement - Anglais" [level=1] [ref=e15]
+            - paragraph [ref=e16]: Niveau suivant débloqué !
+          - generic [ref=e17]:
+            - generic [ref=e18]: trending_up
+            - text: Évaluation du niveau Renforcer les compétences
+        - generic [ref=e22]:
+          - heading "Bravo, vous progressez !" [level=3] [ref=e23]
+          - paragraph [ref=e24]:
+            - text: Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau
+            - strong [ref=e25]: Renforcer les compétences
+            - text: afin d'affiner votre programme de formation.
+      - generic [ref=e26]:
+        - generic [ref=e28]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - generic [ref=e32]: "1"
+              - heading "You ___ me about the problem earlier." [level=3] [ref=e34]
+            - generic [ref=e35]:
+              - generic [ref=e37] [cursor=pointer]: should have told
+              - generic [ref=e40] [cursor=pointer]: should told
+              - generic [ref=e44] [cursor=pointer]: must
+              - generic [ref=e47] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: "2"
+              - heading "If the baby had slept better, I ___ so tired." [level=3] [ref=e54]
+            - generic [ref=e55]:
+              - generic [ref=e57] [cursor=pointer]: won’t be
+              - generic [ref=e60] [cursor=pointer]: wouldn’t be
+              - generic [ref=e64] [cursor=pointer]: wouldn’t have been
+              - generic [ref=e67] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]: "3"
+              - heading "By this time next year, I ___ my studies." [level=3] [ref=e74]
+            - generic [ref=e75]:
+              - generic [ref=e77] [cursor=pointer]: will finish
+              - generic [ref=e80] [cursor=pointer]: will have finished
+              - generic [ref=e84] [cursor=pointer]: am finishing
+              - generic [ref=e87] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: "4"
+              - heading "This time tomorrow, we ___ on the beach." [level=3] [ref=e94]
+            - generic [ref=e95]:
+              - generic [ref=e97] [cursor=pointer]: will lie
+              - generic [ref=e100] [cursor=pointer]: will be lying
+              - generic [ref=e104] [cursor=pointer]: lie
+              - generic [ref=e107] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e112]: "5"
+              - heading "The meeting was called ___ due to unexpected problems." [level=3] [ref=e114]
+            - generic [ref=e115]:
+              - generic [ref=e117] [cursor=pointer]: "off"
+              - generic [ref=e121] [cursor=pointer]: up
+              - generic [ref=e124] [cursor=pointer]: out
+              - generic [ref=e127] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: "6"
+              - heading "___ he was tired, he continued working." [level=3] [ref=e134]
+            - generic [ref=e135]:
+              - generic [ref=e137] [cursor=pointer]: Because
+              - generic [ref=e140] [cursor=pointer]: Despite
+              - generic [ref=e143] [cursor=pointer]: Although
+              - generic [ref=e146] [cursor=pointer]: Je ne sais pas
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e151]: auto_fix_high
+            - generic [ref=e152]:
+              - paragraph [ref=e153]: Prochaine étape
+              - paragraph [ref=e154]: Finalisation du profil B2 - Renforcer les compétences
+          - button "Suivant arrow_forward" [disabled] [ref=e156]:
+            - generic [ref=e157]: Suivant
+            - generic [ref=e158]: arrow_forward
+  - contentinfo [ref=e159]:
+    - generic [ref=e160]:
+      - navigation [ref=e161]:
+        - link "Règlement intérieur" [ref=e162]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e163]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e164]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e165]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e166]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e168]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e169]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e170]: © 2026 NS Conseil. Tous droits réservés.
+```
