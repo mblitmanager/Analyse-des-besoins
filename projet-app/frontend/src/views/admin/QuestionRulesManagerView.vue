@@ -64,6 +64,8 @@ const editingRule = ref(null);
 const ruleForm = ref({
   workflow: "",
   questionId: null,
+  formation: "",
+  formationId: null,
   expectedValue: "",
   operator: "EQUALS",
   resultType: "CUSTOM_MESSAGE",
@@ -76,6 +78,8 @@ function openAddModal() {
   ruleForm.value = {
     workflow: "",
     questionId: null,
+    formation: "",
+    formationId: null,
     expectedValue: "",
     operator: "EQUALS",
     resultType: "CUSTOM_MESSAGE",
@@ -291,6 +295,29 @@ function getQuestionText(id) {
               <div>
                 <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Ordre de priorité</label>
                 <input v-model.number="ruleForm.order" type="number" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary focus:bg-white outline-none transition-colors text-sm font-bold text-gray-800" />
+              </div>
+            </div>
+
+            <!-- Formation Association -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Formation (Facultatif)</label>
+                <select 
+                  v-model.number="ruleForm.formationId" 
+                  @change="(e) => {
+                    const f = formations.find(f => f.id === Number(e.target.value));
+                    ruleForm.formation = f ? f.label : '';
+                  }"
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800"
+                >
+                  <option :value="null">-- Toutes les formations (Global) --</option>
+                  <option v-for="f in formations" :key="f.id" :value="f.id">{{ f.label }}</option>
+                </select>
+              </div>
+              <div v-if="ruleForm.formationId" class="flex items-end">
+                <div class="px-4 py-3 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 w-full text-center">
+                  Règle spécifique à {{ ruleForm.formation }}
+                </div>
               </div>
             </div>
 

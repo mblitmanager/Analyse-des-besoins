@@ -106,6 +106,7 @@ async function createWorkflowStep() {
     const payload = { ...newStep.value };
     await axios.post(`${apiBaseUrl}/workflow`, payload, { headers: { Authorization: `Bearer ${token}` } });
     await fetchSettings();
+    await appStore.fetchWorkflow();
     newStep.value = { code: '', label: '', route: '' };
     alert('Étape créée');
   } catch (error) {
@@ -114,12 +115,18 @@ async function createWorkflowStep() {
   }
 }
 
-async function deleteWorkflowStep(id) {
-  if (!confirm('Supprimer cette étape ? (elle sera désactivée)')) return;
+async function deleteWorkflowStep(step) {
+  const isHardDelete = step.isActive === false;
+  const message = isHardDelete 
+    ? 'Supprimer DEFINITIVEMENT cette étape ?' 
+    : 'Désactiver cette étape ?';
+
+  if (!confirm(message)) return;
   try {
-    await axios.delete(`${apiBaseUrl}/workflow/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`, { headers: { Authorization: `Bearer ${token}` } });
     await fetchSettings();
-    alert('Étape supprimée');
+    await appStore.fetchWorkflow();
+    alert(isHardDelete ? 'Étape supprimée définitivement' : 'Étape désactivée');
   } catch (error) {
     console.error('Erreur suppression étape', error);
     alert('Erreur lors de la suppression');
@@ -135,6 +142,7 @@ async function toggleStepActive(step) {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     step.isActive = newStatus;
+    await appStore.fetchWorkflow();
   } catch (error) {
     console.error('Erreur toggle étape', error);
     alert('Impossible de mettre à jour l\'étape');
@@ -279,7 +287,7 @@ onMounted(fetchSettings);
               >
                 <span class="material-icons-outlined text-lg">arrow_downward</span>
               </button>
-              <button @click="deleteWorkflowStep(step.id)" class="w-10 h-10 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-50 transition-all border border-gray-50" title="Supprimer">
+              <button @click="deleteWorkflowStep(step)" class="w-10 h-10 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-50 transition-all border border-gray-50" title="Supprimer">
                 <span class="material-icons-outlined text-lg">delete</span>
               </button>
             </div>

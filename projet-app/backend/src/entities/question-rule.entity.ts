@@ -18,6 +18,9 @@ export class QuestionRule {
   formation: string | null; // e.g. "Word", "Excel", or null for global
 
   @Column({ type: 'int', nullable: true })
+  formationId: number | null;
+
+  @Column({ type: 'int', nullable: true })
   questionId: number | null; // which question this rule applies to
 
   // The condition on the response

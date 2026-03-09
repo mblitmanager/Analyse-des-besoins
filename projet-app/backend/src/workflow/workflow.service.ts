@@ -54,6 +54,13 @@ export class WorkflowService {
   async removeStep(id: number) {
     const step = await this.workflowRepo.findOne({ where: { id } });
     if (!step) return false;
+
+    // If step is already inactive, perform a hard delete
+    if (step.isActive === false) {
+      await this.workflowRepo.delete(id);
+      return true;
+    }
+
     // Soft-delete: mark inactive
     await this.workflowRepo.update(id, { isActive: false });
     return true;

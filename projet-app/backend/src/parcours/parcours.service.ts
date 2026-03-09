@@ -16,7 +16,14 @@ export class ParcoursService {
 
   findByFormation(formation: string): Promise<ParcoursRule[]> {
     return this.repo.find({
-      where: { formation },
+      where: [{ formation }, { formationId: Number(formation) || -1 }],
+      order: { order: 'ASC' },
+    });
+  }
+
+  findByFormationId(formationId: number): Promise<ParcoursRule[]> {
+    return this.repo.find({
+      where: { formationId },
       order: { order: 'ASC' },
     });
   }

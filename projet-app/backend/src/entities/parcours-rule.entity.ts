@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Formation } from './formation.entity';
 
 @Entity('parcours_rules')
 export class ParcoursRule {
@@ -6,7 +13,17 @@ export class ParcoursRule {
   id: number;
 
   @Column({ type: 'varchar', length: 100 })
-  formation: string; // e.g. "Word", "Excel", "Anglais", "Français"
+  formation: string; // e.g. "Word", "Excel", "Anglais", "Français" (Label for display)
+
+  @Column({ nullable: true })
+  formationId: number;
+
+  @ManyToOne(() => Formation, (f) => f.parcoursRules, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'formationId' })
+  formationEntity: Formation;
 
   @Column({ type: 'varchar', length: 255 })
   condition: string; // e.g. "Si résultat du test = Initial"

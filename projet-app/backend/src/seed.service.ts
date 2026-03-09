@@ -1161,14 +1161,23 @@ export class SeedService implements OnApplicationBootstrap {
       },
     ];
 
-    const entities = this.parcoursRuleRepo.create(
-      rules.map((rule) => ({
+    const formations = await this.formationRepo.find();
+
+    const entities = rules.map((rule) => {
+      const formation = formations.find(
+        (f) =>
+          f.label.toLowerCase().trim() ===
+            rule.formation.toLowerCase().trim() ||
+          f.slug.toLowerCase().trim() === rule.formation.toLowerCase().trim(),
+      );
+      return this.parcoursRuleRepo.create({
         ...rule,
+        formationId: formation ? formation.id : undefined,
         requirePrerequisiteFailure: false,
-      })),
-    );
+      });
+    });
     await this.parcoursRuleRepo.save(entities);
-    console.log(`Seeded ${entities.length} parcours rules.`);
+    console.log(`Seeded ${entities.length} parcours rules with IDs.`);
   }
 
   private async seedQuestionRules() {
