@@ -354,16 +354,22 @@ export class SessionsService {
               return isGenericFailure(userResponse);
             }
 
-            // Otherwise, check if user's response (string) matches any of the target option strings
+            // Otherwise, check if user's response matches any of the target option strings
             const question = allPrereqs.find((q) => q.id === cond.questionId);
             if (!question || !question.options) return false;
 
+            // userResponse might be an array or a comma-separated string if multiple answers
+            const userResponsesArr = Array.isArray(userResponse)
+              ? userResponse.map((r) => String(r).toLowerCase())
+              : String(userResponse)
+                  .split(',')
+                  .map((r) => r.trim().toLowerCase());
+
             return cond.responseIndexes.some((idx) => {
               const targetOption = question.options[idx];
-              return (
-                targetOption &&
-                String(userResponse).toLowerCase() ===
-                  String(targetOption).toLowerCase()
+              if (!targetOption) return false;
+              return userResponsesArr.includes(
+                String(targetOption).toLowerCase(),
               );
             });
           });
