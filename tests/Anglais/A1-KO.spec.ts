@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -51,5 +51,9 @@ test('test', async ({ page }) => {
   
   // Dernière action
   // --- Capture d’écran avant de fermer ---
-  await page.screenshot({ path: 'test-A1KO.png', fullPage: true });
+    await page.getByRole("button", { name: "Continuer" }).click();
+   // --- Attente que la page finale soit complètement chargée ---
+  // await page.waitForLoadState("networkidle"); // attend que toutes les requêtes réseau soient terminées
+  // await expect(page.getByRole("main")).toBeVisible(); 
+  await page.screenshot({ path: 'TOEIC-A1-KO.png', fullPage: true });
 });

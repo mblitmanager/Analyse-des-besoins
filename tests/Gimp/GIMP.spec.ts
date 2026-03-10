@@ -64,5 +64,7 @@ test("test", async ({ page }) => {
   await page
     .getByRole("button", { name: "Valider mes disponibilités" })
     .click();
-  await page.getByRole("button", { name: "Accueil home" }).click();
+await page.waitForTimeout(2000);
+  await page.screenshot({ path: "test-gimp.png", fullPage: true });
+  // await page.getByRole("button", { name: "Accueil home" }).click();
 });
