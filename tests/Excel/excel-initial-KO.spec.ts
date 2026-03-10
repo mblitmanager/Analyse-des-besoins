@@ -38,12 +38,15 @@ test("test", async ({ page }) => {
   await page.getByText("Non").nth(3).click();
   await page.getByText("Occasionnellement").nth(2).click();
   await page.getByRole("button", { name: "Valider mon profil" }).click();
-  await page.getByRole("button", { name: "description Excel" }).click();
-  await page.getByText("ContinuerContinuerarrow_forward").click();
+  await page.getByRole("button", { name: "Excel" }).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
   await page.getByText("Une cellule").click();
-  await page.getByText("=SOMME()").click();
+  await page.getByText("=NB()").click();
   await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer quand même" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continuer" }).click();
+      await page.getByRole("button", { name: "Continuer" }).click();
+  await page.screenshot({ path: 'test-Excel-Inital-KO.png', fullPage: true });
+
 });

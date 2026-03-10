@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Anglais B1 validé
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -70,23 +70,9 @@ test("test", async ({ page }) => {
   await page.locator("label").filter({ hasText: "off" }).click();
   await page.getByText("Although").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  // await page.getByRole("button", { name: "Continuer" }).click();
-  // await page.getByRole("button", { name: "Valider ce parcours et" }).click();
-  // await page
-  //   .getByRole("combobox")
-  //   .selectOption(
-  //     "Je vise un emploi pour lequel de nouvelles compétences me seront utiles",
-  //   );
-  // await page.getByText("Non").first().click();
-  // await page.locator("label").nth(2).click();
-  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  // await page.getByText("wb_twilightAprès-midi").click();
-  // await page.getByRole("textbox").click();
-  // await page.getByRole("textbox").fill("fgdfg");
-  // await page
-  //   .getByRole("button", { name: "Valider mes disponibilités" })
-  //   .click();
-
-  // --- Capture d’écran avant de fermer ---
-  await page.screenshot({ path: 'test-B1.png', fullPage: true });
+  await page.getByRole("button", { name: "Continuer" }).click();
+   // --- Attente que la page finale soit complètement chargée ---
+  // await page.waitForLoadState("networkidle"); // attend que toutes les requêtes réseau soient terminées
+  // await expect(page.getByRole("main")).toBeVisible(); 
+  await page.screenshot({ path: 'TOEIC-B1.png', fullPage: true });
 });

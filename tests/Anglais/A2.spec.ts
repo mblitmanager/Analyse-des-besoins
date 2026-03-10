@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 //Anglais B1 validé
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-  await page.getByRole("textbox", { name: "Prénom" }).fill("B1");
+  await page.getByRole("textbox", { name: "Prénom" }).fill("A2");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
   await page.getByRole("textbox", { name: "Téléphone" }).fill("06 06 06 06 06");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
@@ -88,5 +88,6 @@ test("test", async ({ page }) => {
   //   .click();
 
   // --- Capture d’écran avant de fermer ---
-  await page.screenshot({ path: 'test-A2.png', fullPage: true });
+    await page.getByRole("button", { name: "Continuer" }).click();
+  await page.screenshot({ path: 'TOEIC-A2.png', fullPage: true });
 });

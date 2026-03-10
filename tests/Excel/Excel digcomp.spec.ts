@@ -39,12 +39,10 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Ignorer et continuer" }).click();
   await page.getByRole("button", { name: "description Excel" }).click();
   await page.getByText("ContinuerContinuerarrow_forward").click();
-  await page.locator("label").filter({ hasText: "Une cellule" }).click();
-  await page.getByText("=SOMME(A1 ; A3 ; A5 ; A7)").click();
-  await page
-    .locator("label")
-    .filter({ hasText: "Secteur / Histogramme / Courbe" })
-    .click();
+  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page.getByText("Une cellule").click();
+  await page.getByText("=SOMME()").click();
+  await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.locator("label").nth(3).click();
   await page.getByText("Je ne sais pas").nth(1).click();
@@ -52,23 +50,7 @@ test("test", async ({ page }) => {
   await page.getByText("Je ne sais pas").nth(3).click();
   await page.getByText("Je ne sais pas").nth(4).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
-  await page.getByRole("button", { name: "Valider ce parcours et" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: "quizQuel est l’objectif de" })
-    .nth(5)
-    .click();
-  await page
-    .getByRole("combobox")
-    .selectOption(
-      "Je me prépare à entrer dans une formation qualifiante ou à un concours d'entrée",
-    );
-  await page.locator("label").first().click();
-  await page.locator("label").nth(2).click();
-  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.getByText("wb_twilightAprès-midi").click();
-  await page
-    .getByRole("button", { name: "Valider mes disponibilités" })
-    .click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
+        // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.screenshot({ path: 'test-Excel-Digcomp-KO.png', fullPage: true });
 });
