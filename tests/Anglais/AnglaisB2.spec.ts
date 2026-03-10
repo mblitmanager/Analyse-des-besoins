@@ -42,7 +42,7 @@ test("test", async ({ page }) => {
   await page.locator("label").nth(5).click();
   await page.locator("label").filter({ hasText: "Non" }).nth(1).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.getByText("is").nth(2).click();
+  await page.locator('label:has-text("is")').first().click();//non séléctionné
   await page
     .locator(
       "div:nth-child(2) > .p-6 > .grid > label:nth-child(2) > .option-card__radio",
