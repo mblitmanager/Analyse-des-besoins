@@ -6,102 +6,134 @@
     - img "AOPIA" [ref=e8]
   - main [ref=e9]:
     - generic [ref=e10]:
-      - generic [ref=e11]:
-        - generic [ref=e12]:
-          - generic [ref=e13]:
-            - heading "Etape 3/5" [level=2] [ref=e14]
-            - heading "Test de positionnement - Anglais" [level=1] [ref=e15]
-            - paragraph [ref=e16]: Bienvenue dans votre évaluation adaptive.
-          - generic [ref=e17]:
-            - generic [ref=e18]: trending_up
-            - text: Évaluation du niveau Revoir les bases
-        - generic [ref=e22]:
-          - heading "Comment fonctionne ce test ?" [level=3] [ref=e23]
-          - paragraph [ref=e24]:
-            - text: Ce test est adaptatif. Il commence par le niveau
-            - strong [ref=e25]: Revoir les bases
-            - text: . Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
-      - generic [ref=e26]:
-        - generic [ref=e28]:
-          - generic [ref=e30]:
-            - generic [ref=e31]:
-              - generic [ref=e32]: "1"
-              - heading "Hello, my name ___ Sarah." [level=3] [ref=e34]
-            - generic [ref=e35]:
-              - generic [ref=e37] [cursor=pointer]: am
-              - generic [ref=e40] [cursor=pointer]: is
-              - generic [ref=e43] [cursor=pointer]: are
-              - generic [ref=e46] [cursor=pointer]: Je ne sais pas
-          - generic [ref=e49]:
-            - generic [ref=e50]:
-              - generic [ref=e51]: "2"
-              - heading "We ___ English on Monday." [level=3] [ref=e53]
-            - generic [ref=e54]:
-              - generic [ref=e56] [cursor=pointer]: are
-              - generic [ref=e59] [cursor=pointer]: have
-              - generic [ref=e63] [cursor=pointer]: has
-              - generic [ref=e66] [cursor=pointer]: Je ne sais pas
-          - generic [ref=e69]:
-            - generic [ref=e70]:
-              - generic [ref=e71]: "3"
-              - heading "She ___ 12 years old." [level=3] [ref=e73]
-            - generic [ref=e74]:
-              - generic [ref=e76] [cursor=pointer]: is
-              - generic [ref=e80] [cursor=pointer]: are
-              - generic [ref=e83] [cursor=pointer]: has
-              - generic [ref=e86] [cursor=pointer]: Je ne sais pas
-          - generic [ref=e89]:
-            - generic [ref=e90]:
-              - generic [ref=e91]: "4"
-              - heading "There ___ a book on the table." [level=3] [ref=e93]
-            - generic [ref=e94]:
-              - generic [ref=e96] [cursor=pointer]: are
-              - generic [ref=e99] [cursor=pointer]: have
-              - generic [ref=e102] [cursor=pointer]: is
-              - generic [ref=e106] [cursor=pointer]: Je ne sais pas
-          - generic [ref=e109]:
-            - generic [ref=e110]:
-              - generic [ref=e111]: "5"
-              - heading "She ___ TV right now." [level=3] [ref=e113]
-            - generic [ref=e114]:
-              - generic [ref=e116] [cursor=pointer]: watches
-              - generic [ref=e119] [cursor=pointer]: watching
-              - generic [ref=e122] [cursor=pointer]: is watching
-              - generic [ref=e126] [cursor=pointer]: Je ne sais pas
-          - generic [ref=e129]:
-            - generic [ref=e130]:
-              - generic [ref=e131]: "6"
-              - heading "She ___ to the gym three times a week." [level=3] [ref=e133]
-            - generic [ref=e134]:
-              - generic [ref=e136] [cursor=pointer]: go
-              - generic [ref=e139] [cursor=pointer]: goes
-              - generic [ref=e143] [cursor=pointer]: is going
-              - generic [ref=e146] [cursor=pointer]: Je ne sais pas
-        - generic [ref=e148]:
-          - generic [ref=e149]:
-            - generic [ref=e151]: auto_fix_high
-            - generic [ref=e152]:
-              - paragraph [ref=e153]: Prochaine étape
-              - paragraph [ref=e154]: Finalisation du profil A1 - Revoir les bases
-          - button "Suivant arrow_forward" [disabled] [ref=e156]:
-            - generic [ref=e157]: Suivant
-            - generic [ref=e158]: arrow_forward
-  - contentinfo [ref=e159]:
-    - generic [ref=e160]:
-      - navigation [ref=e161]:
-        - link "Règlement intérieur" [ref=e162] [cursor=pointer]:
+      - heading "Etape 1/3" [level=2] [ref=e11]
+      - heading "Quelle formation souhaitez-vous suivre ?" [level=1] [ref=e12]
+      - paragraph [ref=e13]: "Faites votre choix ci-dessous :"
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Bureautique" [level=3] [ref=e17]
+          - generic [ref=e18]:
+            - generic [ref=e19]:
+              - heading "1. Microsoft Office" [level=4] [ref=e20]
+              - generic [ref=e21]:
+                - button "description Excel" [ref=e22] [cursor=pointer]:
+                  - generic [ref=e23]:
+                    - generic [ref=e25]: description
+                    - generic [ref=e26]: Excel
+                - button "description Outlook" [ref=e27] [cursor=pointer]:
+                  - generic [ref=e28]:
+                    - generic [ref=e30]: description
+                    - generic [ref=e31]: Outlook
+                - button "description PowerPoint" [ref=e32] [cursor=pointer]:
+                  - generic [ref=e33]:
+                    - generic [ref=e35]: description
+                    - generic [ref=e36]: PowerPoint
+                - button "description Word" [ref=e37] [cursor=pointer]:
+                  - generic [ref=e38]:
+                    - generic [ref=e40]: description
+                    - generic [ref=e41]: Word
+            - generic [ref=e42]:
+              - heading "2. Google Workspace" [level=4] [ref=e43]
+              - generic [ref=e44]:
+                - button "cloud Google Docs" [ref=e45] [cursor=pointer]:
+                  - generic [ref=e46]:
+                    - generic [ref=e48]: cloud
+                    - generic [ref=e49]: Google Docs
+                - button "cloud Google Sheets" [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]:
+                    - generic [ref=e53]: cloud
+                    - generic [ref=e54]: Google Sheets
+                - button "cloud Google Slides" [ref=e55] [cursor=pointer]:
+                  - generic [ref=e56]:
+                    - generic [ref=e58]: cloud
+                    - generic [ref=e59]: Google Slides
+        - generic [ref=e60]:
+          - heading "Langues" [level=3] [ref=e61]
+          - generic [ref=e62]:
+            - button "spellcheck Anglais check" [active] [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]:
+                - generic [ref=e66]: spellcheck
+                - generic [ref=e67]: Anglais
+              - generic [ref=e69]: check
+            - button "spellcheck Français" [ref=e70] [cursor=pointer]:
+              - generic [ref=e71]:
+                - generic [ref=e73]: spellcheck
+                - generic [ref=e74]: Français
+        - generic [ref=e75]:
+          - heading "Création" [level=3] [ref=e76]
+          - generic [ref=e77]:
+            - button "star Gimp" [ref=e78] [cursor=pointer]:
+              - generic [ref=e79]:
+                - generic [ref=e81]: star
+                - generic [ref=e82]: Gimp
+            - button "star Illustrator" [ref=e83] [cursor=pointer]:
+              - generic [ref=e84]:
+                - generic [ref=e86]: star
+                - generic [ref=e87]: Illustrator
+            - button "draw Photoshop" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89]:
+                - generic [ref=e91]: draw
+                - generic [ref=e92]: Photoshop
+            - button "square Sketchup" [ref=e93] [cursor=pointer]:
+              - generic [ref=e94]:
+                - generic [ref=e96]: square
+                - generic [ref=e97]: Sketchup
+            - button "star Intelligence Artificielle Générative" [ref=e98] [cursor=pointer]:
+              - generic [ref=e99]:
+                - generic [ref=e101]: star
+                - generic [ref=e102]: Intelligence Artificielle Générative
+        - generic [ref=e103]:
+          - heading "Internet" [level=3] [ref=e104]
+          - generic [ref=e105]:
+            - button "star Digitales Compétences" [ref=e106] [cursor=pointer]:
+              - generic [ref=e107]:
+                - generic [ref=e109]: star
+                - generic [ref=e110]: Digitales Compétences
+            - button "star Outils Collaboratifs Google" [ref=e111] [cursor=pointer]:
+              - generic [ref=e112]:
+                - generic [ref=e114]: star
+                - generic [ref=e115]: Outils Collaboratifs Google
+            - button "search WordPress" [ref=e116] [cursor=pointer]:
+              - generic [ref=e117]:
+                - generic [ref=e119]: search
+                - generic [ref=e120]: WordPress
+      - generic [ref=e122]:
+        - generic [ref=e124]: verified
+        - generic [ref=e125]:
+          - paragraph [ref=e126]: Formation sélectionnée
+          - heading "Anglais" [level=3] [ref=e127]
+        - generic [ref=e129]:
+          - generic [ref=e130]: info
+          - generic [ref=e131]: Cliquez sur « Continuer » pour valider
+      - button "Continuer arrow_forward" [ref=e133]:
+        - generic [ref=e134]: Continuer
+        - generic [ref=e135]: arrow_forward
+  - contentinfo [ref=e136]:
+    - generic [ref=e137]:
+      - navigation [ref=e138]:
+        - link "Règlement intérieur" [ref=e139] [cursor=pointer]:
           - /url: https://ns-conseil.com/reglement-interieur/
-        - link "CGV" [ref=e163] [cursor=pointer]:
+        - link "CGV" [ref=e140] [cursor=pointer]:
           - /url: https://ns-conseil.com/cgv/
-        - link "Mentions légales" [ref=e164] [cursor=pointer]:
+        - link "Mentions légales" [ref=e141] [cursor=pointer]:
           - /url: /mentions-legales
-        - link "Respect de la vie privée" [ref=e165] [cursor=pointer]:
+        - link "Respect de la vie privée" [ref=e142] [cursor=pointer]:
           - /url: /respect-vie-privee
-        - link "Politique de confidentialité" [ref=e166] [cursor=pointer]:
+        - link "Politique de confidentialité" [ref=e143] [cursor=pointer]:
           - /url: /politique-confidentialite
-      - paragraph [ref=e168]:
+      - paragraph [ref=e145]:
         - text: Besoin d'aide ?
-        - link "Contactez le support" [ref=e169] [cursor=pointer]:
+        - link "Contactez le support" [ref=e146] [cursor=pointer]:
           - /url: mailto:contact@ns-conseil.com
-      - generic [ref=e170]: © 2026 NS Conseil. Tous droits réservés.
+      - generic [ref=e147]: © 2026 NS Conseil. Tous droits réservés.
+  - generic [ref=e149]:
+    - generic [ref=e150]:
+      - generic [ref=e152]: verified
+      - generic [ref=e153]:
+        - paragraph [ref=e154]: Formation sélectionnée
+        - paragraph [ref=e155]: Anglais
+    - button "Continuer arrow_forward" [ref=e156]:
+      - generic [ref=e157]: Continuer
+      - generic [ref=e158]: arrow_forward
 ```
