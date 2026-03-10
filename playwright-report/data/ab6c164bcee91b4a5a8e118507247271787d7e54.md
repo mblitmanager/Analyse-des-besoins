@@ -26,7 +26,7 @@
             - generic [ref=e28]:
               - generic [ref=e29]:
                 - generic [ref=e30]: Nom
-                - textbox "Nom" [active] [ref=e31]
+                - textbox "Nom" [ref=e31]
               - generic [ref=e32]:
                 - generic [ref=e33]: Prénom
                 - textbox "Prénom" [ref=e34]

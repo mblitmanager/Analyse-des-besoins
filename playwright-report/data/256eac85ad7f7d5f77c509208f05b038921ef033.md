@@ -1,0 +1,49 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "AOPIA" [ref=e8]
+  - main [ref=e9]:
+    - generic [ref=e11]:
+      - heading "Félicitations!" [level=1] [ref=e12]
+      - paragraph [ref=e13]: "Voici votre parcours de formation recommandé :"
+      - generic [ref=e15]:
+        - generic [ref=e16]: TOSA Digcomp Initial
+        - generic [ref=e17]: TOSA Excel Initial
+      - generic [ref=e19]:
+        - generic [ref=e20]: Niveau Initial
+        - generic [ref=e21]:
+          - generic [ref=e22]: 2/3
+          - generic [ref=e23]: cancel
+      - button "Continuer" [ref=e24]
+    - generic [ref=e27]:
+      - generic [ref=e29]: warning
+      - heading "Formation peut-être non adaptée à votre niveau" [level=2] [ref=e30]
+      - paragraph [ref=e31]:
+        - text: Vous avez obtenu
+        - strong [ref=e32]: 2/3
+        - text: bonnes réponses au test de positionnement.
+        - text: Nous vous recommandons d’envisager une formation plus adaptée à votre niveau.
+      - generic [ref=e33]:
+        - button "Modifier mon choix" [ref=e34]
+        - button "Continuer quand même" [active] [ref=e35]
+  - contentinfo [ref=e36]:
+    - generic [ref=e37]:
+      - navigation [ref=e38]:
+        - link "Règlement intérieur" [ref=e39] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e40] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e41] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e42] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e43] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e45]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e46] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e47]: © 2026 NS Conseil. Tous droits réservés.
+```
