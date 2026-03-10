@@ -8,11 +8,11 @@ test("test", async ({ page }) => {
 
   await page.goto("http://localhost:5173/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
-  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("df");
+  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-  await page.getByRole("textbox", { name: "Prénom" }).fill("f");
+  await page.getByRole("textbox", { name: "Prénom" }).fill("B2");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
-  await page.getByRole("textbox", { name: "Téléphone" }).fill("a");
+  await page.getByRole("textbox", { name: "Téléphone" }).fill("06 06 06 06 06");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
   await page
     .getByRole("textbox", { name: "Ex: Assistant administratif," })
@@ -84,4 +84,6 @@ test("test", async ({ page }) => {
   await page.locator("label").filter({ hasText: "have I heard" }).click();
   await page.locator("label").filter({ hasText: "did he arrive" }).click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
+  // --- Capture d’écran avant de fermer ---
+  await page.screenshot({ path: 'test-B2.png', fullPage: true });
 });
