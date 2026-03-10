@@ -642,8 +642,8 @@ onMounted(async () => {
     <!-- Modal Form -->
     <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showForm = false"></div>
-      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-lg relative overflow-hidden animate-scale-up">
-        <div class="p-8 border-b border-gray-100 flex items-center justify-between">
+      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-lg relative flex flex-col animate-scale-up max-h-[90vh]">
+        <div class="p-8 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
           <h3 class="text-xl font-black heading-primary">
             {{ editingRule ? "Modifier la règle" : "Nouvelle règle de parcours" }}
           </h3>
@@ -651,7 +651,7 @@ onMounted(async () => {
             <span class="material-icons-outlined">close</span>
           </button>
         </div>
-        <div class="p-8 space-y-6">
+        <div class="p-8 space-y-6 overflow-y-auto">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Formation concernée</label>
             <input
@@ -773,7 +773,7 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-3">
               <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Formation 1</label>
               <input
@@ -831,6 +831,8 @@ onMounted(async () => {
           <datalist id="levels-list-f2">
             <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
           </datalist>
+        </div>
+        <div class="p-8 border-t border-gray-100">
           <!-- Form Actions -->
           <button
             @click="saveRule"
@@ -838,6 +840,7 @@ onMounted(async () => {
           >
             {{ editingRule ? "Enregistrer les modifications" : "Ajouter la règle" }}
           </button>
+        </div>
       </div>
     </div>
   </div>

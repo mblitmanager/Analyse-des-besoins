@@ -1167,8 +1167,8 @@ export class SeedService implements OnApplicationBootstrap {
       const formation = formations.find(
         (f) =>
           f.label.toLowerCase().trim() ===
-            rule.formation.toLowerCase().trim() ||
-          f.slug.toLowerCase().trim() === rule.formation.toLowerCase().trim(),
+            rule.formation?.toLowerCase().trim() ||
+          f.slug.toLowerCase().trim() === rule.formation?.toLowerCase().trim(),
       );
       return this.parcoursRuleRepo.create({
         ...rule,

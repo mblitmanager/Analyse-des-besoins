@@ -90,7 +90,7 @@ export class SessionsService {
         // Ensure values are synced if not already stored
         if (!session.finalRecommendation) {
           session.finalRecommendation = data.recommendation;
-          session.scorePretest = data.scoreFinal;
+          session.scorePretest = data.scoreFinal ?? data.scorePretest ?? 0;
         }
       } catch (e) {
         console.error('Failed to include recommendations array:', e);
@@ -205,6 +205,17 @@ export class SessionsService {
       };
     }
 
+    // Adaptive Logic / Cumulative Logic
+    // 1. Identify all levels for the chosen formation
+    const formation = await this.sessionRepo.manager
+      .getRepository('Formation')
+      .findOne({
+        where: [
+          { slug: session.formationChoisie as string },
+          { label: session.formationChoisie as string },
+        ],
+      });
+
     // 1. Evaluate Question Rules first (gives absolute priority)
     const questionRules = await this.questionRuleRepo.find({
       where: { isActive: true },
@@ -306,17 +317,6 @@ export class SessionsService {
         levels: [],
       };
     }
-
-    // Adaptive Logic / Cumulative Logic
-    // 1. Identify all levels for the chosen formation
-    const formation = await this.sessionRepo.manager
-      .getRepository('Formation')
-      .findOne({
-        where: [
-          { slug: session.formationChoisie as string },
-          { label: session.formationChoisie as string },
-        ],
-      });
 
     const allLevels = await this.levelRepo.find({
       where: { formation: { id: formation?.id } },
