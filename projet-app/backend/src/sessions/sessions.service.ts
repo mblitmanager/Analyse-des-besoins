@@ -125,7 +125,25 @@ export class SessionsService {
     return { success: true };
   }
 
-  private async getRecommendationData(session: Session) {
+  private async getRecommendationData(session: Session): Promise<{
+    recommendation: string;
+    recommendations?: string[];
+    scorePretest?: number;
+    scoreFinal?: number;
+    finalLevel: Level | null;
+    lastValidatedLevel?: string | null;
+    stopLevel?: string | null;
+    qTextById: Record<number, string>;
+    filteredMiseAnswers?: any;
+    filteredPrerequis?: any;
+    filteredComplementaryAnswers?: any;
+    filteredAvailabilities?: any;
+    miseTitle: string;
+    certification?: any;
+    isQuestionRuleOverride?: boolean;
+    ruleResultType?: string | null;
+    levels: Level[];
+  }> {
     // 0. Fetch all question texts and details for filtering and labeling
     // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
     const ids = new Set<number>();
@@ -201,7 +219,7 @@ export class SessionsService {
           : 'Mise à niveau (réponses)',
         isQuestionRuleOverride: false,
         ruleResultType: null,
-        levels: [], // Legacy/Fallback case usually questions aren't linked to levels here
+        levels: [] as Level[], // Legacy/Fallback case usually questions aren't linked to levels here
       };
     }
 
@@ -293,7 +311,7 @@ export class SessionsService {
                     : 'Questions complémentaires',
                 isQuestionRuleOverride: true, // Flag for frontend
                 ruleResultType: rule.resultType,
-                levels: [],
+                levels: [] as Level[],
               };
             }
           }
@@ -314,7 +332,7 @@ export class SessionsService {
         qTextById,
         filteredMiseAnswers: session.miseANiveauAnswers,
         miseTitle: 'Mise à niveau (réponses)',
-        levels: [],
+        levels: [] as Level[],
       };
     }
 
@@ -520,9 +538,14 @@ export class SessionsService {
     const overrideSession = (session as any).overrideData;
     if (overrideSession?.isQuestionRuleOverride) {
       return {
-        recommendation: overrideSession.recommendations,
+        recommendation: String(overrideSession.recommendations),
         isQuestionRuleOverride: overrideSession.isQuestionRuleOverride,
         ruleResultType: overrideSession.ruleResultType,
+        finalLevel: null,
+        qTextById,
+        miseTitle: session.formationChoisie
+          ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
+          : 'Mise à niveau (réponses)',
         levels,
       };
     }
@@ -533,7 +556,8 @@ export class SessionsService {
         scorePretest: 0,
         finalLevel: null,
         qTextById,
-        levels: [],
+        miseTitle: 'Mise à niveau (réponses)',
+        levels: [] as Level[],
       };
     }
 
@@ -766,6 +790,7 @@ export class SessionsService {
           filteredComplementaryAnswers,
           filteredAvailabilities,
           miseTitle,
+          levels,
         };
       }
     }
@@ -935,6 +960,7 @@ export class SessionsService {
       filteredComplementaryAnswers,
       filteredAvailabilities,
       miseTitle,
+      levels,
     };
   }
 
