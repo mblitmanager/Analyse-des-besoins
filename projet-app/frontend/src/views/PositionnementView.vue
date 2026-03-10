@@ -33,6 +33,8 @@ const sessionId = localStorage.getItem("session_id");
 
 const levelsScores = ref({});
 const positionnementAnswers = ref({});
+const prerequisiteAnswers = ref({}); // Réponses aux questions prérequis (étape précédente)
+const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour résoudre texte → index
 const showResults = ref(false);
 const finalRecommendation = ref("");
 const isPaginated = ref(false);
@@ -111,6 +113,12 @@ async function restoreProgressFromSession() {
         localStorage.removeItem('p3_prev_formation');
         localStorage.removeItem('p3_prev_level_order');
       }
+    }
+
+    // Charger les réponses prérequis depuis la session (indépendant des levelsScores)
+    // Sauvegardées sous "prerequisiteScore" par PrerequisView
+    if (session.prerequisiteScore && Object.keys(session.prerequisiteScore).length > 0) {
+      prerequisiteAnswers.value = session.prerequisiteScore;
     }
 
     // If session is already finalized on backend, show results directly
@@ -224,6 +232,7 @@ onMounted(async () => {
   await fetchPaginationSetting();
   await fetchLowScoreThreshold();
   await fetchSkipSetting();
+  await fetchPrereqQuestionsCache();
   // ensure workflow is loaded
   if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
     await store.updateActualWorkflow();
@@ -257,6 +266,18 @@ async function fetchSkipSetting() {
   const value = await store.fetchSetting('AUTO_SKIP_POSITIONNEMENT');
   // Default to true unless explicitly set to 'false'
   allowSkip.value = value !== 'false';
+}
+
+async function fetchPrereqQuestionsCache() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
+      params: formationSlug ? { scope: 'auto', formation: formationSlug } : { scope: 'global' },
+    });
+    prereqQuestionsCache.value = res.data || [];
+  } catch (error) {
+    console.warn('[Parcours] Impossible de charger le cache des questions prérequis:', error);
+    prereqQuestionsCache.value = [];
+  }
 }
 async function nextStep() {
   submitting.value = true;
@@ -405,41 +426,124 @@ async function finishTest(overrideSession = null) {
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (formationRules.length > 0) {
-      // Determine the stop level (where the user stopped/failed)
       const stopLabel = currentLevel.label.toUpperCase();
-      
       const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
-      const evaluateRuleCondition = (rule) => {
+
+      // ── 1. Évalue la condition de niveau de la règle (retourne true/false) ──
+      const evaluateLevelCondition = (rule) => {
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
-        
         if (condMatch) {
           const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
           const targetStr = cleanLabel(condMatch[2]);
           const targetIdx = levels.value.findIndex((l) => cleanLabel(l.label) === targetStr);
-
           if (targetIdx === -1) return false;
-          
           switch (operator) {
-            case '=': return currentLevelIndex.value === targetIdx;
-            case '<': return currentLevelIndex.value < targetIdx;
-            case '≤': return currentLevelIndex.value <= targetIdx;
-            case '>': return currentLevelIndex.value > targetIdx;
-            case '≥': return currentLevelIndex.value >= targetIdx;
-            default: return false;
+            case '=':  return currentLevelIndex.value === targetIdx;
+            case '<':  return currentLevelIndex.value < targetIdx;
+            case '≤':  return currentLevelIndex.value <= targetIdx;
+            case '>':  return currentLevelIndex.value > targetIdx;
+            case '≥':  return currentLevelIndex.value >= targetIdx;
+            default:   return false;
           }
         }
         return cleanLabel(rule.condition).includes(cleanLabel(stopLabel));
       };
 
-      const validRules = formationRules.filter(r => evaluateRuleCondition(r));
+      // ── 2. Évalue les conditions prérequis d'une règle ──
+      // prerequisiteAnswers contient { [questionId]: "texte de la réponse choisie" }
+      // responseIndexes dans les règles sont des index dans q.options[]
+      // → on retrouve l'index de la valeur texte pour comparer
+      const evaluatePrereqConditions = (rule) => {
+        if (!rule.requirePrerequisiteFailure) {
+          return { matched: 0, total: 0, applicable: false };
+        }
 
-      let matchedRule = null;
-      if (validRules.length > 0) {
-        matchedRule = validRules[0]; // already sorted by ascending order (highest priority first)
-      }
+        const prereqConditions = rule.prerequisiteConditions || [];
+        if (prereqConditions.length === 0) {
+          return { matched: 1, total: 1, applicable: true };
+        }
 
-      // Fallback: use the last active rule
+        const conditionResults = prereqConditions.map((cond) => {
+          const userAnswerRaw = prerequisiteAnswers.value[cond.questionId];
+          if (userAnswerRaw === undefined || userAnswerRaw === null) return false;
+
+          if (!cond.responseIndexes || cond.responseIndexes.length === 0) return true;
+
+          // Trouver la question pour accéder à ses options et convertir texte → index
+          const question = prereqQuestionsCache.value.find(q => q.id === cond.questionId);
+
+          // Résoudre l'index de la réponse utilisateur
+          let userAnswerIndex = -1;
+          if (question?.options?.length) {
+            if (Array.isArray(userAnswerRaw)) {
+              // Multi-select : vérifier si un des index sélectionnés est dans responseIndexes
+              const selectedIndexes = userAnswerRaw.map(val => question.options.indexOf(val)).filter(i => i !== -1);
+              return selectedIndexes.some(i => cond.responseIndexes.includes(i));
+            } else {
+              userAnswerIndex = question.options.indexOf(userAnswerRaw);
+            }
+          } else {
+            // Pas de question en cache → fallback comparaison directe par index numérique
+            userAnswerIndex = Number(userAnswerRaw);
+          }
+
+          return cond.responseIndexes.includes(userAnswerIndex);
+        });
+
+        const matched = conditionResults.filter(Boolean).length;
+        const total = prereqConditions.length;
+
+        if (rule.prerequisiteLogic === 'AND') {
+          return matched === total
+            ? { matched, total, applicable: true }
+            : { matched: 0, total, applicable: false };
+        } else {
+          return matched > 0
+            ? { matched, total, applicable: true }
+            : { matched: 0, total, applicable: false };
+        }
+      };
+
+      // ── 3. Score chaque règle ──
+      // Une règle AVEC prérequis satisfaits est PLUS SPÉCIFIQUE qu'une règle sans prérequis.
+      // → bonus de spécificité de 10 pour forcer sa priorité sur une règle générique
+      const scoredRules = formationRules.map((rule) => {
+        const levelOk = evaluateLevelCondition(rule);
+        if (!levelOk) return { rule, score: 0, debug: 'niveau KO' };
+
+        const prereq = evaluatePrereqConditions(rule);
+
+        if (prereq.applicable === false && rule.requirePrerequisiteFailure) {
+          // Règle exige des prérequis mais ils ne sont pas satisfaits → disqualifiée
+          return { rule, score: 0, debug: 'prérequis KO' };
+        }
+
+        // Règle sans prérequis = score 2 (générique)
+        // Règle avec prérequis satisfaits = score 2 + 10 (spécificité) + N conditions matched
+        const specificityBonus = rule.requirePrerequisiteFailure ? 10 : 0;
+        const score = 2 + specificityBonus + (prereq.matched || 0);
+        return { rule, score, debug: `niveau OK${rule.requirePrerequisiteFailure ? ` + prérequis (${prereq.matched}/${prereq.total})` : ' sans prérequis'}` };
+      });
+
+      console.debug('[Parcours] Scoring des règles :', scoredRules.map(s => ({
+        id: s.rule.id,
+        condition: s.rule.condition,
+        requirePrereq: s.rule.requirePrerequisiteFailure,
+        score: s.score,
+        debug: s.debug,
+      })));
+
+      // ── 4. Règle gagnante = score le plus élevé ──
+      // En cas d'égalité → order le plus bas (déjà triées)
+      const best = scoredRules
+        .filter(s => s.score > 0)
+        .sort((a, b) => b.score - a.score)[0];
+
+      let matchedRule = best?.rule || null;
+
+      // Fallback : aucune règle ne passe → dernière règle active
       if (!matchedRule) {
+        console.debug('[Parcours] Aucune règle ne correspond, fallback sur la dernière règle active');
         matchedRule = formationRules[formationRules.length - 1];
       }
 
