@@ -17,7 +17,7 @@
         - generic [ref=e25]:
           - generic [ref=e26]:
             - generic [ref=e27]: Votre métier (poste actuel)
-            - 'textbox "Ex: Assistant administratif, Comptable..." [ref=e28]': aa
+            - 'textbox "Ex: Assistant administratif, Comptable..." [ref=e28]': AF
           - generic [ref=e29]:
             - generic [ref=e30]: Votre situation actuelle
             - generic [ref=e31]:
@@ -53,8 +53,8 @@
               - paragraph [ref=e74]: A quelle fréquence utilisez-vous un ordinateur ?
             - generic [ref=e75]:
               - generic [ref=e77] [cursor=pointer]: Quotidiennement
-              - generic [ref=e80] [cursor=pointer]: Occasionnellement
-              - generic [ref=e83] [cursor=pointer]: Jamais
+              - generic [ref=e81] [cursor=pointer]: Occasionnellement
+              - generic [ref=e84] [cursor=pointer]: Jamais
           - generic [ref=e86]:
             - generic [ref=e87]:
               - generic [ref=e88]: "2"
@@ -62,14 +62,14 @@
             - generic [ref=e90]:
               - generic [ref=e92] [cursor=pointer]: Oui
               - generic [ref=e95] [cursor=pointer]: Oui avec quelques difficultés
-              - generic [ref=e98] [cursor=pointer]: Non
+              - generic [ref=e99] [cursor=pointer]: Non
           - generic [ref=e101]:
             - generic [ref=e102]:
               - generic [ref=e103]: "3"
               - paragraph [ref=e104]: "Savez-vous vous repérer dans l’environnement Windows : bureau, menu démarrer, fenêtres, icônes, applications… ?"
             - generic [ref=e105]:
               - generic [ref=e107] [cursor=pointer]: Oui
-              - generic [ref=e110] [cursor=pointer]: Oui avec quelques difficultés
+              - generic [ref=e111] [cursor=pointer]: Oui avec quelques difficultés
               - generic [ref=e114] [cursor=pointer]: Non
           - generic [ref=e116]:
             - generic [ref=e117]:
@@ -77,7 +77,7 @@
               - paragraph [ref=e119]: A quelle fréquence utilisez-vous internet ?
             - generic [ref=e120]:
               - generic [ref=e122] [cursor=pointer]: Quotidiennement
-              - generic [ref=e125] [cursor=pointer]: Occasionnellement
+              - generic [ref=e126] [cursor=pointer]: Occasionnellement
               - generic [ref=e129] [cursor=pointer]: Jamais
           - generic [ref=e131]:
             - generic [ref=e132]:
@@ -85,7 +85,7 @@
               - paragraph [ref=e134]: Savez-vous créer un dossier et y ranger et renommer un fichier?
             - generic [ref=e135]:
               - generic [ref=e137] [cursor=pointer]: Oui
-              - generic [ref=e140] [cursor=pointer]: Oui avec quelques difficultés
+              - generic [ref=e141] [cursor=pointer]: Oui avec quelques difficultés
               - generic [ref=e144] [cursor=pointer]: Non
           - generic [ref=e146]:
             - generic [ref=e147]:
@@ -94,37 +94,37 @@
             - generic [ref=e150]:
               - generic [ref=e152] [cursor=pointer]: Oui
               - generic [ref=e155] [cursor=pointer]: Non
-          - generic [ref=e157]:
-            - generic [ref=e158]:
-              - generic [ref=e159]: "7"
-              - paragraph [ref=e160]: A quelle fréquence utilisez-vous votre mail ?
-            - generic [ref=e161]:
-              - generic [ref=e163] [cursor=pointer]: Quotidiennement
-              - generic [ref=e166] [cursor=pointer]: Occasionnellement
-              - generic [ref=e170] [cursor=pointer]: Jamais
-      - generic [ref=e172]:
-        - button "arrow_back Retour" [ref=e173]:
-          - generic [ref=e174]: arrow_back
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e160]: "7"
+              - paragraph [ref=e161]: A quelle fréquence utilisez-vous votre mail ?
+            - generic [ref=e162]:
+              - generic [ref=e164] [cursor=pointer]: Quotidiennement
+              - generic [ref=e167] [cursor=pointer]: Occasionnellement
+              - generic [ref=e171] [cursor=pointer]: Jamais
+      - generic [ref=e173]:
+        - button "arrow_back Retour" [ref=e174]:
+          - generic [ref=e175]: arrow_back
           - text: Retour
-        - button "Valider mon profil arrow_forward" [active] [ref=e175]:
-          - generic [ref=e176]: Valider mon profil
-          - generic [ref=e177]: arrow_forward
-  - contentinfo [ref=e178]:
-    - generic [ref=e179]:
-      - navigation [ref=e180]:
-        - link "Règlement intérieur" [ref=e181] [cursor=pointer]:
+        - button "sync Validation..." [disabled] [ref=e176]:
+          - generic [ref=e177]: sync
+          - generic [ref=e178]: Validation...
+  - contentinfo [ref=e179]:
+    - generic [ref=e180]:
+      - navigation [ref=e181]:
+        - link "Règlement intérieur" [ref=e182] [cursor=pointer]:
           - /url: https://ns-conseil.com/reglement-interieur/
-        - link "CGV" [ref=e182] [cursor=pointer]:
+        - link "CGV" [ref=e183] [cursor=pointer]:
           - /url: https://ns-conseil.com/cgv/
-        - link "Mentions légales" [ref=e183] [cursor=pointer]:
+        - link "Mentions légales" [ref=e184] [cursor=pointer]:
           - /url: /mentions-legales
-        - link "Respect de la vie privée" [ref=e184] [cursor=pointer]:
+        - link "Respect de la vie privée" [ref=e185] [cursor=pointer]:
           - /url: /respect-vie-privee
-        - link "Politique de confidentialité" [ref=e185] [cursor=pointer]:
+        - link "Politique de confidentialité" [ref=e186] [cursor=pointer]:
           - /url: /politique-confidentialite
-      - paragraph [ref=e187]:
+      - paragraph [ref=e188]:
         - text: Besoin d'aide ?
-        - link "Contactez le support" [ref=e188] [cursor=pointer]:
+        - link "Contactez le support" [ref=e189] [cursor=pointer]:
           - /url: mailto:contact@ns-conseil.com
-      - generic [ref=e189]: © 2026 NS Conseil. Tous droits réservés.
+      - generic [ref=e190]: © 2026 NS Conseil. Tous droits réservés.
 ```
