@@ -56,20 +56,20 @@ test("test", async ({ page }) => {
   await page.getByText("as beautiful as").click();
   await page.getByText("went").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByText("since").click();
-  await page.locator("label").filter({ hasText: /^had$/ }).click();
-  await page.getByText("was built").click();
+  await page.getByText("during").click();
+  await page.locator("label").filter({ hasText: /^have$/ }).click();
+  await page.getByText("is built").click();
   await page.locator("label").filter({ hasText: "has worked" }).click();
-  await page.locator("label").filter({ hasText: "had eaten" }).click();
+  await page.locator("label").filter({ hasText: "has eaten" }).click();
   await page.getByText("drank").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.locator("label").filter({ hasText: "should told" }).click();
-  await page.getByText("wouldn’t be").click();
-  await page.locator("label").filter({ hasText: "will have finished" }).click();
-  await page.getByText("will be lying").click();
-  await page.locator("label").filter({ hasText: "off" }).click();
-  await page.getByText("Although").click();
-  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  // await page.locator("label").filter({ hasText: "should told" }).click();
+  // await page.getByText("wouldn’t be").click();
+  // await page.locator("label").filter({ hasText: "will have finished" }).click();
+  // await page.getByText("will be lying").click();
+  // await page.locator("label").filter({ hasText: "off" }).click();
+  // await page.getByText("Although").click();
+  // await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   // await page.getByRole("button", { name: "Continuer" }).click();
   // await page.getByRole("button", { name: "Valider ce parcours et" }).click();
   // await page
@@ -88,5 +88,5 @@ test("test", async ({ page }) => {
   //   .click();
 
   // --- Capture d’écran avant de fermer ---
-  await page.screenshot({ path: 'test-B1.png', fullPage: true });
+  await page.screenshot({ path: 'test-A2.png', fullPage: true });
 });

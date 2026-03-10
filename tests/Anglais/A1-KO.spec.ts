@@ -3,11 +3,11 @@ import { test, expect } from '@playwright/test';
 test('test', async ({ page }) => {
   await page.goto("http://localhost:5173/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
-  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("df");
+  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-  await page.getByRole("textbox", { name: "Prénom" }).fill("f");
+  await page.getByRole("textbox", { name: "Prénom" }).fill("A1 KO");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
-  await page.getByRole("textbox", { name: "Téléphone" }).fill("a");
+  await page.getByRole("textbox", { name: "Téléphone" }).fill("06 06 06 06 06");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
   await page
     .getByRole("textbox", { name: "Ex: Assistant administratif," })
@@ -50,5 +50,6 @@ test('test', async ({ page }) => {
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   
   // Dernière action
-  
+  // --- Capture d’écran avant de fermer ---
+  await page.screenshot({ path: 'test-A1KO.png', fullPage: true });
 });
