@@ -61,23 +61,14 @@ test("test TOEIC complet jusqu'au C1", async ({ page }) => {
   await page.getByText("out", { exact: true }).click();
   await page.getByText("Although").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByText("would rather").click();
-  await page.getByText("keep", { exact: true }).click();
-  await page.getByText("is submitted").click();
-  await page.locator("label").filter({ hasText: "Because" }).click();
+  await page.getByText("had better").click();
+  await page.getByText("kept", { exact: true }).click();
+  await page.getByText("be submitted").click();
+  await page.locator("label").filter({ hasText: "Given" }).click();
   await page.locator("label").filter({ hasText: "have I heard" }).click();
   await page.locator("label").filter({ hasText: "did he arrive" }).click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
-
-  // --- Niveau C1 ---
-  await page.getByText("had better").click();  // Q25
-  await page.getByText("kept", { exact: true }).click(); // Q26
-  await page.locator("label").filter({ hasText: "be submitted" }).click(); // Q27
-  await page.locator("label").filter({ hasText: "Given" }).click(); // Q28
-  await page.locator("label").filter({ hasText: "have I heard" }).click(); // Q29
-  await page.locator("label").filter({ hasText: "did he arrive" }).click(); // Q30
-
   // --- Capture d’écran finale ---
   await page.getByRole("button", { name: "Continuer" }).click();
-  await page.screenshot({ path: 'TOEIC-C1-complet.png', fullPage: true });
+  await page.screenshot({ path: 'TOEIC-C1-OK.png', fullPage: true });
 });
