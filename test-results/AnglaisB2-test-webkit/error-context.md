@@ -17,45 +17,45 @@
             - generic [ref=e19]:
               - heading "1. Microsoft Office" [level=4] [ref=e20]
               - generic [ref=e21]:
-                - button "description Excel check" [ref=e22] [cursor=pointer]:
+                - button "description Excel" [ref=e22] [cursor=pointer]:
                   - generic [ref=e23]:
                     - generic [ref=e25]: description
                     - generic [ref=e26]: Excel
-                  - generic [ref=e28]: check
-                - button "description Outlook" [ref=e29] [cursor=pointer]:
-                  - generic [ref=e30]:
-                    - generic [ref=e32]: description
-                    - generic [ref=e33]: Outlook
-                - button "description PowerPoint" [ref=e34] [cursor=pointer]:
-                  - generic [ref=e35]:
-                    - generic [ref=e37]: description
-                    - generic [ref=e38]: PowerPoint
-                - button "description Word" [ref=e39] [cursor=pointer]:
-                  - generic [ref=e40]:
-                    - generic [ref=e42]: description
-                    - generic [ref=e43]: Word
-            - generic [ref=e44]:
-              - heading "2. Google Workspace" [level=4] [ref=e45]
-              - generic [ref=e46]:
-                - button "cloud Google Docs" [ref=e47] [cursor=pointer]:
-                  - generic [ref=e48]:
-                    - generic [ref=e50]: cloud
-                    - generic [ref=e51]: Google Docs
-                - button "cloud Google Sheets" [ref=e52] [cursor=pointer]:
-                  - generic [ref=e53]:
-                    - generic [ref=e55]: cloud
-                    - generic [ref=e56]: Google Sheets
-                - button "cloud Google Slides" [ref=e57] [cursor=pointer]:
-                  - generic [ref=e58]:
-                    - generic [ref=e60]: cloud
-                    - generic [ref=e61]: Google Slides
-        - generic [ref=e62]:
-          - heading "Langues" [level=3] [ref=e63]
-          - generic [ref=e64]:
-            - button "spellcheck Anglais" [ref=e65] [cursor=pointer]:
-              - generic [ref=e66]:
-                - generic [ref=e68]: spellcheck
-                - generic [ref=e69]: Anglais
+                - button "description Outlook" [ref=e27] [cursor=pointer]:
+                  - generic [ref=e28]:
+                    - generic [ref=e30]: description
+                    - generic [ref=e31]: Outlook
+                - button "description PowerPoint" [ref=e32] [cursor=pointer]:
+                  - generic [ref=e33]:
+                    - generic [ref=e35]: description
+                    - generic [ref=e36]: PowerPoint
+                - button "description Word" [ref=e37] [cursor=pointer]:
+                  - generic [ref=e38]:
+                    - generic [ref=e40]: description
+                    - generic [ref=e41]: Word
+            - generic [ref=e42]:
+              - heading "2. Google Workspace" [level=4] [ref=e43]
+              - generic [ref=e44]:
+                - button "cloud Google Docs" [ref=e45] [cursor=pointer]:
+                  - generic [ref=e46]:
+                    - generic [ref=e48]: cloud
+                    - generic [ref=e49]: Google Docs
+                - button "cloud Google Sheets" [ref=e50] [cursor=pointer]:
+                  - generic [ref=e51]:
+                    - generic [ref=e53]: cloud
+                    - generic [ref=e54]: Google Sheets
+                - button "cloud Google Slides" [ref=e55] [cursor=pointer]:
+                  - generic [ref=e56]:
+                    - generic [ref=e58]: cloud
+                    - generic [ref=e59]: Google Slides
+        - generic [ref=e60]:
+          - heading "Langues" [level=3] [ref=e61]
+          - generic [ref=e62]:
+            - button "spellcheck Anglais check" [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]:
+                - generic [ref=e66]: spellcheck
+                - generic [ref=e67]: Anglais
+              - generic [ref=e69]: check
             - button "spellcheck Français" [ref=e70] [cursor=pointer]:
               - generic [ref=e71]:
                 - generic [ref=e73]: spellcheck
@@ -102,41 +102,38 @@
         - generic [ref=e124]: verified
         - generic [ref=e125]:
           - paragraph [ref=e126]: Formation sélectionnée
-          - heading "Excel" [level=3] [ref=e127]
-          - generic [ref=e128]:
-            - generic [ref=e129]: description
-            - text: Microsoft Office
-        - generic [ref=e131]:
-          - generic [ref=e132]: info
-          - generic [ref=e133]: Cliquez sur « Continuer » pour valider
-      - button "Continuer arrow_forward" [ref=e135]:
-        - generic [ref=e136]: Continuer
-        - generic [ref=e137]: arrow_forward
-  - contentinfo [ref=e138]:
-    - generic [ref=e139]:
-      - navigation [ref=e140]:
-        - link "Règlement intérieur" [ref=e141]:
+          - heading "Anglais" [level=3] [ref=e127]
+        - generic [ref=e129]:
+          - generic [ref=e130]: info
+          - generic [ref=e131]: Cliquez sur « Continuer » pour valider
+      - button "Continuer arrow_forward" [ref=e133]:
+        - generic [ref=e134]: Continuer
+        - generic [ref=e135]: arrow_forward
+  - contentinfo [ref=e136]:
+    - generic [ref=e137]:
+      - navigation [ref=e138]:
+        - link "Règlement intérieur" [ref=e139]:
           - /url: https://ns-conseil.com/reglement-interieur/
-        - link "CGV" [ref=e142]:
+        - link "CGV" [ref=e140]:
           - /url: https://ns-conseil.com/cgv/
-        - link "Mentions légales" [ref=e143]:
+        - link "Mentions légales" [ref=e141]:
           - /url: /mentions-legales
-        - link "Respect de la vie privée" [ref=e144]:
+        - link "Respect de la vie privée" [ref=e142]:
           - /url: /respect-vie-privee
-        - link "Politique de confidentialité" [ref=e145]:
+        - link "Politique de confidentialité" [ref=e143]:
           - /url: /politique-confidentialite
-      - paragraph [ref=e147]:
+      - paragraph [ref=e145]:
         - text: Besoin d'aide ?
-        - link "Contactez le support" [ref=e148]:
+        - link "Contactez le support" [ref=e146]:
           - /url: mailto:contact@ns-conseil.com
-      - generic [ref=e149]: © 2026 NS Conseil. Tous droits réservés.
-  - generic [ref=e151]:
-    - generic [ref=e152]:
-      - generic [ref=e154]: verified
-      - generic [ref=e155]:
-        - paragraph [ref=e156]: Formation sélectionnée
-        - paragraph [ref=e157]: Excel
-    - button "Continuer arrow_forward" [ref=e158]:
-      - generic [ref=e159]: Continuer
-      - generic [ref=e160]: arrow_forward
+      - generic [ref=e147]: © 2026 NS Conseil. Tous droits réservés.
+  - generic [ref=e149]:
+    - generic [ref=e150]:
+      - generic [ref=e152]: verified
+      - generic [ref=e153]:
+        - paragraph [ref=e154]: Formation sélectionnée
+        - paragraph [ref=e155]: Anglais
+    - button "Continuer arrow_forward" [ref=e156]:
+      - generic [ref=e157]: Continuer
+      - generic [ref=e158]: arrow_forward
 ```

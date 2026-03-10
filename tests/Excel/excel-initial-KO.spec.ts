@@ -41,8 +41,8 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "description Excel" }).click();
   await page.getByText("ContinuerContinuerarrow_forward").click();
   await page.getByText("Une cellule").click();
-  await page.getByText("=SOMME(A1 : A7)").click();
-  await page.getByText("Camembert / Histogramme / Lin").click();
+  await page.getByText("=SOMME()").click();
+  await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer quand même" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();

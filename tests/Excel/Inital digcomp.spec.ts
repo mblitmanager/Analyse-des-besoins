@@ -5,7 +5,8 @@ test("test", async ({ page }) => {
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Excel");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-
+  await page.getByRole("textbox", { name: "Prénom" }).click();
+  await page.getByRole("textbox", { name: "Prénom" }).fill("Inital");
   await page.getByRole("textbox", { name: "Téléphone" }).click();
   await page.getByRole("textbox", { name: "Téléphone" }).fill("a");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
