@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto('http://localhost:5173/');
+  await page.goto('https://nsconseil.mbl-service.com/');
   await page.getByText('Madame').click();
   await page.getByRole('textbox', { name: 'Nom', exact: true }).click();
   await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('IA');
@@ -35,6 +35,7 @@ test('test', async ({ page }) => {
   await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   await page.getByText('Après-midi').click();
   await page.getByRole('button', { name: 'Valider mes disponibilités' }).click();
-  await page.goto('http://localhost:5173/validation');
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: "IA-Inkrea.png", fullPage: true });
   // await page.getByRole('button', { name: 'Accueil home' }).click();
 });

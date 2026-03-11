@@ -53,13 +53,9 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "description Excel" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.locator("label").filter({ hasText: "Une cellule" }).click();
-  await page.getByText("=A1 + A3 + A5 + A7=SOMME(A1").click();
-  await page
-    .locator("label")
-    .filter({ hasText: "=SOMME(A1 ; A3 ; A5 ; A7)" })
-    .click();
-  await page.getByText("Courbe").nth(1).click();
+  await page.getByText("Une cellule").click();
+  await page.getByText("=SOMME()").click();
+  await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.locator("label").nth(3).click();
   await page.getByText("Je ne sais pas").nth(1).click();
@@ -68,4 +64,6 @@ test("test", async ({ page }) => {
   await page.locator("label").filter({ hasText: "AUJOURDHUI()" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
+  await page.screenshot({ path: "Excel-Initial-Basique.png", fullPage: true });
 });
