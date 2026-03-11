@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, ILike } from 'typeorm';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
@@ -349,15 +349,14 @@ export class SessionsService {
         { formationId: formation?.id, isActive: true },
         // Legacy fallback if formationId is not yet populated
         {
-          formation: session.formationChoisie as string,
+          formation: ILike(String(session.formationChoisie)),
           isActive: true,
-          formationId: undefined,
         },
       ],
       order: { order: 'ASC' },
     });
 
-    if (activeRules.length > 0 && levels.length > 0) {
+    if (activeRules.length > 0) {
       const stopLevelLabel = session.stopLevel || '';
       const stopUpper = stopLevelLabel.toUpperCase();
       let matchedRule: ParcoursRule | null = null;
@@ -436,7 +435,7 @@ export class SessionsService {
         (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
       );
       const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
-        if (!rule.condition) return true; // Empty condition acts as a catch-all/default rule
+        if (!rule.condition || rule.condition.trim() === '') return true; // Empty condition acts as a catch-all/default rule
         
         // Condition is expected to be like "Si résultat du test < Basique" or "< Basique"
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
@@ -444,9 +443,14 @@ export class SessionsService {
         if (condMatch) {
           const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
           const targetStr = cleanLabel(condMatch[2]);
-          const targetIdx = levels.findIndex(
+          let targetIdx = levels.findIndex(
             (l) => cleanLabel(l.label) === targetStr,
           );
+          
+          if (targetIdx === -1 && targetStr.length > 0) {
+              // Try substring match as fallback
+              targetIdx = levels.findIndex(l => cleanLabel(l.label).includes(targetStr));
+          }
 
           // If the target level doesn't exist in the formation, rule cannot be evaluated
           if (targetIdx === -1) return false;
@@ -475,14 +479,19 @@ export class SessionsService {
         return rule.condition.toUpperCase().includes(stopUpper);
       };
 
-      // 1. Evaluate all active rules to see which ones match the user's score AND prereq failure status
-      const validRules = activeRules.filter(
-        (r) =>
-          evaluateRuleCondition(r) &&
-          !!r.requirePrerequisiteFailure === checkPrereqFailure(r),
-      );
+      // 1. Evaluate all active rules to see which ones match the user's score
+      // Note: checkPrereqFailure compares boolean flags, only enforce if requirePrerequisiteFailure is true
+      const validRules = activeRules.filter((r) => {
+          const ruleMatches = evaluateRuleCondition(r);
+          // If rule requires failure, ensure user failed. If rule doesn't require failure, it applies anyway.
+          const reqFail = !!r.requirePrerequisiteFailure;
+          const userFailed = checkPrereqFailure(r);
+          const prereqMatches = reqFail ? userFailed : true; 
+          
+          return ruleMatches && prereqMatches;
+      });
 
-      // 2. Select the first matched rule (implicitly by ID/creation order as they come from DB)
+      // 2. Select the first matched rule
       if (validRules.length > 0) {
         matchedRule = validRules[0];
       }
@@ -517,7 +526,7 @@ export class SessionsService {
             ? Math.round((totalCorrect / totalAnswered) * 100)
             : 0;
 
-        const finalLevel = levels[levels.length - 1];
+        const finalLevel = levels[levels.length - 1] || null;
 
         return {
           recommendation: finalRecommendationValue,
@@ -536,7 +545,7 @@ export class SessionsService {
       }
     }
 
-    // 4. CHECK FOR EXPLICIT QUESTION OVERRIDES (Question Rules)
+    // 4. CHECK FOR EXPLICIT QUESTION OVERRIDES
     const overrideSession = (session as any).overrideData;
     if (overrideSession?.isQuestionRuleOverride) {
       return {
@@ -552,40 +561,59 @@ export class SessionsService {
       };
     }
 
-    if (levels.length === 0) {
-      return {
-        recommendation: 'Formation non reconnue',
-        scorePretest: 0,
-        finalLevel: null,
-        qTextById,
-        miseTitle: 'Mise à niveau (réponses)',
-        levels: [] as Level[],
-      };
-    }
-
+    // ── FALLBACK CAREFUL LOGIC: No hardcoded rules, pure DB driven. ──
+    // If no active rule was found in DB and it reached here,
+    // Assign default based on their chosen formation name or empty generic response.
+    // Ensure finalLevel doesn't break if no levels defined.
+    
+    // Calculate global score fallback
     const scores =
       (session.levelsScores as Record<string, number | { score?: number }>) ||
       {};
-    let finalLevel = levels[0];
+    
+    let finalLevel = levels.length > 0 ? levels[0] : null;
 
-    for (const level of levels) {
-      const raw = scores[level.label];
-      const userScore =
-        typeof raw === 'number'
-          ? raw
-          : ((raw as Record<string, any>)?.score ?? undefined);
+    if (levels.length > 0) {
+      for (const level of levels) {
+        const raw = scores[level.label];
+        const userScore =
+          typeof raw === 'number'
+            ? raw
+            : ((raw as Record<string, any>)?.score ?? undefined);
 
-      if (userScore !== undefined) {
-        if (userScore >= level.successThreshold) {
-          finalLevel = level;
+        if (userScore !== undefined) {
+          if (userScore >= level.successThreshold) {
+            finalLevel = level;
+          } else {
+            finalLevel = level;
+            break;
+          }
         } else {
-          finalLevel = level;
           break;
         }
-      } else {
-        break;
       }
     }
+
+    // Since we remove hardcoded fallback, we just assign the base formation.
+    const l1 = session.formationChoisie || 'Parcours personnalisé';
+    const finalRecommendationValue = l1;
+
+    // Score final global
+    const levelsEntries: any[] = session.levelsScores
+      ? Object.values(session.levelsScores)
+      : [];
+    const totalAnswered: number = levelsEntries.reduce(
+      (acc: number, e: any) => acc + (Number(e?.total) || 0),
+      0 as number,
+    );
+    const totalCorrect: number = levelsEntries.reduce(
+      (acc: number, e: any) => acc + (Number(e?.score) || 0),
+      0 as number,
+    );
+    const scoreFinal =
+      totalAnswered > 0
+        ? Math.round((totalCorrect / totalAnswered) * 100)
+        : 0;
 
     const allAnswers = {
       ...(session.prerequisiteScore || {}),
@@ -629,339 +657,14 @@ export class SessionsService {
       ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
       : 'Mise à niveau (réponses)';
 
-    // Determine proposed parcours (Logic Duo)
-    // Rule:
-    // Parcours 1: Last validated level (or Level 0 if nothing validated)
-    // Parcours 2: Next level (First failed level)
-    // If Beginner (Level 0) failed, suggest Level 0 and Level 1
-
-    let lastValidatedIdx = -1;
-    for (let i = 0; i < levels.length; i++) {
-      const raw = scores[levels[i].label];
-      const userScore =
-        typeof raw === 'number' ? raw : ((raw as any)?.score ?? undefined);
-      if (userScore !== undefined && userScore >= levels[i].successThreshold) {
-        lastValidatedIdx = i;
-      }
-    }
-
-    let l1: string, l2: string;
-
-    const ensureNiveau = (label: string) => {
-      if (!label) return label;
-      return label.toLowerCase().includes('niveau') ? label : `Niveau ${label}`;
-    };
-
-    // ── Highest Active Level Validated Rule ──
-    let stopLevelLabel = session.stopLevel;
-    let stopLevelIdx = stopLevelLabel
-      ? levels.findIndex((l) => l.label === stopLevelLabel)
-      : -1;
-
-    const passedStopLevel =
-      session.levelsScores &&
-      stopLevelLabel &&
-      session.levelsScores[stopLevelLabel]?.validated;
-    const isHighestActiveLevel = stopLevelIdx === levels.length - 1;
-
-    if (passedStopLevel && isHighestActiveLevel) {
-      const recommendationLevel = ensureNiveau(stopLevelLabel);
-      const proposedParcours = [recommendationLevel];
-      const finalRecommendationValue = proposedParcours.join(' & ');
-
-      const levelsEntries: any[] = session.levelsScores
-        ? Object.values(session.levelsScores)
-        : [];
-      const totalAnswered: number = levelsEntries.reduce(
-        (acc: number, e: any) => acc + (Number(e?.total) || 0),
-        0 as number,
-      );
-      const totalCorrect: number = levelsEntries.reduce(
-        (acc: number, e: any) => acc + (Number(e?.score) || 0),
-        0 as number,
-      );
-      const scoreFinal =
-        totalAnswered > 0
-          ? Math.round((totalCorrect / totalAnswered) * 100)
-          : 0;
-
-      return {
-        recommendation: finalRecommendationValue,
-        recommendations: proposedParcours,
-        scoreFinal,
-        finalLevel,
-        qTextById,
-        filteredMiseAnswers,
-        filteredPrerequis,
-        filteredComplementaryAnswers,
-        filteredAvailabilities,
-        miseTitle,
-        levels,
-      };
-    }
-
-    // ── Special rule for language formations (LANGUES category) ──
-    // Check if this formation belongs to the LANGUES category
-    const isLangueFormation =
-      session.formationChoisie &&
-      String(session.formationChoisie).toLowerCase().includes('anglais');
-
-    if (isLangueFormation && levels.length >= 2) {
-      // Language-specific regulatory rules:
-      // Map level labels to find A1, A2, B1, B2, C1
-      const labelMap = new Map(
-        levels.map((l, i) => [l.label.toUpperCase(), i]),
-      );
-
-      const findIdx = (...targets: string[]) => {
-        for (const t of targets) {
-          const idx = labelMap.get(t);
-          if (idx !== undefined) return idx;
-        }
-        return -1;
-      };
-
-      const a2Idx = findIdx('A2');
-      const b1Idx = findIdx('B1');
-      const b2Idx = findIdx('B2');
-      const c1Idx = findIdx('C1');
-
-      // Use stopLevel if available, as it represents the target level where the user struggled
-      const stopLabelUpper = (session.stopLevel || '').toUpperCase();
-
-      if (['A1', 'A2', 'B1'].includes(stopLabelUpper)) {
-        // Fails A1, A2, or B1 → parcours A2 + B1
-        l1 = ensureNiveau(
-          a2Idx >= 0 ? levels[a2Idx].label : levels[0]?.label || '',
-        );
-        l2 = ensureNiveau(
-          b1Idx >= 0 ? levels[b1Idx].label : levels[1]?.label || l1,
-        );
-      } else if (stopLabelUpper === 'B2') {
-        // Passes B1, fails B2 → parcours B1 + B2
-        l1 = ensureNiveau(
-          b1Idx >= 0 ? levels[b1Idx].label : levels[0]?.label || '',
-        );
-        l2 = ensureNiveau(
-          b2Idx >= 0 ? levels[b2Idx].label : levels[1]?.label || l1,
-        );
-      } else if (stopLabelUpper === 'C1') {
-        // Fails C1 → parcours B2 + C1
-        l1 = ensureNiveau(
-          b2Idx >= 0 ? levels[b2Idx].label : levels[0]?.label || '',
-        );
-        l2 = ensureNiveau(
-          c1Idx >= 0 ? levels[c1Idx].label : levels[1]?.label || l1,
-        );
-      } else {
-        // Fallback: use generic logic below
-        l1 = '';
-        l2 = '';
-      }
-
-      // If language-specific rules matched, use them
-      if (l1 && l2) {
-        const proposedParcours = l1 === l2 ? [l1] : [l1, l2];
-        const finalRecommendationValue = proposedParcours.join(' & ');
-
-        // Score final global
-        const levelsEntries: any[] = session.levelsScores
-          ? Object.values(session.levelsScores)
-          : [];
-        const totalAnswered: number = levelsEntries.reduce(
-          (acc: number, e: any) => acc + (Number(e?.total) || 0),
-          0 as number,
-        );
-        const totalCorrect: number = levelsEntries.reduce(
-          (acc: number, e: any) => acc + (Number(e?.score) || 0),
-          0 as number,
-        );
-        const scoreFinal =
-          totalAnswered > 0
-            ? Math.round((totalCorrect / totalAnswered) * 100)
-            : 0;
-
-        return {
-          recommendation: finalRecommendationValue,
-          recommendations: proposedParcours,
-          scoreFinal,
-          finalLevel,
-          qTextById,
-          filteredMiseAnswers,
-          filteredPrerequis,
-          filteredComplementaryAnswers,
-          filteredAvailabilities,
-          miseTitle,
-          levels,
-        };
-      }
-    }
-
-    // ── Generic parcours logic (non-language formations) ──
-    const isFrenchFormation =
-      session.formationChoisie &&
-      String(session.formationChoisie).toLowerCase().includes('français');
-
-    // Use stopLevel if available, as it represents the target level where the user struggled
-    stopLevelLabel = session.stopLevel;
-    const stopLevelUpper = (stopLevelLabel || '').toUpperCase();
-
-    // Fallback if stopLevelIdx is needed for generic logic when condition not met
-    stopLevelIdx = stopLevelLabel
-      ? levels.findIndex((l) => l.label === stopLevelLabel)
-      : -1;
-
-    if (isFrenchFormation) {
-      if (
-        stopLevelUpper.includes('DÉCOUVERTE') ||
-        stopLevelUpper.includes('DECOUVERTE')
-      ) {
-        const l_dec =
-          levels.find(
-            (l) =>
-              l.label.toUpperCase().includes('DÉCOUVERTE') ||
-              l.label.toUpperCase().includes('DECOUVERTE'),
-          )?.label || 'Découverte';
-        const l_tech =
-          levels.find((l) => l.label.toUpperCase().includes('TECHNIQUE'))
-            ?.label || 'Technique';
-        l1 = ensureNiveau(l_dec);
-        l2 = ensureNiveau(l_tech);
-      } else if (
-        stopLevelUpper.includes('TECHNIQUE') ||
-        stopLevelUpper.includes('PROFESSIONNEL')
-      ) {
-        const l_tech =
-          levels.find((l) => l.label.toUpperCase().includes('TECHNIQUE'))
-            ?.label || 'Technique';
-        const l_pro =
-          levels.find((l) => l.label.toUpperCase().includes('PROFESSIONNEL'))
-            ?.label || 'Professionnel';
-        l1 = ensureNiveau(l_tech);
-        l2 = ensureNiveau(l_pro);
-      } else if (stopLevelUpper.includes('AFFAIRES')) {
-        const l_pro =
-          levels.find((l) => l.label.toUpperCase().includes('PROFESSIONNEL'))
-            ?.label || 'Professionnel';
-        const l_aff =
-          levels.find((l) => l.label.toUpperCase().includes('AFFAIRES'))
-            ?.label || 'Affaires';
-        l1 = ensureNiveau(l_pro);
-        l2 = ensureNiveau(l_aff);
-      } else {
-        l1 = '';
-        l2 = '';
-      }
-    } else {
-      // General tools / IT courses
-      if (stopLevelUpper.includes('INITIAL')) {
-        const l_ini =
-          levels.find((l) => l.label.toUpperCase().includes('INITIAL'))
-            ?.label || 'Initial';
-        const l_bas =
-          levels.find((l) => l.label.toUpperCase().includes('BASIQUE'))
-            ?.label || 'Basique';
-        l1 = ensureNiveau(l_ini);
-        l2 = ensureNiveau(l_bas);
-      } else if (
-        stopLevelUpper.includes('BASIQUE') ||
-        stopLevelUpper.includes('OPÉRATIONNEL') ||
-        stopLevelUpper.includes('OPERATIONNEL')
-      ) {
-        const l_bas =
-          levels.find((l) => l.label.toUpperCase().includes('BASIQUE'))
-            ?.label || 'Basique';
-        const l_ope =
-          levels.find(
-            (l) =>
-              l.label.toUpperCase().includes('OPÉRATIONNEL') ||
-              l.label.toUpperCase().includes('OPERATIONNEL'),
-          )?.label || 'Opérationnel';
-        l1 = ensureNiveau(l_bas);
-        l2 = ensureNiveau(l_ope);
-      } else if (
-        stopLevelUpper.includes('AVANCÉ') ||
-        stopLevelUpper.includes('AVANCE')
-      ) {
-        const l_ope =
-          levels.find(
-            (l) =>
-              l.label.toUpperCase().includes('OPÉRATIONNEL') ||
-              l.label.toUpperCase().includes('OPERATIONNEL'),
-          )?.label || 'Opérationnel';
-        const l_ava =
-          levels.find(
-            (l) =>
-              l.label.toUpperCase().includes('AVANCÉ') ||
-              l.label.toUpperCase().includes('AVANCE'),
-          )?.label || 'Avancé';
-        l1 = ensureNiveau(l_ope);
-        l2 = ensureNiveau(l_ava);
-      } else if (stopLevelUpper.includes('EXPERT')) {
-        const l_ava =
-          levels.find(
-            (l) =>
-              l.label.toUpperCase().includes('AVANCÉ') ||
-              l.label.toUpperCase().includes('AVANCE'),
-          )?.label || 'Avancé';
-        const l_exp =
-          levels.find((l) => l.label.toUpperCase().includes('EXPERT'))?.label ||
-          'Expert';
-        l1 = ensureNiveau(l_ava);
-        l2 = ensureNiveau(l_exp);
-      } else {
-        // Ultimate fallback: Use actual levels order if no keyword matches
-        // Check if user actually took the test
-        const hasScores = Object.keys(scores).length > 0;
-        if (!hasScores) {
-          l1 = '';
-          l2 = '';
-        } else {
-          const currentIdx =
-            stopLevelIdx !== -1 ? stopLevelIdx : lastValidatedIdx + 1;
-          const safeIdx = Math.min(Math.max(0, currentIdx), levels.length - 1);
-
-          l1 = ensureNiveau(levels[safeIdx].label);
-
-          // Only propose a second level if we have one and it's not a high-level jump
-          if (safeIdx < levels.length - 1) {
-            l2 = ensureNiveau(levels[safeIdx + 1].label);
-          } else {
-            l2 = l1;
-          }
-        }
-      }
-    }
-
-    let proposedParcours: string[] = [];
-    if (l1 === l2) {
-      proposedParcours = [l1];
-    } else {
-      proposedParcours = [l1, l2];
-    }
-
-    // Set combined string for backward compatibility and DB storage
-    const finalRecommendationValue = proposedParcours.join(' & ');
-
-    // Score final global
-    const levelsEntries: any[] = session.levelsScores
-      ? Object.values(session.levelsScores)
-      : [];
-    const totalAnswered: number = levelsEntries.reduce(
-      (acc: number, e: any) => acc + (Number(e?.total) || 0),
-      0 as number,
-    );
-    const totalCorrect: number = levelsEntries.reduce(
-      (acc: number, e: any) => acc + (Number(e?.score) || 0),
-      0 as number,
-    );
-    const scorePretest =
-      totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+    const proposedParcours = finalRecommendationValue.includes(' & ') 
+      ? finalRecommendationValue.split(' & ') 
+      : [finalRecommendationValue];
 
     return {
       recommendation: finalRecommendationValue,
       recommendations: proposedParcours,
-      scorePretest,
+      scorePretest: scoreFinal,
       finalLevel,
       qTextById,
       filteredMiseAnswers,
@@ -987,10 +690,6 @@ export class SessionsService {
       miseTitle,
       levels,
     } = await this.getRecommendationData(session);
-
-    if (!finalLevel) {
-      return this.update(id, { finalRecommendation: 'Formation non reconnue' });
-    }
 
     const levelsTable = session.levelsScores
       ? `
