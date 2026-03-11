@@ -54,9 +54,10 @@ test("test", async ({ page }) => {
 
   // Dernière action
   // --- Capture d’écran avant de fermer ---
-  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
   // --- Attente que la page finale soit complètement chargée ---
   // await page.waitForLoadState("networkidle"); // attend que toutes les requêtes réseau soient terminées
   // await expect(page.getByRole("main")).toBeVisible();
+  await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-A1-KO.png", fullPage: true });
 });
