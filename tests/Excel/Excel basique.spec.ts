@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Excel - Opérationnel - avancé
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -57,17 +57,19 @@ test("test", async ({ page }) => {
     .filter({ hasText: "De copier et/ou incrémenter" })
     .click();
   await page.getByText("Un tableau croisé dynamique").click();
-  await page.getByText("Données", { exact: true }).click();
+  await page.getByText("Insertion", { exact: true }).click();
   await page.getByText("Je protège le classeur").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByText("Utiliser la fonction SOMMEPROD").click();
-  await page
-    .locator("label")
-    .filter({ hasText: "Utiliser un graphique combiné" })
-    .click();
-  await page.getByText("À concaténer des valeurs").click();
-  await page.getByText("À tester les valeurs é").click();
-  await page.getByText("modèle de données").click();
-  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.screenshot({ path: 'test-Excel-Opérationnel-Avancé.png', fullPage: true });
+  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByText("Utiliser la fonction SOMMEPROD").click();
+  // await page
+  //   .locator("label")
+  //   .filter({ hasText: "Utiliser un graphique combiné" })
+  //   .click();
+  // await page.getByText("À concaténer des valeurs").click();
+  // await page.getByText("À tester les valeurs é").click();
+  // await page.getByText("modèle de données").click();
+  // await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: 'test-Excel-Basique.png', fullPage: true });
 });

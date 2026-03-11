@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 // Excel - Initial & basique
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("sdfsd");
   await page.getByRole("textbox", { name: "Prénom" }).click();
@@ -57,10 +57,10 @@ test("test", async ({ page }) => {
   await page.getByText("=SOMME()").click();
   await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.locator("label").nth(3).click();
-  await page.getByText("Je ne sais pas").nth(1).click();
-  await page.getByText("Je ne sais pas").nth(2).click();
-  await page.getByText("Je ne sais pas").nth(3).click();
+  await page.locator("label").filter({ hasText: "L'icône : £" }).click();
+  await page.locator("label").filter({ hasText: "A ordonner les valeurs en fonction du filtre" }).click();
+  await page.locator("label").filter({ hasText: "SOMME()" }).click();
+  await page.locator("label").filter({ hasText: "Mise en forme conditionnelle" }).click();
   await page.locator("label").filter({ hasText: "AUJOURDHUI()" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();

@@ -113,10 +113,10 @@ await page.waitForTimeout(1000);
 
   // --- Niveau EXPERT ---
   await expect(page.getByText("Quelle est l’extension d’un modèle de courrier électronique Outlook ?")).toBeVisible();
-  await page.getByText(".oft").click();
+  await page.getByText(".msg").click();
 
   await expect(page.getByText("Quelle est l’extension du fichier utilisé pour exporter un calendrier Outlook afin qu’il puisse être importé dans un autre agenda ?")).toBeVisible();
-  await page.getByText(".csv").click();
+  await page.getByText(".ics").click();
 
   await expect(page.getByText("À quoi sert le mappage des champs lors de l’importation d’un fichier de contacts dans Outlook ?")).toBeVisible();
   await page.getByText("Associer les colonnes du fichier importé aux champs correspondants dans Outlook").click();
@@ -130,10 +130,10 @@ await page.waitForTimeout(1000);
   // --- Terminer le quiz ---
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
   await page.waitForTimeout(2500);
-  await page.screenshot({ path: "Outlook-Avacncé2.png", fullPage: true });
-  // await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
+  await page.screenshot({ path: "Outlook-Expert2.png", fullPage: true });
+  await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
 
   // --- Screenshot final ---
-  await page.waitForTimeout(2500);
-  await page.screenshot({ path: "Outlook-Avancé.png", fullPage: true });
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: "Outlook-Expert.png", fullPage: true });
 });

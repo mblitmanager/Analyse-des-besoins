@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("ICDL");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -43,6 +43,10 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "square Sketchup" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page.locator("label").first().click();
+  await page.locator("label").nth(2).click();
+  await page.locator("label").filter({ hasText: "Non" }).nth(2).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
   await page
     .getByRole("combobox")
     .selectOption(
@@ -57,6 +61,6 @@ test("test", async ({ page }) => {
   await page
     .getByRole("button", { name: "Valider mes disponibilités" })
     .click();
-  await page.goto("http://localhost:5173/validation");
+  // await page.goto("http://localhost:5173/validation");
   await page.getByText("Récapitulatif de votre demande").click();
 });
