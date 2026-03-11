@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page }) => {
+test("excel avancé", async ({ page }) => {
   await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
@@ -119,9 +119,10 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
   await page.waitForTimeout(1500);
   await page.screenshot({ path: "Excel-Avacncé2.png", fullPage: true });
-  await page
-    .getByRole("button", { name: "Continuer avec excel arrow_forward" })
-    .click();
+  await page.waitForTimeout(3000);
+  // await page
+  //   .getByRole("button", { name: "Continuer avec excel arrow_forward" })
+  //   .click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise

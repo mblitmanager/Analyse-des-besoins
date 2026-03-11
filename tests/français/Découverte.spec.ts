@@ -1,9 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('test', async ({ page }) => {
+test("test", async ({ page }) => {
   await page.goto("http://localhost:5173/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
-  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Voltaire");
+  await page
+    .getByRole("textbox", { name: "Nom", exact: true })
+    .fill("Voltaire");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
   await page.getByRole("textbox", { name: "Prénom" }).fill("technique");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
@@ -33,24 +35,32 @@ test('test', async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "spellcheck Français" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.getByText('Non').click();
-  await page.locator('label').filter({ hasText: 'C1' }).click();
-  await page.getByText('Un peu').first().click();
-  await page.getByText('Un peu').nth(1).click();
-  await page.locator('label').filter({ hasText: 'Oui' }).nth(1).click();
-  await page.locator('label').filter({ hasText: 'Régulièrement' }).click();
-  await page.locator('label').filter({ hasText: 'Oui' }).nth(2).click();
-  await page.getByText('Magazines').click();
-  await page.getByText('Comptes-rendus').click();
-  await page.getByText('Régulièrement').nth(3).click();
-  await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
+  await page.getByText("Non").click();
+  await page.locator("label").filter({ hasText: "C1" }).click();
+  await page.getByText("Un peu").first().click();
+  await page.getByText("Un peu").nth(1).click();
+  await page.locator("label").filter({ hasText: "Oui" }).nth(1).click();
+  await page.locator("label").filter({ hasText: "Régulièrement" }).click();
+  await page.locator("label").filter({ hasText: "Oui" }).nth(2).click();
+  await page.getByText("Magazines").click();
+  await page.getByText("Comptes-rendus").click();
+  await page.getByText("Régulièrement").nth(3).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
   // await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
-  await page.locator('label').first().click();
-  await page.getByText('Un déterminant').first().click();
-  await page.getByText('Un déterminant').nth(1).click();
-  await page.locator('label').filter({ hasText: 'les documents' }).first().click();
-  await page.locator('label').filter({ hasText: 'à ses collègues' }).nth(1).click();
-  await page.getByRole('button', { name: 'Suivant arrow_forward' }).click();
-    await page.waitForTimeout(3000);
+  await page.locator("label").first().click();
+  await page.getByText("Un déterminant").first().click();
+  await page.getByText("Un déterminant").nth(1).click();
+  await page
+    .locator("label")
+    .filter({ hasText: "les documents" })
+    .first()
+    .click();
+  await page
+    .locator("label")
+    .filter({ hasText: "à ses collègues" })
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  await page.waitForTimeout(3000);
   await page.screenshot({ path: "Voltaire-Découverte.png", fullPage: true });
 });

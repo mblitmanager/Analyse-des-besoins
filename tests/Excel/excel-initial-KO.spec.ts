@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 //excel initial + Digcomp
-test("test", async ({ page }) => {
+test("excel initial + Digcomp", async ({ page }) => {
   await page.goto("http://localhost:5173/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Excel");
@@ -45,7 +45,8 @@ test("test", async ({ page }) => {
   await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer quand même" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
+  // await page.getByRole("button", { name: "Continuer" }).click();
   await page.screenshot({ path: "test-Excel-Inital-KO.png", fullPage: true });
 });

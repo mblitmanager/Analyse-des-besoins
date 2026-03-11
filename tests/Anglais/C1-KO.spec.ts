@@ -92,7 +92,7 @@ test("test TOEIC complet jusqu'au C1", async ({ page }) => {
   // await page.locator("label").filter({ hasText: "Because" }).click(); // Q28
   // await page.locator("label").filter({ hasText: "/^I heard^/" }).click(); // Q29
   // await page.locator("label").filter({ hasText: "he arrived" }).click(); // Q30
-await page.screenshot({ path: "TOEIC-C1-KO2.png", fullPage: true });
+  await page.screenshot({ path: "TOEIC-C1-KO2.png", fullPage: true });
   // --- Capture d’écran finale ---
   await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForTimeout(3000);
