@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("Test Outlook Avancé", async ({ page }) => {
+test("Test Outlook Opérationnel", async ({ page }) => {
   // --- Accéder à l'application ---
   await page.goto("https://nsconseil.mbl-service.com/");
 
@@ -95,13 +95,13 @@ test("Test Outlook Avancé", async ({ page }) => {
 
   // --- Niveau AVANCÉ ---
   await expect(page.getByText("Quelle est la principale caractéristique d’un compte IMAP par rapport à un compte POP ?")).toBeVisible();
-  await page.getByText("Les mails restent synchronisés avec le serveur et accessibles depuis plusieurs appareils").click();
+  await page.getByText("Les mails sont obligatoirement supprimés du serveur après téléchargement").click();
 
   await expect(page.getByText("Comment programmer l’envoi d’un email à une date spécifique ?")).toBeVisible();
-  await page.getByText("Options → Différer la livraison").click();
+  await page.getByText("Le mettre en brouillon").click();
 
   await expect(page.getByText("À quoi servent les catégories de couleurs ?")).toBeVisible();
-  await page.getByText("Classer et filtrer les éléments Outlook").click();
+  await page.getByText("Modifier la police").click();
 
   await expect(page.getByText("Comment transférer automatiquement un mail d’un expéditeur spécifique vers un dossier prédéfini ?")).toBeVisible();
   await page.getByText("Règles → Créer une règle").click();
@@ -111,27 +111,27 @@ test("Test Outlook Avancé", async ({ page }) => {
 
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
 
-  // --- Niveau EXPERT ---
-  await expect(page.getByText("Quelle est l’extension d’un modèle de courrier électronique Outlook ?")).toBeVisible();
-  await page.getByText(".msg").click();
+  // // --- Niveau EXPERT ---
+  // await expect(page.getByText("Quelle est l’extension d’un modèle de courrier électronique Outlook ?")).toBeVisible();
+  // await page.getByText(".msg").click();
 
-  await expect(page.getByText("Quelle est l’extension du fichier utilisé pour exporter un calendrier Outlook afin qu’il puisse être importé dans un autre agenda ?")).toBeVisible();
-  await page.getByText(".ics").click();
+  // await expect(page.getByText("Quelle est l’extension du fichier utilisé pour exporter un calendrier Outlook afin qu’il puisse être importé dans un autre agenda ?")).toBeVisible();
+  // await page.getByText(".ics").click();
 
-  await expect(page.getByText("À quoi sert le mappage des champs lors de l’importation d’un fichier de contacts dans Outlook ?")).toBeVisible();
-  await page.getByText("Associer les colonnes du fichier importé aux champs correspondants dans Outlook").click();
+  // await expect(page.getByText("À quoi sert le mappage des champs lors de l’importation d’un fichier de contacts dans Outlook ?")).toBeVisible();
+  // await page.getByText("Associer les colonnes du fichier importé aux champs correspondants dans Outlook").click();
 
-  await expect(page.getByText("Quelle fonctionnalité permet de configurer des flux RSS ?")).toBeVisible();
-  await page.getByText("Paramètres des flux RSS").click();
+  // await expect(page.getByText("Quelle fonctionnalité permet de configurer des flux RSS ?")).toBeVisible();
+  // await page.getByText("Paramètres des flux RSS").click();
 
-  await expect(page.getByText("Quelle fonctionnalité permet de créer un dossier affichant automatiquement tous les messages non lus, sans les déplacer de leur emplacement d’origine ?")).toBeVisible();
-  await page.getByText("Un dossier de recherche").click();
+  // await expect(page.getByText("Quelle fonctionnalité permet de créer un dossier affichant automatiquement tous les messages non lus, sans les déplacer de leur emplacement d’origine ?")).toBeVisible();
+  // await page.getByText("Un dossier de recherche").click();
 
   // --- Terminer le quiz ---
-  await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
+  // await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
+  // await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: "Outlook-Avancé.png", fullPage: true });
+  await page.screenshot({ path: "Outlook-Opérationnel.png", fullPage: true });
 });
