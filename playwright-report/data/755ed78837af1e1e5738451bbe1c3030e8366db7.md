@@ -1,0 +1,80 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "AOPIA" [ref=e8]
+  - main [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - heading "Etape 2/4" [level=2] [ref=e14]
+            - heading "Test de positionnement - Outlook" [level=1] [ref=e15]
+            - paragraph [ref=e16]: Bienvenue dans votre évaluation adaptive.
+          - generic [ref=e17]:
+            - generic [ref=e18]: trending_up
+            - text: Évaluation du niveau Initial
+        - generic [ref=e22]:
+          - heading "Comment fonctionne ce test ?" [level=3] [ref=e23]
+          - paragraph [ref=e24]:
+            - text: Ce test est adaptatif. Il commence par le niveau
+            - strong [ref=e25]: Initial
+            - text: . Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
+      - generic [ref=e26]:
+        - generic [ref=e28]:
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - generic [ref=e32]: "1"
+              - heading "A quoi sert Microsoft Outlook" [level=3] [ref=e34]
+            - generic [ref=e35]:
+              - generic [ref=e37] [cursor=pointer]: à créer un site internet
+              - generic [ref=e40] [cursor=pointer]: à créer des tableaux
+              - generic [ref=e43] [cursor=pointer]: à envoyer des e-mails
+              - generic [ref=e47] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: "2"
+              - heading "Quels modules principaux sont inclus dans Outlook ?" [level=3] [ref=e54]
+            - generic [ref=e55]:
+              - generic [ref=e57] [cursor=pointer]: Word, Excel et PowerPoint
+              - generic [ref=e60] [cursor=pointer]: Courrier, Calendrier et Contacts
+              - generic [ref=e64] [cursor=pointer]: Tâches avancées et Règles automatiques
+              - generic [ref=e67] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]: "3"
+              - heading "Quel élément permet d’afficher la liste des emails reçus ?" [level=3] [ref=e74]
+            - generic [ref=e75]:
+              - generic [ref=e77] [cursor=pointer]: Le dossier Contacts
+              - generic [ref=e80] [cursor=pointer]: Le dossier Courrier
+              - generic [ref=e84] [cursor=pointer]: Le dossier Notes
+              - generic [ref=e87] [cursor=pointer]: Je ne sais pas
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e92]: auto_fix_high
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Prochaine étape
+              - paragraph [ref=e95]: Finalisation du profil Initial
+          - button "Suivant arrow_forward" [ref=e97]:
+            - generic [ref=e98]: Suivant
+            - generic [ref=e99]: arrow_forward
+  - contentinfo [ref=e100]:
+    - generic [ref=e101]:
+      - navigation [ref=e102]:
+        - link "Règlement intérieur" [ref=e103] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e104] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e105] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e106] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e107] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e109]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e110] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e111]: © 2026 NS Conseil. Tous droits réservés.
+```
