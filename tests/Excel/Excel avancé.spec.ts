@@ -99,7 +99,7 @@ test("test", async ({ page }) => {
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
-  await page.screenshot({ path: "test-Excel-Avancé.png", fullPage: true });
+  await page.screenshot({ path: "Excel-Avancé.png", fullPage: true });
 
   // await page.screenshot({ path: 'test-Excel-Avancé.png', fullPage: true });
 });
