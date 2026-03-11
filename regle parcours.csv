@@ -1,0 +1,40 @@
+4	Word	Si résultat du test ≥ Opérationnel	TOSA Word Basique	TOSA Word Opérationnel	true	false	2.0		[]	OR	
+3	Word	Si résultat du test ≤ Basique	TOSA Word initial	TOSA Word basique	true	false	1.0		[]	OR	
+21	PowerPoint	Si résultat du test > Basique	TOSA PPT Basique	TOSA PPT Opérationnel	true	false	2.0		[]	OR	
+74	Digitales Compétences	Si niveau validé ≤ Initial	Digitales Compétences Initial	TOSA Word/Excel /PPT Initial	true	false	1.0		[]	OR	
+56	Illustrator	Si résultat du test > Basique	TOSA Illustrator basique	TOSA illustrator opérationnel	true	false	1.0			OR	
+67	Google Docs	Si résultat du test ≥ Basique	ICDL - Google Docs	ICDL - Google Docs	true	false	0.0			OR	
+42	Photoshop	Si résultat du test < Basique	Photoshop Initial	Photoshop Basique	true	false	1.0			OR	
+66	Google Docs	Si résultat du test < Initial	ICDL - Outils Coll	ICDL - Outils Coll	true	false	1.0			OR	
+70	Google Slides	Si résultat du test ≥ Basique	ICDL - Google Slides	ICDL - Google Slides 	true	false	0.0			OR	
+68	Google Sheets	Si résultat du test < Initial	ICDL - Outils Coll	ICDL - Outils Coll	true	false	1.0			OR	
+69	Google Sheets	Si résultat du test ≥ Basique	ICDL - Google Sheets	ICDL - Google Sheets	true	false	0.0			OR	
+71	Google Slides	Si résultat du test < Initial	ICDL - Outils Coll	ICDL - Outils Coll	true	false	1.0			OR	
+49	Outils Collaboratifs Google	Si résultat du test < Initial	ICDL - Outils Collaboratifs Google	ICDL - Outils Collaboratifs Google	true	false	1.0			OR	
+50	Outils Collaboratifs Google	Si résultat du test ≥ Basique	ICDL - OUTILS COLL	ICDL - Google Doc /Sheets /Slides	true	false	0.0			OR	
+55	Illustrator	Si résultat du test ≤ Basique	TOSA Illustrator initial	TOSA Illustrator basique	true	false	0.0			OR	
+43	Photoshop	Si résultat du test > Basique	Photoshop Basique	Photoshop Opérationnel 	true	false	1.0			OR	
+39	Outlook	Si résultat du test > Basique	Outlook Basique	Outlook Opérationnel	true	false	2.0			OR	
+38	Outlook	Si résultat du test ≤ Basique	Outlook Initial	Outlook Basique	true	false	1.0			OR	
+34	Français	Si résultat du test ≤ Découverte	Français Découverte	Français Technique	true	false	2.0			OR	
+20	PowerPoint	Si résultat du test ≤ Basique	TOSA PPT Initial	TOSA PPT Basique	true	false	1.0		[]	OR	
+29	WordPress	Si résultat du test ≤ Basique	TOSA WordPress Initial	TOSA WordPress Basique	true	false	0.0			OR	
+75	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Initial	Digitales Compétences Basique	true	false	0.0		[]	OR	
+73	Intelligence Artificielle Générative	Si résultat du test = Initial	Inkrea IA		true	false	0.0		[]	OR	24
+64	Anglais 	Si résultat du test = C1 - Se perfectionner	Anglais  - Renforcer les compétences	Anglais - Se perfectionner	true	false	0.0		[]	OR	25
+63	Anglais 	Si résultat du test = B2 -  Renforcer les compétences	Anglais  - Développer l'autonomie	Anglais - Renforcer les compétences	true	false	1.0		[]	OR	
+62	Anglais 	Si résultat du test < B1 - Développer l'autonomie	Anglais - Consolider les bases	Anglais - Développer l'autonomie	true	false	2.0		[]	OR	25
+35	Français	Si résultat du test = Technique	Français Technique	Français Professionnel	true	false	1.0		[]	OR	
+36	Français	Si résultat du test ≥ Professionnel	Français Professionnel	Français Affaires	true	false	0.0		[]	OR	51
+84	Excel	Si résultat du test ≥ Avancé	TOSA Excel Avancé	TOSA Excel Expert	true	false	3.0		[]	OR	45
+87	Sketchup		ICDL SketchUp		true	false	0.0		[]	OR	21
+1	Word	Si résultat du test ≤ Basique	TOSA Digcomp Initial	TOSA Word Initial	true	true	1.0		[{"questionId":470,"responseIndexes":[2]},{"questionId":477,"responseIndexes":[2]},{"questionId":2109,"responseIndexes":[2]}]	OR	
+88	Gimp		ICDL GIMP		true	false	0.0		[]	OR	48
+19	PowerPoint	Si résultat du test ≤ Basique	TOSA Digcomp Initial	TOSA PPT Initial	true	true	0.0		[{"questionId":470,"responseIndexes":[2]},{"questionId":477,"responseIndexes":[2]},{"questionId":2109,"responseIndexes":[2]}]	OR	
+78	Digitales Compétences	Si résultat du test > Basique	TOSA Digcomp Basique	TOSA Digcomp Opérationnel	true	false	2.0		[]	OR	
+77	Word	Si résultat du test ≤ Basique	TOSA Word initial	TOSA Word basique	true	false	3.0		[]	OR	
+7	Excel	Si résultat du test ≤ Basique	TOSA Digcomp Initial	TOSA Excel Initial	true	true	0.0		[{"questionId":470,"responseIndexes":[2]},{"questionId":477,"responseIndexes":[2]},{"questionId":2109,"responseIndexes":[2]}]	OR	
+82	Excel	Si résultat du test < Basique	TOSA Excel Initial	TOSA Excel basique	true	false	2.0		[]	OR	45
+85	Excel	Si résultat du test > Avancé	TOSA Excel Avancé	TOSA Excel Expert	false	false	4.0		[]	OR	45
+83	Excel	Si résultat du test = Opérationnel	TOSA Excel Opérationnel	TOSA Excel Avancé	true	false	2.0		[]	OR	45
+86	Excel	Si résultat du test = Basique	TOSA Excel basique	TOSA Excel Opérationnel	true	false	5.0		[]	OR	45
