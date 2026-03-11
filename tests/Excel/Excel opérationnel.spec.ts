@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Excel - Opérationnel - avancé
 test("test", async ({ page }) => {
-  await page.goto("https://nsconseil.mbl-service.com");
+  await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -69,6 +69,9 @@ test("test", async ({ page }) => {
   await page.getByText("À tester les valeurs é").click();
   await page.getByText("modèle de données").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.waitForTimeout(3000); 
-  await page.screenshot({ path: 'test-Excel-Opérationnel.png', fullPage: true });
+  await page.waitForTimeout(3000);
+  await page.screenshot({
+    path: "test-Excel-Opérationnel.png",
+    fullPage: true,
+  });
 });

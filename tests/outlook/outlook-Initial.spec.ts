@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Test Outlook INitial", async ({ page }) => {
   // --- Accéder à l'application ---
-  await page.goto("https://nsconseil.mbl-service.com/");
+  await page.goto("http://localhost:5173/");
 
   // --- Remplir le profil utilisateur ---
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Outlook");
@@ -41,40 +41,60 @@ test("Test Outlook INitial", async ({ page }) => {
   await page.getByText("Non").nth(3).click();
   await page.getByText("Occasionnellement").nth(2).click();
   await page.getByRole("button", { name: "Valider mon profil" }).click();
-  
+
   await page.getByRole("button", { name: "Outlook" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000);
   // --- Niveau INITIAL ---
   await expect(page.getByText("A quoi sert Microsoft Outlook")).toBeVisible();
   await page.getByText("à envoyer des e-mails").click();
 
-  await expect(page.getByText("Quels modules principaux sont inclus dans Outlook ?")).toBeVisible();
+  await expect(
+    page.getByText("Quels modules principaux sont inclus dans Outlook ?"),
+  ).toBeVisible();
   await page.getByText("Courrier, Calendrier et Contacts").click();
 
-  await expect(page.getByText("Quel élément permet d’afficher la liste des emails reçus ?")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Quel élément permet d’afficher la liste des emails reçus ?",
+    ),
+  ).toBeVisible();
   await page.getByText("Le dossier Courrier").click();
 
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
 
   // --- Niveau BASIQUE ---
-  await expect(page.getByText("Quelle action permet de créer un nouvel email ?")).toBeVisible();
+  await expect(
+    page.getByText("Quelle action permet de créer un nouvel email ?"),
+  ).toBeVisible();
   await page.getByText("Nouveau message").click();
 
-  await expect(page.getByText("Quelle fonctionnalité utiliser pour vérifier les fautes dans un mail?")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Quelle fonctionnalité utiliser pour vérifier les fautes dans un mail?",
+    ),
+  ).toBeVisible();
   await page.getByText("Règles").click();
 
-  await expect(page.getByText("Comment répondre à une invitation à une réunion ?")).toBeVisible();
+  await expect(
+    page.getByText("Comment répondre à une invitation à une réunion ?"),
+  ).toBeVisible();
   await page.getByText("En créant un nouveau mail").click();
 
-  await expect(page.getByText("Comment ajouter un nouveau contact ?")).toBeVisible();
+  await expect(
+    page.getByText("Comment ajouter un nouveau contact ?"),
+  ).toBeVisible();
   await page.getByText("Depuis le dossier Contacts → Nouveau contact").click();
 
-  await expect(page.getByText("Quel onglet permet principalement de mettre en forme un email ?")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Quel onglet permet principalement de mettre en forme un email ?",
+    ),
+  ).toBeVisible();
   await page.getByText("Format du texte").click();
 
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
- 
+
   // await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
 
   // --- Screenshot final ---

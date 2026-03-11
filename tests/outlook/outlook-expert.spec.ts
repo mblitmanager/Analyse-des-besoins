@@ -1,12 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test("Test Français Voltaire", async ({ page }) => {
-
   // --- Accéder à l'application ---
-  await page.goto("https://nsconseil.mbl-service.com/");
+  await page.goto("http://localhost:5173/");
 
   // --- Profil utilisateur ---
-  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Français");
+  await page
+    .getByRole("textbox", { name: "Nom", exact: true })
+    .fill("Français");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
   await page.getByRole("textbox", { name: "Prénom" }).fill("Voltaire");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
@@ -15,19 +16,30 @@ test("Test Français Voltaire", async ({ page }) => {
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
 
   // --- Parcours profil ---
-  await page.getByRole("textbox", { name: "Ex: Assistant administratif," }).fill("aa");
+  await page
+    .getByRole("textbox", { name: "Ex: Assistant administratif," })
+    .fill("aa");
 
   await page.locator(".formation-card__radio").first().click();
 
   await page
-    .locator("div:nth-child(3) > .flex.items-center.w-full > .formation-card__radio")
+    .locator(
+      "div:nth-child(3) > .flex.items-center.w-full > .formation-card__radio",
+    )
     .click();
 
   await page.getByText("Occasionnellement").first().click();
 
-  await page.locator("label").filter({ hasText: "Oui avec quelques difficultés" }).first().click();
+  await page
+    .locator("label")
+    .filter({ hasText: "Oui avec quelques difficultés" })
+    .first()
+    .click();
   await page.getByText("Oui avec quelques difficultés").nth(1).click();
-  await page.locator("span").filter({ hasText: /^Oui avec quelques difficultés$/ }).click();
+  await page
+    .locator("span")
+    .filter({ hasText: /^Oui avec quelques difficultés$/ })
+    .click();
 
   await page.getByText("Occasionnellement").nth(1).click();
   await page.getByText("Non").nth(3).click();
@@ -68,7 +80,9 @@ test("Test Français Voltaire", async ({ page }) => {
   await expect(page.getByText("Il ne faut pas sans faire")).toBeVisible();
   await page.getByText("Incorrecte").first().click();
 
-  await expect(page.getByText("Il serait préférable dans commander")).toBeVisible();
+  await expect(
+    page.getByText("Il serait préférable dans commander"),
+  ).toBeVisible();
   await page.getByText("Incorrecte").nth(1).click();
 
   await expect(page.getByText("plus tôt ennuyeux")).toBeVisible();
@@ -86,16 +100,22 @@ test("Test Français Voltaire", async ({ page }) => {
   // NIVEAU PROFESSIONNEL
   // -------------------------
 
-  await expect(page.getByText("Les voisins du dessus ont déménagés")).toBeVisible();
+  await expect(
+    page.getByText("Les voisins du dessus ont déménagés"),
+  ).toBeVisible();
   await page.getByText("Incorrecte").nth(4).click();
 
-  await expect(page.getByText("La plupart des coiffeurs utilise")).toBeVisible();
+  await expect(
+    page.getByText("La plupart des coiffeurs utilise"),
+  ).toBeVisible();
   await page.getByText("Incorrecte").nth(5).click();
 
   await expect(page.getByText("Est-ce bien toi qui va")).toBeVisible();
   await page.getByText("Incorrecte").nth(6).click();
 
-  await expect(page.getByText("Cette jeune entreprise a fait appel")).toBeVisible();
+  await expect(
+    page.getByText("Cette jeune entreprise a fait appel"),
+  ).toBeVisible();
   await page.getByText("Correcte").nth(1).click();
 
   await expect(page.getByText("chiffre d affaire")).toBeVisible();
@@ -128,9 +148,13 @@ test("Test Français Voltaire", async ({ page }) => {
   await page.waitForTimeout(2500);
   await page.screenshot({ path: "Francais-Voltaire.png", fullPage: true });
 
-  await page.getByRole("button", { name: "Continuer avec français arrow_forward" }).click();
+  await page
+    .getByRole("button", { name: "Continuer avec français arrow_forward" })
+    .click();
 
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: "Francais-Voltaire-final.png", fullPage: true });
-
+  await page.screenshot({
+    path: "Francais-Voltaire-final.png",
+    fullPage: true,
+  });
 });
