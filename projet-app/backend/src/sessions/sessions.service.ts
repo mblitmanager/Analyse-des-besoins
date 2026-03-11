@@ -436,6 +436,8 @@ export class SessionsService {
         (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
       );
       const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
+        if (!rule.condition) return true; // Empty condition acts as a catch-all/default rule
+        
         // Condition is expected to be like "Si résultat du test < Basique" or "< Basique"
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
 
@@ -909,17 +911,24 @@ export class SessionsService {
         l2 = ensureNiveau(l_exp);
       } else {
         // Ultimate fallback: Use actual levels order if no keyword matches
-        const currentIdx =
-          stopLevelIdx !== -1 ? stopLevelIdx : lastValidatedIdx + 1;
-        const safeIdx = Math.min(Math.max(0, currentIdx), levels.length - 1);
-
-        l1 = ensureNiveau(levels[safeIdx].label);
-
-        // Only propose a second level if we have one and it's not a high-level jump
-        if (safeIdx < levels.length - 1) {
-          l2 = ensureNiveau(levels[safeIdx + 1].label);
+        // Check if user actually took the test
+        const hasScores = Object.keys(scores).length > 0;
+        if (!hasScores) {
+          l1 = '';
+          l2 = '';
         } else {
-          l2 = l1;
+          const currentIdx =
+            stopLevelIdx !== -1 ? stopLevelIdx : lastValidatedIdx + 1;
+          const safeIdx = Math.min(Math.max(0, currentIdx), levels.length - 1);
+
+          l1 = ensureNiveau(levels[safeIdx].label);
+
+          // Only propose a second level if we have one and it's not a high-level jump
+          if (safeIdx < levels.length - 1) {
+            l2 = ensureNiveau(levels[safeIdx + 1].label);
+          } else {
+            l2 = l1;
+          }
         }
       }
     }

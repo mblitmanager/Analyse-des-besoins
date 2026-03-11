@@ -139,21 +139,8 @@ function startP3() {
           Validation Finale
         </h1>
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0"
-          class="bg-[#F0F4F8] p-5 rounded-3xl shadow-sm border border-gray-100 mb-8"
-        >
-          <div class="flex items-center justify-between mb-2 px-1">
-            <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
-            <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
-              Étape {{ store.getProgress("/validation").current }} sur {{ store.getProgress("/validation").total }}
-            </span>
-          </div>
-          <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden border border-gray-100">
-            <div
-              class="h-full bg-brand-primary transition-all duration-700"
-              :style="{ width: store.getProgress('/validation').percentage + '%' }"
-            ></div>
-          </div>
+        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
+          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/validation').percentage + '%' }"></div>
         </div>
         <p
           class="text-gray-400 text-center mb-10 font-bold uppercase tracking-widest text-xs"

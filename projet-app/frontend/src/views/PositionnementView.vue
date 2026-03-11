@@ -866,9 +866,6 @@ async function saveAndExit() {
             class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
           >
             <div>
-              <h2 class="text-[25px] text-gray-400 text-center font-bold uppercase tracking-widest">
-                Etape {{ store.getProgress("/positionnement").current }}/{{ store.getProgress("/positionnement").total }}
-              </h2>
               <h1
                 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2"
               >
@@ -909,21 +906,8 @@ async function saveAndExit() {
           </div>
 
           <!-- Progress Bar -->
-          <div v-if="store.actualWorkflowSteps.length > 0"
-            class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
-          >
-            <div class="flex items-center justify-between mb-2 px-1">
-              <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
-              <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
-                Étape {{ store.getProgress("/positionnement").current }} sur {{ store.getProgress("/positionnement").total }}
-              </span>
-            </div>
-            <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50">
-              <div
-                class="h-full bg-brand-primary transition-all duration-700"
-                :style="{ width: store.getProgress('/positionnement').percentage + '%' }"
-              ></div>
-            </div>
+          <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
+            <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/positionnement').percentage + '%' }"></div>
           </div>
         </div>
 

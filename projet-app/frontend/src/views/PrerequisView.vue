@@ -219,21 +219,8 @@ const recommendedFormations = computed(() => {
         </div>
 
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0"
-          class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
-        >
-          <div class="flex items-center justify-between mb-2 px-1">
-            <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
-            <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
-              Étape {{ store.getProgress("/prerequis").current }} sur {{ store.getProgress("/prerequis").total }}
-            </span>
-          </div>
-          <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50">
-            <div
-              class="h-full bg-brand-primary transition-all duration-700"
-              :style="{ width: store.getProgress('/prerequis').percentage + '%' }"
-            ></div>
-          </div>
+        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
+          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/prerequis').percentage + '%' }"></div>
         </div>
 
         <div class="text-center mb-10">

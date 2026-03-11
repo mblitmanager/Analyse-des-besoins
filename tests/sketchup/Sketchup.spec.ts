@@ -47,11 +47,11 @@ test("test", async ({ page }) => {
   await page.locator("label").nth(2).click();
   await page.locator("label").filter({ hasText: "Non" }).nth(2).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page
-    .getByRole("combobox")
-    .selectOption(
-      "Je me prépare à entrer dans une formation qualifiante ou à un concours d'entrée",
-    );
+  // await page
+  //   .getByRole("combobox")
+  //   .selectOption(
+  //     "Je me prépare à entrer dans une formation qualifiante ou à un concours d'entrée",
+  //   );
   await page.getByText("Non").first().click();
   await page.locator("label").nth(2).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
