@@ -5,7 +5,7 @@
 Ce manuel décrit l'utilisation de l'interface web côté utilisateur et les opérations courantes pour les administrateurs.
 
 ## 2. Accès
-- URL publique: `https://nsconseil.mbl-service.com`
+- URL publique: `http://localhost:5173`
 - Pour les administrateurs: accéder au panneau admin via la route `/admin` (authentification requise).
 
 ## 3. Utilisation pour un apprenant

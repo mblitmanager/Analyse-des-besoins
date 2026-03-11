@@ -153,7 +153,8 @@ export const useAppStore = defineStore('app', () => {
           if (!text) return [];
           const questions = JSON.parse(text);
           if (Array.isArray(questions)) {
-            let skipThisStep = questions.length === 0;
+            const NO_QUESTION_STEPS = ['identification', 'formation_selection', 'resultats', 'validation'];
+            let skipThisStep = questions.length === 0 && !NO_QUESTION_STEPS.includes(codeLower);
 
             // Special logic for mise_a_niveau/positionnement:
             // They skip naturally if questions.length === 0.
@@ -182,23 +183,6 @@ export const useAppStore = defineStore('app', () => {
       break;
     }
     return next;
-  }
-
-  function getProgress(currentPath) {
-    let currentIndex = workflowSteps.value.findIndex(s => s.route === currentPath);
-    if (currentIndex === -1 && currentPath === '/') {
-        currentIndex = workflowSteps.value.findIndex(s => s.code === 'IDENTIFICATION');
-    }
-
-    if (currentIndex !== -1) {
-      return {
-        current: currentIndex + 1,
-        total: workflowSteps.value.length,
-        percentage: ((currentIndex + 1) / workflowSteps.value.length) * 100,
-        label: workflowSteps.value[currentIndex].label
-      };
-    }
-    return { current: 1, total: 1, percentage: 0, label: '' };
   }
 
   const actualWorkflowSteps = ref([]);
@@ -245,7 +229,8 @@ export const useAppStore = defineStore('app', () => {
         if (res.ok) {
           const questions = await res.json();
           if (Array.isArray(questions)) {
-            let skipThisStep = questions.length === 0;
+            const NO_QUESTION_STEPS = ['identification', 'formation_selection', 'resultats', 'validation'];
+            let skipThisStep = questions.length === 0 && !NO_QUESTION_STEPS.includes(codeLower);
 
             if (codeLower.includes('mise') || codeLower === 'positionnement') {
               const settingKey = codeLower.includes('mise') ? 'AUTO_SKIP_MISE_A_NIVEAU' : 'AUTO_SKIP_POSITIONNEMENT';
@@ -273,7 +258,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   function getProgress(currentPath) {
-    const list = actualWorkflowSteps.value.length > 0 ? actualWorkflowSteps.value : workflowSteps.value;
+    const list = workflowSteps.value;
     
     let currentIndex = list.findIndex(s => s.route === currentPath);
     if (currentIndex === -1 && currentPath === '/') {
