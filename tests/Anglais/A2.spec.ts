@@ -91,6 +91,7 @@ test("test", async ({ page }) => {
   //   .click();
 
   // --- Capture d’écran avant de fermer ---
-  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-A2.png", fullPage: true });
 });

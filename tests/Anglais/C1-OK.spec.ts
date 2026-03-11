@@ -85,6 +85,8 @@ test("test TOEIC complet jusqu'au C1", async ({ page }) => {
   await page.locator("label").filter({ hasText: "did he arrive" }).click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
   // --- Capture d’écran finale ---
+  await page.screenshot({ path: "TOEIC-C1-OK-2.png", fullPage: true });
   await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-C1-OK.png", fullPage: true });
 });
