@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //excel initial + Digcomp
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Excel");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -38,19 +38,18 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "Ignorer et continuer" }).click();
   await page.getByRole("button", { name: "description Excel" }).click();
-  await page.getByText("ContinuerContinuerarrow_forward").click();
-  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
   await page.getByText("Une cellule").click();
   await page.getByText("=SOMME()").click();
   await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.locator("label").nth(3).click();
-  await page.getByText("Je ne sais pas").nth(1).click();
-  await page.getByText("Je ne sais pas").nth(2).click();
-  await page.getByText("Je ne sais pas").nth(3).click();
-  await page.getByText("Je ne sais pas").nth(4).click();
+  await page.locator("label").filter({ hasText: "L'icône : £" }).click();
+  await page.locator("label").filter({ hasText: "A ordonner les valeurs en fonction du filtre" }).click();
+  await page.locator("label").filter({ hasText: "SOMME()" }).click();
+  await page.locator("label").filter({ hasText: "Mise en forme conditionnelle" }).click();
+  await page.locator("label").filter({ hasText: "AUJOURDHUI()" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  // await page.getByRole("button", { name: "Continuer" }).click();
-        // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
   await page.screenshot({ path: 'test-Excel-Digcomp-KO.png', fullPage: true });
 });

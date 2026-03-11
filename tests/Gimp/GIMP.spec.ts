@@ -36,7 +36,7 @@ test("test", async ({ page }) => {
   await page.getByText("Occasionnellement").nth(2).click();
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "star Gimp" }).click();
-  await page.getByText("ContinuerContinuerarrow_forward").click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
   await page.locator("label").filter({ hasText: "Régulièrement" }).click();
   await page
     .locator("div:nth-child(2) > .grid > label > .option-card__radio")

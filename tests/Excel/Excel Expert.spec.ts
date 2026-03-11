@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-//Excel - Opérationnel - avancé
+
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("https://nsconseil.mbl-service.com");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -57,19 +57,51 @@ test("test", async ({ page }) => {
     .filter({ hasText: "De copier et/ou incrémenter" })
     .click();
   await page.getByText("Un tableau croisé dynamique").click();
-  await page.getByText("Insertion", { exact: true }).click();
+  await page.getByText("Données", { exact: true }).click();
   await page.getByText("Je protège le classeur").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
-  // await page.getByText("Utiliser la fonction SOMMEPROD").click();
-  // await page
-  //   .locator("label")
-  //   .filter({ hasText: "Utiliser un graphique combiné" })
-  //   .click();
-  // await page.getByText("À concaténer des valeurs").click();
+  await page.getByText("Utiliser la fonction SOMMEPROD").click();
+  await page
+    .locator("label")
+    .filter({ hasText: "Utiliser un graphique combiné" })
+    .click();
+  await page.getByText("À concaténer des valeurs").click();
   // await page.getByText("À tester les valeurs é").click();
-  // await page.getByText("modèle de données").click();
-  // await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.waitForTimeout(2000);
-  await page.screenshot({ path: 'test-Excel-Opérationnel-Basique.png', fullPage: true });
+  await page.getByText("À trouver la position d’une valeur dans une matrice").click();
+  await page.getByText("À regrouper et résumer des données provenant de plusieurs feuilles ou classeurs en un seul tableau").click();
+  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  //ajout
+
+ // --- Question 1 ---
+  await expect(page.getByText("RECHERCHEV")).toBeVisible();
+  await page.getByText("RECHERCHEV").click();
+
+  // --- Question 2 ---
+  await expect(page.getByText("À créer un nouveau champ basé sur une formule appliquée aux champs existants")).toBeVisible();
+  await page.getByText("À créer un nouveau champ basé sur une formule appliquée aux champs existants").click();
+
+  // --- Question 3 ---
+  await expect(page.getByText("L’outil solveur")).toBeVisible();
+  await page.getByText("L’outil solveur").click();
+
+  // --- Question 4 ---
+  await expect(page.getByText("Développeur")).toBeVisible();
+  await page.getByText("Développeur").click();
+
+  // --- Question 5 ---
+  await expect(page.getByText("J’utilise une mise en forme conditionnelle avec formule et j’intègre la fonction DATEDIF")).toBeVisible();
+  await page.getByText("J’utilise une mise en forme conditionnelle avec formule et j’intègre la fonction DATEDIF").click();
+
+  // --- Valider le quiz ---
+  // await expect(page.getByRole("button", { name: "Suivant arrow_forward" })).toBeVisible();
+  await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: "Excel-Expert2.png", fullPage: true });
+  await page.getByRole("button", { name: "Continuer avec excel arrow_forward" }).click();
+
+  // --- Screenshot final ---
+  await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
+  await page.screenshot({ path: "Excel-Expert.png", fullPage: true });
+
+  // await page.screenshot({ path: 'test-Excel-Avancé.png', fullPage: true });
 });
