@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Gimp
 test("test", async ({ page }) => {
-  await page.goto("https://nsconseil.mbl-service.com/");
+  await page.goto("http://localhost:5173/");
   await page.locator("div").filter({ hasText: /^Nom$/ }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Test");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -64,7 +64,7 @@ test("test", async ({ page }) => {
   await page
     .getByRole("button", { name: "Valider mes disponibilités" })
     .click();
-await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000);
   await page.screenshot({ path: "test-gimp.png", fullPage: true });
   // await page.getByRole("button", { name: "Accueil home" }).click();
 });

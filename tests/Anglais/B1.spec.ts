@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Anglais B1 validé
 test("test", async ({ page }) => {
-  await page.goto("https://nsconseil.mbl-service.com/");
+  await page.goto("http://localhost:5173/");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
@@ -37,7 +37,7 @@ test("test", async ({ page }) => {
   await page.locator("label").nth(5).click();
   await page.locator("label").filter({ hasText: "Non" }).nth(1).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.locator('label:has-text("is")').first().click();//non séléctionné
+  await page.locator('label:has-text("is")').first().click(); //non séléctionné
   await page
     .locator(
       "div:nth-child(2) > .p-6 > .grid > label:nth-child(2) > .option-card__radio",
@@ -71,8 +71,8 @@ test("test", async ({ page }) => {
   await page.getByText("Although").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
-   // --- Attente que la page finale soit complètement chargée ---
+  // --- Attente que la page finale soit complètement chargée ---
   // await page.waitForLoadState("networkidle"); // attend que toutes les requêtes réseau soient terminées
-  // await expect(page.getByRole("main")).toBeVisible(); 
-  await page.screenshot({ path: 'TOEIC-B1.png', fullPage: true });
+  // await expect(page.getByRole("main")).toBeVisible();
+  await page.screenshot({ path: "TOEIC-B1.png", fullPage: true });
 });

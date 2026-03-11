@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Test de positionnement Outlook", async ({ page }) => {
   // --- Accéder à l'application ---
-  await page.goto("https://nsconseil.mbl-service.com/");
+  await page.goto("http://localhost:5173/");
 
   // --- Remplir le profil utilisateur ---
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Outlook");
@@ -41,18 +41,24 @@ test("Test de positionnement Outlook", async ({ page }) => {
   await page.getByText("Non").nth(3).click();
   await page.getByText("Occasionnellement").nth(2).click();
   await page.getByRole("button", { name: "Valider mon profil" }).click();
-  
+
   await page.getByRole("button", { name: "Outlook" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000);
   // --- Niveau INITIAL ---
   await expect(page.getByText("A quoi sert Microsoft Outlook")).toBeVisible();
   await page.getByText("à créer des tableaux").click();
 
-  await expect(page.getByText("Quels modules principaux sont inclus dans Outlook ?")).toBeVisible();
+  await expect(
+    page.getByText("Quels modules principaux sont inclus dans Outlook ?"),
+  ).toBeVisible();
   await page.getByText("Word, Excel et PowerPoint").click();
 
-  await expect(page.getByText("Quel élément permet d’afficher la liste des emails reçus ?")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Quel élément permet d’afficher la liste des emails reçus ?",
+    ),
+  ).toBeVisible();
   await page.getByText("Le dossier Courrier").click();
 
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
