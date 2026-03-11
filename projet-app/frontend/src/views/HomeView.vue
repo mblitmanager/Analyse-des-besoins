@@ -98,6 +98,24 @@ async function testDbConnection() {
           <p class="text-gray-400 text-sm font-bold  tracking-widest">Veuillez renseigner vos informations pour accéder à notre test de positionnement.</p>
         </div>
 
+        <!-- Progress Bar -->
+        <div v-if="store.actualWorkflowSteps.length > 0"
+          class="bg-white p-5 rounded-3xl shadow-xl border border-white"
+        >
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
+            <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
+              Étape {{ store.getProgress("/").current }} sur {{ store.getProgress("/").total }}
+            </span>
+          </div>
+          <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/').percentage + '%' }"
+            ></div>
+          </div>
+        </div>
+
         <div class="bg-white py-8 px-6 shadow-xl rounded-3xl border border-white">
           <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
             <span class="text-[10px] font-black tracking-widest text-blue-400">Date de complétude</span>

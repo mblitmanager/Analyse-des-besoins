@@ -286,16 +286,33 @@ function selectBureau(form, suite) {
     <SiteHeader />
 
     <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-10">
-      <div class="text-center mb-10">
-        <h2 class="text-sm text-gray-400 font-bold uppercase tracking-widest mb-2">
-          Etape {{ store.getProgress("/formations").current }}/{{ store.getProgress("/formations").total }}
-        </h2>
-        <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
-          Quelle formation souhaitez-vous suivre ?
-        </h1>
-        <p class="text-gray-400 text-base md:text-lg">
-          Faites votre choix ci-dessous :
-        </p>
+      <div class="max-w-3xl mx-auto mb-10">
+        <!-- Progress Bar -->
+        <div v-if="store.actualWorkflowSteps.length > 0"
+          class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
+        >
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
+            <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
+              Étape {{ store.getProgress("/formations").current }} sur {{ store.getProgress("/formations").total }}
+            </span>
+          </div>
+          <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/formations').percentage + '%' }"
+            ></div>
+          </div>
+        </div>
+      
+        <div class="text-center">
+          <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
+            Quelle formation souhaitez-vous suivre ?
+          </h1>
+          <p class="text-gray-400 text-base md:text-lg">
+            Faites votre choix ci-dessous :
+          </p>
+        </div>
       </div>
 
       <div v-if="loading" class="flex justify-center py-20">

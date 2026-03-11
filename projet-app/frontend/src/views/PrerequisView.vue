@@ -173,22 +173,7 @@ const recommendedFormations = computed(() => {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
-    <SiteHeader>
-      <template #actions>
-        <div class="hidden md:flex flex-col items-end mr-4">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Analyse des besoins</span>
-            <span class="text-[10px] text-brand-primary font-bold">Étape {{ store.getProgress("/prerequis").current }} / {{ store.getProgress("/prerequis").total }}</span>
-          </div>
-          <div class="w-32 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              class="h-full bg-brand-primary transition-all duration-700"
-              :style="{ width: store.getProgress('/prerequis').percentage + '%' }"
-            ></div>
-          </div>
-        </div>
-      </template>
-    </SiteHeader>
+    <SiteHeader />
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10 relative">
       <div v-if="loading" class="flex flex-col items-center justify-center min-h-[400px]">
@@ -230,6 +215,24 @@ const recommendedFormations = computed(() => {
                 Ignorer et continuer
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div v-if="store.actualWorkflowSteps.length > 0"
+          class="bg-white p-5 rounded-3xl shadow-xl border border-white mb-8"
+        >
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-xs font-bold section-title uppercase tracking-widest">Progression globale</span>
+            <span class="text-xs font-bold text-brand-primary uppercase tracking-widest">
+              Étape {{ store.getProgress("/prerequis").current }} sur {{ store.getProgress("/prerequis").total }}
+            </span>
+          </div>
+          <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden border border-gray-50">
+            <div
+              class="h-full bg-brand-primary transition-all duration-700"
+              :style="{ width: store.getProgress('/prerequis').percentage + '%' }"
+            ></div>
           </div>
         </div>
 
