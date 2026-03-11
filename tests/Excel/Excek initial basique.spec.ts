@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 // Excel - Initial & basique
-test("test", async ({ page }) => {
+test("excel basique initial", async ({ page }) => {
   await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("sdfsd");

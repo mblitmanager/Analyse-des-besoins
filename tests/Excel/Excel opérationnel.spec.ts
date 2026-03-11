@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 //Excel - Opérationnel - avancé
-test("test", async ({ page }) => {
+test("Excel - Opérationnel", async ({ page }) => {
   await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");

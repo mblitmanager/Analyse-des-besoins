@@ -24,9 +24,15 @@ test("test", async ({ page }) => {
   await page.locator("label", { hasText: "Jamais" }).first().click();
   await page.locator("label", { hasText: "Non" }).first().click();
 
-  await page.locator("label", { hasText: "Oui avec quelques difficultés" }).nth(1).click();
+  await page
+    .locator("label", { hasText: "Oui avec quelques difficultés" })
+    .nth(1)
+    .click();
   await page.locator("label", { hasText: "Occasionnellement" }).nth(1).click();
-  await page.locator("label", { hasText: "Oui avec quelques difficultés" }).last().click();
+  await page
+    .locator("label", { hasText: "Oui avec quelques difficultés" })
+    .last()
+    .click();
 
   // Ici ton problème "Non" non pris en compte
   await page.locator("label", { hasText: /^Non$/ }).last().click();
@@ -42,7 +48,9 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
 
   // Bilan
-  await page.getByRole("button", { name: "Accepter et voir mon bilan" }).click();
+  await page
+    .getByRole("button", { name: "Accepter et voir mon bilan" })
+    .click();
   await page.getByRole("button", { name: /Valider ce parcours/ }).click();
 
   // // Quiz

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 //excel initial + Digcomp
-test("test", async ({ page }) => {
+test("excel-prereqiui", async ({ page }) => {
   await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Excel");

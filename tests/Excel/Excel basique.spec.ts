@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 //Excel - Opérationnel - avancé
-test("test", async ({ page }) => {
+test("excel basique", async ({ page }) => {
   await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
@@ -60,7 +60,7 @@ test("test", async ({ page }) => {
   await page.getByText("Insertion", { exact: true }).click();
   await page.getByText("Je protège le classeur").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
   // await page.getByText("Utiliser la fonction SOMMEPROD").click();
   // await page
   //   .locator("label")
