@@ -946,13 +946,13 @@ export class SessionsService {
       (acc: number, e: any) => acc + (Number(e?.score) || 0),
       0 as number,
     );
-    const scoreFinal =
+    const scorePretest =
       totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
 
     return {
       recommendation: finalRecommendationValue,
       recommendations: proposedParcours,
-      scoreFinal,
+      scorePretest,
       finalLevel,
       qTextById,
       filteredMiseAnswers,
@@ -968,7 +968,7 @@ export class SessionsService {
     const session = await this.findOne(id);
     const {
       recommendation,
-      scoreFinal,
+      scorePretest,
       finalLevel,
       qTextById,
       filteredMiseAnswers,
@@ -1089,7 +1089,7 @@ export class SessionsService {
       situation: session.situation,
       formationChoisie: session.formationChoisie,
       finalRecommendation: recommendation,
-      scoreFinal: scoreFinal,
+      scoreFinal: scorePretest,
       levelsScores: session.levelsScores as Record<string, any>,
       prerequisiteAnswers: filteredPrerequis as Record<string, any>,
       complementaryAnswers: finalComplementary as Record<string, any>,
@@ -1203,7 +1203,7 @@ export class SessionsService {
         : levels.length > 0
           ? levels[0].label
           : 'Initial',
-      scorePretest: scoreFinal,
+      scorePretest,
       emailSentAt: new Date(),
       isCompleted: true,
     });

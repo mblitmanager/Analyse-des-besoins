@@ -42,6 +42,12 @@ const currentQuestionIndex = ref(0);
 const showHighLevelAlert = ref(false);
 const highLevelValidated = ref("");
 
+// High level alert settings
+const alertSettings = ref({
+  formations: [],
+  thresholdOrder: 2
+});
+
 // Low score warning modal
 const showFormationWarning = ref(false);
 const allowSkip = ref(true); // admin toggle for skipping this step
@@ -233,6 +239,7 @@ onMounted(async () => {
   await fetchLowScoreThreshold();
   await fetchSkipSetting();
   await fetchPrereqQuestionsCache();
+  await fetchAlertSettings();
   // ensure workflow is loaded
   if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
     await store.updateActualWorkflow();
@@ -277,6 +284,23 @@ async function fetchPrereqQuestionsCache() {
   } catch (error) {
     console.warn('[Parcours] Impossible de charger le cache des questions prérequis:', error);
     prereqQuestionsCache.value = [];
+  }
+}
+async function fetchAlertSettings() {
+  try {
+    const [formsRes, thresholdRes] = await Promise.all([
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_ALERT_FORMATIONS`),
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_THRESHOLD_ORDER`)
+    ]);
+    
+    if (formsRes.data?.value) {
+      alertSettings.value.formations = formsRes.data.value.split(',').map(s => s.trim());
+    }
+    if (thresholdRes.data?.value) {
+      alertSettings.value.thresholdOrder = parseInt(thresholdRes.data.value) || 2;
+    }
+  } catch (error) {
+    console.warn("Failed to fetch high level alert settings:", error);
   }
 }
 async function nextStep() {
@@ -647,10 +671,22 @@ async function finishTest(overrideSession = null) {
     }
   });
 
-  // 3. CHECK FOR HIGH LEVEL ALERT (Avancé/Expert)
-  const isHighLevel = ["AVANCÉ", "AVANCE", "EXPERT"].some(hl => 
-    finalLevelLabel.toUpperCase().includes(hl)
-  );
+  // 3. CHECK FOR HIGH LEVEL ALERT (Dynamic checking)
+  let isHighLevel = false;
+  
+  if (alertSettings.value.formations.length > 0) {
+    const isTargetFormation = alertSettings.value.formations.some(f => 
+      (formationLabel || "").toLowerCase().includes(f.toLowerCase()) ||
+      (formationSlug || "").toLowerCase().includes(f.toLowerCase())
+    );
+    
+    if (isTargetFormation) {
+      const validatedLevelObj = levels.value.find(l => l.label === finalLevelLabel);
+      if (validatedLevelObj && validatedLevelObj.order >= alertSettings.value.thresholdOrder) {
+        isHighLevel = true;
+      }
+    }
+  }
 
   if (isHighLevel && !showResults.value) {
     highLevelValidated.value = finalLevelLabel;
