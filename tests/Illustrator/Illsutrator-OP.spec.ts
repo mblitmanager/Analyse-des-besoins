@@ -5,11 +5,11 @@ test('test', async ({ page }) => {
 
   await page.getByText('Madame').click();
   await page.getByRole('textbox', { name: 'Nom', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('Rakoto');
+  await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('Illustrator');
   await page.getByRole('textbox', { name: 'Nom', exact: true }).press('Tab');
-  await page.getByRole('textbox', { name: 'Prénom' }).fill('A');
+  await page.getByRole('textbox', { name: 'Prénom' }).fill('Test');
   await page.getByRole('textbox', { name: 'Prénom' }).press('Tab');
-  await page.getByRole('textbox', { name: 'Téléphone' }).fill('06060');
+  await page.getByRole('textbox', { name: 'Téléphone' }).fill('06 06 06 06 60');
   await page.getByRole('button', { name: 'Démarrer le parcours' }).click();
   await page.getByRole('textbox', { name: 'Ex: Assistant administratif,' }).click();
   await page.getByRole('textbox', { name: 'Ex: Assistant administratif,' }).fill('Comptable');
