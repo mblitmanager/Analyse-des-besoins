@@ -38,13 +38,17 @@ const recommendedLabel = computed(() => {
     return session.value.recommendation;
   }
 
-  const rec = session.value.finalRecommendation || "";
-  
-  // If we have a combined path (multiple levels), use the specific label requested by the user
-  if (rec.includes("&") || rec.includes(" et ") || rec.includes(" | ") || (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 1)) {
-    return "Consolider les bases et développer votre autonomie";
+  // Use recommendations from backend rules if available
+  const recs = session.value.recommendations || [];
+  if (recs.length > 0) {
+    // If multiple recommendations, join them dynamically
+    if (recs.length > 1) {
+      return recs.join(" & ");
+    }
+    return recs[0];
   }
 
+  const rec = session.value.finalRecommendation || "";
   if (rec) return rec;
 
   const level =
