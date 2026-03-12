@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 // Prérequis KO - Question 1
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // Formulaire
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("a");
@@ -70,5 +70,5 @@ test("test", async ({ page }) => {
   // await page.getByRole("button", { name: "Valider mes disponibilités" }).click();
 
   // // Validation finale
-  // await page.goto("http://localhost:5173/validation");
+  // await page.goto("http://localhost:5173validation");
 });

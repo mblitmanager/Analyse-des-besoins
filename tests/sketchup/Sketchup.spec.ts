@@ -61,6 +61,6 @@ test("test", async ({ page }) => {
   await page
     .getByRole("button", { name: "Valider mes disponibilités" })
     .click();
-  // await page.goto("http://localhost:5173/validation");
+  // await page.goto("http://localhost:5173validation");
   await page.getByText("Récapitulatif de votre demande").click();
 });

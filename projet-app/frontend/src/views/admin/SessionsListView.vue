@@ -237,6 +237,10 @@ async function exportToExcel() {
     "Email",
     "Téléphone",
     "Conseiller",
+    "Parrain Nom",
+    "Parrain Prénom",
+    "Parrain Email",
+    "Parrain Téléphone",
     "Marque",
     "Formation",
     "Date",
@@ -256,6 +260,10 @@ async function exportToExcel() {
       s.stagiaire?.email || s.email || "",
       s.telephone || "",
       s.conseiller || "",
+      s.parrainNom || "",
+      s.parrainPrenom || "",
+      s.parrainEmail || "",
+      s.parrainTelephone || "",
       s.brand || "",
       s.formationChoisie || "",
       new Date(s.createdAt).toLocaleString(),
@@ -729,6 +737,27 @@ function toggleExpandedLevel(level) {
                   v-model="editableSession.formationChoisie"
                   class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
                 />
+              </div>
+            </div>
+          </section>
+
+          <!-- Parrainage -->
+          <section v-if="editableSession.parrainNom || editableSession.parrainPrenom || editableSession.parrainEmail || editableSession.parrainTelephone" class="mb-10">
+            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Informations de Parrainage</h4>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 bg-sky-50/30 p-6 rounded-[24px] border border-sky-50">
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Parrain / Marraine</p>
+                <p class="font-bold text-sm">
+                  {{ editableSession.parrainPrenom }} {{ editableSession.parrainNom }}
+                </p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email Parrain</p>
+                <p class="font-bold text-sm">{{ editableSession.parrainEmail || "N/A" }}</p>
+              </div>
+              <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Téléphone Parrain</p>
+                <p class="font-bold text-sm">{{ editableSession.parrainTelephone || "N/A" }}</p>
               </div>
             </div>
           </section>

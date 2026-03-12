@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //Anglais B1 validé
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");

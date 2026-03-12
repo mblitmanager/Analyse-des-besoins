@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Test de positionnement Outlook", async ({ page }) => {
   // --- Accéder à l'application ---
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // --- Remplir le profil utilisateur ---
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Outlook");

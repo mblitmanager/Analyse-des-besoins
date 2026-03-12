@@ -25,6 +25,10 @@ export class PdfService {
     availabilityAnswers?: Record<string, any>;
     miseANiveauAnswers?: Record<string, any>;
     qTextById?: Record<number, string>;
+    parrainNom?: string | null;
+    parrainPrenom?: string | null;
+    parrainEmail?: string | null;
+    parrainTelephone?: string | null;
     highLevelContinue?: boolean;
     isP3Mode?: boolean;
   }): Promise<Buffer> {
@@ -101,6 +105,23 @@ export class PdfService {
         // ['Marque', data.brand || 'N/A'],
       ];
       this.drawTable(doc, beneficiary, darkText, grayText, lightBg);
+
+      // ─── Referral Info (Optional) ───
+      if (
+        data.parrainNom ||
+        data.parrainPrenom ||
+        data.parrainEmail ||
+        data.parrainTelephone
+      ) {
+        doc.moveDown(0.5);
+        this.sectionTitle(doc, 'Parrainage');
+        const referral = [
+          ['Parrain / Marraine', `${data.parrainPrenom || ''} ${data.parrainNom || ''}`.trim() || 'N/A'],
+          ['Email Parrain', data.parrainEmail || 'N/A'],
+          ['Téléphone Parrain', data.parrainTelephone || 'N/A'],
+        ];
+        this.drawTable(doc, referral, darkText, grayText, lightBg);
+      }
 
       // ─── Formation + Recommendation ───
       if (data.highLevelContinue) {

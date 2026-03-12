@@ -15,12 +15,21 @@ const form = ref({
   prenom: "",
   telephone: "",
   conseiller: "",
+  parrainNom: "",
+  parrainPrenom: "",
+  parrainEmail: "",
+  parrainTelephone: "",
 });
 
+const referralEnabled = ref(false);
 const loading = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   // fetchConseillers supprimé car on utilise désormais un champ libre
+  
+  // Fetch referral setting
+  const enabled = await store.fetchSetting('ENABLE_REFERRAL');
+  referralEnabled.value = enabled === 'true';
 });
 
 async function startTest() {
@@ -152,6 +161,36 @@ async function testDbConnection() {
                 </div>
                 <!-- field is optional, user may leave blank -->
                 <input v-model="form.conseiller" class="Wizi-input pl-10" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller" type="text" />
+              </div>
+            </div>
+
+            <!-- Parrainage -->
+            <div v-if="referralEnabled" class="pt-4 border-t border-gray-100 space-y-6">
+              <div class="flex items-center gap-2">
+                <span class="material-icons-outlined text-brand-primary">group_add</span>
+                <h3 class="Wizi-label !mb-0">Parrainage (Facultatif)</h3>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="Wizi-label text-[10px]" for="parrain-last-name">Nom du parrain</label>
+                  <input v-model="form.parrainNom" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-last-name" placeholder="Nom" type="text" />
+                </div>
+                <div class="space-y-1.5">
+                  <label class="Wizi-label text-[10px]" for="parrain-first-name">Prénom du parrain</label>
+                  <input v-model="form.parrainPrenom" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-first-name" placeholder="Prénom" type="text" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="Wizi-label text-[10px]" for="parrain-email">Email du parrain</label>
+                  <input v-model="form.parrainEmail" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-email" placeholder="email@exemple.com" type="email" />
+                </div>
+                <div class="space-y-1.5">
+                  <label class="Wizi-label text-[10px]" for="parrain-phone">Téléphone du parrain</label>
+                  <input v-model="form.parrainTelephone" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-phone" placeholder="06.." type="tel" />
+                </div>
               </div>
             </div>
 

@@ -88,6 +88,18 @@ export class Session {
   @Column('simple-json', { nullable: true })
   miseANiveauAnswers: any;
 
+  @Column({ type: 'varchar', nullable: true })
+  parrainNom: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  parrainPrenom: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  parrainEmail: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  parrainTelephone: string | null;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }

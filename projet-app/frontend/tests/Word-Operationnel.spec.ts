@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("Word Operationnel Flow", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // Fill user info
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Test");

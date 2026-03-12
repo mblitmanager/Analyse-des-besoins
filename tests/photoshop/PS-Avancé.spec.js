@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("Test Photoshop", async ({ page }) => {
 
   // --- Accéder à l'application ---
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // --- Profil utilisateur ---
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Photoshop");
