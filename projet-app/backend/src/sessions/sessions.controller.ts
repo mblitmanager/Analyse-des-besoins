@@ -56,7 +56,28 @@ export class SessionsController {
       return res.status(404).send('Session not found');
     }
 
-    const pdfBuffer = await this.pdfService.generateSessionPdf(session as any);
+    const processed = await this.sessionsService.getRecommendationData(session);
+
+    const pdfBuffer = await this.pdfService.generateSessionPdf({
+      civilite: session.civilite,
+      prenom: session.prenom,
+      nom: session.nom,
+      telephone: session.telephone,
+      conseiller: session.conseiller,
+      metier: session.metier,
+      situation: session.situation,
+      formationChoisie: session.formationChoisie,
+      finalRecommendation: processed.recommendation,
+      scoreFinal: processed.scorePretest,
+      levelsScores: session.levelsScores as any,
+      prerequisiteAnswers: processed.filteredPrerequis,
+      complementaryAnswers: processed.filteredComplementaryAnswers,
+      availabilityAnswers: processed.filteredAvailabilities,
+      miseANiveauAnswers: processed.filteredMiseAnswers,
+      qTextById: processed.qTextById,
+      highLevelContinue: session.highLevelContinue,
+      isP3Mode: session.isP3Mode,
+    });
 
     res.set({
       'Content-Type': 'application/pdf',
@@ -65,6 +86,14 @@ export class SessionsController {
     });
 
     res.end(pdfBuffer);
+  }
+
+  @Get(':id/processed')
+  @UseGuards(JwtAuthGuard)
+  async getProcessed(@Param('id') id: string) {
+    const session = await this.sessionsService.findOne(id);
+    if (!session) return { error: 'Not found' };
+    return this.sessionsService.getRecommendationData(session);
   }
 
   @Get()

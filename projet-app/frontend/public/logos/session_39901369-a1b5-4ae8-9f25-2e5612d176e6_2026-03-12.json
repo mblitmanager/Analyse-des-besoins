@@ -1,0 +1,65 @@
+{
+  "id": "39901369-a1b5-4ae8-9f25-2e5612d176e6",
+  "createdAt": "2026-03-12T05:53:36.987Z",
+  "emailSentAt": null,
+  "brand": "aopia",
+  "civilite": "M.",
+  "nom": "a",
+  "prenom": "a",
+  "telephone": "a",
+  "conseiller": "",
+  "formationChoisie": "Excel",
+  "isCompleted": false,
+  "scorePretest": null,
+  "stopLevel": "Expert",
+  "lastValidatedLevel": "Expert",
+  "finalRecommendation": "TOSA Excel Avancé | TOSA Excel Expert",
+  "prerequisiteScore": {
+    "470": "Occasionnellement",
+    "473": "Occasionnellement ",
+    "477": "Oui avec quelques difficultés ",
+    "2109": "Oui avec quelques difficultés ",
+    "2632": "Non",
+    "2633": "Occasionnellement",
+    "2636": "Oui avec quelques difficultés"
+  },
+  "levelsScores": {
+    "Initial": {
+      "score": 3,
+      "total": 3,
+      "percentage": 100,
+      "requiredCorrect": 3,
+      "validated": true
+    },
+    "Basique": {
+      "score": 4,
+      "total": 5,
+      "percentage": 80,
+      "requiredCorrect": 4,
+      "validated": true
+    },
+    "Opérationnel": {
+      "score": 4,
+      "total": 5,
+      "percentage": 80,
+      "requiredCorrect": 4,
+      "validated": true
+    },
+    "Avancé": {
+      "score": 5,
+      "total": 5,
+      "percentage": 100,
+      "requiredCorrect": 4,
+      "validated": true
+    },
+    "Expert": {
+      "score": 5,
+      "total": 5,
+      "percentage": 100,
+      "requiredCorrect": 5,
+      "validated": true
+    }
+  },
+  "complementaryQuestions": null,
+  "availabilities": null
+}
