@@ -870,9 +870,7 @@ async function saveAndExit() {
           </div>
 
           <!-- Progress Bar -->
-          <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-            <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/positionnement').percentage + '%' }"></div>
-          </div>
+          <WorkflowProgressBar customPath="/positionnement" />
         </div>
 
           <div

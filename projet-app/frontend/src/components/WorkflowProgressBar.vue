@@ -34,11 +34,9 @@ const progressData = computed(() => {
     </div>
     <div class="w-full h-2.5 bg-white rounded-full overflow-hidden shadow-sm border border-gray-100">
       <div 
-        class="h-full bg-brand-primary transition-all duration-700 ease-out relative" 
-        :style="{ width: progressData.percentage + '%' }"
-      >
-        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
-      </div>
+        class="h-full transition-all duration-700 ease-out" 
+        :style="{ width: progressData.percentage + '%', backgroundColor: 'var(--brand-primary, #005A9C)' }"
+      ></div>
     </div>
   </div>
 </template>
