@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("test TOEIC complet jusqu'au C1", async ({ page }) => {
   // Accès à la page
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // Remplissage du profil
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Anglais");

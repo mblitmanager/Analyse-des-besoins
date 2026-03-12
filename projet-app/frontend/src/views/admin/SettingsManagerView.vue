@@ -24,6 +24,7 @@ const getSettingIcon = (key) => {
   if (key.includes('PLATFORM')) return 'branding_watermark';
   if (key.includes('PAGINATED')) return 'auto_stories';
   if (key === 'ENABLE_P3') return 'add_circle';
+  if (key === 'ENABLE_REFERRAL') return 'group_add';
   return 'settings';
 };
 
@@ -34,6 +35,7 @@ const getSettingColor = (key) => {
   if (key.includes('PLATFORM')) return 'bg-purple-100 text-purple-600';
   if (key.includes('PAGINATED')) return 'bg-indigo-100 text-indigo-600';
   if (key === 'ENABLE_P3') return 'bg-green-100 text-green-600';
+  if (key === 'ENABLE_REFERRAL') return 'bg-sky-100 text-sky-600';
   return 'bg-gray-100 text-gray-600';
 };
 

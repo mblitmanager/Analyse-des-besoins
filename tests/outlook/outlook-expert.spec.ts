@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("Test Français Voltaire", async ({ page }) => {
   // --- Accéder à l'application ---
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   // --- Profil utilisateur ---
   await page

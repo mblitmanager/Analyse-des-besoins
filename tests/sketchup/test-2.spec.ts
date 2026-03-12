@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //sketchup
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("aa");
   await page.getByRole("textbox", { name: "Prénom" }).click();
@@ -55,8 +55,8 @@ test("test", async ({ page }) => {
   await page
     .getByRole("button", { name: "Valider mes disponibilités" })
     .click();
-  await page.goto("http://localhost:5173/validation");
+  await page.goto("http://localhost:5173validation");
   await page.getByRole("button", { name: "Accueil home" }).click();
-  await page.goto("http://localhost:5173/");
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
+  await page.goto("http://localhost:5173");
 });

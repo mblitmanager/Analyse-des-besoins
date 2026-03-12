@@ -755,9 +755,35 @@ export class SessionsService {
               ? session.situation.join(', ')
               : session.situation,
           )}</td></tr>
-        
         </tbody>
       </table>
+
+      ${
+        session.parrainNom ||
+        session.parrainPrenom ||
+        session.parrainEmail ||
+        session.parrainTelephone
+          ? `
+        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Parrainage</h3>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+          <tbody>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Parrain / Marraine</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(`${session.parrainPrenom || ''} ${session.parrainNom || ''}`.trim() || 'N/A')}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email Parrain</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(session.parrainEmail)}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone Parrain</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(session.parrainTelephone)}</td>
+            </tr>
+          </tbody>
+        </table>
+      `
+          : ''
+      }
 
       ${levelsTable}
 
@@ -804,6 +830,10 @@ export class SessionsService {
       availabilityAnswers: filteredAvailabilities as Record<string, any>,
       miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
       qTextById,
+      parrainNom: session.parrainNom,
+      parrainPrenom: session.parrainPrenom,
+      parrainEmail: session.parrainEmail,
+      parrainTelephone: session.parrainTelephone,
       highLevelContinue: session.highLevelContinue,
       isP3Mode: session.isP3Mode,
     });
@@ -871,6 +901,11 @@ export class SessionsService {
           
           <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
           <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
+          ${
+            session.parrainNom || session.parrainPrenom
+              ? `<p><strong>Parrain / Marraine :</strong> ${session.parrainPrenom || ''} ${session.parrainNom || ''}</p>`
+              : ''
+          }
           <p><strong>Formation :</strong> ${session.formationChoisie}</p>
           <p><strong>Recommandations :</strong></p>
           <div style="margin-bottom: 20px;">

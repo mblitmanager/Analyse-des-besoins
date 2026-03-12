@@ -116,6 +116,11 @@ export class SeedService implements OnApplicationBootstrap {
         description:
           'Activer la fonctionnalité "Ajouter un autre parcours" (P3) à la fin',
       },
+      {
+        key: 'ENABLE_REFERRAL',
+        value: 'false',
+        description: 'Activer le programme de parrainage (Parrain/Marraine)',
+      },
     ];
 
     for (const s of settings) {

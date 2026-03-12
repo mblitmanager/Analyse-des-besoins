@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 //illustrator Opérationnel OK
 test("test", async ({ page }) => {
-  await page.goto("http://localhost:5173/");
+  await page.goto("http://localhost:5173");
 
   await page.getByText("Madame").click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).click();
@@ -70,7 +70,11 @@ test("test", async ({ page }) => {
     .filter({ hasText: "Les lignes directrices (ou" })
     .click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: "test-Illustrator.png", fullPage: true });
   await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: "test-Illustrator2.png", fullPage: true });
 
   // Validation
 });
