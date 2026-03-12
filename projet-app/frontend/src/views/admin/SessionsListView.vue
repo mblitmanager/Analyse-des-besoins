@@ -16,6 +16,8 @@ const savingSession = ref(false);
 const expandedLevel = ref(null);
 const questionsIndex = ref({});
 const selectedSessionIds = ref(new Set());
+const processedData = ref(null);
+const loadingProcessed = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const token = localStorage.getItem("admin_token");
@@ -31,11 +33,21 @@ watch([searchQuery, activeTab, formationFilter], () => {
   selectedSessionIds.value.clear();
 });
 
-function viewSession(session) {
+async function viewSession(session) {
   selectedSession.value = session;
-  // Deep copy pour édition locale sans toucher la liste tant que ce n'est pas sauvegardé
   editableSession.value = JSON.parse(JSON.stringify(session));
+  processedData.value = null;
   showModal.value = true;
+  
+  loadingProcessed.value = true;
+  try {
+    const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/processed`, { headers });
+    processedData.value = res.data;
+  } catch (error) {
+    console.error("Failed to fetch processed session data:", error);
+  } finally {
+    loadingProcessed.value = false;
+  }
 }
 
 const uniqueFormations = computed(() => {
@@ -191,22 +203,29 @@ async function deleteSession(session) {
   }
 }
 
-function exportToExcel() {
+async function exportToExcel() {
   if (filteredSessions.value.length === 0) return;
 
-  // Collect all unique question IDs dynamically across all sessions
+  const confirmExport = confirm(`Exporter les ${filteredSessions.value.length} sessions filtrées ?\n\nNote: Les données seront filtrées pour correspondre exactement au PDF (questions masquées par la logique métier).`);
+  if (!confirmExport) return;
+
+  // Batch fetch processed data to ensure Excel matches PDF exactly
+  const allSessionsProcessed = await Promise.all(
+    filteredSessions.value.map(s => 
+      axios.get(`${apiBaseUrl}/sessions/${s.id}/processed`, { headers })
+        .then(res => ({ ...s, processed: res.data }))
+        .catch(() => ({ ...s, processed: null }))
+    )
+  );
+
+  // Collect all unique question IDs dynamically across ALL processed answers
   const questionIds = new Set();
-  filteredSessions.value.forEach(s => {
-    if (s.prerequisiteScore) Object.keys(s.prerequisiteScore).forEach(k => questionIds.add(k));
-    if (s.positionnementAnswers) {
-      Object.keys(s.positionnementAnswers).forEach(level => {
-        if (s.positionnementAnswers[level]) {
-          Object.keys(s.positionnementAnswers[level]).forEach(k => questionIds.add(k));
-        }
-      });
-    }
-    if (s.complementaryQuestions) Object.keys(s.complementaryQuestions).forEach(k => questionIds.add(k));
-    if (s.availabilities) Object.keys(s.availabilities).forEach(k => questionIds.add(k));
+  allSessionsProcessed.forEach(s => {
+    if (!s.processed) return;
+    if (s.processed.filteredPrerequis) Object.keys(s.processed.filteredPrerequis).forEach(k => questionIds.add(k));
+    if (s.processed.filteredComplementaryAnswers) Object.keys(s.processed.filteredComplementaryAnswers).forEach(k => questionIds.add(k));
+    if (s.processed.filteredAvailabilities) Object.keys(s.processed.filteredAvailabilities).forEach(k => questionIds.add(k));
+    if (s.processed.filteredMiseAnswers) Object.keys(s.processed.filteredMiseAnswers).forEach(k => questionIds.add(k));
   });
 
   const qIdsArray = Array.from(questionIds);
@@ -230,7 +249,7 @@ function exportToExcel() {
 
   const headers = [...baseHeaders, ...questionHeaders];
 
-  const rows = filteredSessions.value.map((s) => {
+  const rows = allSessionsProcessed.map((s) => {
     const baseRow = [
       s.id,
       `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
@@ -241,25 +260,21 @@ function exportToExcel() {
       s.formationChoisie || "",
       new Date(s.createdAt).toLocaleString(),
       s.isCompleted ? "Terminé" : "En cours",
-      s.scorePretest || 0,
+      s.processed ? s.processed.scorePretest : (s.scorePretest || 0),
       s.lastValidatedLevel || "",
       s.stopLevel || "",
-      s.finalRecommendation || "",
+      s.processed ? s.processed.recommendation : (s.finalRecommendation || ""),
     ];
 
     const questionRow = qIdsArray.map(id => {
       let ans = "";
-      if (s.prerequisiteScore && s.prerequisiteScore[id] !== undefined) ans = s.prerequisiteScore[id];
-      else if (s.complementaryQuestions && s.complementaryQuestions[id] !== undefined) ans = s.complementaryQuestions[id];
-      else if (s.availabilities && s.availabilities[id] !== undefined) ans = s.availabilities[id];
-      else if (s.positionnementAnswers) {
-        for (const level of Object.keys(s.positionnementAnswers)) {
-          if (s.positionnementAnswers[level] && s.positionnementAnswers[level][id] !== undefined) {
-            ans = s.positionnementAnswers[level][id];
-            break;
-          }
-        }
-      }
+      if (!s.processed) return "";
+      
+      if (s.processed.filteredPrerequis && s.processed.filteredPrerequis[id] !== undefined) ans = s.processed.filteredPrerequis[id];
+      else if (s.processed.filteredComplementaryAnswers && s.processed.filteredComplementaryAnswers[id] !== undefined) ans = s.processed.filteredComplementaryAnswers[id];
+      else if (s.processed.filteredAvailabilities && s.processed.filteredAvailabilities[id] !== undefined) ans = s.processed.filteredAvailabilities[id];
+      else if (s.processed.filteredMiseAnswers && s.processed.filteredMiseAnswers[id] !== undefined) ans = s.processed.filteredMiseAnswers[id];
+      
       return Array.isArray(ans) ? ans.join(", ") : ans;
     });
 
@@ -654,6 +669,10 @@ function toggleExpandedLevel(level) {
               Formation : {{ editableSession.formationChoisie }}
             </p>
           </div>
+          <div v-if="loadingProcessed" class="flex items-center gap-2 text-brand-primary animate-pulse">
+            <span class="material-icons-outlined text-sm">sync</span>
+            <span class="text-[10px] font-black uppercase">Filtrage des données...</span>
+          </div>
           <div class="flex items-center gap-2">
             <button
               @click="saveSessionEdits"
@@ -721,14 +740,28 @@ function toggleExpandedLevel(level) {
               <div>
                 <p class="font-black text-xl text-blue-900 mb-1">
                   Score Global :
+                  <template v-if="processedData">
+                    <span class="ml-2">{{ processedData.scorePretest }}%</span>
+                    <span v-if="processedData.scorePretest !== editableSession.scorePretest" class="ml-2 text-[10px] text-gray-400 line-through">({{ editableSession.scorePretest }}%)</span>
+                  </template>
                   <input
+                    v-else
                     v-model.number="editableSession.scorePretest"
                     type="number"
                     min="0"
                     max="100"
                     class="w-20 inline-block ml-2 px-2 py-1 text-sm font-black rounded-lg border border-blue-200 bg-white focus:outline-none focus:border-brand-primary"
-                  />%
+                  />
+                  <span v-if="!processedData">%</span>
                 </p>
+                <div class="flex items-center gap-4 mt-2">
+                  <div class="flex flex-col">
+                    <span class="text-[9px] uppercase font-black text-blue-400 tracking-widest">Recommandation</span>
+                    <p class="text-xs font-bold text-gray-700">
+                      {{ processedData ? processedData.recommendation : (editableSession.finalRecommendation || "Non définie") }}
+                    </p>
+                  </div>
+                </div>
                 <p class="text-xs font-bold text-blue-600">
                   Statut : {{ editableSession.isCompleted ? "Terminé" : "En cours" }}
                 </p>
@@ -757,11 +790,13 @@ function toggleExpandedLevel(level) {
 
           <!-- Détails additionnels (tableaux) -->
           <section
-            v-if="editableSession.prerequisiteScore || editableSession.levelsScores || editableSession.complementaryQuestions || editableSession.availabilities"
+            v-if="editableSession.prerequisiteScore || editableSession.levelsScores || editableSession.complementaryQuestions || editableSession.availabilities || editableSession.miseANiveauAnswers || processedData?.filteredMiseAnswers"
           >
             <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Données Complémentaires</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-               <div v-if="editableSession.prerequisiteScore" class="bg-gray-50 p-6 rounded-[24px]">
+               
+               <!-- Score Pré-requis -->
+               <div v-if="(processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore) && Object.keys(processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Score Pré-requis</p>
                   <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <table class="w-full text-left">
@@ -772,30 +807,35 @@ function toggleExpandedLevel(level) {
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in editableSession.prerequisiteScore" :key="key">
+                        <tr v-for="(val, key) in (processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore)" :key="key">
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
                           <td class="px-4 py-2">
-                            <textarea
-                              v-if="Array.isArray(editableSession.prerequisiteScore[key])"
-                              :value="editableSession.prerequisiteScore[key].join(', ')"
-                              @input="editableSession.prerequisiteScore[key] = $event.target.value.split(',').map(s => s.trim())"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
-                            <textarea
-                              v-else
-                              v-model="editableSession.prerequisiteScore[key]"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
+                            <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
+                            <template v-else>
+                              <textarea
+                                v-if="Array.isArray(editableSession.prerequisiteScore[key])"
+                                :value="editableSession.prerequisiteScore[key].join(', ')"
+                                @input="editableSession.prerequisiteScore[key] = $event.target.value.split(',').map(s => s.trim())"
+                                class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                rows="2"
+                              ></textarea>
+                              <textarea
+                                v-else
+                                v-model="editableSession.prerequisiteScore[key]"
+                                class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                rows="2"
+                              ></textarea>
+                            </template>
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                </div>
+
+               <!-- Scores par niveau -->
                <div v-if="editableSession.levelsScores" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Scores par niveau</p>
                   <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -878,7 +918,9 @@ function toggleExpandedLevel(level) {
                     </table>
                   </div>
                </div>
-               <div v-if="editableSession.complementaryQuestions" class="bg-gray-50 p-6 rounded-[24px]">
+
+               <!-- Questions Complémentaires -->
+               <div v-if="(processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions) && Object.keys(processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Questions Complémentaires</p>
                   <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <table class="w-full text-left">
@@ -889,31 +931,36 @@ function toggleExpandedLevel(level) {
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in editableSession.complementaryQuestions" :key="key">
+                        <tr v-for="(val, key) in (processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions)" :key="key">
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
                           <td class="px-4 py-2">
-                            <textarea
-                              v-if="Array.isArray(editableSession.complementaryQuestions[key])"
-                              :value="editableSession.complementaryQuestions[key].join(', ')"
-                              @input="editableSession.complementaryQuestions[key] = $event.target.value.split(',').map(s => s.trim())"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
-                            <textarea
-                              v-else
-                              v-model="editableSession.complementaryQuestions[key]"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
+                             <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
+                             <template v-else>
+                                <textarea
+                                  v-if="Array.isArray(editableSession.complementaryQuestions[key])"
+                                  :value="editableSession.complementaryQuestions[key].join(', ')"
+                                  @input="editableSession.complementaryQuestions[key] = $event.target.value.split(',').map(s => s.trim())"
+                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                  rows="2"
+                                ></textarea>
+                                <textarea
+                                  v-else
+                                  v-model="editableSession.complementaryQuestions[key]"
+                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                  rows="2"
+                                ></textarea>
+                             </template>
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                </div>
-               <div v-if="editableSession.availabilities" class="bg-gray-50 p-6 rounded-[24px]">
+
+               <!-- Disponibilités -->
+               <div v-if="(processedData ? processedData.filteredAvailabilities : editableSession.availabilities) && Object.keys(processedData ? processedData.filteredAvailabilities : editableSession.availabilities).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
                   <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Disponibilités</p>
                   <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <table class="w-full text-left">
@@ -924,33 +971,61 @@ function toggleExpandedLevel(level) {
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in editableSession.availabilities" :key="key">
+                        <tr v-for="(val, key) in (processedData ? processedData.filteredAvailabilities : editableSession.availabilities)" :key="key">
                           <td class="px-4 py-3 text-xs font-bold text-gray-700">
                             {{ getQuestionLabel(Number(key)) }}
                           </td>
                           <td class="px-4 py-2">
-                            <textarea
-                              v-if="Array.isArray(editableSession.availabilities[key])"
-                              :value="editableSession.availabilities[key].join(', ')"
-                              @input="editableSession.availabilities[key] = $event.target.value.split(',').map(s => s.trim())"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
-                            <textarea
-                              v-else
-                              v-model="editableSession.availabilities[key]"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
+                             <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
+                             <template v-else>
+                                <textarea
+                                  v-if="Array.isArray(editableSession.availabilities[key])"
+                                  :value="editableSession.availabilities[key].join(', ')"
+                                  @input="editableSession.availabilities[key] = $event.target.value.split(',').map(s => s.trim())"
+                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                  rows="2"
+                                ></textarea>
+                                <textarea
+                                  v-else
+                                  v-model="editableSession.availabilities[key]"
+                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
+                                  rows="2"
+                                ></textarea>
+                             </template>
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                </div>
+
+               <!-- Mise à niveau -->
+               <div v-if="(processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers) && Object.keys(processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
+                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">{{ processedData ? processedData.miseTitle : 'Mise à niveau' }}</p>
+                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50/60">
+                        <tr>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
+                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-for="(val, key) in (processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers)" :key="key">
+                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
+                            {{ getQuestionLabel(Number(key)) }}
+                          </td>
+                          <td class="px-4 py-2">
+                             <span class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+               </div>
+
             </div>
           </section>
-
         </div>
       </div>
     </div>

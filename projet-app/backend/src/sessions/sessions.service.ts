@@ -125,7 +125,7 @@ export class SessionsService {
     return { success: true };
   }
 
-  private async getRecommendationData(session: Session): Promise<{
+  async getRecommendationData(session: Session): Promise<{
     recommendation: string;
     recommendations?: string[];
     scorePretest?: number;
