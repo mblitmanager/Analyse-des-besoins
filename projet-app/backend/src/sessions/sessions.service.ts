@@ -460,11 +460,15 @@ export class SessionsService {
           // In the current architecture, stopIdx represents the first failed level.
           // Example: [Débutant, Initial, Basique]. If they fail Débutant, stopIdx = 0.
 
+          const stopScore = session.levelsScores?.[stopLevelLabel]?.score || 0;
+
           switch (operator) {
             case '=':
-              return stopIdx === targetIdx;
+              // Match if user stopped at target level and had at least one correct answer
+              return stopIdx === targetIdx && stopScore > 0;
             case '<':
-              return stopIdx < targetIdx;
+              // Match if user stopped before target level, or stopped at target level with 0 correct answers
+              return stopIdx < targetIdx || (stopIdx === targetIdx && stopScore === 0);
             case '≤':
               return stopIdx <= targetIdx;
             case '>':

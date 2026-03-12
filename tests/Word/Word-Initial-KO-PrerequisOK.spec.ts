@@ -51,18 +51,23 @@ test("test", async ({ page }) => {
   await page.locator("label").filter({ hasText: "Fichier > Exporter" }).click();
   await page.locator("label").filter({ hasText: "Insertion > Images" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "Word-InitialKO.png", fullPage: true });
   await page.getByRole("button", { name: "Continuer quand même" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
-  await page.getByRole("button", { name: "Valider ce parcours et" }).click();
-  await page
-    .getByRole("combobox")
-    .selectOption(
-      "Je vise un emploi pour lequel de nouvelles compétences me seront utiles",
-    );
-  await page.locator("label").first().click();
-  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.getByText("wb_twilightAprès-midi").click();
-  await page
-    .getByRole("button", { name: "Valider mes disponibilités" })
-    .click();
+  
+  // await page.getByRole("button", { name: "Valider ce parcours et" }).click();
+  // await page
+  //   .getByRole("combobox")
+  //   .selectOption(
+  //     "Je vise un emploi pour lequel de nouvelles compétences me seront utiles",
+  //   );
+  // await page.locator("label").first().click();
+  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  // await page.getByText("wb_twilightAprès-midi").click();
+  // await page
+  //   .getByRole("button", { name: "Valider mes disponibilités" })
+  //   .click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "Word-initialKO2.png", fullPage: true });
 });

@@ -462,9 +462,10 @@ async function finishTest(overrideSession = null) {
           const targetStr = cleanLabel(condMatch[2]);
           const targetIdx = levels.value.findIndex((l) => cleanLabel(l.label) === targetStr);
           if (targetIdx === -1) return false;
+          const stopScore = levelsScores.value[currentLevel.label]?.score || 0;
           switch (operator) {
-            case '=':  return currentLevelIndex.value === targetIdx;
-            case '<':  return currentLevelIndex.value < targetIdx;
+            case '=':  return currentLevelIndex.value === targetIdx && stopScore > 0;
+            case '<':  return currentLevelIndex.value < targetIdx || (currentLevelIndex.value === targetIdx && stopScore === 0);
             case '≤':  return currentLevelIndex.value <= targetIdx;
             case '>':  return currentLevelIndex.value > targetIdx;
             case '≥':  return currentLevelIndex.value >= targetIdx;
@@ -632,7 +633,7 @@ async function finishTest(overrideSession = null) {
       return recText.includes(rawLabel) || recText.includes(cleanL);
     });
 
-    if (isMaxLevel || (proposedLevelObj && validatedLevelObj.order > proposedLevelObj.order)) {
+    if (isMaxLevel || (proposedLevelObj && validatedLevelObj.order >= proposedLevelObj.order)) {
       isHighLevel = true;
     }
 
