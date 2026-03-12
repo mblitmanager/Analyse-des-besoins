@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -139,9 +140,7 @@ function startP3() {
           Validation Finale
         </h1>
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/validation').percentage + '%' }"></div>
-        </div>
+        <WorkflowProgressBar customPath="/validation" />
         <p
           class="text-gray-400 text-center mb-10 font-bold uppercase tracking-widest text-xs"
         >

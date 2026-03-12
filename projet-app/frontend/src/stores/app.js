@@ -258,7 +258,7 @@ export const useAppStore = defineStore('app', () => {
   }
 
   function getProgress(currentPath) {
-    const list = workflowSteps.value;
+    const list = actualWorkflowSteps.value.length > 0 ? actualWorkflowSteps.value : workflowSteps.value;
     
     let currentIndex = list.findIndex(s => s.route === currentPath);
     if (currentIndex === -1 && currentPath === '/') {
