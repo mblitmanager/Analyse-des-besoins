@@ -5,8 +5,8 @@ test("test", async ({ page }) => {
   await page.locator("div").filter({ hasText: /^Nom$/ }).click();
   await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Test");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-  await page.getByRole("textbox", { name: "Prénom" }).fill("GIMP");
-  await page.getByRole("textbox", { name: "Téléphone" }).click();
+  await page.getByRole("textbox", { name: "Prénom" }).fill("Gimp");
+  await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
   await page.getByRole("textbox", { name: "Téléphone" }).fill("06 06 06 06 60");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
   await page

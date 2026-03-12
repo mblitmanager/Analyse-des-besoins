@@ -7,8 +7,8 @@ async function checkRules() {
 
   try {
     await client.connect();
-    const res = await client.query('SELECT * FROM parcours_rules WHERE "isActive" = true');
-    console.log(JSON.stringify(res.rows, null, 2));
+    const levelsRes = await client.query('SELECT * FROM levels WHERE "formationId" = 24 ORDER BY "order" ASC');
+    console.log('Levels (ID 24):', JSON.stringify(levelsRes.rows, null, 2));
   } catch (err) {
     console.error(err);
   } finally {
