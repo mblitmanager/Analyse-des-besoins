@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 // Ref attaché à la bannière inline
 const inlineBannerRef = ref(null);
@@ -288,9 +289,7 @@ function selectBureau(form, suite) {
     <main class="flex-1 max-w-5xl w-full mx-auto p-4 py-10">
       <div class="max-w-3xl mx-auto mb-10">
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/formations').percentage + '%' }"></div>
-        </div>
+        <WorkflowProgressBar customPath="/formations" />
       
         <div class="text-center">
           <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">

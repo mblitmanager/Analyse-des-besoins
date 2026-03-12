@@ -7,6 +7,7 @@ import { filterConditionalQuestions, clearHiddenResponses } from "../utils/condi
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import axios from "axios";
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -150,9 +151,7 @@ function getOptionIcon(opt) {
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 py-10">
       <!-- Progress Bar -->
-      <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-        <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/availabilities').percentage + '%' }"></div>
-      </div>
+      <WorkflowProgressBar customPath="/availabilities" />
 
       <div class="text-center mb-10">
         <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">

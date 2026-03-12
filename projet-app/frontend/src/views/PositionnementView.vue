@@ -8,6 +8,7 @@ import { filterConditionalQuestions, clearHiddenResponses } from "../utils/condi
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from "../components/HighLevelAlertModal.vue";
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 // Display helper: strips the letter prefix (e.g. "A1 - Revoir les bases" => "Revoir les bases")
 function displayLevel(label) {
@@ -742,6 +743,9 @@ async function saveAndExit() {
         v-if="showResults"
         class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700"
       >
+        <!-- Progress Bar -->
+        <WorkflowProgressBar customPath="/positionnement" />
+
         <div
           class="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-xl border border-white text-center"
         >

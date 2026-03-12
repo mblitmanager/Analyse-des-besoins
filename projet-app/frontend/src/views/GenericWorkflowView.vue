@@ -7,6 +7,7 @@ import { formatBoldText } from '../utils/formatText';
 import { filterConditionalQuestions, clearHiddenResponses } from '../utils/conditionalQuestions';
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -161,9 +162,7 @@ async function goBack() {
 
       <div v-else class="space-y-8 animate-in fade-in duration-500">
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress(route.path).percentage + '%' }"></div>
-        </div>
+        <WorkflowProgressBar />
 
         <div class="text-center mb-10">
           <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-2">{{ currentStepLabel }}</h1>

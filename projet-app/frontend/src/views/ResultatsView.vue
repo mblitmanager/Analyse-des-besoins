@@ -9,6 +9,7 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import AppLogo from '../components/AppLogo.vue';
 import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -543,9 +544,7 @@ const downloadPDF = async () => {
       </section>
 
       <!-- Progress Bar -->
-      <div class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-8 shadow-sm border border-gray-100">
-        <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/resultats').percentage + '%' }"></div>
-      </div>
+      <WorkflowProgressBar customPath="/resultats" />
 
       <!-- Strengths Section -->
       <section class="mb-14">

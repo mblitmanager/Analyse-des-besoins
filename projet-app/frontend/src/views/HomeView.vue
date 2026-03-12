@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
+import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
 const store = useAppStore();
 const router = useRouter();
@@ -99,9 +100,7 @@ async function testDbConnection() {
         </div>
 
         <!-- Progress Bar -->
-        <div v-if="store.actualWorkflowSteps.length > 0" class="w-full h-2.5 bg-white rounded-full overflow-hidden mb-2 shadow-sm border border-gray-100">
-          <div class="h-full bg-brand-primary transition-all duration-700" :style="{ width: store.getProgress('/').percentage + '%' }"></div>
-        </div>
+        <WorkflowProgressBar customPath="/" />
 
         <div class="bg-white py-8 px-6 shadow-xl rounded-3xl border border-white">
           <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
