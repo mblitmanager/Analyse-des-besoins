@@ -375,6 +375,12 @@ export class SessionsService {
         .split(',')
         .map((v) => v.trim().toLowerCase());
 
+      const cleanLabel = (l: string) =>
+        (l || '')
+          .replace(/^Niveau\s+/i, '')
+          .trim()
+          .toUpperCase();
+
       const checkPrereqFailure = (rule?: ParcoursRule): boolean => {
         if (!session.prerequisiteScore) return false;
 
@@ -389,7 +395,8 @@ export class SessionsService {
         if (conditions && conditions.length > 0) {
           const results = conditions.map((cond) => {
             const userResponse = qScores[cond.questionId];
-            if (!userResponse) return false;
+            if (userResponse === undefined || userResponse === null)
+              return false;
 
             // If no specific response indexes are defined, use keyword-based failure detection
             if (!cond.responseIndexes || cond.responseIndexes.length === 0) {
@@ -421,23 +428,17 @@ export class SessionsService {
             : results.some((r) => r);
         }
 
-        // Default behavior: check for any generic failure across all answers if no specific conditions are set
-        return Object.values(qScores).some((v) => isGenericFailure(v));
+        // If no specific conditions are set but failure is required,
+        // we check for any generic failure unless the rule is used for "all" profiles
+        // Align with frontend: if no conditions, return true (matched)
+        return true;
       };
-
-      const cleanLabel = (l: string) =>
-        (l || '')
-          .replace(/^Niveau\s+/i, '')
-          .trim()
-          .toUpperCase();
 
       const stopIdx = levels.findIndex(
         (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
       );
       const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
-        if (!rule.condition || rule.condition.trim() === '') return true; // Empty condition acts as a catch-all/default rule
-        
-        // Condition is expected to be like "Si résultat du test < Basique" or "< Basique"
+        // Match operator and target level even if prefixed with descriptive text
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
 
         if (condMatch) {
@@ -476,19 +477,19 @@ export class SessionsService {
         }
 
         // Fallback for old rules without operators (implicit = or substring match)
-        return rule.condition.toUpperCase().includes(stopUpper);
+        return cleanLabel(rule.condition).includes(stopUpper);
       };
 
       // 1. Evaluate all active rules to see which ones match the user's score
       // Note: checkPrereqFailure compares boolean flags, only enforce if requirePrerequisiteFailure is true
       const validRules = activeRules.filter((r) => {
-          const ruleMatches = evaluateRuleCondition(r);
-          // If rule requires failure, ensure user failed. If rule doesn't require failure, it applies anyway.
-          const reqFail = !!r.requirePrerequisiteFailure;
-          const userFailed = checkPrereqFailure(r);
-          const prereqMatches = reqFail ? userFailed : true; 
-          
-          return ruleMatches && prereqMatches;
+        const ruleMatches = evaluateRuleCondition(r);
+        // If rule requires failure, ensure user failed. If rule doesn't require failure, it applies anyway.
+        const reqFail = !!r.requirePrerequisiteFailure;
+        const userFailed = checkPrereqFailure(r);
+        const prereqMatches = reqFail ? userFailed : true;
+
+        return ruleMatches && prereqMatches;
       });
 
       // 2. Select the first matched rule
