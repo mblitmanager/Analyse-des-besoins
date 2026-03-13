@@ -84,7 +84,7 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   // NIVEAU basique
   // -------------------------
   // await page.waitForTimeout(5000);
-  await page.screenshot({ path: "Photoshop-final.png", fullPage: true });
+  // await page.screenshot({ path: "Photoshop-final.png", fullPage: true });
   await expect(page.getByText("calque de remplissage et un calque de réglage")).toBeVisible();
   await page.getByText("Il n’y a aucune différence").click();
 

@@ -88,7 +88,12 @@ test("test", async ({ page }) => {
   await page.locator("label").filter({ hasText: "Incorrecte" }).nth(3).click();
   await page.getByText("Incorrecte", { exact: true }).nth(4).click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
-  // await page.getByRole('button', { name: 'Continuer' }).click();
+  await page.waitForTimeout(3000); 
+  await page.screenshot({ path: "Voltaire-Affaires2.png", fullPage: true });
+   
+  await page
+    .getByRole("button", { name: "Continuer avec Français arrow_forward" })
+    .click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "Voltaire-Affaires.png", fullPage: true });
 });

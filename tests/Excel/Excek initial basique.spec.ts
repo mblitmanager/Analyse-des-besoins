@@ -69,7 +69,7 @@ test("excel basique initial", async ({ page }) => {
     .click();
   await page.locator("label").filter({ hasText: "AUJOURDHUI()" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
   await page.screenshot({ path: "Excel-Initial-Basique.png", fullPage: true });
 });

@@ -83,8 +83,8 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   // -------------------------
   // NIVEAU OPÉRATIONNEL
   // -------------------------
-  await page.waitForTimeout(5000);
-  await page.screenshot({ path: "Photoshop-final.png", fullPage: true });
+  // await page.waitForTimeout(5000);
+  // await page.screenshot({ path: "Photoshop-final.png", fullPage: true });
   await expect(page.getByText("calque de remplissage et un calque de réglage")).toBeVisible();
   await page.getByText("couleur ou un dégradé").click();
 
@@ -145,7 +145,7 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   // --- Fin ---
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
 
-  // await page.waitForTimeout(2500);
+  await page.waitForTimeout(2500);
   await page.screenshot({ path: "Photoshop-avancé-OK.png", fullPage: true });
 
   await page.getByRole("button", { name: "Continuer avec photoshop arrow_forward" }).click();

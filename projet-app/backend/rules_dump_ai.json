@@ -1,0 +1,16 @@
+[
+  {
+    "id": 92,
+    "formation": "Intelligence Artificielle Générative",
+    "condition": "Si résultat du test = Initial",
+    "formation1": "INKREA IA",
+    "formation2": "",
+    "isActive": true,
+    "requirePrerequisiteFailure": false,
+    "order": 0,
+    "certification": "",
+    "prerequisiteConditions": "[]",
+    "prerequisiteLogic": "OR",
+    "formationId": 24
+  }
+]

@@ -61,7 +61,13 @@ const recommendedLabel = computed(() => {
       displayLevel = `Niveau ${displayLevel}`;
   }
 
-  return `${session.value.formationChoisie || ""} - ${displayLevel}`.trim();
+  // If we have a level, show it clearly
+  if (displayLevel) {
+    return `${session.value.formationChoisie || ""} - ${displayLevel}`.trim();
+  }
+
+  // Final fallback
+  return session.value.formationChoisie || "Parcours de formation";
 });
 
 // helper for adapting messaging when prereq shows insuffisant
