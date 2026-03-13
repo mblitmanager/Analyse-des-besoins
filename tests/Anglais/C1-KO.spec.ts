@@ -97,4 +97,5 @@ test("test TOEIC complet jusqu'au C1", async ({ page }) => {
   await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-C1-KO.png", fullPage: true });
+  
 });

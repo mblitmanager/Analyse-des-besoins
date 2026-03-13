@@ -26,8 +26,8 @@ test('DigComp-profesionnel', async ({ page }) => {
   // MODULE INITIAL
   // =====================
 
-  await expect(page.getByText("Enregistrez sous")).toBeVisible();
-  await page.getByText("Enregistrez sous").click();
+  await expect(page.getByText("Je reçois un email avec une pièce jointe que je veux mettre sur mon ordinateur")).toBeVisible();
+  await page.getByText("Enregistrer sous").click();
 
   await page.getByText("Identité Numérique La Poste").click();
 
@@ -90,4 +90,5 @@ await page
   //continuer
   await page.getByRole("button", { name: "Continuer" }).click();
   await page.screenshot({ path: "DigComp-profesionnel2.png", fullPage: true });
+
 });

@@ -191,8 +191,7 @@ function startP3() {
               Parcours validé
             </h3>
             <p class="text-sm font-bold text-gray-600 leading-relaxed">
-              Vous avez complété l'identification, la sélection de formation, et
-              les tests de positionnement.
+             Nous vous remercions d’avoir pris le temps de répondre aux différentes étapes de ce questionnaire
             </p>
           </div>
         </div>

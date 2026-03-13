@@ -26,7 +26,7 @@ test('DigComp-basique', async ({ page }) => {
   // MODULE INITIAL
   // =====================
 
-  await expect(page.getByText("Enregistrez sous")).toBeVisible();
+  await expect(page.getByText("Je reçois un email avec une pièce jointe que je veux mettre sur mon ordinateur")).toBeVisible();
   await page.getByText("Je l’ouvre et je copie le texte").click();
 
   await page.getByText("Je peux me connecter sans m’identifier").click();
@@ -52,4 +52,7 @@ await page.getByRole("button", { name: "Continuer quand même" }).click();
 
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "DigComp-initial-KO2.png", fullPage: true });
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "DigComp-initial-KO3.png", fullPage: true });
 });

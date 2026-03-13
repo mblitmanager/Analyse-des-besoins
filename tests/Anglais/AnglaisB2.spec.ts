@@ -91,4 +91,8 @@ test("test", async ({ page }) => {
   // await expect(page.getByRole("main")).toBeVisible();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-B2.png", fullPage: true });
+  //continuer + screenshot
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "TOEIC-B2-2.png", fullPage: true });
 });
