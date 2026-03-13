@@ -24,5 +24,9 @@ test('DigComp-Prerequis', async ({ page }) => {
   // await page.getByRole('button', { name: 'Valider ce parcours et' }).click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "DigComp-Prerequis.png", fullPage: true });
+  //continuer + screenshot
+  await page.getByRole('button', { name: 'Continuer' }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "DigComp-Prerequis2.png", fullPage: true });
   
 });

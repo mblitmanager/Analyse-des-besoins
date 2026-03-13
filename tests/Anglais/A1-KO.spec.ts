@@ -84,4 +84,8 @@ test("test", async ({ page }) => {
   //   .click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "TOEIC-A1-KO-2.png", fullPage: true });
+  //continuer + screenshot
+  await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "TOEIC-A1-KO-3.png", fullPage: true });
 });

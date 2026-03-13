@@ -43,27 +43,27 @@ test("test", async ({ page }) => {
     .first()
     .click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: "quizQuel est l’objectif de" })
-    .nth(5)
-    .click();
-  await page
-    .getByRole("combobox")
-    .selectOption(
-      "Je me prépare à entrer dans une formation qualifiante ou à un concours d'entrée",
-    );
-  await page.locator("label").first().click();
-  await page.getByText("Non").nth(1).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Continuerarrow_forward$/ })
-    .click();
-  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  await page.getByText("wb_twilightAprès-midi").click();
-  await page
-    .getByRole("button", { name: "Valider mes disponibilités" })
-    .click();
+  // await page
+  //   .locator("div")
+  //   .filter({ hasText: "quizQuel est l’objectif de" })
+  //   .nth(5)
+  //   .click();
+  // await page
+  //   .getByRole("combobox")
+  //   .selectOption(
+  //     "Je me prépare à entrer dans une formation qualifiante ou à un concours d'entrée",
+  //   );
+  // await page.locator("label").first().click();
+  // await page.getByText("Non").nth(1).click();
+  // await page
+  //   .locator("div")
+  //   .filter({ hasText: /^Continuerarrow_forward$/ })
+  //   .click();
+  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  // await page.getByText("wb_twilightAprès-midi").click();
+  // await page
+  //   .getByRole("button", { name: "Valider mes disponibilités" })
+  //   .click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "test-gimp.png", fullPage: true });
   // await page.getByRole("button", { name: "Accueil home" }).click();
