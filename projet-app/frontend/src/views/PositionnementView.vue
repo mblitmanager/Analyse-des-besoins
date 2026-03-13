@@ -33,6 +33,7 @@ const formationLabel = localStorage.getItem("selected_formation_label");
 const sessionId = localStorage.getItem("session_id");
 
 const levelsScores = ref({});
+const parcoursRuleHadPrereqCondition = ref(false);
 const positionnementAnswers = ref({});
 const prerequisiteAnswers = ref({}); // Réponses aux questions prérequis (étape précédente)
 const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour résoudre texte → index
@@ -454,7 +455,6 @@ async function finishTest(overrideSession = null) {
       const stopLabel = currentLevel.label.toUpperCase();
       const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
 
-      // ── 1. Évalue la condition de niveau de la règle (retourne true/false) ──
       const evaluateLevelCondition = (rule) => {
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
         if (condMatch) {
@@ -462,10 +462,9 @@ async function finishTest(overrideSession = null) {
           const targetStr = cleanLabel(condMatch[2]);
           const targetIdx = levels.value.findIndex((l) => cleanLabel(l.label) === targetStr);
           if (targetIdx === -1) return false;
-          const stopScore = levelsScores.value[currentLevel.label]?.score || 0;
           switch (operator) {
-            case '=':  return currentLevelIndex.value === targetIdx && stopScore > 0;
-            case '<':  return currentLevelIndex.value < targetIdx || (currentLevelIndex.value === targetIdx && stopScore === 0);
+            case '=':  return currentLevelIndex.value === targetIdx;
+            case '<':  return currentLevelIndex.value < targetIdx;
             case '≤':  return currentLevelIndex.value <= targetIdx;
             case '>':  return currentLevelIndex.value > targetIdx;
             case '≥':  return currentLevelIndex.value >= targetIdx;
@@ -474,6 +473,7 @@ async function finishTest(overrideSession = null) {
         }
         return cleanLabel(rule.condition).includes(cleanLabel(stopLabel));
       };
+
 
       // ── 2. Évalue les conditions prérequis d'une règle ──
       // prerequisiteAnswers contient { [questionId]: "texte de la réponse choisie" }
@@ -582,6 +582,8 @@ async function finishTest(overrideSession = null) {
           finalRecommendation.value = f1;
         }
         usedParcoursRule = true;
+        // Track if the winning rule had a prerequisite condition
+        parcoursRuleHadPrereqCondition.value = !!matchedRule.requirePrerequisiteFailure;
       }
     }
   } catch (error) {
@@ -672,6 +674,7 @@ async function finishTest(overrideSession = null) {
     stopLevel: currentLevel.label,
     lastValidatedLevel: finalLevelLabel,
     positionnementAnswers: positionnementAnswers.value,
+    parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
   });
 
   showResults.value = true;

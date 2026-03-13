@@ -71,6 +71,9 @@ export class Session {
   ignoreQuestionRules: boolean;
 
   @Column({ default: false })
+  parcoursRuleHadPrereqCondition: boolean;
+
+  @Column({ default: false })
   isP3Mode: boolean;
 
   @CreateDateColumn()

@@ -673,9 +673,12 @@ const downloadPDF = async () => {
               <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
                 {{ isBlocked 
                    ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
-                   : "Ce parcours est optimisé selon vos compétences pour vous garantir une progression efficace." 
+                   : session?.parcoursRuleHadPrereqCondition
+                     ? "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test."
+                     : "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace." 
                 }}
               </p>
+
             </div>
             <!-- Subtle decoration -->
             <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-5">
