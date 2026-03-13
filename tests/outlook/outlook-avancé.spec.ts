@@ -209,7 +209,7 @@ test("Test Outlook Avancé", async ({ page }) => {
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
   await page.waitForTimeout(2500);
   await page.screenshot({ path: "Outlook-Avacncé2.png", fullPage: true });
-  // await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
+  await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(2500);

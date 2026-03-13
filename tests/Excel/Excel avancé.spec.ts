@@ -120,9 +120,9 @@ test("excel avancé", async ({ page }) => {
   await page.waitForTimeout(1500);
   await page.screenshot({ path: "Excel-Avacncé2.png", fullPage: true });
   await page.waitForTimeout(3000);
-  // await page
-  //   .getByRole("button", { name: "Continuer avec excel arrow_forward" })
-  //   .click();
+  await page
+    .getByRole("button", { name: "Continuer avec excel arrow_forward" })
+    .click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise

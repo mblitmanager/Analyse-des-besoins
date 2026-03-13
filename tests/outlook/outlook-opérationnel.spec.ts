@@ -184,8 +184,10 @@ test("Test Outlook Opérationnel", async ({ page }) => {
   // await page.getByText("Un dossier de recherche").click();
 
   // --- Terminer le quiz ---
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: "Outlook-Opérationnel2.png", fullPage: true });
   // await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
-  // await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
+  await page.getByRole("button", { name: "Continuer avec Outlook arrow_forward" }).click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000);

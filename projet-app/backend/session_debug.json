@@ -1,0 +1,78 @@
+[
+  {
+    "column_name": "id",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "text",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "options",
+    "data_type": "text"
+  },
+  {
+    "column_name": "correctResponseIndex",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "order",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "isActive",
+    "data_type": "boolean"
+  },
+  {
+    "column_name": "type",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "levelId",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "category",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "icon",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "metadata",
+    "data_type": "text"
+  },
+  {
+    "column_name": "formationId",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "responseType",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "correctResponseIndexes",
+    "data_type": "text"
+  },
+  {
+    "column_name": "showIfQuestionId",
+    "data_type": "integer"
+  },
+  {
+    "column_name": "showIfResponseIndexes",
+    "data_type": "text"
+  },
+  {
+    "column_name": "showIfResponseValue",
+    "data_type": "character varying"
+  },
+  {
+    "column_name": "showIfRules",
+    "data_type": "text"
+  },
+  {
+    "column_name": "showIfOperator",
+    "data_type": "character varying"
+  }
+]
