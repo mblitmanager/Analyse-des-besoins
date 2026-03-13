@@ -75,16 +75,19 @@ test('DigComp-profesionnel', async ({ page }) => {
   await page.getByRole("button", { name: "Suivant" }).click();
 
 
-//   // --- Screenshot résultat ---
-//   await page.waitForTimeout(2000);
-//   await page.screenshot({ path: "DigComp-profesionnel.png", fullPage: true });
-// await page
-//     .getByRole("button", { name: "Continuer avec Digitales Compétences arrow_forward" })
-//     .click();
+  // --- Screenshot résultat ---
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: "DigComp-profesionnel.png", fullPage: true });
+await page
+    .getByRole("button", { name: "Continuer avec Digitales Compétences arrow_forward" })
+    .click();
 
 
   
 
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(4000);
+  await page.screenshot({ path: "DigComp-profesionnel3.png", fullPage: true });
+  //continuer
+  await page.getByRole("button", { name: "Continuer" }).click();
   await page.screenshot({ path: "DigComp-profesionnel2.png", fullPage: true });
 });
