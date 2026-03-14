@@ -199,9 +199,9 @@ onMounted(fetchFormations);
 
 <template>
   <div class="space-y-10 animate-fade-in p-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-3xl font-black heading-primary">
+        <h2 class="text-2xl sm:text-3xl font-black heading-primary">
           Gestion des Formations
         </h2>
         <p
@@ -212,7 +212,7 @@ onMounted(fetchFormations);
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-all"
       >
         <span class="material-icons-outlined">add</span>
         Nouvelle Formation
@@ -220,8 +220,8 @@ onMounted(fetchFormations);
     </div>
 
     <!-- Toolbar -->
-    <div class="flex flex-wrap gap-4 items-center">
-      <div class="relative flex-1 min-w-[200px]">
+    <div class="flex flex-wrap gap-3 sm:gap-4 items-center">
+      <div class="relative w-full lg:flex-1">
         <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
         <input
           v-model="searchTerm"
@@ -230,27 +230,29 @@ onMounted(fetchFormations);
           class="w-full pl-12 pr-6 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
         />
       </div>
-      <select
-        v-model="categoryFilter"
-        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[180px]"
-      >
-        <option value="">Toutes catégories</option>
-        <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
-      </select>
-      <select
-        v-model="statusFilter"
-        class="w-full sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
-      >
-        <option value="all">Tous statuts</option>
-        <option value="active">En ligne</option>
-        <option value="draft">Brouillon</option>
-      </select>
-      <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">
+      <div class="flex flex-wrap gap-2 w-full sm:w-auto items-center">
+        <select
+          v-model="categoryFilter"
+          class="flex-1 sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[150px]"
+        >
+          <option value="">Toutes catégories</option>
+          <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
+        </select>
+        <select
+          v-model="statusFilter"
+          class="flex-1 sm:w-auto px-4 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+        >
+          <option value="all">Tous statuts</option>
+          <option value="active">En ligne</option>
+          <option value="draft">Brouillon</option>
+        </select>
+      </div>
+      <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 w-full sm:w-auto text-center sm:text-left">
         {{ filteredFormations.length }} formation(s)
       </span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
         v-if="loading"
         v-for="i in 3"
@@ -270,7 +272,7 @@ onMounted(fetchFormations);
         v-else
         v-for="f in filteredFormations"
         :key="f.id"
-        class="bg-white p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-blue-50 group"
+        class="bg-white p-6 sm:p-8 rounded-[32px] shadow-sm hover:shadow-xl transition-all border border-transparent hover:border-blue-50 group"
       >
         <div class="flex items-start justify-between mb-6">
           <div
@@ -349,14 +351,14 @@ onMounted(fetchFormations);
       <div
         class="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl relative overflow-hidden animate-scale-up max-h-[90vh] overflow-y-auto custom-scrollbar"
       >
-        <div class="p-10 space-y-8">
+        <div class="p-6 sm:p-10 space-y-6 sm:y-8">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-2xl font-black heading-primary">
+              <h3 class="text-xl sm:text-2xl font-black heading-primary">
                 {{ editingFormation ? "Modifier" : "Ajouter" }} une Formation
               </h3>
               <p
-                class="text-gray-400 text-xs font-bold uppercase tracking-widest"
+                class="text-gray-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest"
               >
                 Détails de l'offre de formation
               </p>
@@ -369,9 +371,9 @@ onMounted(fetchFormations);
             </button>
           </div>
 
-          <form @submit.prevent="saveFormation" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="md:col-span-2 space-y-2">
+          <form @submit.prevent="saveFormation" class="space-y-6 sm:space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div class="sm:col-span-2 space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
                   >Titre de la Formation</label
@@ -396,8 +398,8 @@ onMounted(fetchFormations);
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div class="space-y-2">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div class="space-y-2 col-span-2 lg:col-span-1">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
                   >Catégorie</label
@@ -427,16 +429,16 @@ onMounted(fetchFormations);
                 <div class="flex gap-2">
                   <input
                     v-model="form.color"
-                    class="flex-1 px-4 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
+                    class="flex-1 px-4 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm min-w-0"
                   />
                   <input
                     type="color"
                     v-model="form.color"
-                    class="w-12 h-12 rounded-xl border-none cursor-pointer"
+                    class="w-12 h-12 rounded-xl border-none cursor-pointer shrink-0"
                   />
                 </div>
               </div>
-              <div class="space-y-2">
+              <div class="space-y-2 col-span-2 lg:col-span-1">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
                   >Alerte score faible ?</label
@@ -455,7 +457,7 @@ onMounted(fetchFormations);
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
@@ -482,7 +484,7 @@ onMounted(fetchFormations);
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <div class="space-y-2">
                 <label
                   class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
@@ -532,57 +534,57 @@ onMounted(fetchFormations);
             </div>
 
             <div class="space-y-4 pt-4 border-t border-gray-100">
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
                 <div class="space-y-1">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
-                    Prérequis · Source des questions
+                    Prérequis · Source
                   </label>
                   <select
                     v-model="form.prerequisQuestionsScope"
-                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                    class="w-full px-4 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="global">Global uniquement</option>
-                    <option value="formation">Formation uniquement</option>
-                    <option value="both">Global et Formation (en même temps)</option>
+                    <option value="global">Global</option>
+                    <option value="formation">Formation</option>
+                    <option value="both">Global & Formation</option>
                   </select>
                 </div>
                 <div class="space-y-1">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
-                    Complémentaires · Source des questions
+                    Complément · Source
                   </label>
                   <select
                     v-model="form.complementaryQuestionsScope"
-                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                    class="w-full px-4 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="global">Global uniquement</option>
-                    <option value="formation">Formation uniquement</option>
-                    <option value="both">Global et Formation (en même temps)</option>
+                    <option value="global">Global</option>
+                    <option value="formation">Formation</option>
+                    <option value="both">Global & Formation</option>
                   </select>
                 </div>
                 <div class="space-y-1">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
-                    Disponibilités · Source des questions
+                    Dispo · Source
                   </label>
                   <select
                     v-model="form.availabilitiesQuestionsScope"
-                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                    class="w-full px-4 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="global">Global uniquement</option>
-                    <option value="formation">Formation uniquement</option>
-                    <option value="both">Global et Formation (en même temps)</option>
+                    <option value="global">Global</option>
+                    <option value="formation">Formation</option>
+                    <option value="both">Global & Formation</option>
                   </select>
                 </div>
                 <div class="space-y-1">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
-                    Mise à niveau · Source des questions
+                    MàN · Source
                   </label>
                   <select
                     v-model="form.miseANiveauQuestionsScope"
-                    class="w-full px-4 py-2 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
+                    class="w-full px-4 py-3 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none text-[11px] font-black uppercase tracking-widest"
                   >
-                    <option value="global">Global uniquement</option>
-                    <option value="formation">Formation uniquement</option>
-                    <option value="both">Global et Formation (en même temps)</option>
+                    <option value="global">Global</option>
+                    <option value="formation">Formation</option>
+                    <option value="both">Global & Formation</option>
                   </select>
                 </div>
               </div>
@@ -605,9 +607,9 @@ onMounted(fetchFormations);
                 <p class="text-xs font-bold text-gray-400">Aucun niveau défini pour cette formation. Cliquez sur + Niveau pour en ajouter un.</p>
               </div>
 
-              <div class="space-y-3">
-                <div v-for="(lvl, index) in form.levels" :key="index" class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl group border border-transparent hover:border-blue-100 transition-all">
-                  <div class="w-20">
+              <div class="space-y-4">
+                <div v-for="(lvl, index) in form.levels" :key="index" class="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4 bg-gray-50 p-5 sm:p-4 rounded-2xl group border border-transparent hover:border-blue-100 transition-all relative">
+                  <div class="w-full sm:w-16">
                     <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Ordre</label>
                     <input type="number" v-model="lvl.order" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" />
                   </div>
@@ -615,12 +617,12 @@ onMounted(fetchFormations);
                     <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Nom du Niveau (Ex: A1, Débutant)</label>
                     <input type="text" v-model="lvl.label" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary" placeholder="ex: B2" required />
                   </div>
-                  <div class="w-32">
-                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Objectif (Q.)</label>
+                  <div class="w-full sm:w-24">
+                    <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1">Seuil (Q.)</label>
                     <input type="number" v-model="lvl.successThreshold" class="w-full px-4 py-2 bg-white rounded-xl outline-none font-bold text-sm border focus:border-brand-primary text-center" title="Nombre de questions à valider" />
                   </div>
-                  <div class="pt-4">
-                    <button type="button" @click="removeLevel(index)" class="w-10 h-10 flex items-center justify-center bg-white text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm">
+                  <div class="absolute top-2 right-2 sm:static sm:pt-0">
+                    <button type="button" @click="removeLevel(index)" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-white text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm">
                       <span class="material-icons-outlined text-sm">delete</span>
                     </button>
                   </div>

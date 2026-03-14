@@ -48,8 +48,8 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   await expect(page.getByText("Comment ouvrir une image")).toBeVisible();
   await page.getByText("Image > Couleur").click();
 
-  await expect(page.getByText("différence principale entre le format PSD")).toBeVisible();
-  await page.getByText("Le PSD est l’extension de Photoshop").click();
+  await expect(page.getByText("Quel outil permet de dessiner sur une image ?")).toBeVisible();
+  await page.getByText("L’outil Pinceau").click();
 
   await expect(page.getByText("fonction de l’outil Recadrage")).toBeVisible();
   await page.getByText("Supprimer une partie de l’image").click();
@@ -60,11 +60,11 @@ await page.getByRole("button", { name: "Continuer quand même" }).click();
   
 
   // await page.waitForTimeout(2500);
-  // await page.screenshot({ path: "Photoshop-initial-OK.png", fullPage: true });
+  // await page.screenshot({ path: "photoshop/Photoshop-initial-OK.png", fullPage: true });
 
   // await page.getByRole("button", { name: "Continuer avec photoshop arrow_forward" }).click();
 
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: "Photoshop-initial-KO.png", fullPage: true });
+  await page.screenshot({ path: "photoshop/Photoshop-initial-KO.png", fullPage: true });
 
 });

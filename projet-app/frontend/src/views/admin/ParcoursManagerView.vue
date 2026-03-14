@@ -386,21 +386,21 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-10 animate-fade-in">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div>
-        <h2 class="text-2xl md:text-3xl font-black heading-primary uppercase">Gestion du Catalogue</h2>
+        <h2 class="text-2xl md:text-3xl font-black heading-primary uppercase tracking-tight">Gestion du Catalogue</h2>
         <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
           Fiche formation & Règles de parcours associées
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-4 items-center">
+      <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
         <!-- Category Filter -->
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Catégorie</span>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+          <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Catégorie</span>
           <select 
             v-model="selectedCategory"
-            class="px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+            class="w-full sm:w-auto px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
           >
             <option value="all">Toutes</option>
             <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -408,12 +408,12 @@ onMounted(async () => {
         </div>
 
         <!-- Formation Selector -->
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation</span>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+          <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Formation</span>
           <select 
             v-model="activeFormationId"
             @change="(e) => selectFormation(formationsList.find(f => f.id === Number(e.target.value)))"
-            class="px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm min-w-[200px]"
+            class="w-full sm:w-[250px] px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
           >
             <option v-for="form in filteredFormationsDropdown" :key="form.id" :value="form.id">{{ form.label }}</option>
           </select>
@@ -425,56 +425,57 @@ onMounted(async () => {
       <!-- Content Area/Details -->
       <div v-if="currentFormation" class="w-full space-y-8">
         <!-- Tab Bar -->
-        <div class="flex items-center gap-2 bg-white p-2 rounded-[32px] shadow-sm border border-gray-50 w-fit">
+        <div class="flex items-center gap-2 bg-white p-2 rounded-[32px] shadow-sm border border-gray-50 w-full sm:w-fit">
           <button
             @click="activeTab = 'details'"
-            class="px-8 py-3 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all"
+            class="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all"
             :class="activeTab === 'details' ? 'bg-black text-white shadow-xl' : 'text-gray-400 hover:bg-gray-50 font-bold'"
           >
             Paramètres Fiche
           </button>
           <button
             @click="activeTab = 'rules'"
-            class="px-8 py-3 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all"
+            class="flex-1 sm:flex-none px-4 sm:px-8 py-3 rounded-[24px] text-[10px] font-black uppercase tracking-widest transition-all"
             :class="activeTab === 'rules' ? 'bg-black text-white shadow-xl' : 'text-gray-400 hover:bg-gray-50 font-bold'"
           >
             Règles Parcours
           </button>
         </div>
 
+        <!-- Details Tab Content -->
         <div v-if="activeTab === 'details'" class="animate-fade-in">
           <div class="bg-white rounded-[40px] shadow-sm border border-gray-50 overflow-hidden">
-            <div class="p-10 space-y-10">
-               <div class="flex items-center justify-between">
+            <div class="p-6 sm:p-10 space-y-8 sm:space-y-10">
+               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shrink-0"
                     :style="{ backgroundColor: formationForm.color + '20', color: formationForm.color }">
                     <span class="material-icons-outlined text-2xl">settings</span>
                   </div>
                   <div>
                     <h3 class="text-xl font-black heading-primary uppercase tracking-tight">Configuration de la Fiche</h3>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Éditez les infos catalogue pour {{ formationForm.label }}</p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">Éditez les infos catalogue pour {{ formationForm.label }}</p>
                   </div>
                 </div>
-                <button @click="saveFormationSettings" class="px-6 py-3 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all">
+                <button @click="saveFormationSettings" class="w-full sm:w-auto px-6 py-3 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-105 transition-all">
                   Sauvegarder Fiche
                 </button>
                </div>
 
-               <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+               <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
                   <div class="space-y-2">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Titre Catalogue</label>
-                    <input v-model="formationForm.label" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm" />
+                    <input v-model="formationForm.label" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-brand-primary/20 transition-all" />
                   </div>
                   <div class="space-y-2">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Catégorie</label>
-                    <input v-model="formationForm.category" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm" />
+                    <input v-model="formationForm.category" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-brand-primary/20 transition-all" />
                   </div>
-                   <div class="space-y-2">
+                   <div class="sm:col-span-2 md:col-span-1 space-y-2">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Couleur & Icône</label>
                     <div class="flex gap-3">
-                      <input type="color" v-model="formationForm.color" class="w-12 h-12 rounded-xl border-none cursor-pointer" />
-                      <input v-model="formationForm.icon" class="flex-1 px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm" placeholder="Icône Material" />
+                      <input type="color" v-model="formationForm.color" class="w-12 h-12 rounded-xl border-none cursor-pointer shrink-0" />
+                      <input v-model="formationForm.icon" class="flex-1 px-5 py-3.5 bg-gray-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-brand-primary/20 transition-all" placeholder="Icône Material" />
                     </div>
                   </div>
                </div>
@@ -483,25 +484,34 @@ onMounted(async () => {
                <div class="space-y-6 pt-4">
                   <div class="flex items-center justify-between">
                     <h4 class="text-sm font-black uppercase tracking-widest text-gray-700">Paliers de Compétence</h4>
-                    <button @click="addFormationLevel" class="text-[10px] font-black text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-xl transition-all">Ajouter niveau</button>
+                    <button @click="addFormationLevel" class="text-[10px] font-black text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-xl transition-all hover:bg-brand-primary hover:text-white">Ajouter niveau</button>
                   </div>
                   <div class="grid grid-cols-1 gap-4">
-                    <div v-for="(lvl, idx) in formationForm.levels" :key="idx" class="flex flex-col sm:flex-row sm:items-center gap-3 bg-gray-50 p-4 rounded-3xl border border-gray-100 group transition-all" :class="!lvl.isActive ? 'opacity-50 grayscale' : ''">
-                      <div class="flex items-center gap-3 flex-1">
-                        <input type="number" v-model="lvl.order" class="w-12 h-10 bg-white rounded-xl text-center font-bold text-xs" title="Ordre" />
-                        <input type="text" v-model="lvl.label" class="flex-1 h-10 bg-white rounded-xl px-4 font-bold text-xs" placeholder="Label" />
-                        <input type="number" v-model="lvl.successThreshold" class="w-16 h-10 bg-white rounded-xl text-center font-bold text-xs" title="Seuil" />
+                    <div v-for="(lvl, idx) in formationForm.levels" :key="idx" class="flex flex-col sm:flex-row sm:items-center gap-4 bg-gray-50 p-6 sm:p-4 rounded-3xl border border-gray-100 group transition-all relative" :class="!lvl.isActive ? 'opacity-50 grayscale' : ''">
+                      <div class="grid grid-cols-4 sm:flex sm:items-center gap-3 flex-1">
+                        <div class="col-span-1">
+                          <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1 lg:hidden">Ordre</label>
+                          <input type="number" v-model="lvl.order" class="w-full sm:w-12 h-10 bg-white rounded-xl text-center font-bold text-xs border border-transparent focus:border-brand-primary outline-none transition-all" title="Ordre" />
+                        </div>
+                        <div class="col-span-2">
+                          <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1 lg:hidden">Label</label>
+                          <input type="text" v-model="lvl.label" class="w-full sm:flex-1 h-10 bg-white rounded-xl px-4 font-bold text-xs border border-transparent focus:border-brand-primary outline-none transition-all" placeholder="Label" />
+                        </div>
+                        <div class="col-span-1">
+                          <label class="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-1 lg:hidden">Seuil</label>
+                          <input type="number" v-model="lvl.successThreshold" class="w-full sm:w-16 h-10 bg-white rounded-xl text-center font-bold text-xs border border-transparent focus:border-brand-primary outline-none transition-all" title="Seuil" />
+                        </div>
                       </div>
                       <div class="flex items-center gap-4 justify-between sm:justify-end">
-                        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-gray-100 shadow-sm">
+                        <label class="flex items-center gap-3 cursor-pointer bg-white px-4 py-2 rounded-2xl border border-gray-100 shadow-sm hover:border-brand-primary/30 transition-all">
                           <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ lvl.isActive !== false ? 'Actif' : 'Inactif' }}</span>
                           <div class="relative inline-block w-8 h-4 rounded-full transition-colors duration-200" :class="lvl.isActive !== false ? 'bg-green-400' : 'bg-gray-300'">
                             <input type="checkbox" v-model="lvl.isActive" class="opacity-0 w-0 h-0" />
                             <span class="absolute left-1 top-1 bg-white w-2 h-2 rounded-full transition-transform duration-200" :class="lvl.isActive !== false ? 'transform translate-x-4' : ''"></span>
                           </div>
                         </label>
-                        <button @click="removeFormationLevel(idx)" class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-200 transition-all">
-                          <span class="material-icons-outlined text-sm">delete</span>
+                        <button @click="removeFormationLevel(idx)" class="absolute top-4 right-4 sm:static w-10 h-10 flex items-center justify-center rounded-2xl bg-white shadow-sm border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-200 transition-all">
+                          <span class="material-icons-outlined text-lg">delete</span>
                         </button>
                       </div>
                     </div>
@@ -511,25 +521,26 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Rules Tab Content -->
         <div v-if="activeTab === 'rules'" class="animate-fade-in space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h3 class="text-xl font-black heading-primary uppercase tracking-tight">Règles de Redirection</h3>
-              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Définissez où envoyer l'utilisateur selon son score à {{ currentFormation.label }}</p>
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-relaxed">Définissez où envoyer l'utilisateur selon son score à {{ currentFormation.label }}</p>
             </div>
-            <div class="flex gap-3">
-              <div class="relative min-w-[200px]">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="relative w-full sm:min-w-[250px]">
                 <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">search</span>
                 <input
                   v-model="searchTerm"
                   type="search"
-                  placeholder="Chercher..."
+                  placeholder="Chercher une règle..."
                   class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-bold transition-all shadow-sm uppercase tracking-widest"
                 />
               </div>
               <button
                 @click="openNewForm"
-                class="px-6 py-3 bg-black text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 shadow-lg hover:bg-gray-800 transition-all"
+                class="w-full sm:w-auto px-6 py-3 bg-black text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg hover:bg-gray-800 transition-all"
               >
                 <span class="material-icons-outlined text-sm">add</span>
                 Nouvelle règle
@@ -537,157 +548,158 @@ onMounted(async () => {
             </div>
           </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-20">
-      <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"></div>
-    </div>
+          <!-- Loading -->
+          <div v-if="loading" class="flex justify-center py-20">
+            <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"></div>
+          </div>
 
-    <!-- Rules Table -->
-    <div v-else-if="filteredRules.length" class="bg-white rounded-[40px] shadow-sm overflow-x-auto">
-      <table class="w-full min-w-max text-left">
-        <thead>
-          <tr class="border-b border-gray-50 bg-gray-50/50">
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-10">ID</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Condition</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 1</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 2</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Certif.</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Prérequis (échec)</th>
-            <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-50">
-          <tr
-            v-for="(rule, idx) in filteredRules"
-            :key="rule.id"
-            class="hover:bg-blue-50/30 transition-colors"
-            :class="rule.isActive === false ? 'opacity-40 grayscale' : ''"
-          >
-            <td class="px-8 py-5 text-xs font-black text-gray-300">{{ rule.id }}</td>
-            <td class="px-8 py-5">
-              <span class="text-xs font-bold text-gray-700">{{ rule.condition }}</span>
-            </td>
-            <td class="px-8 py-5">
-              <span class="inline-block px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                {{ rule.formation1 }}
-              </span>
-            </td>
-            <td class="px-8 py-5">
-              <span class="inline-block px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
-                {{ rule.formation2 }}
-              </span>
-            </td>
-            <td class="px-8 py-5">
-              <span v-if="rule.certification" class="text-xs font-bold text-brand-primary uppercase">{{ rule.certification }}</span>
-              <span v-else class="text-[10px] text-gray-300 italic">Aucune</span>
-            </td>
-            <td class="px-8 py-5 max-w-[280px]">
-              <div class="flex flex-col gap-2">
-                <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
-                <span v-else class="text-[10px] font-bold text-gray-300 uppercase">NON</span>
-
-                <div v-if="rule.requirePrerequisiteFailure && rule.prerequisiteConditions && rule.prerequisiteConditions.length > 0" class="flex flex-col gap-2 mt-1">
-                  <!-- Logique ET / OU -->
-                  <div v-if="rule.prerequisiteConditions.length > 1" class="flex items-center gap-1.5">
-                    <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border"
-                      :class="rule.prerequisiteLogic === 'AND' 
-                        ? 'bg-purple-100 text-purple-700 border-purple-200' 
-                        : 'bg-blue-100 text-blue-700 border-blue-200'">
-                      {{ rule.prerequisiteLogic === 'AND' ? 'TOUTES (ET)' : 'AU MOINS UNE (OU)' }}
-                    </span>
-                  </div>
-
-                  <!-- Liste des questions avec leurs réponses -->
-                  <div class="flex flex-col gap-1.5">
-                    <div
-                      v-for="(cond, ci) in rule.prerequisiteConditions"
-                      :key="cond.questionId"
-                      class="bg-red-50 border border-red-100 rounded-xl p-2 text-[9px]"
-                    >
-                      <!-- Séparateur ET/OU entre questions -->
-                      <div v-if="ci > 0" class="text-[8px] font-black text-center mb-1"
-                        :class="rule.prerequisiteLogic === 'AND' ? 'text-purple-400' : 'text-blue-400'">
-                        {{ rule.prerequisiteLogic === 'AND' ? '— ET —' : '— OU —' }}
+          <!-- Rules Table -->
+          <div v-else-if="filteredRules.length" class="bg-white rounded-[40px] shadow-sm overflow-hidden border border-gray-50">
+            <div class="overflow-x-auto custom-scrollbar">
+              <table class="w-full min-w-max text-left">
+                <thead>
+                  <tr class="border-b border-gray-50 bg-gray-50/50">
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-10">ID</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Condition</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 1</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Formation 2</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Certif.</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Prérequis (échec)</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  <tr
+                    v-for="(rule, idx) in filteredRules"
+                    :key="rule.id"
+                    class="hover:bg-blue-50/30 transition-colors"
+                    :class="rule.isActive === false ? 'opacity-40 grayscale' : ''"
+                  >
+                    <td class="px-8 py-5 text-xs font-black text-gray-300">{{ rule.id }}</td>
+                    <td class="px-8 py-5">
+                      <span class="text-xs font-bold text-gray-700">{{ rule.condition }}</span>
+                    </td>
+                    <td class="px-8 py-5">
+                      <span class="inline-block px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        {{ rule.formation1 }}
+                      </span>
+                    </td>
+                    <td class="px-8 py-5">
+                      <span class="inline-block px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        {{ rule.formation2 }}
+                      </span>
+                    </td>
+                    <td class="px-8 py-5">
+                      <span v-if="rule.certification" class="text-xs font-bold text-brand-primary uppercase">{{ rule.certification }}</span>
+                      <span v-else class="text-[10px] text-gray-300 italic">Aucune</span>
+                    </td>
+                    <td class="px-8 py-5 max-w-[280px]">
+                      <div class="flex flex-col gap-2">
+                        <span v-if="rule.requirePrerequisiteFailure" class="text-[10px] font-black text-red-500 uppercase">OUI</span>
+                        <span v-else class="text-[10px] font-bold text-gray-300 uppercase">NON</span>
+        
+                        <div v-if="rule.requirePrerequisiteFailure && rule.prerequisiteConditions && rule.prerequisiteConditions.length > 0" class="flex flex-col gap-2 mt-1">
+                          <!-- Logique ET / OU -->
+                          <div v-if="rule.prerequisiteConditions.length > 1" class="flex items-center gap-1.5">
+                            <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border"
+                              :class="rule.prerequisiteLogic === 'AND' 
+                                ? 'bg-purple-100 text-purple-700 border-purple-200' 
+                                : 'bg-blue-100 text-blue-700 border-blue-200'">
+                              {{ rule.prerequisiteLogic === 'AND' ? 'TOUTES (ET)' : 'AU MOINS UNE (OU)' }}
+                            </span>
+                          </div>
+        
+                          <!-- Liste des questions avec leurs réponses -->
+                          <div class="flex flex-col gap-1.5">
+                            <div
+                              v-for="(cond, ci) in rule.prerequisiteConditions"
+                              :key="cond.questionId"
+                              class="bg-red-50 border border-red-100 rounded-xl p-2 text-[9px]"
+                            >
+                              <!-- Séparateur ET/OU entre questions -->
+                              <div v-if="ci > 0" class="text-[8px] font-black text-center mb-1"
+                                :class="rule.prerequisiteLogic === 'AND' ? 'text-purple-400' : 'text-blue-400'">
+                                {{ rule.prerequisiteLogic === 'AND' ? '— ET —' : '— OU —' }}
+                              </div>
+        
+                              <!-- Texte de la question -->
+                              <div class="font-bold text-gray-600 leading-tight mb-1">
+                                {{ prereqQuestions.find(q => q.id === cond.questionId)?.text || `Question #${cond.questionId}` }}
+                              </div>
+        
+                              <!-- Réponses sélectionnées -->
+                              <div v-if="cond.responseIndexes && cond.responseIndexes.length > 0" class="flex flex-wrap gap-1 mt-1">
+                                <span class="text-[7px] text-gray-400 font-medium w-full">Réponses :</span>
+                                <span
+                                  v-for="rIdx in cond.responseIndexes"
+                                  :key="rIdx"
+                                  class="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[8px] font-bold"
+                                >
+                                  {{ prereqQuestions.find(q => q.id === cond.questionId)?.options?.[rIdx] || `Rép. ${rIdx + 1}` }}
+                                </span>
+                              </div>
+                              <div v-else class="text-[8px] text-gray-400 italic mt-0.5">Tout échec</div>
+                            </div>
+                          </div>
+                        </div>
+        
+                        <!-- Aucune condition spécifique = tout échec déclenche -->
+                        <div v-else-if="rule.requirePrerequisiteFailure" class="text-[8px] text-gray-400 italic">
+                          Tout échec prérequis
+                        </div>
                       </div>
-
-                      <!-- Texte de la question -->
-                      <div class="font-bold text-gray-600 leading-tight mb-1">
-                        {{ prereqQuestions.find(q => q.id === cond.questionId)?.text || `Question #${cond.questionId}` }}
-                      </div>
-
-                      <!-- Réponses sélectionnées -->
-                      <div v-if="cond.responseIndexes && cond.responseIndexes.length > 0" class="flex flex-wrap gap-1 mt-1">
-                        <span class="text-[7px] text-gray-400 font-medium w-full">Réponses :</span>
-                        <span
-                          v-for="rIdx in cond.responseIndexes"
-                          :key="rIdx"
-                          class="px-1.5 py-0.5 bg-red-500 text-white rounded-full text-[8px] font-bold"
+                    </td>
+                    <td class="px-8 py-5">
+                      <div class="flex gap-2 justify-end items-center">
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-gray-50 px-2.5 py-1.5 rounded-xl border border-gray-100 shadow-sm" :title="rule.isActive !== false ? 'Actif' : 'Inactif'">
+                          <div class="relative inline-block w-7 h-3.5 rounded-full transition-colors duration-200" :class="rule.isActive !== false ? 'bg-green-400' : 'bg-gray-300'" @click.prevent="toggleRuleActive(rule)">
+                            <span class="absolute left-0.5 top-0.5 bg-white w-2.5 h-2.5 rounded-full transition-transform duration-200" :class="rule.isActive !== false ? 'transform translate-x-3' : ''"></span>
+                          </div>
+                        </label>
+                        <button
+                          @click="openEditForm(rule)"
+                          class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
+                          title="Modifier"
                         >
-                          {{ prereqQuestions.find(q => q.id === cond.questionId)?.options?.[rIdx] || `Rép. ${rIdx + 1}` }}
-                        </span>
+                          <span class="material-icons-outlined text-sm">edit</span>
+                        </button>
+                        <button
+                          @click="deleteRule(rule)"
+                          class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
+                          title="Supprimer"
+                        >
+                          <span class="material-icons-outlined text-sm">delete</span>
+                        </button>
                       </div>
-                      <div v-else class="text-[8px] text-gray-400 italic mt-0.5">Tout échec</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Aucune condition spécifique = tout échec déclenche -->
-                <div v-else-if="rule.requirePrerequisiteFailure" class="text-[8px] text-gray-400 italic">
-                  Tout échec prérequis
-                </div>
-              </div>
-            </td>
-            <td class="px-8 py-5">
-              <div class="flex gap-2 justify-end items-center">
-                <label class="flex items-center gap-1.5 cursor-pointer bg-gray-50 px-2.5 py-1.5 rounded-xl border border-gray-100 shadow-sm" :title="rule.isActive !== false ? 'Actif' : 'Inactif'">
-                  <div class="relative inline-block w-7 h-3.5 rounded-full transition-colors duration-200" :class="rule.isActive !== false ? 'bg-green-400' : 'bg-gray-300'" @click.prevent="toggleRuleActive(rule)">
-                    <span class="absolute left-0.5 top-0.5 bg-white w-2.5 h-2.5 rounded-full transition-transform duration-200" :class="rule.isActive !== false ? 'transform translate-x-3' : ''"></span>
-                  </div>
-                </label>
-                <button
-                  @click="openEditForm(rule)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
-                  title="Modifier"
-                >
-                  <span class="material-icons-outlined text-sm">edit</span>
-                </button>
-                <button
-                  @click="deleteRule(rule)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
-                  title="Supprimer"
-                >
-                  <span class="material-icons-outlined text-sm">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div
-      v-else-if="!loading"
-      class="flex flex-col items-center justify-center py-20 bg-white rounded-[40px] border border-dashed border-gray-200 text-gray-300"
-    >
-      <span class="material-icons-outlined text-6xl mb-4 opacity-20">route</span>
-      <p class="font-bold uppercase tracking-widest text-xs">
-        Aucune règle de parcours configurée
-      </p>
-      <p class="text-xs text-gray-400 mt-2">
-        Cliquez sur "Nouvelle règle" pour commencer
-      </p>
-    </div>
-  </div>
-</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        
+          <div
+            v-else-if="!loading"
+            class="flex flex-col items-center justify-center py-20 bg-white rounded-[40px] border border-dashed border-gray-200 text-gray-300"
+          >
+            <span class="material-icons-outlined text-6xl mb-4 opacity-20">route</span>
+            <p class="font-bold uppercase tracking-widest text-xs">
+              Aucune règle de parcours configurée
+            </p>
+            <p class="text-xs text-gray-400 mt-2">
+              Cliquez sur "Nouvelle règle" pour commencer
+            </p>
+          </div>
+        </div>
+      </div>
 </div>
 </div>
 
     <!-- Modal Form -->
     <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showForm = false"></div>
-      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-lg relative flex flex-col animate-scale-up max-h-[90vh]">
-        <div class="p-8 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+      <div class="bg-white rounded-[40px] shadow-2xl w-[95%] sm:w-full max-w-lg relative flex flex-col animate-scale-up max-h-[90vh]">
+        <div class="p-6 sm:p-8 border-b border-gray-100 flex items-center justify-between shrink-0">
           <h3 class="text-xl font-black heading-primary">
             {{ editingRule ? "Modifier la règle" : "Nouvelle règle de parcours" }}
           </h3>
@@ -695,7 +707,7 @@ onMounted(async () => {
             <span class="material-icons-outlined">close</span>
           </button>
         </div>
-        <div class="p-8 space-y-6 overflow-y-auto">
+        <div class="p-6 sm:p-8 space-y-6 overflow-y-auto custom-scrollbar">
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Formation concernée</label>
             <input
@@ -708,24 +720,26 @@ onMounted(async () => {
 
           <div>
             <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest block mb-2">Condition (Niveau du test)</label>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
               <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Si résultat du test</span>
-              <select
-                v-model="conditionOperator"
-                class="px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white text-center cursor-pointer"
-              >
-                <option value="=">=</option>
-                <option value="<"><</option>
-                <option value="≤">≤</option>
-                <option value=">">></option>
-                <option value="≥">≥</option>
-              </select>
-              <input
-                v-model="conditionLevel"
-                list="levels-list-main"
-                placeholder="Choisir un niveau"
-                class="flex-1 px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
-              />
+              <div class="flex gap-2 flex-1">
+                <select
+                  v-model="conditionOperator"
+                  class="w-20 px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white text-center cursor-pointer"
+                >
+                  <option value="=">=</option>
+                  <option value="<"><</option>
+                  <option value="≤">≤</option>
+                  <option value=">">></option>
+                  <option value="≥">≥</option>
+                </select>
+                <input
+                  v-model="conditionLevel"
+                  list="levels-list-main"
+                  placeholder="Choisir un niveau"
+                  class="flex-1 px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm font-bold outline-none focus:border-brand-primary transition-all bg-white"
+                />
+              </div>
             </div>
             <input
               v-model="newRule.condition"
@@ -808,7 +822,7 @@ onMounted(async () => {
                       >
                         <!-- Checkbox stylisée -->
                         <div
-                          class="mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                          class="mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all"
                           :class="isPrereqQuestionSelected(q.id)
                             ? 'bg-red-500 border-red-500'
                             : 'bg-white border-gray-300'"
@@ -942,11 +956,11 @@ onMounted(async () => {
             <option v-for="lvl in selectedFormationLevels" :key="lvl.id" :value="lvl.label" />
           </datalist>
         </div>
-        <div class="p-8 border-t border-gray-100">
+        <div class="p-6 sm:p-8 border-t border-gray-100">
           <!-- Form Actions -->
           <button
             @click="saveRule"
-            class="w-full py-4 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-black transition-all"
+            class="w-full py-4 bg-black text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-gray-800 transition-all"
           >
             {{ editingRule ? "Enregistrer les modifications" : "Ajouter la règle" }}
           </button>
