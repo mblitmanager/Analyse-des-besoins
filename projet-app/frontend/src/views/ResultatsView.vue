@@ -33,41 +33,36 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
   
+  let label = "";
   // If a rule override is present, use its specific recommendation
   if (session.value.isQuestionRuleOverride && session.value.recommendation) {
-    return session.value.recommendation;
-  }
-
-  // Use recommendations from backend rules if available
-  const recs = session.value.recommendations || [];
-  if (recs.length > 0) {
-    // If multiple recommendations, join them dynamically
-    if (recs.length > 1) {
-      return recs.join(" & ");
+    label = session.value.recommendation;
+  } else {
+    // Use recommendations from backend rules if available
+    const recs = session.value.recommendations || [];
+    if (recs.length > 0) {
+      if (recs.length > 1) {
+        return recs.join(" & ");
+      }
+      label = recs[0];
+    } else {
+      label = session.value.finalRecommendation || "";
     }
-    return recs[0];
   }
 
-  const rec = session.value.finalRecommendation || "";
-  if (rec) return rec;
-
-  const level =
-    session.value.lastValidatedLevel || session.value.stopLevel || "";
-
-  if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
-
-  let displayLevel = level;
-  if (displayLevel && !displayLevel.toLowerCase().includes("niveau")) {
-      displayLevel = `Niveau ${displayLevel}`;
+  if (!label) {
+    const level = session.value.lastValidatedLevel || session.value.stopLevel || "";
+    if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
+    
+    let displayLevel = level;
+    if (displayLevel && !displayLevel.toLowerCase().includes("niveau")) {
+        displayLevel = `Niveau ${displayLevel}`;
+    }
+    label = displayLevel ? `${session.value.formationChoisie || ""} - ${displayLevel}`.trim() : (session.value.formationChoisie || "Parcours de formation");
   }
 
-  // If we have a level, show it clearly
-  if (displayLevel) {
-    return `${session.value.formationChoisie || ""} - ${displayLevel}`.trim();
-  }
-
-  // Final fallback
-  return session.value.formationChoisie || "Parcours de formation";
+  const info = getLevelInfo(label);
+  return info ? `${label} (${info.theme})` : label;
 });
 
 // helper for adapting messaging when prereq shows insuffisant
@@ -110,23 +105,38 @@ const recommendedLevel2 = computed(() => {
   return sortedLevels.find(l => label.toLowerCase().includes(l.label.toLowerCase())) || null;
 });
 
+const levelMapping = {
+  "initial": { theme: "Découverte", desc: "Découverte et acquisition des notions fondamentales." },
+  "basique": { theme: "Essentiel", desc: "Développement des compétences essentielles." },
+  "opérationnel": { theme: "Renforcement", desc: "Utilisation autonome des compétences" },
+  "avancé": { theme: "Perfectionnement", desc: "Approfondissement et Maîtrise avancée" },
+  "expert": { theme: "Expertise", desc: "Maîtrise experte" }
+};
+
+function getLevelInfo(label) {
+  if (!label) return null;
+  const lowerLabel = label.toLowerCase();
+  for (const [key, info] of Object.entries(levelMapping)) {
+    if (lowerLabel.includes(key)) return info;
+  }
+  return null;
+}
+
 function getStepTitle(index) {
   const opt = parcoursOptions.value[index];
   if (!opt) return "";
   
   const level = index === 0 ? recommendedLevel1.value : recommendedLevel2.value;
+  const info = getLevelInfo(opt);
   
-  // If we found a level, and the option is NOT already exactly that level title
-  // we try to format it as "Formation - Level" for consistency
   if (level && session.value.formationChoisie) {
-     const standardTitle = `${session.value.formationChoisie} - ${level.label}`;
-     // If the manual option is just the level, or even just the level name without formation
+     const standardTitle = `${session.value.formationChoisie} - ${level.label}${info ? ` (${info.theme})` : ''}`;
      if (opt.toLowerCase() === level.label.toLowerCase() || standardTitle.toLowerCase().includes(opt.toLowerCase())) {
         return standardTitle;
      }
   }
   
-  return opt;
+  return info ? `${opt} (${info.theme})` : opt;
 }
 
 const parcoursOptions = computed(() => {
@@ -699,7 +709,7 @@ const downloadPDF = async () => {
                   {{ getStepTitle(0) || recommendedLabel }}
                 </h4>
                 <p class="text-gray-400 font-medium text-xs mt-1">
-                  {{ recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
+                  {{ getLevelInfo(parcoursOptions[0] || recommendedLabel)?.desc || recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
                 </p>
               </div>
 
@@ -730,7 +740,7 @@ const downloadPDF = async () => {
                   {{ getStepTitle(1) || 'Niveau Suivant' }}
                 </h4>
                 <p class="text-gray-400 font-medium text-xs mt-1">
-                  {{ recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
+                  {{ getLevelInfo(parcoursOptions[1])?.desc || recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
                 </p>
               </div>
             </div>

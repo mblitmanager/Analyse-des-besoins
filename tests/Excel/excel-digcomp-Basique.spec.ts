@@ -24,38 +24,42 @@ test('excel + digcomp basique', async ({ page }) => {
   await page.getByRole('button', { name: 'Valider mon profil' }).click();
   await page.getByRole('button', { name: 'Ignorer et continuer' }).click();
   await page.getByRole('button', { name: 'description Excel' }).click();
+  //initial
   await page.getByRole("button", { name: "Continuer arrow_forward" }).nth(0).click();
   await page.getByText("Une cellule").click();
   await page.getByText("=SOMME()").click();
   await page.getByText("Graphique Camembert (Secteur)").click();
+
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.locator("label").filter({ hasText: "L'icône : $" }).click();
+  //basique
+  await page.locator("label").filter({ hasText: "L'icône : %" }).click();
   await page
     .locator("label")
-    .filter({ hasText: "A ordonner les valeurs en" })
+    .filter({ hasText: "A ordonner les valeurs en fonction du filtre" })
     .click();
   await page.getByText("SI()").click();
   await page.locator("label").filter({ hasText: "Figer les volets" }).click();
   await page.locator("label").filter({ hasText: "AUJOURDHUI()" }).click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByText("À mettre en évidence les").click();
-  await page
-    .locator("label")
-    .filter({ hasText: "De copier et/ou incrémenter" })
-    .click();
-  await page.getByText("Un tableau croisé dynamique").click();
-  await page.getByText("Données", { exact: true }).click();
-  await page.getByText("Je protège le classeur").click();
-  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByText("Utiliser la fonction SOMMEPROD").click();
-  await page
-    .locator("label")
-    .filter({ hasText: "Utiliser un graphique combiné" })
-    .click();
-  await page.getByText("À concaténer des valeurs").click();
-  await page.getByText("À tester les valeurs é").click();
-  await page.getByText("modèle de données").click();
-  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+
+  // await page.getByText("À mettre en évidence les").click();
+  // await page
+  //   .locator("label")
+  //   .filter({ hasText: "De copier et/ou incrémenter" })
+  //   .click();
+  // await page.getByText("Un tableau croisé dynamique").click();
+  // await page.getByText("Données", { exact: true }).click();
+  // await page.getByText("Je protège le classeur").click();
+  // await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  // await page.getByText("Utiliser la fonction SOMMEPROD").click();
+  // await page
+  //   .locator("label")
+  //   .filter({ hasText: "Utiliser un graphique combiné" })
+  //   .click();
+  // await page.getByText("À concaténer des valeurs").click();
+  // await page.getByText("À tester les valeurs é").click();
+  // await page.getByText("modèle de données").click();
+  // await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.waitForTimeout(2000);
   await page.screenshot({ path: 'Excel-DigComp-Basique.png', fullPage: true });
   await page.getByRole('button', { name: 'Continuer avec Excel' }).click();

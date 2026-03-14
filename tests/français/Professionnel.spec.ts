@@ -7,7 +7,7 @@ test("test", async ({ page }) => {
     .getByRole("textbox", { name: "Nom", exact: true })
     .fill("Voltaire");
   await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
-  await page.getByRole("textbox", { name: "Prénom" }).fill("Affaires");
+  await page.getByRole("textbox", { name: "Prénom" }).fill("Professionnel");
   await page.getByRole("textbox", { name: "Prénom" }).press("Tab");
   await page.getByRole("textbox", { name: "Téléphone" }).fill("06 06 06 06 06");
   await page.getByRole("button", { name: "Démarrer le parcours" }).click();
@@ -75,16 +75,25 @@ test("test", async ({ page }) => {
     .filter({ hasText: /^Correcte$/ })
     .nth(4)
     .click();
-  // await page.locator('label').filter({ hasText: 'Incorrecte' }).nth(4).click();
-  // await page.locator('label').filter({ hasText: /^Correcte$/ }).nth(3).click();
+  await page.locator("label").filter({ hasText: "Incorrecte" }).nth(4).click();
+  await page
+    .locator("label")
+    .filter({ hasText: /^Correcte$/ })
+    .nth(3)
+    .click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  // await page.locator('label').nth(1).click();
-  // await page.getByText('Incorrecte').nth(3).click();
-  // await page.locator('label').filter({ hasText: 'Incorrecte' }).nth(2).click();
-  // await page.locator('label').filter({ hasText: 'Incorrecte' }).nth(3).click();
-  // await page.getByText('Incorrecte', { exact: true }).nth(4).click();
-  // await page.getByRole('button', { name: 'Terminer arrow_forward' }).click();
-  // await page.getByRole('button', { name: 'Continuer' }).click();
+  await page.locator("label").nth(1).click();
+  await page.getByText("Incorrecte").nth(3).click();
+  await page.locator("label").filter({ hasText: "Correcte" }).nth(2).click();
+  await page.locator("label").filter({ hasText: "Correcte" }).nth(3).click();
+  await page.getByText("Incorrecte", { exact: true }).nth(4).click();
+  await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
+  await page.waitForTimeout(3000); 
+  await page.screenshot({ path: "Voltaire-Professionnel2.png", fullPage: true });
+   
+  // await page
+  //   .getByRole("button", { name: "Continuer avec Français arrow_forward" })
+  //   .click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "Voltaire-Professionnel.png", fullPage: true });
 });

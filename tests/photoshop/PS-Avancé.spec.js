@@ -48,8 +48,8 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   await expect(page.getByText("Comment ouvrir une image")).toBeVisible();
   await page.getByText("Fichier > Ouvrir").click();
 
-  await expect(page.getByText("différence principale entre le format PSD")).toBeVisible();
-  await page.getByText("Le PSD est l’extension de Photoshop").click();
+  await expect(page.getByText("Quel outil permet de dessiner sur une image ?")).toBeVisible();
+  await page.getByText("L’outil Pinceau").click();
 
   await expect(page.getByText("fonction de l’outil Recadrage")).toBeVisible();
   await page.getByText("Supprimer une partie de l’image").click();
@@ -84,7 +84,7 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   // NIVEAU OPÉRATIONNEL
   // -------------------------
   // await page.waitForTimeout(5000);
-  // await page.screenshot({ path: "Photoshop-final.png", fullPage: true });
+  // await page.screenshot({ path: "photoshop/Photoshop-final.png", fullPage: true });
   await expect(page.getByText("calque de remplissage et un calque de réglage")).toBeVisible();
   await page.getByText("couleur ou un dégradé").click();
 
@@ -146,11 +146,11 @@ await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
   await page.getByRole("button", { name: "Terminer arrow_forward" }).click();
 
   await page.waitForTimeout(2500);
-  await page.screenshot({ path: "Photoshop-avancé-OK.png", fullPage: true });
+  await page.screenshot({ path: "photoshop/Photoshop-avancé-OK.png", fullPage: true });
 
   await page.getByRole("button", { name: "Continuer avec photoshop arrow_forward" }).click();
 
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: "Photoshop-Avancé.png", fullPage: true });
+  await page.screenshot({ path: "photoshop/Photoshop-Avancé.png", fullPage: true });
 
 });
