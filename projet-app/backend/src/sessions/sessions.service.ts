@@ -377,7 +377,7 @@ export class SessionsService {
 
       const cleanLabel = (l: string) =>
         (l || '')
-          .replace(/^Niveau\s+/i, '')
+          .replace(/^(Niveau|à|au|à\s+la|à\s+l'|le|la|les)\s+/i, '')
           .trim()
           .toUpperCase();
 
@@ -461,20 +461,19 @@ export class SessionsService {
           // Example: [Débutant, Initial, Basique]. If they fail Débutant, stopIdx = 0.
 
           const stopScore = session.levelsScores?.[stopLevelLabel]?.score || 0;
+          const userLevel = (stopIdx === 0 && stopScore === 0) ? -1 : stopIdx;
 
           switch (operator) {
             case '=':
-              // Match if user stopped at target level and had at least one correct answer
-              return stopIdx === targetIdx && stopScore > 0;
+              return userLevel === targetIdx;
             case '<':
-              // Match if user stopped before target level, or stopped at target level with 0 correct answers
-              return stopIdx < targetIdx || (stopIdx === targetIdx && stopScore === 0);
+              return userLevel < targetIdx;
             case '≤':
-              return stopIdx <= targetIdx;
+              return userLevel <= targetIdx;
             case '>':
-              return stopIdx > targetIdx;
+              return userLevel > targetIdx;
             case '≥':
-              return stopIdx >= targetIdx;
+              return userLevel >= targetIdx;
             default:
               return false;
           }

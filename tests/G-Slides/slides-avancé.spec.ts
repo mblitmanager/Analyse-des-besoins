@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('ICDL Google Sheets-avancé', async ({ page }) => {
+test('ICDL Google Slides - avancé', async ({ page }) => {
 
   await page.goto('http://localhost:5173/');
 
@@ -9,12 +9,12 @@ test('ICDL Google Sheets-avancé', async ({ page }) => {
   // =====================
 
   await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('ICDL');
-  await page.getByRole('textbox', { name: 'Prénom' }).fill('GoogleSheets');
+  await page.getByRole('textbox', { name: 'Prénom' }).fill('GoogleSlides');
   await page.getByRole('textbox', { name: 'Téléphone' }).fill('06060606');
 
   await page.getByRole('button', { name: 'Démarrer le parcours' }).click();
 
-  await page.getByRole('textbox', { name: 'Ex: Assistant administratif,' }).fill('Google Sheets');
+  await page.getByRole('textbox', { name: 'Ex: Assistant administratif,' }).fill('Google Slides');
 
   await page.locator('.formation-card__radio').first().click();
 
@@ -28,45 +28,69 @@ test('ICDL Google Sheets-avancé', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Valider mon profil' }).click();
 
-  await page.getByRole('button', { name: 'cloud Google Sheets' }).click();
-  await page.getByRole('button', { name: 'Continuer arrow_forward' }).click();
+  await page.getByRole('button', { name: 'cloud Google Slides' }).click();
+  await page.getByRole('button', { name: 'Continuer arrow_forward' }).first().click();
 
 
   // =====================
   // MODULE INITIAL
   // =====================
 
-  await expect(page.getByText("Dans Google Sheets, comment appelle-t-on l’intersection")).toBeVisible();
+  await expect(page.getByText("Dans Google Slides, comment sont enregistrées les modifications")).toBeVisible();
 
-  await page.getByText("Une cellule").first().click();
-  await page.getByText("Il n’y a rien à faire, l’enregistrement est automatique").click();
-  await page.getByText("C4").click();
-
-  await page.getByRole("button", { name: "Suivant" }).click();
-
-
-  // =====================
-  // MODULE BASIQUE
-  // =====================
-
-  await page.getByText("=SOMME(A1:A5)").click();
-  await page.getByText("À copier ou incrémenter une valeur ou une formule").click();
-  await page.getByText("Maintenir Maj et cliquer sur la dernière").click();
-  await page.getByText("Données > Trier la plage").click();
-  await page.getByText("MAINTENANT()").click();
+  await page.getByText("Elles sont enregistrées automatiquement").click();
+  await page.getByText("Affichage > Grille").click();
+  await page.getByText("Outils > Nouvelle diapositive").click();
 
   await page.getByRole("button", { name: "Suivant" }).click();
+
+
+// =====================
+// MODULE BASIQUE
+// =====================
+
+// Question 1
+await page
+  .locator('div:has-text("Quelle mise en page est la plus adaptée pour créer la diapositive d’ouverture")')
+  .getByText("Diapositive de titre")
+  .click();
+
+// Question 2
+await page
+  .locator('div:has-text("Quelle mise en forme est la plus adaptée pour présenter des points clés courts")')
+  .getByText("Liste à puces")
+  .click();
+
+// Question 3
+await page
+  .locator('div:has-text("J’ai inséré une forme et je souhaite la dupliquer")')
+  .locator('label:has-text("CTRL + D")')
+  .click();
+
+// Question 4
+await page
+  .locator('div:has-text("Quelle raccourci clavier me permet d’insérer une nouvelle diapositive")')
+  .getByText("CTRL + M")
+  .click();
+
+// Question 5
+await page
+  .locator('div:has-text("Quelle action permet de conserver à la fois le contenu et la mise en page")')
+  .getByText("Dupliquer la diapositive")
+  .click();
+
+await page.getByRole("button", { name: "Suivant" }).click();
 
 
   // =====================
   // MODULE OPERATIONNEL
   // =====================
 
-  await page.getByText("$").click();
-  await page.getByText("=SI(A1>=10;”Admis”;”Ajourné”)").click();
-  await page.getByText("Mise en forme conditionnelle").click();
-  await page.getByText("Courbe").click();
-  await page.getByText("Une division par zéro a été effectuée").click();
+  await page.getByText("Insérer une ligne").click();
+  await page.getByText("Faire glisser une poignée de redimensionnement").click();
+  await page.getByText("Modifier le thème").click();
+  await page.getByText("Diagramme").click();
+  await page.getByText("Insertion > Vidéo").click();
 
   await page.getByRole("button", { name: "Suivant" }).click();
 
@@ -75,31 +99,31 @@ test('ICDL Google Sheets-avancé', async ({ page }) => {
   // MODULE AVANCE
   // =====================
 
-  await page.getByText("Figer les volets").click();
-  await page.getByText("NB.SI").click();
-  await page.getByText("Plage sélectionnée").click();
-  await page.getByText("SOUS.TOTAL").click();
-  await page.getByText("RECHERCHEV").click();
+  await page.getByText("Transition").click();
+  await page.getByText("Animation").click();
+  await page.getByText("Masquer la diapositive").click();
+  await page.getByText("Insertion > En-tête et pied de page").click();
+  await page.getByText(".pdf").click();
 
   await page.getByRole("button", { name: "Terminer" }).click();
 
 
   // =====================
-  // SCREEN avancéS
+  // SCREEN RESULTATS
   // =====================
 
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: "GoogleSheets-avancé1.png", fullPage: true });
+  await page.screenshot({ path: "glsides/GoogleSlides-avancé1.png", fullPage: true });
 
   await page
-    .getByRole("button", { name: "Continuer avec Google Sheets arrow_forward" })
+    .getByRole("button", { name: "Continuer avec Google Slides arrow_forward" })
     .click();
 
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: "GoogleSheets-avancé2.png", fullPage: true });
+  await page.screenshot({ path: "glsides/GoogleSlides-avancé2.png", fullPage: true });
 
   await page.getByRole("button", { name: "Continuer" }).click();
 
-  await page.screenshot({ path: "GoogleSheets-avancé3.png", fullPage: true });
+  await page.screenshot({ path: "gslides/GoogleSlides-avancé3.png", fullPage: true });
 
 });
