@@ -71,6 +71,35 @@ export class QuestionsController {
     return this.questionsService.updateOrder(orders);
   }
 
+  @Patch('bulk')
+  @UseGuards(JwtAuthGuard)
+  bulkUpdate(@Body() body: { ids: number[]; data: Partial<Question> }) {
+    return this.questionsService.bulkUpdate(body.ids, body.data);
+  }
+
+  @Delete('bulk')
+  @UseGuards(JwtAuthGuard)
+  bulkRemove(@Body() body: { ids: number[] }) {
+    return this.questionsService.bulkRemove(body.ids);
+  }
+
+  @Post('duplicate')
+  @UseGuards(JwtAuthGuard)
+  duplicate(
+    @Body()
+    body: {
+      ids: number[];
+      targetFormationId: number | null;
+      targetLevelId: number | null;
+    },
+  ) {
+    return this.questionsService.duplicate(
+      body.ids,
+      body.targetFormationId,
+      body.targetLevelId,
+    );
+  }
+
   @Get(':id/is-used')
   @UseGuards(JwtAuthGuard)
   getIsUsed(@Param('id') id: number) {

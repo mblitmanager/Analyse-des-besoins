@@ -147,16 +147,13 @@ async function saveSessionEdits() {
   if (!editableSession.value) return;
   savingSession.value = true;
   try {
-
     const payload = {
-      // Champs administratifs modifiables
       conseiller: editableSession.value.conseiller,
       formationChoisie: editableSession.value.formationChoisie,
       scorePretest: editableSession.value.scorePretest,
       finalRecommendation: editableSession.value.finalRecommendation,
       lastValidatedLevel: editableSession.value.lastValidatedLevel,
       stopLevel: editableSession.value.stopLevel,
-      // Au besoin, l'admin peut aussi corriger les blocs JSON complets
       prerequisiteScore: editableSession.value.prerequisiteScore,
       levelsScores: editableSession.value.levelsScores,
       positionnementAnswers: editableSession.value.positionnementAnswers,
@@ -209,7 +206,6 @@ async function exportToExcel() {
   const confirmExport = confirm(`Exporter les ${filteredSessions.value.length} sessions filtrées ?\n\nNote: Les données seront filtrées pour correspondre exactement au PDF (questions masquées par la logique métier).`);
   if (!confirmExport) return;
 
-  // Batch fetch processed data to ensure Excel matches PDF exactly
   const allSessionsProcessed = await Promise.all(
     filteredSessions.value.map(s => 
       axios.get(`${apiBaseUrl}/sessions/${s.id}/processed`, { headers })
@@ -218,7 +214,6 @@ async function exportToExcel() {
     )
   );
 
-  // Collect all unique question IDs dynamically across ALL processed answers
   const questionIds = new Set();
   allSessionsProcessed.forEach(s => {
     if (!s.processed) return;
@@ -232,23 +227,7 @@ async function exportToExcel() {
   const questionHeaders = qIdsArray.map(id => getQuestionLabel(id).replace(/"/g, '""'));
 
   const baseHeaders = [
-    "ID",
-    "Stagiaire",
-    "Email",
-    "Téléphone",
-    "Conseiller",
-    "Parrain Nom",
-    "Parrain Prénom",
-    "Parrain Email",
-    "Parrain Téléphone",
-    "Marque",
-    "Formation",
-    "Date",
-    "Statut",
-    "Score %",
-    "Dernier niveau validé",
-    "Niveau d'arrêt",
-    "Recommandation finale",
+    "ID", "Stagiaire", "Email", "Téléphone", "Conseiller", "Parrain Nom", "Parrain Prénom", "Parrain Email", "Parrain Téléphone", "Marque", "Formation", "Date", "Statut", "Score %", "Dernier niveau validé", "Niveau d'arrêt", "Recommandation finale",
   ];
 
   const headers = [...baseHeaders, ...questionHeaders];
@@ -298,12 +277,10 @@ async function exportToExcel() {
 
 async function downloadPdf(session) {
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      headers
     });
-    
-    // Create a blob link to download
     const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
     const link = document.createElement('a');
     link.href = url;
@@ -320,25 +297,7 @@ async function downloadPdf(session) {
 
 function exportSessionDetails(session) {
   const payload = {
-    id: session.id,
-    createdAt: session.createdAt,
-    emailSentAt: session.emailSentAt,
-    brand: session.brand,
-    civilite: session.civilite,
-    nom: session.nom,
-    prenom: session.prenom,
-    telephone: session.telephone,
-    conseiller: session.conseiller,
-    formationChoisie: session.formationChoisie,
-    isCompleted: session.isCompleted,
-    scorePretest: session.scorePretest,
-    stopLevel: session.stopLevel,
-    lastValidatedLevel: session.lastValidatedLevel,
-    finalRecommendation: session.finalRecommendation,
-    prerequisiteScore: session.prerequisiteScore,
-    levelsScores: session.levelsScores,
-    complementaryQuestions: session.complementaryQuestions,
-    availabilities: session.availabilities,
+    ...session
   };
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], {
@@ -375,686 +334,519 @@ function getQuestionLabel(id) {
   return meta?.text || `Question ${id}`;
 }
 
+const getBrandColor = (brand) => {
+  if (brand?.toLowerCase() === 'aopia') return 'bg-blue-100 text-blue-700 border-blue-200';
+  if (brand?.toLowerCase() === 'inkrea') return 'bg-purple-100 text-purple-700 border-purple-200';
+  return 'bg-slate-100 text-slate-700 border-slate-200';
+};
+
+const getRelativeTime = (date) => {
+  const now = new Date();
+  const diff = now - new Date(date);
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (minutes < 1) return "À l'instant";
+  if (minutes < 60) return `${minutes} min`;
+  if (hours < 24) return `${hours} h`;
+  if (days < 7) return `${days} j`;
+  return formatDate(date);
+};
+
 function toggleExpandedLevel(level) {
   expandedLevel.value = expandedLevel.value === level ? null : level;
 }
 </script>
 
 <template>
-  <div class="space-y-10 animate-fade-in">
+  <div class="space-y-8 animate-fade-in font-outfit">
+    <!-- Header -->
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-      <div>
-        <h2 class="text-3xl font-black heading-primary">Gestion des Sessions</h2>
-        <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Suivez et gérez les sessions des candidats</p>
+      <div class="space-y-1">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Gestion des Sessions</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          {{ filteredSessions.length }} session(s) • Monitoring en temps réel des dossiers candidats
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          @click="exportToExcel"
+          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+        >
+          <span class="material-icons-outlined text-sm">file_download</span>
+          Exporter Excel
+        </button>
+        <button 
+          v-if="selectedSessionIds.size > 0"
+          @click="deleteSelectedSessions"
+          class="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center gap-2 shadow-xl shadow-rose-500/10"
+        >
+          <span class="material-icons-outlined text-sm">delete_sweep</span>
+          Supprimer ({{ selectedSessionIds.size }})
+        </button>
       </div>
     </div>
 
-      <div class="flex items-center gap-6 border-b border-gray-100">
+    <!-- Filters Bar -->
+    <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex flex-col lg:flex-row lg:items-center gap-4">
+      <div class="flex p-1 bg-slate-50 rounded-xl overflow-hidden shrink-0">
         <button
           v-for="tab in [
-            { id: 'all', label: 'Toutes les sessions' },
+            { id: 'all', label: 'Toutes' },
             { id: 'pending', label: 'En cours' },
             { id: 'completed', label: 'Terminées' }
           ]"
           :key="tab.id"
           @click="activeTab = tab.id"
-          class="pb-4 pt-2 px-2 text-sm font-black uppercase tracking-widest transition-all relative"
-          :class="activeTab === tab.id ? 'text-brand-primary' : 'text-gray-400 hover:text-gray-600'"
+          class="px-5 py-2 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg"
+          :class="activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
         >
           {{ tab.label }}
-          <span 
-            v-if="activeTab === tab.id" 
-            class="absolute bottom-0 left-0 w-full h-1 bg-brand-primary rounded-t-full"
-          ></span>
         </button>
       </div>
 
-      <div class="flex flex-wrap gap-4 items-center justify-between">
-        <div class="flex flex-wrap gap-4 items-center">
-          <!-- Export Button -->
-          <button
-            @click="exportToExcel"
-            class="w-full sm:w-auto px-6 py-3 btn-primary rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg hover:bg-black transition-all"
-          >
-            <span class="material-icons-outlined text-sm">download</span>
-            EXCEL
-          </button>
-
-          <!-- Search -->
-          <div class="relative flex-1 min-w-[200px]">
-            <span
-              class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
-              >search</span
-            >
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Nom ou Email..."
-              class="w-full pl-12 pr-6 py-3 bg-white border-2 border-transparent focus:border-brand-primary outline-none rounded-2xl text-xs font-bold transition-all shadow-sm"
-            />
-          </div>
-
-          <!-- Formation Filter -->
-          <select 
-            v-model="formationFilter"
-            class="w-full sm:w-auto px-4 py-3 bg-white border border-gray-200 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
-          >
-            <option value="all">Toutes Formations</option>
-            <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
-          </select>
-
-          <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-            {{ filteredSessions.length }} session(s)
-          </span>
+      <div class="flex-1 flex flex-col sm:flex-row gap-4">
+        <div class="relative flex-1 group">
+          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Rechercher par nom, email..."
+            class="w-full pl-11 pr-6 py-3 bg-slate-50 border-none outline-none rounded-xl text-xs font-bold transition-all focus:ring-2 focus:ring-brand-primary/20"
+          />
         </div>
 
-        <button 
-          v-if="selectedSessionIds.size > 0"
-          @click="deleteSelectedSessions"
-          class="px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2"
-        >
-          <span class="material-icons-outlined text-sm">delete</span>
-          Supprimer {{ selectedSessionIds.size }} sélection(s)
-        </button>
-      </div>
-
-    <div class="bg-white rounded-[40px] shadow-sm overflow-x-auto">
-      <table class="w-full min-w-max text-left">
-        <thead>
-          <tr class="border-b border-gray-50 bg-gray-50/50">
-            <th class="px-8 py-6 w-10">
-              <input 
-                type="checkbox" 
-                :checked="isAllSelected"
-                @change="toggleAllSelection"
-                class="w-4 h-4 text-brand-primary bg-gray-100 border-gray-300 rounded focus:ring-brand-primary focus:ring-2"
-              >
-            </th>
-            <th
-              class="px-4 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
-            >
-              Stagiaire
-            </th>
-            <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
-            >
-              Formation
-            </th>
-            <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
-            >
-              Date
-            </th>
-            <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
-            >
-              Statut
-            </th>
-            <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest"
-            >
-              Score Global
-            </th>
-            <th
-              class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-50">
-          <tr v-if="loading" v-for="i in 5" :key="i" class="animate-pulse">
-            <td v-for="j in 6" :key="j" class="px-8 py-6">
-              <div class="h-4 bg-gray-100 rounded w-full"></div>
-            </td>
-          </tr>
-
-          <tr
-            v-else
-            v-for="session in paginatedSessions"
-            :key="session.id"
-            class="hover:bg-blue-50/30 transition-colors group"
+        <div class="relative min-w-[200px]">
+          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">school</span>
+          <select 
+            v-model="formationFilter"
+            class="w-full pl-11 pr-10 py-3 bg-slate-50 border-none outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all cursor-pointer focus:ring-2 focus:ring-brand-primary/20"
           >
-            <td class="px-6 py-6">
-              <input 
-                type="checkbox" 
-                :checked="selectedSessionIds.has(session.id)"
-                @change="toggleSelection(session.id)"
-                class="w-4 h-4 text-brand-primary bg-gray-100 border-gray-300 rounded focus:ring-brand-primary focus:ring-2"
-              >
-            </td>
-            <td class="px-4 py-6">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-black text-[10px]"
-                >
-                  {{ (session.prenom || session.stagiaire?.prenom)?.[0] }}{{ (session.nom || session.stagiaire?.nom)?.[0] }}
-                </div>
-                <div>
-                    <p class="text-sm font-black heading-primary">
-                    {{ session.prenom || session.stagiaire?.prenom }} {{ session.nom || session.stagiaire?.nom }}
-                  </p>
-                  <p class="text-[10px] font-bold text-gray-400">
-                    {{ session.stagiaire?.email || session.email }}
-                  </p>
-                </div>
-              </div>
-            </td>
-            <td class="px-8 py-6">
-              <span class="text-xs font-bold text-gray-600">{{
-                session.formationChoisie
-              }}</span>
-            </td>
-            <td class="px-8 py-6">
-              <span class="text-xs font-bold text-gray-400">{{
-                formatDate(session.createdAt)
-              }}</span>
-            </td>
-            <td class="px-8 py-6">
-              <span
-                class="px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest"
-                :class="
-                  session.isCompleted
-                    ? 'bg-green-100 text-green-600'
-                    : 'bg-orange-100 text-orange-600'
-                "
-              >
-                {{ session.isCompleted ? "Terminé" : "En cours" }}
-              </span>
-            </td>
-            <td class="px-8 py-6">
-              <div class="flex items-center gap-2">
-                <div
-                  class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden min-w-[60px]"
-                >
-                  <div
-                    class="h-full bg-brand-primary rounded-full transition-all"
-                    :style="{ width: `${session.scorePretest || 0}%` }"
-                  ></div>
-                </div>
-                <span class="text-xs font-black heading-primary"
-                  >{{ session.scorePretest || 0 }}%</span
-                >
-              </div>
-            </td>
-            <td class="px-8 py-6">
-              <div class="flex gap-2 justify-end">
-                <button
-                  @click="downloadPdf(session)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
-                  title="Télécharger le PDF"
-                >
-                  <span class="material-icons-outlined text-sm">picture_as_pdf</span>
-                </button>
-                <button
-                  @click="viewSession(session)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center"
-                  title="Voir le dossier"
-                >
-                  <span class="material-icons-outlined text-sm">visibility</span>
-                </button>
-                <button
-                  @click="exportSessionDetails(session)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-emerald-200 hover:text-emerald-500 transition-all flex items-center justify-center"
-                  title="Exporter en JSON"
-                >
-                  <span class="material-icons-outlined text-sm">download</span>
-                </button>
-                <button
-                  @click="deleteSession(session)"
-                  class="w-8 h-8 rounded-full bg-white shadow-sm border border-gray-100 hover:border-red-200 hover:text-red-500 transition-all flex items-center justify-center"
-                  title="Supprimer la session"
-                >
-                  <span class="material-icons-outlined text-sm">delete</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div
-        v-if="!loading && sessions.length === 0"
-        class="flex flex-col items-center justify-center py-20 text-gray-300"
-      >
-        <span class="material-icons-outlined text-6xl mb-4 opacity-20"
-          >inventory_2</span
-        >
-        <p class="font-bold uppercase tracking-widest text-xs">
-          Aucune session enregistrée
-        </p>
+            <option value="all">Toutes les formations</option>
+            <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
+        </div>
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="!loading && filteredSessions.length > 0" class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Par page</span>
-        <select
-          v-model.number="pageSize"
-          @change="page = 1"
-          class="px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-bold outline-none"
-        >
-          <option :value="10">10</option>
-          <option :value="25">25</option>
-          <option :value="50">50</option>
-        </select>
+    <!-- Table Section -->
+    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto overflow-y-hidden">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50/50">
+              <th class="px-8 py-5 w-10">
+                <input 
+                  type="checkbox" 
+                  :checked="isAllSelected"
+                  @change="toggleAllSelection"
+                  class="w-4 h-4 text-slate-900 bg-white border-slate-200 rounded-md focus:ring-0"
+                >
+              </th>
+              <th class="px-4 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Candidat</th>
+              <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Formation & Marque</th>
+              <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Dernière Activité</th>
+              <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Referral</th>
+              <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
+              <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <template v-if="loading">
+              <tr v-for="i in 5" :key="i">
+                <td colspan="7" class="px-8 py-6"><div class="h-12 bg-slate-50 animate-pulse rounded-2xl w-full"></div></td>
+              </tr>
+            </template>
+            <template v-else-if="paginatedSessions.length > 0">
+              <tr
+                v-for="session in paginatedSessions"
+                :key="session.id"
+                class="group hover:bg-slate-50/70 transition-all cursor-default"
+                @click="viewSession(session)"
+              >
+                <td class="px-8 py-5" @click.stop>
+                  <input 
+                    type="checkbox" 
+                    :checked="selectedSessionIds.has(session.id)"
+                    @change="toggleSelection(session.id)"
+                    class="w-4 h-4 text-slate-900 bg-white border-slate-200 rounded-md focus:ring-0"
+                  >
+                </td>
+                <td class="px-4 py-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-slate-900 shrink-0 flex items-center justify-center text-white font-black text-[10px] shadow-lg shadow-slate-900/10 group-hover:scale-110 transition-transform">
+                      {{ (session.prenom || session.stagiaire?.prenom)?.[0] }}{{ (session.nom || session.stagiaire?.nom)?.[0] }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[13px] font-black text-slate-900 truncate">
+                        {{ session.civilite }} {{ session.prenom || session.stagiaire?.prenom }} {{ session.nom || session.stagiaire?.nom }}
+                      </p>
+                      <p class="text-[10px] font-bold text-slate-400 truncate flex items-center gap-1">
+                        <span class="material-icons-outlined text-[10px]">mail</span>
+                        {{ session.stagiaire?.email || session.email }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-8 py-5">
+                  <div class="space-y-1.5 flex flex-col items-start">
+                    <span class="text-xs font-bold text-slate-700 truncate max-w-[200px]">{{ session.formationChoisie || 'Évaluation en cours' }}</span>
+                    <span :class="['px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest border', getBrandColor(session.brand)]">
+                       {{ session.brand || 'PLATFORME' }}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-8 py-5 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    <span class="text-[10px] font-black text-slate-900">{{ getRelativeTime(session.updatedAt || session.createdAt) }}</span>
+                    <span class="text-[9px] font-bold text-slate-400">{{ formatDate(session.createdAt) }}</span>
+                  </div>
+                </td>
+                <td class="px-8 py-5 text-center">
+                   <div v-if="session.parrainNom" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm" title="Session parrainée">
+                      <span class="material-icons-outlined text-sm">redeem</span>
+                   </div>
+                   <span v-else class="text-[10px] text-slate-200">—</span>
+                </td>
+                <td class="px-8 py-5">
+                  <span
+                    class="px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest inline-flex items-center gap-1.5"
+                    :class="session.isCompleted ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'"
+                  >
+                    {{ session.isCompleted ? "Terminé" : "Partiel" }}
+                  </span>
+                </td>
+                <td class="px-8 py-5">
+                  <div class="flex gap-2 justify-end">
+                    <button
+                      @click.stop="downloadPdf(session)"
+                      class="w-9 h-9 rounded-xl border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all flex items-center justify-center shadow-sm"
+                    >
+                      <span class="material-icons-outlined text-lg">picture_as_pdf</span>
+                    </button>
+                    <button
+                      @click.stop="deleteSession(session)"
+                      class="w-9 h-9 rounded-xl border border-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 transition-all flex items-center justify-center shadow-sm"
+                    >
+                      <span class="material-icons-outlined text-lg">delete_outline</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr v-else>
+              <td colspan="7" class="py-24 text-center">
+                <div class="flex flex-col items-center gap-4 opacity-10">
+                  <span class="material-icons-outlined text-7xl">folder_off</span>
+                  <p class="font-black uppercase tracking-widest text-[11px]">Aucun dossier archivé</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="text-xs font-bold text-gray-400">
-          {{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, filteredSessions.length) }}
-          sur {{ filteredSessions.length }}
-        </span>
-        <button
-          :disabled="page <= 1"
-          @click="page--"
-          class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30 hover:border-brand-primary transition-all"
-        >
-          <span class="material-icons-outlined text-sm">chevron_left</span>
-        </button>
-        <button
-          :disabled="page >= totalPages"
-          @click="page++"
-          class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center disabled:opacity-30 hover:border-brand-primary transition-all"
-        >
-          <span class="material-icons-outlined text-sm">chevron_right</span>
-        </button>
+
+      <!-- Pagination Footer -->
+      <div v-if="!loading && filteredSessions.length > 0" class="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+          <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Affichage par page</label>
+          <select
+            v-model.number="pageSize"
+            @change="page = 1"
+            class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none focus:ring-2 focus:ring-brand-primary/20 appearance-none cursor-pointer"
+          >
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center gap-1.5">
+          <button @click="page--" :disabled="page === 1" class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 shadow-sm disabled:opacity-30 transition-all"><span class="material-icons-outlined text-sm">chevron_left</span></button>
+          <div class="flex items-center gap-1 mx-2">
+             <span class="text-[10px] font-black text-slate-900 px-3 py-1.5 rounded-xl bg-white border border-slate-200">{{ page }}</span>
+             <span class="text-[10px] font-black text-slate-300">/</span>
+             <span class="text-[10px] font-black text-slate-400">{{ totalPages }}</span>
+          </div>
+          <button @click="page++" :disabled="page >= totalPages" class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 shadow-sm disabled:opacity-30 transition-all"><span class="material-icons-outlined text-sm">chevron_right</span></button>
+        </div>
       </div>
     </div>
 
-    <!-- Modal Détails Session -->
-    <div v-if="showModal && editableSession" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="showModal = false"></div>
-      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-3xl relative overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
-        <div class="p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-          <div>
-            <h3 class="text-2xl font-black heading-primary">
-              Dossier de
-              {{ editableSession.prenom || editableSession.stagiaire?.prenom }}
-              {{ editableSession.nom || editableSession.stagiaire?.nom }}
-            </h3>
-            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
-              Formation : {{ editableSession.formationChoisie }}
-            </p>
+    <!-- Modal Dossier -->
+    <div v-if="showModal && editableSession" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-fade-in" @click="showModal = false"></div>
+      <div class="bg-white rounded-[50px] shadow-2xl w-full max-w-5xl relative overflow-hidden animate-scale-up max-h-[95vh] flex flex-col">
+        
+        <!-- Modal Header -->
+        <div class="px-10 py-10 border-b border-slate-50 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
+          <div class="flex items-center gap-6">
+            <div class="w-20 h-20 rounded-[24px] bg-slate-900 flex items-center justify-center text-white font-black text-3xl shadow-2xl shadow-slate-900/40 transform -rotate-3">
+              {{ (editableSession.prenom || editableSession.stagiaire?.prenom)?.[0] }}{{ (editableSession.nom || editableSession.stagiaire?.nom)?.[0] }}
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-3xl font-black text-slate-900 tracking-tight leading-none">
+                {{ editableSession.civilite }} {{ (editableSession.prenom || editableSession.stagiaire?.prenom) }} {{ (editableSession.nom || editableSession.stagiaire?.nom) }}
+              </h3>
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <span class="material-icons-outlined text-[12px]">fingerprint</span>
+                  #{{ editableSession.id.substring(0,8) }}
+                </span>
+                <span :class="['px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border', getBrandColor(editableSession.brand)]">
+                   {{ editableSession.brand || 'STANDALONE' }}
+                </span>
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                   Email envoyé : {{ editableSession.emailSentAt ? formatDate(editableSession.emailSentAt) : 'NON' }}
+                </span>
+              </div>
+            </div>
           </div>
-          <div v-if="loadingProcessed" class="flex items-center gap-2 text-brand-primary animate-pulse">
-            <span class="material-icons-outlined text-sm">sync</span>
-            <span class="text-[10px] font-black uppercase">Filtrage des données...</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button
+          <div class="flex items-center gap-4">
+             <button
               @click="saveSessionEdits"
               :disabled="savingSession"
-              class="px-4 py-2 mr-2 bg-brand-primary text-[#428496] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-brand-secondary disabled:opacity-60 flex items-center gap-2"
+              class="px-8 py-4 bg-slate-900 text-white rounded-[20px] text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center gap-2"
             >
-              <span class="material-icons-outlined text-sm">save</span>
-              {{ savingSession ? 'Enregistrement...' : 'Enregistrer' }}
+              <span class="material-icons-outlined text-sm">published_with_changes</span>
+              Modifier le Dossier
             </button>
-            <button @click="showModal = false" class="text-gray-300 hover:text-gray-600 transition-colors bg-gray-50 rounded-xl p-2">
+            <button @click="showModal = false" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-400 hover:text-slate-900 transition-all">
               <span class="material-icons-outlined">close</span>
             </button>
           </div>
         </div>
 
-        <div class="p-8 overflow-y-auto space-y-8 flex-1 custom-scrollbar">
-          <!-- Infos Candidat -->
-          <section>
-            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Informations Candidat</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50 p-6 rounded-[24px]">
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Bénéficiaire</p>
-                <p class="font-bold text-sm">
-                  {{ editableSession.prenom || editableSession.stagiaire?.prenom }}
-                  {{ editableSession.nom || editableSession.stagiaire?.nom }}
-                </p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email</p>
-                <p class="font-bold text-sm">{{ editableSession.stagiaire?.email }}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Téléphone</p>
-                <p class="font-bold text-sm">{{ editableSession.telephone || "N/A" }}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Date de création</p>
-                <p class="font-bold text-sm">{{ formatDate(editableSession.createdAt) }}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Conseiller</p>
-                <input
-                  v-model="editableSession.conseiller"
-                  class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
-                />
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Marque</p>
-                <p class="font-bold text-sm">{{ editableSession.brand || "N/A" }}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Formation choisie</p>
-                <input
-                  v-model="editableSession.formationChoisie"
-                  class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
-                />
-              </div>
-            </div>
-          </section>
+        <div class="p-12 overflow-y-auto space-y-12 flex-1 custom-scrollbar">
+          
+          <!-- Key Stats Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+             <div class="p-6 bg-emerald-50 rounded-[32px] border border-emerald-100 flex flex-col justify-between">
+                <p class="text-[9px] font-black text-emerald-600/60 uppercase tracking-widest">Niveau Acquis</p>
+                <p class="text-2xl font-black text-emerald-600 mt-2">{{ editableSession.lastValidatedLevel || 'INITIAL' }}</p>
+             </div>
+             <div class="p-6 bg-blue-50 rounded-[32px] border border-blue-100 flex flex-col justify-between overflow-hidden relative">
+                <p class="text-[9px] font-black text-blue-600/60 uppercase tracking-widest">Niveau d'Arrêt</p>
+                <p class="text-2xl font-black text-blue-600 mt-2">{{ editableSession.stopLevel || 'EXPERT' }}</p>
+                <span class="material-icons-outlined absolute -right-4 -bottom-4 text-6xl opacity-5 text-blue-900">flag</span>
+             </div>
+             <div class="p-6 bg-slate-900 rounded-[32px] border border-slate-900 flex flex-col justify-between shadow-2xl shadow-slate-900/20">
+                <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">Mode Système</p>
+                <div class="flex items-center gap-2 mt-2">
+                   <div :class="['w-2 h-2 rounded-full animate-pulse', editableSession.isP3Mode ? 'bg-amber-400' : 'bg-blue-400']"></div>
+                   <p class="text-xs font-black text-white uppercase">{{ editableSession.isP3Mode ? 'Profil P3' : 'Standard' }}</p>
+                </div>
+             </div>
+          </div>
 
-          <!-- Parrainage -->
-          <section v-if="editableSession.parrainNom || editableSession.parrainPrenom || editableSession.parrainEmail || editableSession.parrainTelephone" class="mb-10">
-            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Informations de Parrainage</h4>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 bg-sky-50/30 p-6 rounded-[24px] border border-sky-50">
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Parrain / Marraine</p>
-                <p class="font-bold text-sm">
-                  {{ editableSession.parrainPrenom }} {{ editableSession.parrainNom }}
-                </p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Email Parrain</p>
-                <p class="font-bold text-sm">{{ editableSession.parrainEmail || "N/A" }}</p>
-              </div>
-              <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Téléphone Parrain</p>
-                <p class="font-bold text-sm">{{ editableSession.parrainTelephone || "N/A" }}</p>
-              </div>
-            </div>
-          </section>
-
-          <!-- Bilan Niveau -->
-          <section>
-            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Résultats du Bilan</h4>
-            <div class="bg-blue-50/50 p-6 rounded-[24px] border border-blue-50 flex items-center justify-between">
-              <div>
-                <p class="font-black text-xl text-blue-900 mb-1">
-                  Score Global :
-                  <template v-if="processedData">
-                    <span class="ml-2">{{ processedData.scorePretest }}%</span>
-                    <span v-if="processedData.scorePretest !== editableSession.scorePretest" class="ml-2 text-[10px] text-gray-400 line-through">({{ editableSession.scorePretest }}%)</span>
-                  </template>
-                  <input
-                    v-else
-                    v-model.number="editableSession.scorePretest"
-                    type="number"
-                    min="0"
-                    max="100"
-                    class="w-20 inline-block ml-2 px-2 py-1 text-sm font-black rounded-lg border border-blue-200 bg-white focus:outline-none focus:border-brand-primary"
-                  />
-                  <span v-if="!processedData">%</span>
-                </p>
-                <div class="flex items-center gap-4 mt-2">
-                  <div class="flex flex-col">
-                    <span class="text-[9px] uppercase font-black text-blue-400 tracking-widest">Recommandation</span>
-                    <p class="text-xs font-bold text-gray-700">
-                      {{ processedData ? processedData.recommendation : (editableSession.finalRecommendation || "Non définie") }}
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Left Side: Professional & Referral Info -->
+            <div class="lg:col-span-1 space-y-10">
+              <!-- Contact Detail -->
+              <section class="space-y-6">
+                <div class="flex items-center gap-2">
+                   <div class="w-1.5 h-6 bg-brand-primary rounded-full"></div>
+                   <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-tight">Coordonnées</h4>
+                </div>
+                <div class="space-y-4">
+                  <div class="space-y-1">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone Direct</label>
+                    <p class="p-4 bg-slate-50 rounded-2xl font-bold text-slate-800 text-sm flex items-center gap-3">
+                       <span class="material-icons-outlined text-slate-300 text-sm">phone</span>
+                       {{ editableSession.telephone || "NON RENSEIGNÉ" }}
                     </p>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Conseiller MBL</label>
+                    <div class="relative">
+                      <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm">support_agent</span>
+                      <input v-model="editableSession.conseiller" class="w-full pl-11 pr-5 py-4 bg-white border border-slate-100 rounded-2xl font-black text-xs uppercase outline-none focus:ring-2 focus:ring-brand-primary/20 shadow-inner" placeholder="Aucun conseiller..." />
+                    </div>
                   </div>
                 </div>
-                <p class="text-xs font-bold text-blue-600">
-                  Statut : {{ editableSession.isCompleted ? "Terminé" : "En cours" }}
-                </p>
-              </div>
-              <div class="text-right space-y-2">
-                 <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Niveau Atteint</p>
-                 <input
-                   v-model="editableSession.stopLevel"
-                   class="inline-block mt-1 px-4 py-2 bg-white text-brand-primary font-black rounded-xl shadow-sm border border-blue-100 focus:outline-none focus:border-brand-primary"
-                 />
-                 <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mt-3">Dernier niveau validé</p>
-                 <input
-                   v-model="editableSession.lastValidatedLevel"
-                   class="inline-block mt-1 px-4 py-2 bg-white text-blue-900 font-black rounded-xl shadow-sm border border-blue-100 focus:outline-none focus:border-brand-primary"
-                 />
-              </div>
+              </section>
+
+              <!-- Business Context -->
+              <section class="space-y-6">
+                 <div class="flex items-center gap-2">
+                   <div class="w-1.5 h-6 bg-slate-900 rounded-full"></div>
+                   <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-tight">Profil métier</h4>
+                </div>
+                <div class="p-6 bg-white border border-slate-100 rounded-[32px] shadow-inner space-y-6">
+                   <div class="space-y-2">
+                      <p class="text-[9px] font-black text-slate-400 uppercase">Activité / Poste</p>
+                      <p class="text-xs font-black text-slate-900 flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm opacity-30">work</span>
+                        {{ editableSession.metier || 'NON DÉFINI' }}
+                      </p>
+                   </div>
+                   <div class="space-y-2">
+                      <p class="text-[9px] font-black text-slate-400 uppercase">Situation Actuelle</p>
+                      <div class="flex flex-wrap gap-2">
+                         <template v-if="editableSession.situation?.length">
+                           <span v-for="s in editableSession.situation" :key="s" class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase">{{ s }}</span>
+                         </template>
+                         <span v-else class="text-[10px] italic text-slate-300">Aucune précision...</span>
+                      </div>
+                   </div>
+                </div>
+              </section>
+
+              <!-- Referral Section -->
+              <section v-if="editableSession.parrainNom" class="space-y-6">
+                <div class="flex items-center gap-2">
+                   <div class="w-1.5 h-6 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)]"></div>
+                   <h4 class="text-[11px] font-black text-emerald-600 uppercase tracking-tight">Compte Partage (Referral)</h4>
+                </div>
+                <div class="p-6 bg-emerald-50/50 border border-emerald-100 rounded-[32px] space-y-5">
+                   <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-xs">
+                        {{ editableSession.parrainPrenom?.[0] }}{{ editableSession.parrainNom?.[0] }}
+                      </div>
+                      <div>
+                        <p class="text-xs font-black text-emerald-700 leading-none">{{ editableSession.parrainPrenom }} {{ editableSession.parrainNom }}</p>
+                        <p class="text-[9px] font-bold text-emerald-600/60 uppercase mt-0.5">Contact Référent</p>
+                      </div>
+                   </div>
+                   <div class="space-y-2 text-[11px] font-black text-emerald-700/80 uppercase tracking-tighter">
+                      <p class="flex items-center gap-2"><span class="material-icons-outlined text-sm opacity-40">alternate_email</span> {{ editableSession.parrainEmail }}</p>
+                      <p class="flex items-center gap-2"><span class="material-icons-outlined text-sm opacity-40">phone_iphone</span> {{ editableSession.parrainTelephone }}</p>
+                   </div>
+                </div>
+              </section>
             </div>
-            <div class="mt-4">
-              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Recommandation finale</p>
-              <input
-                v-model="editableSession.finalRecommendation"
-                class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-gray-200 bg-white focus:border-brand-primary outline-none"
-              />
+
+            <!-- Right Side: Assessment Details -->
+            <div class="lg:col-span-2 space-y-10">
+              <!-- Summary Recommandation -->
+              <section class="p-8 bg-slate-900 border border-slate-900 rounded-[40px] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
+                 <p class="text-[10px] font-black text-white/30 uppercase tracking-[.25em] mb-4">Recommandation Stratégique</p>
+                 <div class="relative z-10">
+                   <p class="text-xl font-black text-white leading-relaxed italic" v-html="formatBoldText(processedData ? processedData.recommendation : editableSession.finalRecommendation || 'Analyse en cours...')"></p>
+                 </div>
+                 <span class="material-icons-outlined absolute -right-8 -bottom-8 text-[160px] opacity-[.03] text-white">auto_awesome</span>
+              </section>
+
+              <!-- Evaluation Drilldown -->
+              <section class="space-y-6">
+                <div class="flex items-center justify-between">
+                   <div class="flex items-center gap-2">
+                     <div class="w-1.5 h-6 bg-brand-primary rounded-full"></div>
+                     <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-tight">Audit des Épreuves</h4>
+                   </div>
+                   <span class="px-3 py-1 bg-slate-50 text-slate-400 rounded-lg text-[8px] font-black uppercase">Détails Interactifs</span>
+                </div>
+
+                <div class="space-y-4">
+                  <!-- Prerequis Block -->
+                  <div v-if="processedData?.filteredPrerequis" class="bg-white border border-slate-100 rounded-[32px] overflow-hidden">
+                    <div class="px-8 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Étape 01 : Pré-requis Formation</p>
+                       <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    </div>
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div v-for="(ans, qid) in processedData.filteredPrerequis" :key="qid" class="p-5 p-5 bg-slate-50 rounded-[24px] border border-slate-100 transition-all hover:shadow-inner">
+                          <p class="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-tight line-clamp-2 min-h-[3.2em]">{{ getQuestionLabel(qid) }}</p>
+                          <p class="text-xs font-black text-slate-900">{{ Array.isArray(ans) ? ans.join(', ') : ans }}</p>
+                       </div>
+                    </div>
+                  </div>
+
+                  <!-- Levels Block -->
+                  <div v-if="editableSession.levelsScores" class="space-y-3">
+                     <div v-for="(data, lv) in editableSession.levelsScores" :key="lv" class="bg-white border border-slate-100 rounded-[32px] overflow-hidden group">
+                        <button @click="toggleExpandedLevel(lv)" class="w-full px-8 py-6 flex items-center justify-between hover:bg-slate-50/50 transition-all text-left">
+                           <div class="flex items-center gap-5">
+                              <div class="w-12 h-12 rounded-[18px] flex items-center justify-center font-black shadow-lg shadow-current/5 transition-all group-hover:scale-110" :class="data.validated ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-100 text-slate-300'">
+                                 <span class="material-icons-outlined text-xl">{{ data.validated ? 'verified' : 'cancel_schedule_send' }}</span>
+                              </div>
+                              <div class="space-y-0.5">
+                                 <p class="text-sm font-black text-slate-900">{{ lv }}</p>
+                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Score épreuve : {{ data.score }} / {{ data.total }}</p>
+                              </div>
+                           </div>
+                           <div class="flex items-center gap-4">
+                              <div :class="['px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border', data.validated ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100']">
+                                 {{ data.validated ? 'Validé' : 'Non Validé' }}
+                              </div>
+                              <span class="material-icons-outlined text-slate-200 group-hover:text-slate-900 transition-all" :class="{ 'rotate-180': expandedLevel === lv }">expand_more</span>
+                           </div>
+                        </button>
+                        
+                        <div v-if="expandedLevel === lv" class="px-8 pb-8 pt-0 animate-slide-in">
+                           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                              <template v-if="editableSession.positionnementAnswers?.[lv]">
+                                <div v-for="(ans, qid) in editableSession.positionnementAnswers[lv]" :key="qid" class="p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
+                                  <p class="text-[9px] font-black text-slate-400 uppercase mb-1 leading-tight">{{ getQuestionLabel(qid) }}</p>
+                                  <p class="text-[11px] font-black text-slate-800">{{ Array.isArray(ans) ? ans.join(', ') : ans }}</p>
+                                </div>
+                              </template>
+                              <div v-else class="col-span-2 py-10 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                                 <span class="material-icons-outlined text-gray-200 text-4xl mb-2">find_in_page</span>
+                                 <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Détails de réponses non synchronisés</p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Additional / Complementary Info Box -->
+                  <div v-if="processedData?.filteredComplementaryAnswers || processedData?.filteredAvailabilities || editableSession.miseANiveauAnswers" class="bg-indigo-50/30 border border-indigo-100 rounded-[40px] p-10 space-y-10 shadow-sm shadow-indigo-500/5">
+                     
+                     <div v-if="processedData?.filteredComplementaryAnswers">
+                        <div class="flex items-center gap-3 mb-6">
+                           <span class="material-icons-outlined text-indigo-500 text-lg">psychology</span>
+                           <p class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Informations Complémentaires</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div v-for="(ans, qid) in processedData.filteredComplementaryAnswers" :key="qid" class="p-6 bg-white rounded-[24px] border border-indigo-100 shadow-sm shadow-indigo-200/10">
+                              <p class="text-[9px] font-black text-indigo-400 uppercase mb-2 tracking-tight">{{ getQuestionLabel(qid) }}</p>
+                              <p class="text-xs font-black text-indigo-900">{{ Array.isArray(ans) ? ans.join(', ') : ans }}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div v-if="editableSession.miseANiveauAnswers" class="pt-6 border-t border-indigo-100">
+                        <div class="flex items-center gap-3 mb-6">
+                           <span class="material-icons-outlined text-indigo-500 text-lg">trending_up</span>
+                           <p class="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Données Mise à Niveau</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div v-for="(ans, qid) in editableSession.miseANiveauAnswers" :key="qid" class="p-6 bg-white rounded-[24px] border border-indigo-100 shadow-sm shadow-indigo-200/10">
+                              <p class="text-[9px] font-black text-indigo-400 uppercase mb-2 tracking-tight">{{ getQuestionLabel(qid) }}</p>
+                              <p class="text-xs font-black text-indigo-900">{{ Array.isArray(ans) ? ans.join(', ') : ans }}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                  </div>
+                </div>
+              </section>
             </div>
-          </section>
+          </div>
 
-          <!-- Détails additionnels (tableaux) -->
-          <section
-            v-if="editableSession.prerequisiteScore || editableSession.levelsScores || editableSession.complementaryQuestions || editableSession.availabilities || editableSession.miseANiveauAnswers || processedData?.filteredMiseAnswers"
-          >
-            <h4 class="text-brand-primary font-black uppercase tracking-widest text-[10px] mb-4">Données Complémentaires</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-               
-               <!-- Score Pré-requis -->
-               <div v-if="(processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore) && Object.keys(processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Score Pré-requis</p>
-                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in (processedData ? processedData.filteredPrerequis : editableSession.prerequisiteScore)" :key="key">
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
-                            {{ getQuestionLabel(Number(key)) }}
-                          </td>
-                          <td class="px-4 py-2">
-                            <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
-                            <template v-else>
-                              <textarea
-                                v-if="Array.isArray(editableSession.prerequisiteScore[key])"
-                                :value="editableSession.prerequisiteScore[key].join(', ')"
-                                @input="editableSession.prerequisiteScore[key] = $event.target.value.split(',').map(s => s.trim())"
-                                class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                rows="2"
-                              ></textarea>
-                              <textarea
-                                v-else
-                                v-model="editableSession.prerequisiteScore[key]"
-                                class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                rows="2"
-                              ></textarea>
-                            </template>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+          <!-- Technical Footer -->
+          <div class="pt-12 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-6">
+               <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                  <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Création : {{ formatDate(editableSession.createdAt) }}</p>
                </div>
-
-               <!-- Scores par niveau -->
-               <div v-if="editableSession.levelsScores" class="bg-gray-50 p-6 rounded-[24px]">
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Scores par niveau</p>
-                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Niveau</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Score</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Seuil</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Validé</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr
-                          v-for="(entry, level) in editableSession.levelsScores"
-                          :key="level"
-                          class="cursor-pointer hover:bg-gray-50/80"
-                          @click="toggleExpandedLevel(level)"
-                        >
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">{{ level }}</td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            <div class="flex items-center gap-1" @click.stop>
-                              <input type="number" v-model.number="entry.score" class="w-16 px-2 py-1 border border-gray-200 rounded-lg outline-none focus:border-brand-primary text-xs text-center bg-white" />
-                              <span>/ {{ entry?.total }}</span>
-                            </div>
-                          </td>
-                          <td class="px-4 py-3 text-xs text-gray-600">
-                            {{ entry?.requiredCorrect ?? '—' }}
-                          </td>
-                          <td class="px-4 py-3 text-xs" @click.stop>
-                            <label class="cursor-pointer relative inline-flex items-center">
-                              <input type="checkbox" v-model="entry.validated" class="sr-only peer" />
-                              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                            </label>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div
-                    v-if="editableSession.positionnementAnswers && expandedLevel && editableSession.positionnementAnswers[expandedLevel]"
-                    class="mt-4 bg-white rounded-xl border border-gray-100 overflow-hidden"
-                  >
-                    <p class="px-4 pt-4 pb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                      Réponses détaillées - Niveau {{ expandedLevel }}
-                    </p>
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr
-                          v-for="(val, key) in editableSession.positionnementAnswers[expandedLevel]"
-                          :key="key"
-                        >
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
-                            {{ getQuestionLabel(Number(key)) }}
-                          </td>
-                          <td class="px-4 py-2">
-                            <textarea
-                              v-if="Array.isArray(editableSession.positionnementAnswers[expandedLevel][key])"
-                              :value="editableSession.positionnementAnswers[expandedLevel][key].join(', ')"
-                              @input="editableSession.positionnementAnswers[expandedLevel][key] = $event.target.value.split(',').map(s => s.trim())"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
-                            <textarea
-                              v-else
-                              v-model="editableSession.positionnementAnswers[expandedLevel][key]"
-                              class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                              rows="2"
-                            ></textarea>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-               </div>
-
-               <!-- Questions Complémentaires -->
-               <div v-if="(processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions) && Object.keys(processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Questions Complémentaires</p>
-                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in (processedData ? processedData.filteredComplementaryAnswers : editableSession.complementaryQuestions)" :key="key">
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
-                            {{ getQuestionLabel(Number(key)) }}
-                          </td>
-                          <td class="px-4 py-2">
-                             <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
-                             <template v-else>
-                                <textarea
-                                  v-if="Array.isArray(editableSession.complementaryQuestions[key])"
-                                  :value="editableSession.complementaryQuestions[key].join(', ')"
-                                  @input="editableSession.complementaryQuestions[key] = $event.target.value.split(',').map(s => s.trim())"
-                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                  rows="2"
-                                ></textarea>
-                                <textarea
-                                  v-else
-                                  v-model="editableSession.complementaryQuestions[key]"
-                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                  rows="2"
-                                ></textarea>
-                             </template>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-               </div>
-
-               <!-- Disponibilités -->
-               <div v-if="(processedData ? processedData.filteredAvailabilities : editableSession.availabilities) && Object.keys(processedData ? processedData.filteredAvailabilities : editableSession.availabilities).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">Disponibilités</p>
-                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in (processedData ? processedData.filteredAvailabilities : editableSession.availabilities)" :key="key">
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
-                            {{ getQuestionLabel(Number(key)) }}
-                          </td>
-                          <td class="px-4 py-2">
-                             <span v-if="processedData" class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
-                             <template v-else>
-                                <textarea
-                                  v-if="Array.isArray(editableSession.availabilities[key])"
-                                  :value="editableSession.availabilities[key].join(', ')"
-                                  @input="editableSession.availabilities[key] = $event.target.value.split(',').map(s => s.trim())"
-                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                  rows="2"
-                                ></textarea>
-                                <textarea
-                                  v-else
-                                  v-model="editableSession.availabilities[key]"
-                                  class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg outline-none focus:border-brand-primary bg-white text-gray-700"
-                                  rows="2"
-                                ></textarea>
-                             </template>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-               </div>
-
-               <!-- Mise à niveau -->
-               <div v-if="(processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers) && Object.keys(processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers).length > 0" class="bg-gray-50 p-6 rounded-[24px]">
-                  <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-2">{{ processedData ? processedData.miseTitle : 'Mise à niveau' }}</p>
-                  <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left">
-                      <thead class="bg-gray-50/60">
-                        <tr>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Question</th>
-                          <th class="px-4 py-3 text-[9px] font-black uppercase tracking-widest text-gray-400">Réponse</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-50">
-                        <tr v-for="(val, key) in (processedData ? processedData.filteredMiseAnswers : editableSession.miseANiveauAnswers)" :key="key">
-                          <td class="px-4 py-3 text-xs font-bold text-gray-700">
-                            {{ getQuestionLabel(Number(key)) }}
-                          </td>
-                          <td class="px-4 py-2">
-                             <span class="text-xs font-bold text-gray-600">{{ Array.isArray(val) ? val.join(', ') : val }}</span>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-               </div>
-
+               <button @click="exportSessionDetails(editableSession)" class="text-[10px] font-black text-slate-300 hover:text-slate-900 transition-colors uppercase tracking-widest flex items-center gap-2 group">
+                 <span class="material-icons-outlined text-sm group-hover:rotate-12 transition-transform">terminal</span>
+                 RAW JSON
+               </button>
             </div>
-          </section>
+            
+            <div class="flex items-center gap-3">
+               <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Export Rapide :</span>
+               <button @click="downloadPdf(editableSession)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 transition-all flex items-center justify-center shadow-sm">
+                 <span class="material-icons-outlined text-lg">picture_as_pdf</span>
+               </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1062,17 +854,30 @@ function toggleExpandedLevel(level) {
 </template>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
+.font-outfit { font-family: "Outfit", sans-serif; }
+.animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-scale-up { animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+select { background-image: none; }
 </style>

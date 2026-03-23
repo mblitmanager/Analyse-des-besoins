@@ -10,8 +10,8 @@ async function check() {
     await client.connect();
     console.log('Connected to PostgreSQL');
     
-    // Check settings
-    const res = await client.query('SELECT key, value FROM "settings"');
+    // Check values
+    const res = await client.query('SELECT id, slug, label, "enableLowScoreWarning" FROM "formations"');
     console.log(JSON.stringify(res.rows, null, 2));
     
     await client.end();

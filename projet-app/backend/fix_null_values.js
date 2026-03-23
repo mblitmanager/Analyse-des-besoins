@@ -10,9 +10,9 @@ async function check() {
     await client.connect();
     console.log('Connected to PostgreSQL');
     
-    // Check settings
-    const res = await client.query('SELECT key, value FROM "settings"');
-    console.log(JSON.stringify(res.rows, null, 2));
+    // Update any NULL values to true
+    const updateRes = await client.query('UPDATE "formations" SET "enableLowScoreWarning" = true WHERE "enableLowScoreWarning" IS NULL');
+    console.log(`Updated ${updateRes.rowCount} formations with NULL enableLowScoreWarning.`);
     
     await client.end();
   } catch (err) {
