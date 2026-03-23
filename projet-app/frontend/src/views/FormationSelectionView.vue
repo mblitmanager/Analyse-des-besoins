@@ -254,6 +254,16 @@ const sections = computed(() => {
   const langs = map.get('anglais-francais') || [];
   const creation = map.get('illustration') || [];
   const ia = map.get('ia-generative') || [];
+  let iaGrp = [];
+  if (ia.length > 0) {
+    iaGrp = [{
+      id: 'iag-group',
+      label: 'Intelligence Artificielle Générative',
+      icon: 'smart_toy',
+      isIAGroup: true,
+      children: ia
+    }];
+  }
   const digcompGroup = map.get('digcomp-google-wordpress') || [];
 
   return [
@@ -268,7 +278,7 @@ const sections = computed(() => {
       hidden: bureauItems.length === 0
     },
     { key: 'langues', title: 'Langues', items: langs, style: sectionStyles.langues },
-    { key: 'creation', title: 'Création', items: [...creation, ...ia], style: sectionStyles.creation },
+    { key: 'creation', title: 'Création', items: [...creation, ...iaGrp], style: sectionStyles.creation },
     { key: 'internet', title: 'Internet', items: digcompGroup, style: sectionStyles.internet },
   ].filter(s => !s.hidden);
 });
@@ -376,8 +386,24 @@ function selectBureau(form, suite) {
 
         <!-- Selected Formation Feedback (prominent inline banner) -->
         <div ref="inlineBannerRef" class="mt-12">
-          <transition name="fade-slide">
-            <div v-if="selectedFormation" 
+          <transition name="fade-slide" mode="out-in">
+            <div v-if="selectedFormation && selectedFormation.isIAGroup"
+                 class="p-6 md:p-8 rounded-3xl border-2 flex flex-col items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden bg-white"
+                 :style="{ borderColor: selectedAccent.accent + '40', boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25` }">
+               <h3 class="text-xl md:text-2xl font-black text-[#0d1b3e] text-center mb-2">Choisissez votre outil de spécialisation IA :</h3>
+               <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-2xl">
+                 <button v-for="child in selectedFormation.children" :key="child.id"
+                         @click="selectedFormation = child; selectedSuite=''"
+                         class="flex-1 p-4 rounded-xl border-2 hover:bg-slate-50 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
+                         :style="{ borderColor: selectedAccent.accent + '60' }"
+                 >
+                   <span class="material-icons-outlined text-xl" :style="{ color: selectedAccent.accent }">{{ child.icon || 'smart_toy' }}</span>
+                   <span class="text-lg">{{ child.label }}</span>
+                 </button>
+               </div>
+            </div>
+
+            <div v-else-if="selectedFormation" 
                  class="p-6 md:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden" 
                  :style="{ 
                    backgroundColor: 'white',
@@ -411,7 +437,7 @@ function selectBureau(form, suite) {
         <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12">
           <button
             @click="selectFormation"
-            :disabled="submitting || !selectedFormation"
+            :disabled="submitting || !selectedFormation || selectedFormation.isIAGroup"
             class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
@@ -427,7 +453,7 @@ function selectBureau(form, suite) {
     <!-- Sticky Bottom Bar - apparaît quand la bannière inline sort du viewport -->
     <transition name="sticky-slide">
       <div
-        v-if="selectedFormation && showStickyBar"
+        v-if="selectedFormation && !selectedFormation.isIAGroup && showStickyBar"
         class="fixed bottom-0 left-0 right-0 z-50 px-4 py-3 shadow-2xl"
         :style="{ backgroundColor: selectedAccent.accentBg || '#eff6ff', borderTop: `2px solid ${selectedAccent.accent}30` }"
       >
