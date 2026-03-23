@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, DeepPartial, IsNull } from 'typeorm';
+import { Repository, FindOptionsWhere, DeepPartial, IsNull, In, DataSource } from 'typeorm';
 import { Question } from '../entities/question.entity';
 import { Formation } from '../entities/formation.entity';
 import { Level } from '../entities/level.entity';
@@ -20,7 +20,15 @@ export class QuestionsService {
     private formationRepo: Repository<Formation>,
     @InjectRepository(Level)
     private levelRepo: Repository<Level>,
+    private dataSource: DataSource,
   ) {}
+
+  /** Reset the questions PK sequence to MAX(id)+1 to avoid duplicate key errors */
+  private async resetSequence() {
+    await this.dataSource.query(
+      `SELECT setval(pg_get_serial_sequence('questions', 'id'), COALESCE((SELECT MAX(id) FROM questions), 0) + 1, false)`,
+    );
+  }
 
   async findQuestions(
     type: string,
@@ -184,6 +192,7 @@ export class QuestionsService {
   }
 
   async create(data: QuestionPayload) {
+    await this.resetSequence();
     const {
       formationId,
       levelId,
@@ -355,6 +364,57 @@ export class QuestionsService {
     return { success: true };
   }
 
+  async bulkUpdate(ids: number[], data: Partial<Question>) {
+    if (!ids || ids.length === 0) return { success: false };
+    // Using query builder for more robust bulk update
+    await this.questionRepo
+      .createQueryBuilder()
+      .update(Question)
+      .set(data as any)
+      .whereInIds(ids)
+      .execute();
+    return { success: true };
+  }
+
+  async bulkRemove(ids: number[]) {
+    if (!ids || ids.length === 0) return { success: false };
+    const questions = await this.questionRepo.find({ where: { id: In(ids) } });
+    if (questions.length > 0) {
+      // Cleanup dependencies for each question
+      for (const q of questions) {
+        await this.cleanupDependencies(q.id);
+      }
+      await this.questionRepo.remove(questions);
+    }
+    return { success: true };
+  }
+
+  private async cleanupDependencies(id: number) {
+    // 1. Clear simple showIfQuestionId dependencies
+    await this.questionRepo.update(
+      { showIfQuestionId: id },
+      {
+        showIfQuestionId: null,
+        showIfResponseIndexes: null,
+        showIfResponseValue: null,
+      } as any,
+    );
+
+    // 2. Cleanup showIfRules (JSON array)
+    const allWithRules = await this.questionRepo.find();
+    for (const q of allWithRules) {
+      if (q.showIfRules && Array.isArray(q.showIfRules)) {
+        const originalLength = q.showIfRules.length;
+        q.showIfRules = q.showIfRules.filter(
+          (rule) => Number(rule.questionId) !== Number(id),
+        );
+        if (originalLength !== q.showIfRules.length) {
+          await this.questionRepo.save(q);
+        }
+      }
+    }
+  }
+
   async getIsUsed(id: number) {
     // 1. Check showIfQuestionId
     const countLegacy = await this.questionRepo.count({
@@ -381,34 +441,76 @@ export class QuestionsService {
     return false;
   }
 
+  async duplicate(
+    ids: number[],
+    targetFormationId: number | null,
+    targetLevelId: number | null,
+  ) {
+    if (!ids || ids.length === 0) return { success: false, count: 0 };
+    await this.resetSequence();
+
+    const sources = await this.questionRepo.find({
+      where: { id: In(ids) },
+      relations: ['formation', 'level'],
+    });
+
+    // Compute the next order value in the target scope once
+    const whereForOrder: FindOptionsWhere<Question> = {};
+    if (targetFormationId) {
+      whereForOrder.formation = { id: targetFormationId };
+    }
+    if (targetLevelId) {
+      whereForOrder.level = { id: targetLevelId };
+    }
+    const lastInScope = await this.questionRepo.findOne({
+      where: whereForOrder,
+      order: { order: 'DESC' },
+    });
+    let nextOrder = (lastInScope?.order ?? 0) + 1;
+
+    const created: Question[] = [];
+    for (const src of sources) {
+      try {
+        const clone = this.questionRepo.create({
+          text: src.text,
+          options: src.options ? [...src.options] : [],
+          correctResponseIndex: src.correctResponseIndex ?? 0,
+          correctResponseIndexes: src.correctResponseIndexes
+            ? [...src.correctResponseIndexes]
+            : null,
+          type: src.type,
+          responseType: src.responseType || 'qcm',
+          category: src.category || null,
+          icon: src.icon || null,
+          metadata: src.metadata ? { ...src.metadata } : null,
+          isActive: src.isActive ?? true,
+          order: nextOrder++,
+          formation: targetFormationId
+            ? ({ id: targetFormationId } as DeepPartial<Formation>)
+            : null,
+          level: targetLevelId
+            ? ({ id: targetLevelId } as DeepPartial<Level>)
+            : null,
+          // showIfRules are NOT duplicated — they reference source-specific question IDs
+          showIfQuestionId: null,
+          showIfResponseIndexes: null,
+          showIfResponseValue: null,
+          showIfRules: null,
+          showIfOperator: 'OR',
+        } as unknown as DeepPartial<Question>);
+        created.push(await this.questionRepo.save(clone));
+      } catch (err) {
+        console.error(`Failed to duplicate question ${src.id}:`, err);
+      }
+    }
+
+    return { success: true, count: created.length };
+  }
+
   async remove(id: number) {
     const question = await this.questionRepo.findOne({ where: { id } });
     if (question) {
-      // 1. Clear simple showIfQuestionId dependencies
-      await this.questionRepo.update({ showIfQuestionId: id }, {
-        showIfQuestionId: null,
-        showIfResponseIndexes: null,
-        showIfResponseValue: null,
-      } as any);
-
-      // 2. Cleanup showIfRules (JSON array)
-      const allWithRules = await this.questionRepo.find();
-
-      for (const q of allWithRules) {
-        if (q.showIfRules && Array.isArray(q.showIfRules)) {
-          const originalLength = q.showIfRules.length;
-          q.showIfRules = q.showIfRules.filter(
-            (rule) => Number(rule.questionId) !== Number(id),
-          );
-
-          if (originalLength !== q.showIfRules.length) {
-            // If all rules were removed, TypeORM might prefer an empty array or null
-            // We'll use an empty array if that was the intended type
-            await this.questionRepo.save(q);
-          }
-        }
-      }
-
+      await this.cleanupDependencies(id);
       // 3. Remove the question itself
       await this.questionRepo.remove(question);
       return true;

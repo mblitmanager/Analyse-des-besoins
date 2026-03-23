@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
-import SiteHeader from "../../components/SiteHeader.vue";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const rules = ref([]);
@@ -9,6 +8,7 @@ const workflows = ref([]);
 const questions = ref([]);
 const formations = ref([]);
 const loading = ref(true);
+const token = localStorage.getItem("admin_token");
 
 onMounted(async () => {
   await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions(), fetchFormations()]);
@@ -17,7 +17,7 @@ onMounted(async () => {
 
 async function fetchRules() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/question-rules`);
+    const res = await axios.get(`${apiBaseUrl}/question-rules`, { headers: { Authorization: `Bearer ${token}` } });
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch question rules:", error);
@@ -26,7 +26,7 @@ async function fetchRules() {
 
 async function fetchWorkflows() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/workflow`);
+    const res = await axios.get(`${apiBaseUrl}/workflow`, { headers: { Authorization: `Bearer ${token}` } });
     workflows.value = res.data;
   } catch (error) {
     console.error("Failed to fetch workflows:", error);
@@ -35,7 +35,7 @@ async function fetchWorkflows() {
 
 async function fetchQuestions() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/questions`);
+    const res = await axios.get(`${apiBaseUrl}/questions`, { headers: { Authorization: `Bearer ${token}` } });
     questions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
@@ -44,7 +44,7 @@ async function fetchQuestions() {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { headers: { Authorization: `Bearer ${token}` } });
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -57,9 +57,7 @@ const selectedQuestion = computed(() => {
 });
 
 const isMultiSelectValue = ref(false);
-
-const showAddModal = ref(false);
-const showEditModal = ref(false);
+const showModal = ref(false);
 const editingRule = ref(null);
 const ruleForm = ref({
   workflow: "",
@@ -88,46 +86,39 @@ function openAddModal() {
     order: rules.value.length,
   };
   editingRule.value = null;
-  showAddModal.value = true;
+  isMultiSelectValue.value = false;
+  showModal.value = true;
 }
 
 function openEditModal(rule) {
   editingRule.value = { ...rule };
   ruleForm.value = { ...rule };
-  // Check if expectedValue looks like a comma-separated list
   isMultiSelectValue.value = String(rule.expectedValue || "").includes(",");
-  showEditModal.value = true;
-}
-
-function closeModals() {
-  showAddModal.value = false;
-  showEditModal.value = false;
-  editingRule.value = null;
+  showModal.value = true;
 }
 
 async function saveRule() {
   try {
-    // Format questionId if necessary
     const payload = { ...ruleForm.value };
     if (!payload.questionId) payload.questionId = null;
 
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload);
+      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
     } else {
-      await axios.post(`${apiBaseUrl}/question-rules`, payload);
+      await axios.post(`${apiBaseUrl}/question-rules`, payload, { headers: { Authorization: `Bearer ${token}` } });
     }
     await fetchRules();
-    closeModals();
+    showModal.value = false;
   } catch (error) {
     console.error("Failed to save rule:", error);
-    alert("Erreur lors de l'enregistrement de la règle.");
+    alert("Erreur lors de l'enregistrement.");
   }
 }
 
 async function deleteRule(id) {
-  if (!confirm("Voulez-vous vraiment supprimer cette règle ?")) return;
+  if (!confirm("Supprimer cette règle ?")) return;
   try {
-    await axios.delete(`${apiBaseUrl}/question-rules/${id}`);
+    await axios.delete(`${apiBaseUrl}/question-rules/${id}`, { headers: { Authorization: `Bearer ${token}` } });
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -136,320 +127,248 @@ async function deleteRule(id) {
 
 async function toggleRuleActive(rule) {
   try {
-    rule.isActive = !rule.isActive;
-    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, {
-      isActive: rule.isActive,
-    });
+    const newState = !rule.isActive;
+    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, { isActive: newState }, { headers: { Authorization: `Bearer ${token}` } });
+    rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule active status:", error);
-    rule.isActive = !rule.isActive; // revert on failure
   }
 }
 
-// Helper to find question text
 function getQuestionText(id) {
   if (!id) return "Toutes les questions";
   const q = questions.value.find((q) => q.id === id);
-  return q ? q.text : `Question ID: ${id}`;
+  return q ? q.text : `ID: ${id}`;
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F0F4F8] font-outfit">
-    <SiteHeader />
-
-    <main class="max-w-7xl mx-auto px-4 py-8">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-3xl font-extrabold text-[#0d1b3e] mb-2">Gestion des Règles Questions</h1>
-          <p class="text-gray-500">
-            Créez des scénarios personnalisés (ex: afficher un message spécifique si la réponse de l'utilisateur à la question X est "Non").
-          </p>
-        </div>
-        <button
-          @click="openAddModal"
-          class="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-xl font-bold hover:bg-brand-secondary shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
-        >
-          <span class="material-icons-outlined">add</span>
-          Nouvelle Règle
-        </button>
+  <div class="space-y-8 animate-fade-in font-outfit">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Règles Conditionnelles</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Personnalisez l'expérience utilisateur selon les réponses aux questions
+        </p>
       </div>
+      <button
+        @click="openAddModal"
+        class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95"
+      >
+        <span class="material-icons-outlined text-sm">add_circle</span>
+        Nouvelle Règle
+      </button>
+    </div>
 
-      <div v-if="loading" class="flex justify-center py-20">
-        <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"></div>
-      </div>
+    <!-- Main Content -->
+    <div v-if="loading" class="py-24 flex justify-center"><div class="w-8 h-8 rounded-full border-2 border-slate-200 border-t-brand-primary animate-spin"></div></div>
 
-      <div v-else class="bg-white rounded-4xl shadow-xl overflow-hidden border border-white">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-gray-50/50 border-b border-gray-100">
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400">Ordre</th>
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400">Workflow</th>
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400">Question</th>
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400">Condition</th>
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400 w-1/4">Résultat</th>
-                <th class="p-6 text-xs font-black uppercase tracking-widest text-gray-400 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                v-for="rule in rules"
-                :key="rule.id"
-                class="hover:bg-gray-50/50 transition-colors"
-                :class="{ 'opacity-50 grayscale': !rule.isActive }"
-              >
-                <td class="p-6 font-bold text-gray-800">{{ rule.order }}</td>
-                <td class="p-6">
-                  <span class="px-3 py-1 bg-blue-50 text-brand-primary rounded-lg text-xs font-bold font-mono">
-                    {{ rule.workflow }}
-                  </span>
-                </td>
-                <td class="p-6 text-sm text-gray-600">
-                  <div class="line-clamp-2" :title="getQuestionText(rule.questionId)">
-                    {{ getQuestionText(rule.questionId) }}
-                  </div>
-                </td>
-                <td class="p-6">
-                  <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs">
-                    <span class="font-mono text-gray-500">{{ rule.operator }}</span>
-                    <span class="font-bold text-gray-800 bg-white px-2 py-0.5 rounded shadow-sm">
-                      "{{ rule.expectedValue }}"
-                    </span>
-                  </div>
-                </td>
-                <td class="p-6">
-                  <div class="text-xs font-bold text-brand-primary mb-1">{{ rule.resultType }}</div>
-                  <div class="text-sm text-gray-600 line-clamp-2" :title="rule.resultMessage">
-                    {{ rule.resultMessage }}
-                  </div>
-                </td>
-                <td class="p-6">
-                  <div class="flex items-center justify-center gap-2">
-                    <button
-                      @click="toggleRuleActive(rule)"
-                      class="p-2 rounded-lg transition-colors border"
-                      :class="rule.isActive ? 'text-green-600 bg-green-50 border-green-100 hover:bg-green-100' : 'text-gray-400 bg-gray-50 border-gray-100 hover:bg-gray-100'"
-                      title="Activer/Désactiver"
-                    >
-                      <span class="material-icons-outlined text-sm">
-                        {{ rule.isActive ? 'toggle_on' : 'toggle_off' }}
-                      </span>
-                    </button>
-                    <button
-                      @click="openEditModal(rule)"
-                      class="p-2 text-brand-primary hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                      title="Modifier"
-                    >
-                      <span class="material-icons-outlined text-sm">edit</span>
-                    </button>
-                    <button
-                      @click="deleteRule(rule.id)"
-                      class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                      title="Supprimer"
-                    >
-                      <span class="material-icons-outlined text-sm">delete_outline</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="rules.length === 0">
-                <td colspan="6" class="p-12 text-center text-gray-400 font-medium">
-                  Aucune règle configurée pour le moment.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-
-    <!-- Modal (Add/Edit) -->
-    <div v-if="showAddModal || showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-[#0d1b3e]/40 backdrop-blur-sm" @click="closeModals"></div>
-      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-        <div class="p-6 md:p-8 border-b border-gray-100 shrink-0">
-          <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-black heading-primary">
-              {{ editingRule ? 'Modifier la règle' : 'Nouvelle règle' }}
-            </h2>
-            <button @click="closeModals" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
-              <span class="material-icons-outlined">close</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="p-6 md:p-8 overflow-y-auto">
-          <form @submit.prevent="saveRule" class="space-y-6">
-            <!-- Workflow & Ordre -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Workflow Cible</label>
-                <select v-model="ruleForm.workflow" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary focus:bg-white outline-none transition-colors text-sm font-bold text-gray-800">
-                  <option value="" disabled>Sélectionner un workflow</option>
-                  <option v-for="wf in workflows" :key="wf.id" :value="wf.code.toLowerCase()">{{ wf.name }} ({{ wf.code }})</option>
-                  <option value="prerequis">Prérequis (Interne)</option>
-                  <option value="mise_a_niveau">Mise à niveau (Interne)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Ordre de priorité</label>
-                <input v-model.number="ruleForm.order" type="number" required class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary focus:bg-white outline-none transition-colors text-sm font-bold text-gray-800" />
-              </div>
-            </div>
-
-            <!-- Formation Association -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Formation (Facultatif)</label>
-                <select 
-                  v-model.number="ruleForm.formationId" 
-                  @change="(e) => {
-                    const f = formations.find(f => f.id === Number(e.target.value));
-                    ruleForm.formation = f ? f.label : '';
-                  }"
-                  class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800"
-                >
-                  <option :value="null">-- Toutes les formations (Global) --</option>
-                  <option v-for="f in formations" :key="f.id" :value="f.id">{{ f.label }}</option>
-                </select>
-              </div>
-              <div v-if="ruleForm.formationId" class="flex items-end">
-                <div class="px-4 py-3 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 w-full text-center">
-                  Règle spécifique à {{ ruleForm.formation }}
+    <div v-else class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50/50 border-b border-slate-50">
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest w-16">Ordre</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Scope</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Question Cible</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Déclencheur</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Résultat Automate</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr v-for="rule in rules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="!rule.isActive ? 'opacity-40 grayscale' : ''">
+              <td class="px-8 py-6">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order }}</div>
+              </td>
+              <td class="px-8 py-6">
+                 <div class="flex flex-col gap-1">
+                   <span class="px-2 py-1 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-md w-fit shadow-inner">{{ rule.workflow }}</span>
+                   <span v-if="rule.formation" class="text-[8px] font-bold text-slate-400 uppercase truncate max-w-[120px]" :title="rule.formation">{{ rule.formation }}</span>
+                 </div>
+              </td>
+              <td class="px-8 py-6 max-w-xs">
+                 <div class="text-[11px] font-bold text-slate-900 leading-tight line-clamp-2" :title="getQuestionText(rule.questionId)">
+                   {{ getQuestionText(rule.questionId) }}
+                 </div>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="px-1.5 py-0.5 bg-slate-100 text-slate-400 text-[8px] font-black rounded-md">{{ rule.operator }}</span>
+                  <span class="px-2 py-1 bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-black rounded-lg">"{{ rule.expectedValue }}"</span>
                 </div>
+              </td>
+              <td class="px-8 py-6">
+                <div class="space-y-1">
+                  <span class="px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 text-[8px] font-black uppercase rounded-lg">{{ rule.resultType }}</span>
+                  <p class="text-[10px] font-bold text-slate-500 line-clamp-1" :title="rule.resultMessage">{{ rule.resultMessage }}</p>
+                </div>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center justify-end gap-2 shrink-0">
+                  <button @click="toggleRuleActive(rule)" class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-slate-900 hover:bg-white transition-all flex items-center justify-center">
+                    <span class="material-icons-outlined text-sm">{{ rule.isActive ? 'visibility' : 'visibility_off' }}</span>
+                  </button>
+                  <button @click="openEditModal(rule)" class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-brand-primary hover:bg-white transition-all flex items-center justify-center">
+                    <span class="material-icons-outlined text-sm">edit</span>
+                  </button>
+                  <button @click="deleteRule(rule.id)" class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-rose-600 hover:bg-white transition-all flex items-center justify-center">
+                    <span class="material-icons-outlined text-sm">delete_outline</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="rules.length === 0">
+              <td colspan="6" class="py-24 text-center">
+                 <div class="flex flex-col items-center justify-center text-slate-300">
+                   <span class="material-icons-outlined text-5xl mb-3 opacity-10">rule</span>
+                   <p class="text-[10px] font-black uppercase tracking-widest">Aucune règle définie</p>
+                 </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div v-if="showModal" class="fixed inset-0 z-60 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm animate-fade-in" @click="showModal = false"></div>
+      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl relative overflow-hidden animate-scale-up max-h-[90vh] flex flex-col">
+        
+        <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
+          <div>
+            <h3 class="text-2xl font-black text-slate-900">{{ editingRule ? "Modifier" : "Nouvelle" }} Règle</h3>
+            <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Actions conditionnelles sur questions</p>
+          </div>
+          <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 p-2 bg-slate-50 rounded-xl transition-all">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+          <form @submit.prevent="saveRule" id="ruleForm" class="space-y-8">
+            <!-- Basic info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Scope du Workflow</label>
+                <select v-model="ruleForm.workflow" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm appearance-none shadow-sm capitalize">
+                  <option value="" disabled>Choisir...</option>
+                  <option v-for="wf in workflows" :key="wf.id" :value="wf.code.toLowerCase()">{{ wf.name }}</option>
+                  <option value="prerequis">Prérequis (Interne)</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Priorité (Ordre)</label>
+                <input v-model.number="ruleForm.order" type="number" required class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm shadow-sm" />
               </div>
             </div>
 
-            <!-- Question Selection -->
-            <div>
-              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Question Concernée</label>
-              <select v-model.number="ruleForm.questionId" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:border-brand-primary focus:bg-white outline-none transition-colors text-sm font-bold text-gray-800 max-h-40">
-                <option :value="null">-- Toutes les questions du workflow (non recommandé pour les conditions spécifiques) --</option>
+            <!-- Formation filter -->
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Limiter à une formation</label>
+              <select 
+                v-model.number="ruleForm.formationId" 
+                @change="(e) => {
+                  const f = formations.find(f => f.id === Number(e.target.value));
+                  ruleForm.formation = f ? f.label : '';
+                }"
+                class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm appearance-none shadow-sm"
+              >
+                <option :value="null">-- Règle Globale (Toutes formations) --</option>
+                <option v-for="f in formations" :key="f.id" :value="f.id">{{ f.label }}</option>
+              </select>
+            </div>
+
+            <!-- Question selection -->
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Question déclencheur</label>
+              <select v-model.number="ruleForm.questionId" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white rounded-xl outline-none transition-all font-bold text-sm appearance-none shadow-sm">
+                <option :value="null">-- Toutes les questions du scope --</option>
                 <option v-for="q in questions.filter(q => (!ruleForm.workflow || q.type === ruleForm.workflow) && q.isActive !== false)" :key="q.id" :value="q.id">
-                  ID: {{ q.id }} - {{ q.text }}
+                  ID: {{ q.id }} — {{ q.text.substring(0, 80) }}...
                 </option>
               </select>
             </div>
 
-            <!-- Condition -->
-            <div class="p-5 bg-blue-50/50 rounded-2xl border border-blue-100/50 space-y-4 relative">
-              <span class="absolute -top-2.5 -left-2.5 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">Si</span>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Opérateur</label>
-                  <select v-model="ruleForm.operator" required class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm">
-                    <option value="EQUALS">Est égal à (=)</option>
-                    <option value="CONTAINS">Contient</option>
-                    <option value="LESS_THAN">Est inférieur à (<)</option>
-                    <option value="GREATER_THAN">Est supérieur à (>)</option>
-                  </select>
-                </div>
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400">Valeur Attendue</label>
-                    <button 
-                      v-if="selectedQuestion?.options?.length > 0"
-                      type="button" 
-                      @click="isMultiSelectValue = !isMultiSelectValue"
-                      class="text-[9px] font-bold uppercase tracking-widest text-brand-primary hover:underline"
-                    >
-                      {{ isMultiSelectValue ? 'Valeur unique' : 'Plusieurs valeurs (OU)' }}
-                    </button>
+            <!-- Condition Details -->
+            <div class="p-6 bg-slate-50 rounded-[32px] border border-slate-100 space-y-6">
+               <h5 class="text-[9px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                 <span class="w-2 h-2 rounded-full bg-blue-500"></span> Déclencheur Conditionnel
+               </h5>
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div class="space-y-1">
+                   <label class="text-[9px] font-bold text-slate-400 uppercase px-1">Opération</label>
+                   <select v-model="ruleForm.operator" required class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none">
+                     <option value="EQUALS">Strictement égal à</option>
+                     <option value="CONTAINS">Contient la valeur</option>
+                     <option value="LESS_THAN">Inférieur à</option>
+                     <option value="GREATER_THAN">Supérieur à</option>
+                   </select>
+                 </div>
+                 <div class="space-y-1">
+                    <div class="flex items-center justify-between px-1">
+                      <label class="text-[9px] font-bold text-slate-400 uppercase">Valeur cible</label>
+                      <button v-if="selectedQuestion?.options?.length" type="button" @click="isMultiSelectValue = !isMultiSelectValue" class="text-[8px] font-black text-brand-primary uppercase underline">Modale multiple</button>
+                    </div>
+                    
+                    <div v-if="selectedQuestion?.options?.length && isMultiSelectValue" class="space-y-2 mt-2">
+                       <div class="flex flex-wrap gap-2 p-3 bg-white rounded-xl border border-slate-100 max-h-32 overflow-y-auto">
+                          <label v-for="opt in selectedQuestion.options" :key="opt" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer" :class="String(ruleForm.expectedValue).split(',').includes(opt) ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'">
+                             <input type="checkbox" class="hidden" :value="opt" :checked="String(ruleForm.expectedValue).split(',').includes(opt)" @change="(e) => {
+                                let cur = ruleForm.expectedValue ? String(ruleForm.expectedValue).split(',') : [];
+                                if (e.target.checked) cur.push(opt);
+                                else cur = cur.filter(v => v !== opt);
+                                ruleForm.expectedValue = cur.filter(v=>v).join(',');
+                             }" />
+                             {{ opt }}
+                          </label>
+                       </div>
+                    </div>
+                    <select v-else-if="selectedQuestion?.options?.length" v-model="ruleForm.expectedValue" required class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none">
+                      <option v-for="opt in selectedQuestion.options" :key="opt" :value="opt">{{ opt }}</option>
+                    </select>
+                    <input v-else v-model="ruleForm.expectedValue" required placeholder="Valeur brute..." class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none" />
+                 </div>
+               </div>
+            </div>
+
+            <!-- Result Actions -->
+            <div class="p-6 bg-amber-50/50 rounded-[32px] border border-amber-100 space-y-6">
+               <h5 class="text-[9px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                 <span class="w-2 h-2 rounded-full bg-amber-500"></span> Action en sortie
+               </h5>
+               <div class="space-y-4">
+                  <div class="space-y-1">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase px-1">Type d'action</label>
+                    <select v-model="ruleForm.resultType" required class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none">
+                      <option value="CUSTOM_MESSAGE">Afficher un message (Toast/Modal)</option>
+                      <option value="FORMATION_RECOMMENDATION">Recommander une formation spécifique</option>
+                      <option value="BLOCK">Bloquer la progression immédiate</option>
+                    </select>
                   </div>
-
-                  <!-- Multi-select for options -->
-                  <div v-if="selectedQuestion?.options?.length > 0 && isMultiSelectValue" class="flex flex-wrap gap-2 p-3 bg-white border border-gray-100 rounded-xl max-h-32 overflow-y-auto">
-                    <label 
-                      v-for="opt in selectedQuestion.options" 
-                      :key="opt"
-                      class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
-                      :class="ruleForm.expectedValue?.split(',').includes(opt) ? 'bg-brand-primary text-white' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'"
-                    >
-                      <input 
-                        type="checkbox" 
-                        class="hidden" 
-                        :value="opt" 
-                        :checked="ruleForm.expectedValue?.split(',').includes(opt)"
-                        @change="(e) => {
-                          let current = ruleForm.expectedValue ? ruleForm.expectedValue.split(',') : [];
-                          if (e.target.checked) current.push(opt);
-                          else current = current.filter(v => v !== opt);
-                          ruleForm.expectedValue = current.filter(v => v).join(',');
-                        }"
-                      />
-                      {{ opt }}
-                    </label>
+                  <div v-if="ruleForm.resultType !== 'BLOCK'" class="space-y-1">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase px-1">Contenu de l'action (Valeur / Texte)</label>
+                    <div v-if="ruleForm.resultType === 'FORMATION_RECOMMENDATION' && formations.length">
+                       <select v-model="ruleForm.resultMessage" required class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none">
+                         <option value="DigComp Initial & Word Initial">Standard Initial (DigComp & Word)</option>
+                         <option v-for="f in formations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                       </select>
+                    </div>
+                    <textarea v-else v-model="ruleForm.resultMessage" rows="3" placeholder="Informations transmises à l'automate..." class="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl font-bold text-xs outline-none shadow-sm"></textarea>
                   </div>
-
-                  <!-- Single select for options -->
-                  <select 
-                    v-else-if="selectedQuestion?.options?.length > 0" 
-                    v-model="ruleForm.expectedValue" 
-                    required 
-                    class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"
-                  >
-                    <option value="" disabled>Choisir une option</option>
-                    <option v-for="opt in selectedQuestion.options" :key="opt" :value="opt">{{ opt }}</option>
-                  </select>
-
-                  <!-- Direct input -->
-                  <input v-else v-model="ruleForm.expectedValue" type="text" placeholder="Ex: Non" class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm" />
-                </div>
-              </div>
-              <p v-if="isMultiSelectValue" class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">
-                💡 Plusieurs valeurs sélectionnées : la règle s'appliquera si la réponse est l'une d'entre elles.
-              </p>
-            </div>
-
-            <!-- Résultat -->
-            <div class="p-5 bg-orange-50/50 rounded-2xl border border-orange-100/50 space-y-4 relative">
-              <span class="absolute -top-2.5 -left-2.5 w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold text-xs material-icons-outlined text-[12px]!">arrow_forward</span>
-              <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Type de Résultat</label>
-                <select v-model="ruleForm.resultType" required class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm">
-                  <option value="CUSTOM_MESSAGE">Afficher un message spécifique</option>
-                  <option value="FORMATION_RECOMMENDATION">Recommander une formation (ex: DigComp Initial)</option>
-                  <option value="BLOCK">Bloquer la progression</option>
-                </select>
-                <p v-if="ruleForm.resultType === 'FORMATION_RECOMMENDATION'" class="mt-2 text-[10px] text-orange-600 font-bold uppercase tracking-wider">
-                  ⚠️ Indiquez le label exact de la formation cible (ex: "DigComp Initial & Word Initial")
-                </p>
-              </div>
-              <div v-if="ruleForm.resultType !== 'BLOCK'">
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
-                  {{ ruleForm.resultType === 'FORMATION_RECOMMENDATION' ? 'Formation Recommandée' : 'Message personnalisé' }}
-                </label>
-                
-                <select 
-                  v-if="ruleForm.resultType === 'FORMATION_RECOMMENDATION'" 
-                  v-model="ruleForm.resultMessage" 
-                  required 
-                  class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"
-                >
-                  <option value="" disabled>Sélectionner une formation</option>
-                  <option value="DigComp Initial & Word Initial">Parcours Initial Standard (DigComp Initial & Word Initial)</option>
-                  <option v-for="f in formations" :key="f.id" :value="f.label">{{ f.label }}</option>
-                </select>
-
-                <textarea v-else v-model="ruleForm.resultMessage" rows="3" placeholder="Texte à afficher à l'utilisateur..." class="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl focus:border-brand-primary outline-none transition-colors text-sm font-bold text-gray-800 shadow-sm"></textarea>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 pt-2">
-              <input type="checkbox" id="isActive" v-model="ruleForm.isActive" class="w-4 h-4 text-brand-primary rounded border-gray-300 focus:ring-brand-primary" />
-              <label for="isActive" class="text-sm font-bold text-gray-700 cursor-pointer">Activer cette règle immédiatement</label>
-            </div>
-
-            <div class="pt-6 border-t border-gray-100 flex gap-4">
-              <button type="button" @click="closeModals" class="flex-1 px-6 py-4 bg-gray-50 text-gray-600 font-bold rounded-xl hover:bg-gray-100 transition-colors">
-                Annuler
-              </button>
-              <button type="submit" class="flex-1 px-6 py-4 bg-brand-primary text-white font-bold rounded-xl shadow-lg shadow-brand-primary/20 hover:bg-brand-secondary transition-all active:scale-95">
-                Enregistrer la règle
-              </button>
+               </div>
             </div>
           </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-10 py-8 bg-slate-50/50 border-t border-slate-50 flex items-center justify-end gap-3 sticky bottom-0 z-10">
+          <button @click="showModal = false" class="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-100 transition-all">Annuler</button>
+          <button form="ruleForm" type="submit" class="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95">
+            {{ editingRule ? "Sauvegarder" : "Créer la règle" }}
+          </button>
         </div>
       </div>
     </div>
@@ -457,10 +376,12 @@ function getQuestionText(id) {
 </template>
 
 <style scoped>
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-.heading-primary {
-  color: #0d1b3e;
-}
+.font-outfit { font-family: "Outfit", sans-serif; }
+.animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-scale-up { animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleUp { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+select { background-image: none; }
 </style>

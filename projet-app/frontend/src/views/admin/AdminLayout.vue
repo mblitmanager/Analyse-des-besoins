@@ -21,9 +21,7 @@ const navItems = [
   { label: "Dashboard", icon: "dashboard", route: "/admin/dashboard" },
   { label: "Sessions", icon: "assignment", route: "/admin/sessions" },
   { label: "Questions", icon: "quiz", route: "/admin/questions" },
-  // { label: "Conseillers", icon: "badge", route: "/admin/contacts" },
   { label: "Formations", icon: "school", route: "/admin/formations" },
-  { label: "Parcours", icon: "route", route: "/admin/parcours" },
   { label: "Règles Questions", icon: "rule", route: "/admin/question-rules" },
   { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
   { label: "Administrateurs", icon: "group", route: "/admin/users" },
@@ -32,99 +30,108 @@ const navItems = [
 </script>
 
 <template>
-  <div class="flex min-h-screen font-outfit">
+  <div class="flex min-h-screen font-outfit bg-slate-50">
     <!-- Backdrop for mobile -->
     <div
       v-if="isSidebarOpen"
       @click="isSidebarOpen = false"
-      class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+      class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
     ></div>
 
     <!-- Sidebar -->
     <aside
-      class="w-72 bg-white border-r border-gray-100 flex flex-col fixed inset-y-0 shadow-lg shadow-blue-900/5 transition-transform duration-300 z-50 lg:translate-x-0"
+      class="sidebar w-64 flex flex-col fixed inset-y-0 z-50 transition-transform duration-300 lg:translate-x-0"
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
-      <div class="p-8">
-        <div class="flex items-center justify-between mb-10">
-          <div class="flex items-center gap-3">
-            <AppLogo class="w-10 h-10" />
+      <!-- Logo Area -->
+      <div class="flex items-center justify-between px-6 py-6 border-b border-white/5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-brand-primary/20 flex items-center justify-center">
+            <AppLogo class="w-5 h-5" />
           </div>
-          <button @click="isSidebarOpen = false" class="lg:hidden text-gray-400 hover:text-gray-600">
-            <span class="material-icons-outlined">close</span>
-          </button>
+          <span class="text-white font-black text-sm tracking-wide">WiziLearn</span>
         </div>
-
-        <nav class="space-y-2">
-          <router-link
-            v-for="item in navItems"
-            :key="item.route"
-            :to="item.route"
-            class="flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all group"
-            :class="
-              $route.path === item.route
-                ? 'bg-brand-primary text-[#428496] shadow-lg shadow-brand-primary/30'
-                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-            "
-          >
-            <span class="material-icons-outlined">{{ item.icon }}</span>
-            <span class="text-sm tracking-wide">{{ item.label }}</span>
-          </router-link>
-        </nav>
+        <button @click="isSidebarOpen = false" class="lg:hidden text-white/40 hover:text-white transition-colors">
+          <span class="material-icons-outlined text-sm">close</span>
+        </button>
       </div>
 
-      <div class="mt-auto p-8">
-        <div class="bg-gray-50 rounded-3xl p-6 mb-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"
-            >
-              <span class="material-icons-outlined text-blue-600">person</span>
-            </div>
-              <div>
-              <p
-                class="text-xs font-black heading-primary truncate max-w-[120px]"
-              >
-                {{ auth.user?.email }}
-              </p>
-              <p
-                class="text-[8px] font-black text-gray-400 uppercase tracking-widest"
-              >
-                Administrator
-              </p>
-            </div>
-          </div>
-          <button
-            @click="logout"
-            class="w-full py-3 bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
-          >
-            Déconnexion
-          </button>
+      <!-- Nav -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <div class="px-3 mb-3">
+          <p class="text-[9px] font-black text-white/30 uppercase tracking-widest">Navigation</p>
         </div>
+        <router-link
+          v-for="item in navItems"
+          :key="item.route"
+          :to="item.route"
+          class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition-all"
+          :class="
+            $route.path === item.route
+              ? 'nav-item-active'
+              : 'text-white/50 hover:text-white hover:bg-white/5'
+          "
+        >
+          <span class="material-icons-outlined text-[20px]">{{ item.icon }}</span>
+          <span class="tracking-wide">{{ item.label }}</span>
+          <span v-if="$route.path === item.route" class="ml-auto w-1.5 h-1.5 rounded-full bg-brand-primary"></span>
+        </router-link>
+      </nav>
+
+      <!-- User area -->
+      <div class="p-4 border-t border-white/5">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 mb-3">
+          <div class="w-8 h-8 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary font-black text-xs shrink-0">
+            {{ auth.user?.email?.[0]?.toUpperCase() }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-white text-xs font-black truncate">{{ auth.user?.email }}</p>
+            <p class="text-white/30 text-[9px] font-bold uppercase tracking-widest">Administrateur</p>
+          </div>
+        </div>
+        <button
+          @click="logout"
+          class="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-red-400 hover:bg-red-400/10 flex items-center justify-center gap-2"
+        >
+          <span class="material-icons-outlined text-sm">logout</span>
+          Déconnexion
+        </button>
       </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 lg:ml-72 p-6 lg:p-10 min-h-screen">
-      <!-- Top header for mobile -->
-      <header class="flex lg:hidden items-center justify-between mb-8 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-gray-100 shadow-sm sticky top-4 z-30">
+    <main class="flex-1 lg:ml-64 min-h-screen">
+      <!-- Mobile top bar -->
+      <header class="flex lg:hidden items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div class="flex items-center gap-3">
-          <AppLogo class="w-8 h-8" />
-          <span class="font-black text-xs uppercase tracking-widest text-[#428496]">WiziLearn</span>
+          <AppLogo class="w-7 h-7" />
+          <span class="font-black text-xs uppercase tracking-widest text-slate-700">WiziLearn</span>
         </div>
-        <button @click="isSidebarOpen = true" class="p-2 bg-gray-50 rounded-xl text-gray-500 hover:bg-brand-primary hover:text-[#428496] transition-all">
+        <button @click="isSidebarOpen = true" class="p-2 bg-slate-50 rounded-xl text-slate-500 hover:bg-brand-primary/10 hover:text-brand-primary transition-all">
           <span class="material-icons-outlined">menu</span>
         </button>
       </header>
 
-      <router-view></router-view>
+      <div class="p-6 lg:p-8">
+        <router-view></router-view>
+      </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-
 .font-outfit {
   font-family: "Outfit", sans-serif;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-item-active {
+  background: rgba(99, 179, 237, 0.12);
+  color: #90cdf4;
+  box-shadow: inset 3px 0 0 #3b82f6;
 }
 </style>

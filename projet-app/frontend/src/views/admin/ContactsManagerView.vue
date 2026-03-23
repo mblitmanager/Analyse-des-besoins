@@ -77,12 +77,11 @@ async function saveContact() {
     await fetchContacts();
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
-    console.error(error);
   }
 }
 
 async function deleteContact(id) {
-  if (!confirm("Êtes-vous sûr de vouloir supprimer ce conseiller ?")) return;
+  if (!confirm("Supprimer ce conseiller ?")) return;
   try {
     await axios.delete(`${apiBaseUrl}/contacts/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -90,7 +89,6 @@ async function deleteContact(id) {
     await fetchContacts();
   } catch (error) {
     alert("Erreur lors de la suppression");
-    console.error(error);
   }
 }
 
@@ -104,273 +102,161 @@ async function toggleStatus(contact) {
     );
     contact.isActive = newStatus;
   } catch (error) {
-    console.error("Failed to update contact status:", error);
-    alert("Erreur lors de la mise à jour du statut.");
+    console.error("Failed to update status:", error);
   }
 }
+
+const getInitials = (contact) => {
+  return `${contact.prenom?.[0] || ''}${contact.nom?.[0] || ''}`.toUpperCase();
+};
 
 onMounted(fetchContacts);
 </script>
 
 <template>
-  <div class="p-6 md:p-10 max-w-6xl mx-auto font-outfit">
-    <div
-      class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10"
-    >
-      <div>
-        <h1 class="text-3xl font-extrabold heading-primary mb-2 tracking-tight">
-          Gestion des Conseillers
-        </h1>
-        <p class="text-gray-400">
-          Gérez la liste des conseillers en formation et leur visibilité.
+  <div class="space-y-8 animate-fade-in font-outfit">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Conseillers Formation</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Gestion des contacts et conseillers référents de la plateforme
         </p>
       </div>
       <button
         @click="openAddModal"
-        class="px-8 py-4 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-105 transition-all"
+        class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 transform active:scale-95"
       >
-        <span class="material-icons-outlined">add</span>
+        <span class="material-icons-outlined text-sm">person_add_alt</span>
         Nouveau Conseiller
       </button>
     </div>
 
-    <div v-if="loading" class="flex justify-center py-20">
-      <div
-        class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
-      ></div>
-    </div>
+    <!-- Main Table -->
+    <div v-if="loading" class="py-24 flex justify-center"><div class="w-8 h-8 rounded-full border-2 border-slate-200 border-t-brand-primary animate-spin"></div></div>
 
-    <div
-      v-else
-      class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
-    >
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+    <div v-else class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left">
           <thead>
-            <tr class="bg-gray-50/50 border-b border-gray-100">
-              <th
-                class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest"
-              >
-                Conseiller
-              </th>
-              <th
-                class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest"
-              >
-                Email / Tel
-              </th>
-              <th
-                class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-center"
-              >
-                Statut
-              </th>
-              <th
-                class="px-6 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest text-right"
-              >
-                Actions
-              </th>
+            <tr class="bg-slate-50/50 border-b border-slate-50">
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Identité du Conseiller</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Coordonnées Directes</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">État</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
-            <tr
-              v-for="contact in contacts"
-              :key="contact.id"
-              class="hover:bg-gray-50 transition-colors group"
-            >
-              <td class="px-6 py-5">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-sm"
-                  >
-                    {{ contact.prenom?.[0] }}{{ contact.nom?.[0] }}
+          <tbody class="divide-y divide-slate-50">
+            <tr v-for="contact in contacts" :key="contact.id" class="group hover:bg-slate-50/50 transition-all" :class="!contact.isActive ? 'opacity-40 grayscale' : ''">
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shadow-lg group-hover:scale-110 transition-transform">
+                    {{ getInitials(contact) }}
                   </div>
-                  <div>
-                    <div class="text-sm font-bold heading-primary">
-                      {{ contact.prenom }} {{ contact.nom }}
-                    </div>
-                    <div
-                      class="text-[10px] font-bold text-gray-300 uppercase tracking-widest"
-                    >
-                      {{ contact.conseiller || "CONSEILLER" }}
-                    </div>
+                  <div class="space-y-0.5">
+                    <p class="text-[13px] font-black text-slate-900 leading-tight">{{ contact.civilite }} {{ contact.prenom }} {{ contact.nom }}</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ contact.conseiller || 'Conseiller' }}</p>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-5">
-                <div class="text-sm font-medium text-gray-600">
-                  {{ contact.email || "N/A" }}
-                </div>
-                <div class="text-xs text-gray-300">
-                  {{ contact.telephone || "N/A" }}
-                </div>
-              </td>
-              <td class="px-6 py-5 text-center">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"
-                  :class="
-                    contact.isActive !== false
-                      ? 'bg-green-50 text-green-600'
-                      : 'bg-red-50 text-red-600'
-                  "
-                >
-                  {{ contact.isActive !== false ? "Actif" : "Inactif" }}
-                </span>
-              </td>
-              <td
-                class="px-6 py-5 text-right flex items-center justify-end gap-2"
-              >
-                <button
-                  @click="toggleStatus(contact)"
-                  class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border"
-                  :class="
-                    contact.isActive !== false
-                      ? 'border-red-100 text-red-500 hover:bg-red-50'
-                      : 'border-green-100 text-green-600 hover:bg-green-50'
-                  "
-                >
-                  {{ contact.isActive !== false ? "Désactiver" : "Activer" }}
-                </button>
-                <div
-                  class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <button
-                    @click="openEditModal(contact)"
-                    class="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all"
-                  >
-                    <span class="material-icons-outlined text-sm">edit</span>
-                  </button>
-                  <button
-                    @click="deleteContact(contact.id)"
-                    class="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all"
-                  >
-                    <span class="material-icons-outlined text-sm">delete</span>
-                  </button>
+              <td class="px-8 py-6">
+                <div class="space-y-1">
+                   <div class="flex items-center gap-2 text-slate-600">
+                     <span class="material-icons-outlined text-[14px] opacity-40">mail</span>
+                     <span class="text-xs font-bold">{{ contact.email || '—' }}</span>
+                   </div>
+                   <div class="flex items-center gap-2 text-slate-400">
+                     <span class="material-icons-outlined text-[14px] opacity-40">phone</span>
+                     <span class="text-[11px] font-bold">{{ contact.telephone || '—' }}</span>
+                   </div>
                 </div>
               </td>
+              <td class="px-8 py-6 text-center">
+                 <span class="inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all" :class="contact.isActive !== false ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50' : 'bg-rose-50 text-rose-600 border border-rose-100/50'">
+                    {{ contact.isActive !== false ? 'Actif' : 'Inactif' }}
+                 </span>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center justify-end gap-2 pr-2">
+                   <button @click="toggleStatus(contact)" class="w-10 h-10 rounded-2xl border border-slate-100 text-slate-300 hover:text-slate-900 hover:bg-white transition-all flex items-center justify-center shrink-0">
+                     <span class="material-icons-outlined text-sm">{{ contact.isActive ? 'visibility' : 'visibility_off' }}</span>
+                   </button>
+                   <button @click="openEditModal(contact)" class="w-10 h-10 rounded-2xl border border-slate-100 text-slate-300 hover:text-brand-primary hover:bg-white transition-all flex items-center justify-center shrink-0">
+                     <span class="material-icons-outlined text-sm">edit</span>
+                   </button>
+                   <button @click="deleteContact(contact.id)" class="w-10 h-10 rounded-2xl border border-slate-100 text-slate-300 hover:text-rose-600 hover:bg-white transition-all flex items-center justify-center shrink-0">
+                     <span class="material-icons-outlined text-sm">delete_outline</span>
+                   </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="contacts.length === 0">
+               <td colspan="4" class="py-24 text-center">
+                  <div class="flex flex-col items-center justify-center text-slate-300">
+                     <span class="material-icons-outlined text-5xl mb-3 opacity-10">sensor_occupied</span>
+                     <p class="text-[10px] font-black uppercase tracking-widest">Aucun conseiller référencé</p>
+                  </div>
+               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Modal -->
-      <div
-        v-if="showModal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      >
-      <div
-        class="absolute inset-0 overlay-dark backdrop-blur-sm"
-        @click="showModal = false"
-      ></div>
-      <div
-        class="bg-white rounded-[40px] shadow-2xl w-full max-w-xl relative overflow-hidden animate-scale-up"
-      >
-        <div class="p-10 space-y-8">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-2xl font-black heading-primary">
-                {{ editingContact ? "Modifier" : "Ajouter" }} un Conseiller
-              </h3>
-              <p
-                class="text-gray-400 text-xs font-bold uppercase tracking-widest"
-              >
-                Informations du conseiller en formation
-              </p>
-            </div>
-            <button
-              @click="showModal = false"
-              class="text-gray-300 hover:text-gray-600 transition-colors"
-            >
-              <span class="material-icons-outlined">close</span>
-            </button>
+    <!-- Modal Form (Unified Refinement) -->
+    <div v-if="showModal" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-fade-in" @click="showModal = false"></div>
+      <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-xl relative overflow-hidden animate-scale-up">
+        
+        <div class="px-10 py-10 border-b border-slate-50 text-center">
+          <div class="w-16 h-16 bg-slate-900 rounded-2xl mx-auto flex items-center justify-center text-white shadow-2xl shadow-slate-900/40 mb-4">
+             <span class="material-icons-outlined text-2xl">badge</span>
           </div>
+          <h3 class="text-2xl font-black text-slate-900 tracking-tight">{{ editingContact ? "Édition du Profil" : "Nouveau Conseiller" }}</h3>
+          <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Informations de contact référent</p>
+        </div>
 
+        <div class="p-10">
           <form @submit.prevent="saveContact" class="space-y-6">
-            <div class="space-y-2">
-                <label
-                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >Civilité</label
-                >
-                <select
-                  v-model="form.civilite"
-                   class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-                  required
-                >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Civilité</label>
+                <select v-model="form.civilite" required class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner">
                   <option value="Mr.">Monsieur</option>
                   <option value="Mme.">Madame</option>
                 </select>
-            </div>
-            <div class="grid grid-cols-2 gap-6">
-              <div class="space-y-2">
-                <label
-                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >Prénom</label
-                >
-                <input
-                  v-model="form.prenom"
-                  placeholder="Prénom"
-                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-                  required
-                />
               </div>
-              <div class="space-y-2">
-                <label
-                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >Nom</label
-                >
-                <input
-                  v-model="form.nom"
-                  placeholder="Nom"
-                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-                  required
-                />
+              <div class="md:col-span-2 space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Titre Professionnel</label>
+                <input v-model="form.conseiller" placeholder="ex: Responsable Pédagogique" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner" />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label
-                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >Email</label
-                >
-                <input
-                  v-model="form.email"
-                  type="email"
-                  placeholder="email@exemple.com"
-                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-                />
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Prénom</label>
+                <input v-model="form.prenom" required placeholder="Jean" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner" />
               </div>
               <div class="space-y-2">
-                <label
-                  class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                  >Téléphone</label
-                >
-                <input
-                  v-model="form.telephone"
-                  placeholder="06..."
-                  class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-                />
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nom</label>
+                <input v-model="form.nom" required placeholder="DUPONT" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner" />
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label
-                class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1"
-                >Titre / Rôle</label
-              >
-              <input
-                v-model="form.conseiller"
-                placeholder="Conseiller en formation"
-                class="w-full px-6 py-4 bg-gray-50 border border-transparent focus:border-brand-primary focus:bg-white rounded-2xl outline-none transition-all font-bold text-sm"
-              />
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email</label>
+                <input v-model="form.email" type="email" placeholder="jean.dupont@mbl.com" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner" />
+              </div>
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone</label>
+                <input v-model="form.telephone" placeholder="06 00 00 00 00" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all shadow-inner" />
+              </div>
             </div>
 
-            <div class="pt-4">
-              <button
-                type="submit"
-                class="w-full py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                Enregistrer le Conseiller
-              </button>
+            <div class="flex gap-4 pt-4">
+              <button type="button" @click="showModal = false" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">Annuler</button>
+              <button type="submit" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-all transform active:scale-95">Valider le Profil</button>
             </div>
           </form>
         </div>
@@ -380,23 +266,12 @@ onMounted(fetchContacts);
 </template>
 
 <style scoped>
-
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-
-.animate-scale-up {
-  animation: scaleUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
+.font-outfit { font-family: "Outfit", sans-serif; }
+.animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-scale-up { animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleUp { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+select { background-image: none; }
 </style>
