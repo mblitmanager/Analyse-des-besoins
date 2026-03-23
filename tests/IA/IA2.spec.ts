@@ -40,31 +40,31 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Valider mon profil" }).click();
   await page.getByRole("button", { name: "star Intelligence" }).click();
   await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  // await page.locator(".option-card__radio").first().click();
-  // await page.locator("label").filter({ hasText: "Jamais utilisé" }).click();
-  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  // await page
-  //   .locator("div")
-  //   .filter({ hasText: "quizQuel est l’objectif de" })
-  //   .nth(5)
-  //   .click();
-  // await page
-  //   .getByRole("combobox")
-  //   .selectOption(
-  //     "Je vise un emploi pour lequel de nouvelles compétences me seront utiles",
-  //   );
-  // await page.locator("label").first().click();
-  // await page
-  //   .locator(
-  //     "div:nth-child(3) > .space-y-3 > .grid > label > .option-card__radio",
-  //   )
-  //   .first()
-  //   .click();
-  // await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
-  // await page.getByText("Après-midi").click();
-  // await page
-  //   .getByRole("button", { name: "Valider mes disponibilités" })
-    // .click();
+  await page.locator(".option-card__radio").first().click();
+  await page.locator("label").filter({ hasText: "Jamais utilisé" }).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page
+    .locator("div")
+    .filter({ hasText: "quizQuel est l’objectif de" })
+    .nth(5)
+    .click();
+  await page
+    .getByRole("combobox")
+    .selectOption(
+      "Je vise un emploi pour lequel de nouvelles compétences me seront utiles",
+    );
+  await page.locator("label").first().click();
+  await page
+    .locator(
+      "div:nth-child(3) > .space-y-3 > .grid > label > .option-card__radio",
+    )
+    .first()
+    .click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page.getByText("Après-midi").click();
+  await page
+    .getByRole("button", { name: "Valider mes disponibilités" })
+    .click();
   await page.waitForTimeout(3000);
   await page.screenshot({ path: "IA-Inkrea.png", fullPage: true });
   // await page.getByRole('button', { name: 'Accueil home' }).click();

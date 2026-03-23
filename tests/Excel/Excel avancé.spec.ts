@@ -79,18 +79,18 @@ test("excel avancé", async ({ page }) => {
   //ajout
 
   // --- Question 1 ---
-  await expect(page.getByText("RECHERCHEV")).toBeVisible();
-  await page.getByText("RECHERCHEV").click();
+  await expect(page.getByText("DECALER")).toBeVisible();
+  await page.getByText("DECALER").click();
 
   // --- Question 2 ---
   await expect(
     page.getByText(
-      "À créer un nouveau champ basé sur une formule appliquée aux champs existants",
+      "À formater le champ en pourcentage",
     ),
   ).toBeVisible();
   await page
     .getByText(
-      "À créer un nouveau champ basé sur une formule appliquée aux champs existants",
+      "À formater le champ en pourcentage",
     )
     .click();
 
@@ -120,9 +120,9 @@ test("excel avancé", async ({ page }) => {
   await page.waitForTimeout(1500);
   await page.screenshot({ path: "Excel-Avacncé2.png", fullPage: true });
   await page.waitForTimeout(3000);
-  await page
-    .getByRole("button", { name: "Continuer avec excel arrow_forward" })
-    .click();
+  // await page
+  //   .getByRole("button", { name: "Continuer avec excel arrow_forward" })
+  //   .click();
 
   // --- Screenshot final ---
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
