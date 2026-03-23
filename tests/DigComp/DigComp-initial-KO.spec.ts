@@ -37,7 +37,7 @@ test('DigComp-basique', async ({ page }) => {
 // --- Screenshot résultat ---
   await page.waitForTimeout(2000);
   await page.screenshot({ path: "DigComp-initial-KO.png", fullPage: true });
-await page.getByRole("button", { name: "Continuer quand même" }).click();
+// await page.getByRole("button", { name: "Continuer quand même" }).click();
 
 
 

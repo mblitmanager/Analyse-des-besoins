@@ -53,7 +53,7 @@ test("test", async ({ page }) => {
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
   await page.waitForTimeout(2000);
   await page.screenshot({ path: "Word-InitialKO.png", fullPage: true });
-  await page.getByRole("button", { name: "Continuer quand même" }).click();
+  // await page.getByRole("button", { name: "Continuer quand même" }).click();
   await page.getByRole("button", { name: "Continuer" }).click();
   
   // await page.getByRole("button", { name: "Valider ce parcours et" }).click();

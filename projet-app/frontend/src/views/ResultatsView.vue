@@ -68,9 +68,20 @@ const recommendedLabel = computed(() => {
 // helper for adapting messaging when prereq shows insuffisant
 const hasInsufficientPrereq = computed(() => {
   if (!session.value || !session.value.prerequisiteScore) return false;
-  return Object.values(session.value.prerequisiteScore).some(
-    (v) => String(v).toLowerCase() === "insuffisant"
-  );
+  return Object.values(session.value.prerequisiteScore).some((v) => {
+    const val = String(v).toLowerCase().trim();
+    return val === "insuffisant" || 
+           val === "jamais" || 
+           val === "non" || 
+           val.includes("difficultés");
+  });
+});
+
+// helper to hide prereq message for base levels
+const isLowLevelResult = computed(() => {
+  if (!session.value || !session.value.lastValidatedLevel) return true;
+  const lvl = session.value.lastValidatedLevel.toLowerCase();
+  return lvl.includes('débutant') || lvl.includes('debutant') || lvl.includes('initial') || lvl.includes('basique');
 });
 
 const recommendedLevel1 = computed(() => {
@@ -683,7 +694,7 @@ const downloadPDF = async () => {
               <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
                 {{ isBlocked 
                    ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
-                   : session?.parcoursRuleHadPrereqCondition
+                   : (session?.parcoursRuleHadPrereqCondition && !isLowLevelResult)
                      ? "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test."
                      : "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace." 
                 }}

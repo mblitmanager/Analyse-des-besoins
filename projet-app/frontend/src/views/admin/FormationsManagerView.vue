@@ -77,10 +77,10 @@ const form = ref({
   certificateur: "",
   programme: "",
   isActive: true,
-  prerequisQuestionsScope: "global",
-  complementaryQuestionsScope: "global",
-  availabilitiesQuestionsScope: "global",
-  miseANiveauQuestionsScope: "global",
+  prerequisQuestionsScope: "both",
+  complementaryQuestionsScope: "both",
+  availabilitiesQuestionsScope: "both",
+  miseANiveauQuestionsScope: "both",
   enableLowScoreWarning: true,
   levels: [],
 });
@@ -117,10 +117,10 @@ function openAddModal() {
     certificateur: "",
     programme: "",
     isActive: true,
-    prerequisQuestionsScope: "global",
-    complementaryQuestionsScope: "global",
-    availabilitiesQuestionsScope: "global",
-    miseANiveauQuestionsScope: "global",
+    prerequisQuestionsScope: "both",
+    complementaryQuestionsScope: "both",
+    availabilitiesQuestionsScope: "both",
+    miseANiveauQuestionsScope: "both",
     enableLowScoreWarning: true,
     levels: [],
   };
@@ -132,6 +132,18 @@ function addLevel() {
     label: "",
     order: form.value.levels.length,
     successThreshold: 0,
+  });
+}
+
+function moveLevel(index, direction) {
+  if (index + direction < 0 || index + direction >= form.value.levels.length) return;
+  const temp = form.value.levels[index];
+  form.value.levels[index] = form.value.levels[index + direction];
+  form.value.levels[index + direction] = temp;
+  
+  // Update order logic based on array position
+  form.value.levels.forEach((lvl, i) => {
+    lvl.order = i;
   });
 }
 
@@ -707,6 +719,57 @@ onMounted(() => {
               </div>
             </div>
 
+            <!-- Scopes Selection Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Prérequis • Source</label>
+                <div class="relative">
+                  <select v-model="form.prerequisQuestionsScope" class="w-full pl-5 pr-8 py-3 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-[10px] uppercase tracking-widest appearance-none transition-all cursor-pointer">
+                    <option value="both">Global & Formation</option>
+                    <option value="global">Global Uniquement</option>
+                    <option value="formation">Formation Uniquement</option>
+                  </select>
+                  <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-[14px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Complément • Source</label>
+                <div class="relative">
+                  <select v-model="form.complementaryQuestionsScope" class="w-full pl-5 pr-8 py-3 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-[10px] uppercase tracking-widest appearance-none transition-all cursor-pointer">
+                    <option value="both">Global & Formation</option>
+                    <option value="global">Global Uniquement</option>
+                    <option value="formation">Formation Uniquement</option>
+                  </select>
+                  <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-[14px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Dispo • Source</label>
+                <div class="relative">
+                  <select v-model="form.availabilitiesQuestionsScope" class="w-full pl-5 pr-8 py-3 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-[10px] uppercase tracking-widest appearance-none transition-all cursor-pointer">
+                    <option value="both">Global & Formation</option>
+                    <option value="global">Global Uniquement</option>
+                    <option value="formation">Formation Uniquement</option>
+                  </select>
+                  <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-[14px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">MÀN • Source</label>
+                <div class="relative">
+                  <select v-model="form.miseANiveauQuestionsScope" class="w-full pl-5 pr-8 py-3 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-[10px] uppercase tracking-widest appearance-none transition-all cursor-pointer">
+                    <option value="both">Global & Formation</option>
+                    <option value="global">Global Uniquement</option>
+                    <option value="formation">Formation Uniquement</option>
+                  </select>
+                  <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-[14px] pointer-events-none">expand_more</span>
+                </div>
+              </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Objectifs Pédagogiques</label>
@@ -745,7 +808,15 @@ onMounted(() => {
                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">%</span>
                   </div>
                 </div>
-                <button type="button" @click="removeLevel(idx)" class="w-11 h-11 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all mb-0.5">
+                <div class="flex flex-col gap-1 mb-0.5 shrink-0 opacity-40 hover:opacity-100 transition-opacity">
+                  <button type="button" @click="moveLevel(idx, -1)" :disabled="idx === 0" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
+                    <span class="material-icons-outlined text-[14px]">expand_less</span>
+                  </button>
+                  <button type="button" @click="moveLevel(idx, 1)" :disabled="idx === form.levels.length - 1" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
+                    <span class="material-icons-outlined text-[14px]">expand_more</span>
+                  </button>
+                </div>
+                <button type="button" @click="removeLevel(idx)" class="w-11 h-11 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all mb-0.5 shrink-0">
                   <span class="material-icons-outlined text-[20px]">delete_outline</span>
                 </button>
               </div>
