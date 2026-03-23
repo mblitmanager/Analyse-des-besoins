@@ -1190,17 +1190,17 @@ export class SeedService implements OnApplicationBootstrap {
       {
         text: 'Fréquence d’utilisation d’un ordinateur',
         value: 'Jamais',
-        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+        recommendation: 'DigComp Initial & Word/Excel/PPT Initial',
       },
       {
         text: 'Savoir allumer un ordinateur, utiliser le clavier et la souris',
         value: 'Non',
-        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+        recommendation: 'DigComp Initial & Word/Excel/PPT Initial',
       },
       {
         text: "Se repérer dans l'environnement Windows (bureau, menu démarrer, fenêtres, icônes...)",
         value: 'Non',
-        recommendation: 'DigComp Initial | Word/Excel/PPT Initial',
+        recommendation: 'DigComp Initial & Word/Excel/PPT Initial',
       },
     ];
 

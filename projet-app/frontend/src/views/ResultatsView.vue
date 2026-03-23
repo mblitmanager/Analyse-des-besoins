@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { useAppStore } from "../stores/app";
@@ -86,8 +86,8 @@ const isLowLevelResult = computed(() => {
 
 const recommendedLevel1 = computed(() => {
   if (!session.value || !levels.value.length) return null;
-  const opts = parcoursOptions.value;
-  if (!opts.length) return null;
+  const opts = parcoursSteps.value[0];
+  if (!opts || !opts.length) return null;
   
   const label = opts[0]?.trim();
   if (!label) return null;
@@ -103,10 +103,12 @@ const recommendedLevel1 = computed(() => {
 
 const recommendedLevel2 = computed(() => {
   if (!session.value || !levels.value.length) return null;
-  const opts = parcoursOptions.value;
-  if (opts.length < 2) return null;
+  if (parcoursSteps.value.length < 2) return null;
+  
+  const opts = parcoursSteps.value[1];
+  if (!opts || !opts.length) return null;
 
-  const label = opts[1]?.trim();
+  const label = opts[0]?.trim();
   if (!label) return null;
 
   let level = levels.value.find(l => l.label === label);
@@ -134,53 +136,71 @@ function getLevelInfo(label) {
 }
 
 function getStepTitle(index) {
-  const opt = parcoursOptions.value[index];
-  if (!opt) return "";
+  const choices = parcoursSteps.value[index];
+  if (!choices || !choices.length) return "";
   
-  const level = index === 0 ? recommendedLevel1.value : recommendedLevel2.value;
+  // If multiple choices, show a clear title
+  if (choices.length > 1) {
+    const level = index === 0 ? recommendedLevel1.value : recommendedLevel2.value;
+    return level && session.value.formationChoisie 
+      ? `${session.value.formationChoisie} - ${level.label}` 
+      : `Étape ${index + 1} : Votre spécialité`;
+  }
+  
+  // If single choice, we try to use a generic "Étape X" or formation name
+  // to avoid repeating the full choice label twice in the UI
+  const opt = choices[0];
   const info = getLevelInfo(opt);
   
-  if (level && session.value.formationChoisie) {
-     const standardTitle = `${session.value.formationChoisie} - ${level.label}${info ? ` (${info.theme})` : ''}`;
-     if (opt.toLowerCase() === level.label.toLowerCase() || standardTitle.toLowerCase().includes(opt.toLowerCase())) {
-        return standardTitle;
-     }
+  if (session.value.formationChoisie) {
+    const formationSuffix = index === 0 ? " (Base)" : " (Avancé)";
+    return session.value.formationChoisie + formationSuffix;
   }
-  
-  return info ? `${opt} (${info.theme})` : opt;
+
+  return `Étape ${index + 1}${info ? ` : ${info.theme}` : ''}`;
 }
 
-const parcoursOptions = computed(() => {
+const parcoursSteps = computed(() => {
   if (!session.value) return [];
   
-  // If we have an explicit list of recommendations from backend rules/logic
-  let rawOptions = [];
-  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length) {
-    rawOptions = session.value.recommendations.map(r => String(r));
-  } else {
-    const rec = session.value.finalRecommendation || "";
-    if (rec) rawOptions = [rec];
+  let rawStr = session.value.finalRecommendation || "";
+  // Check if explicit array logic was used (legacy)
+  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 0) {
+    rawStr = session.value.recommendations.join(' & ');
   }
+  
+  if (!rawStr) return [];
 
-  if (rawOptions.length === 0) return [];
-
-  // Flatten and split all options by separators: " | ", " & ", " et "
-  const finalOpts = [];
-  rawOptions.forEach(opt => {
-    const parts = opt.split(/ \| | & | et /);
-    parts.forEach(p => {
-      const trimmed = p.trim();
-      if (trimmed) finalOpts.push(trimmed);
-    });
+  // Step 1: Detect sequential steps
+  let steps = [];
+  if (rawStr.includes(' & ') || rawStr.includes(' et ')) {
+    steps = rawStr.split(/ & | et /i);
+  } else if (rawStr.includes(' | ') && (rawStr.includes(' / ') || rawStr.includes(' OU '))) {
+    // Heuristic: If both | and / (or OU) are present, | is likely the step separator
+    // while / and OU are choice separators within those steps.
+    steps = rawStr.split(/ \| /);
+  } else {
+    steps = [rawStr];
+  }
+  
+  const cleanedSteps = steps.map(s => s.trim()).filter(Boolean);
+  
+  return cleanedSteps.map((stepStr, index) => {
+    // Step 2: Split by |, OU, or / to get choices for this step
+    // We allow choices on any step if the choice separators are present.
+    // BUT we don't use | as a choice separator if we used it as a step separator above.
+    const usedPipeAsStep = steps.length > 1 && !rawStr.includes(' & ') && !rawStr.includes(' et ') && rawStr.includes(' | ');
+    const choiceRegex = usedPipeAsStep ? / OU | \/ /i : / \| | OU | \/ /i;
+    
+    const choices = stepStr.split(choiceRegex).map(c => c.trim()).filter(Boolean);
+    return choices;
   });
-
-  return finalOpts;
 });
 
-// display options based on calculated parcoursOr explicit recommendations
+// displayOptions is legacy, we map it to flat for compatibility if needed elsewhere
 const displayOptions = computed(() => {
   if (!session.value) return [];
-  return parcoursOptions.value;
+  return parcoursSteps.value.flat();
 });
 
 const nextLevel = computed(() => recommendedLevel2.value);
@@ -254,6 +274,78 @@ async function fetchAlertSettings() {
     console.warn("Failed to fetch high level alert settings:", error);
   }
 }
+
+const selectedChoices = ref({});
+
+watch(parcoursSteps, (steps) => {
+  steps.forEach((choices, idx) => {
+    // Automatically select if there is only one choice
+    if (choices.length === 1 && !selectedChoices.value[idx]) {
+      selectedChoices.value[idx] = choices[0];
+    }
+  });
+}, { immediate: true });
+
+const getAvailableChoices = (stepIdx) => {
+  const allChoices = parcoursSteps.value[stepIdx] || [];
+  if (allChoices.length <= 1) return allChoices;
+  
+  return allChoices.map(c => ({
+     label: c,
+     disabled: isChoiceSelectedInOtherStep(stepIdx, c)
+  }));
+};
+
+function normalizeLabel(label) {
+  if (!label) return "";
+  return label.toLowerCase()
+              .replace(/^(icdl|tosa)\s*-\s*/, '')
+              .replace(/\(.*\)/, '')
+              .trim();
+}
+
+const isChoiceSelectedInOtherStep = (currentStepIdx, choiceLabel) => {
+  const normChoice = normalizeLabel(choiceLabel);
+  if (!normChoice) return false;
+  
+  return Object.entries(selectedChoices.value).some(([idx, selected]) => {
+    if (parseInt(idx) === currentStepIdx) return false;
+    return normalizeLabel(selected) === normChoice;
+  });
+};
+
+const selectChoice = (stepIdx, choiceLabel) => {
+  selectedChoices.value[stepIdx] = choiceLabel;
+  
+  const normChoice = normalizeLabel(choiceLabel);
+  Object.keys(selectedChoices.value).forEach(idx => {
+    const sidx = parseInt(idx);
+    if (sidx !== stepIdx && normalizeLabel(selectedChoices.value[sidx]) === normChoice) {
+      selectedChoices.value[sidx] = null;
+    }
+  });
+};
+
+const isSelectionComplete = computed(() => {
+  return parcoursSteps.value.length > 0 && parcoursSteps.value.every((choices, idx) => {
+    return !!selectedChoices.value[idx];
+  });
+});
+
+const confirmAndGoNext = async () => {
+  if (isSelectionComplete.value) {
+    const finalRec = parcoursSteps.value.map((_, idx) => selectedChoices.value[idx]).join(' & ');
+    try {
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+        finalRecommendation: finalRec
+      });
+      session.value.finalRecommendation = finalRec;
+    } catch (error) {
+       console.error("Failed to save selected final option", error);
+    }
+  }
+  goNext();
+};
 
 const goNext = () => {
   if (shouldShowAlert.value && !showHighLevelAlert.value) {
@@ -675,7 +767,7 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <div v-if="parcoursOptions.length > 0"
+        <div v-if="parcoursSteps.length > 0"
           class="relative bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
           <!-- Compact Header -->
@@ -708,55 +800,62 @@ const downloadPDF = async () => {
           </div>
 
           <div class="p-6 md:p-8 space-y-6">
-            <!-- Step 1 in Path -->
-            <div class="flex items-start gap-5 relative">
-              <!-- <div
-                class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center shrink-0 font-bold text-xs relative z-10 shadow-sm"
-              >
-                1
-              </div> -->
-              <div class="flex-1">
-                <h4 class="text-base font-bold text-gray-800">
-                  {{ getStepTitle(0) || recommendedLabel }}
-                </h4>
-                <p class="text-gray-400 font-medium text-xs mt-1">
-                  {{ getLevelInfo(parcoursOptions[0] || recommendedLabel)?.desc || recommendedLevel1?.metadata?.subtitle || "Développement des compétences fondamentales." }}
-                </p>
+            <template v-for="(stepChoices, stepIdx) in parcoursSteps" :key="stepIdx">
+              <!-- Step Connector Logic (Only if not first step) -->
+              <div v-if="stepIdx > 0" class="ml-4 flex items-center">
+                <div class="w-6 h-6 rounded-full bg-white border border-brand-primary/20 text-brand-primary flex items-center justify-center relative z-10 shadow-sm">
+                  <span class="material-icons-outlined text-xs">add</span>
+                </div>
               </div>
 
-              <!-- Connector Line -->
-              <div v-if="parcoursOptions.length > 1 || nextLevel"
-                class="absolute left-[15px] top-8 -bottom-6 w-px bg-brand-primary/10"
-              ></div>
-            </div>
-
-            <!-- Optimized Separator -->
-            <div v-if="parcoursOptions.length > 1 || nextLevel" class="ml-4 flex items-center">
-              <div
-                class="w-6 h-6 rounded-full bg-white border border-brand-primary/20 text-brand-primary flex items-center justify-center relative z-10 shadow-sm"
-              >
-                <span class="material-icons-outlined text-xs">add</span>
+              <!-- Step Content -->
+              <div class="flex items-start gap-5 relative">
+                <div class="flex-1">
+                  <h4 class="text-base font-bold text-gray-800">
+                    {{ getStepTitle(stepIdx) }}
+                  </h4>
+                  
+                  <!-- If only 1 option -->
+                  <div v-if="stepChoices.length === 1">
+                    <p v-if="getStepTitle(stepIdx) !== stepChoices[0]" class="text-brand-primary font-bold text-lg mt-1">{{ stepChoices[0] }}</p>
+                    <p class="text-gray-400 font-medium text-xs mt-1">
+                      {{ getLevelInfo(stepChoices[0])?.desc || (stepIdx === 0 ? 'Développement des compétences fondamentales.' : 'Approfondissement et maîtrise avancée.') }}
+                    </p>
+                  </div>
+                  
+                  <!-- If multiple options -->
+                  <div v-else class="mt-4">
+                    <p class="text-sm font-bold text-gray-500 mb-3">Veuillez choisir votre spécialité pour cette étape :</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div 
+                        v-for="choiceObj in getAvailableChoices(stepIdx)" 
+                        :key="choiceObj.label"
+                        @click="!choiceObj.disabled ? selectChoice(stepIdx, choiceObj.label) : null"
+                        class="p-4 border-2 rounded-xl text-center transition-all relative overflow-hidden flex flex-col items-center justify-center gap-2"
+                        :class="[
+                          selectedChoices[stepIdx] === choiceObj.label ? 'border-brand-primary bg-brand-primary/5 shadow-md ring-2 ring-brand-primary/20' : 'border-slate-200 bg-white hover:border-brand-primary/30',
+                          choiceObj.disabled ? 'opacity-40 cursor-not-allowed grayscale bg-slate-50' : 'cursor-pointer'
+                        ]"
+                      >
+                        <span class="text-sm font-black" :class="selectedChoices[stepIdx] === choiceObj.label ? 'text-brand-primary' : (choiceObj.disabled ? 'text-slate-400' : 'text-slate-700')">
+                          {{ choiceObj.label }}
+                        </span>
+                        <div v-if="selectedChoices[stepIdx] === choiceObj.label" class="absolute top-2 right-2 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
+                          <span class="material-icons-outlined text-[12px] font-bold">check</span>
+                        </div>
+                        <div v-if="choiceObj.disabled" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                          Déjà sélectionné
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-if="stepIdx < parcoursSteps.length - 1" class="absolute left-[15px] top-8 -bottom-6 w-px bg-brand-primary/10"></div>
               </div>
-            </div>
-
-            <!-- Step 2 in Path -->
-            <div v-if="nextLevel || (parcoursOptions.length > 1)" class="flex items-start gap-5">
-              <!-- <div
-                class="w-8 h-8 rounded-full bg-brand-primary/20 text-brand-primary flex items-center justify-center shrink-0 font-bold text-xs relative z-10"
-              >
-                2
-              </div> -->
-              <div class="flex-1">
-                <h4 class="text-base font-bold text-gray-800">
-                  {{ getStepTitle(1) || 'Niveau Suivant' }}
-                </h4>
-                <p class="text-gray-400 font-medium text-xs mt-1">
-                  {{ getLevelInfo(parcoursOptions[1])?.desc || recommendedLevel2?.metadata?.subtitle || "Approfondissement et maîtrise avancée." }}
-                </p>
-              </div>
-            </div>
+            </template>
             
-            <div v-if="parcoursOptions.length <= 1 && !nextLevel" class="text-center py-3 text-gray-400 italic text-xs border-t border-gray-50 mt-4">
+            <div v-if="parcoursSteps.length === 1 && !nextLevel" class="text-center py-3 text-gray-400 italic text-xs border-t border-gray-50 mt-4">
               Parcours de formation complet.
             </div>
 
@@ -783,8 +882,9 @@ const downloadPDF = async () => {
 
               <button
                 v-if="!isBlocked"
-                @click="goNext"
-                class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto"
+                :disabled="!isSelectionComplete"
+                @click="confirmAndGoNext"
+                class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <span>Valider ce parcours et continuer</span>
                 <span class="material-icons-outlined text-lg">arrow_forward</span>
