@@ -44,7 +44,7 @@ test("excel initial + Digcomp", async ({ page }) => {
   await page.getByText("=NB()").click();
   await page.getByText("Graphique Camembert (Secteur)").click();
   await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
-  await page.getByRole("button", { name: "Continuer quand même" }).click();
+  // await page.getByRole("button", { name: "Continuer quand même" }).click();
   // await page.getByRole("button", { name: "Continuer" }).click();
   await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
   // await page.getByRole("button", { name: "Continuer" }).click();

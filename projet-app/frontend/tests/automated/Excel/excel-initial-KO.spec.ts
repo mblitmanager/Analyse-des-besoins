@@ -1,0 +1,52 @@
+import { test, expect } from "@playwright/test";
+//excel initial + Digcomp
+test("excel initial + Digcomp", async ({ page }) => {
+  await page.goto("http://localhost:5173");
+  await page.getByRole("textbox", { name: "Nom", exact: true }).click();
+  await page.getByRole("textbox", { name: "Nom", exact: true }).fill("Excel");
+  await page.getByRole("textbox", { name: "Nom", exact: true }).press("Tab");
+  await page.getByRole("textbox", { name: "Prénom" }).fill("InitalKOa");
+  await page.getByRole("textbox", { name: "Téléphone" }).click();
+  await page.getByRole("textbox", { name: "Téléphone" }).fill("z");
+  await page.getByRole("button", { name: "Démarrer le parcours" }).click();
+  await page
+    .locator("label")
+    .filter({ hasText: "person_outlineSalarié" })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Ex: Assistant administratif," })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Ex: Assistant administratif," })
+    .fill("aza");
+  await page.getByText("Occasionnellement").first().click();
+  await page.getByText("Oui avec quelques difficultés").first().click();
+  await page
+    .locator("label")
+    .filter({ hasText: "Oui avec quelques difficultés" })
+    .nth(1)
+    .click();
+  await page
+    .locator("label")
+    .filter({ hasText: "Occasionnellement" })
+    .nth(1)
+    .click();
+  await page
+    .locator("span")
+    .filter({ hasText: /^Oui avec quelques difficultés$/ })
+    .click();
+  await page.getByText("Non").nth(3).click();
+  await page.getByText("Occasionnellement").nth(2).click();
+  await page.getByRole("button", { name: "Valider mon profil" }).click();
+  await page.getByRole("button", { name: "Excel" }).click();
+  await page.getByRole("button", { name: "Continuer arrow_forward" }).click();
+  await page.getByText("Une cellule").click();
+  await page.getByText("=NB()").click();
+  await page.getByText("Graphique Camembert (Secteur)").click();
+  await page.getByRole("button", { name: "Suivant arrow_forward" }).click();
+  await page.getByRole("button", { name: "Continuer quand même" }).click();
+  // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.waitForTimeout(3000); // attente 3 secondes pour que la page se stabilise
+  // await page.getByRole("button", { name: "Continuer" }).click();
+  await page.screenshot({ path: "test-Excel-Inital-KO.png", fullPage: true });
+});
