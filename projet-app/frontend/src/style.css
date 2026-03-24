@@ -147,14 +147,11 @@ h6 {
   background-color: rgba(34, 197, 94, 0.12);
 }
 
-/* Make all primary buttons use the shared accent palette as requested
+/* Make primary buttons use the shared accent palette as requested
    Background: var(--accent-color) (#eab973)
    Text: var(--title-color) (#315264) */
-button,
-input[type="button"],
-input[type="submit"],
-.btn,
-.btn-primary {
+.btn-primary,
+.btn-accent {
   background-color: var(--accent-color);
   color: var(--title-color);
   padding: 0.6rem 1rem;
@@ -171,15 +168,13 @@ input[type="submit"],
     filter 0.12s ease;
 }
 
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover,
-.btn:hover,
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-accent:hover {
   filter: brightness(0.98);
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(234, 185, 115, 0.18);
 }
+
 
 button:disabled,
 input[type="button"]:disabled,

@@ -137,14 +137,17 @@ function addLevel() {
 
 function moveLevel(index, direction) {
   if (index + direction < 0 || index + direction >= form.value.levels.length) return;
-  const temp = form.value.levels[index];
-  form.value.levels[index] = form.value.levels[index + direction];
-  form.value.levels[index + direction] = temp;
+  const newLevels = [...form.value.levels];
+  const temp = newLevels[index];
+  newLevels[index] = newLevels[index + direction];
+  newLevels[index + direction] = temp;
   
   // Update order logic based on array position
-  form.value.levels.forEach((lvl, i) => {
+  newLevels.forEach((lvl, i) => {
     lvl.order = i;
   });
+  
+  form.value.levels = newLevels;
 }
 
 function removeLevel(index) {
@@ -153,7 +156,9 @@ function removeLevel(index) {
 
 function openEditModal(f, tab = 'details') {
   editingFormation.value = f;
-  form.value = { ...f, levels: f.levels ? [...f.levels] : [] };
+  // S'assurer que les paliers sont triés par ordre à l'ouverture
+  const sortedLevels = f.levels ? [...f.levels].sort((a,b) => (a.order || 0) - (b.order || 0)) : [];
+  form.value = { ...f, levels: sortedLevels };
   activeTab.value = tab;
   showModal.value = true;
   fetchRulesForFormation(f.id);
@@ -303,6 +308,18 @@ function isPrereqOptionSelected(questionId, optIndex) {
   return cond ? cond.responseIndexes.includes(optIndex) : false;
 }
 
+const getPrereqOptionClass = (qId, oIdx) => {
+  const isSelected = isPrereqOptionSelected(qId, oIdx);
+  const base = "px-3 py-2 rounded-xl text-[9px] font-black border transition-all";
+  const active = "bg-brand-primary text-[#428496] border-brand-primary shadow-md shadow-brand-primary/20";
+  const inactive = "bg-white text-slate-400 border-slate-100 hover:border-slate-200";
+  return `${base} ${isSelected ? active : inactive}`;
+};
+
+const getPrereqOptionLabel = (opt) => {
+  return typeof opt === 'string' ? opt : opt.label;
+};
+
 async function saveRule() {
   try {
     if (editingRule.value) {
@@ -391,10 +408,7 @@ async function saveFormation() {
       return {
         ...(lvl.id ? { id: lvl.id } : {}),
         label: lvl.label,
-        order:
-          typeof lvl.order === "number" && !isNaN(lvl.order)
-            ? lvl.order
-            : index + 1,
+        order: index,
         successThreshold: Number(lvl.successThreshold) || 0,
       };
     });
@@ -980,11 +994,11 @@ onMounted(() => {
                     v-for="q in prereqQuestions"
                     :key="q.id"
                     class="p-5 bg-white rounded-[28px] border-2 transition-all cursor-pointer"
-                    :class="isPrereqQuestionSelected(q.id) ? 'border-brand-primary shadow-lg shadow-brand-primary/10' : 'border-slate-50 hover:border-slate-200'"
+                    :class="isPrereqQuestionSelected(q.id) ? 'border-brand-primary bg-white shadow-xl shadow-brand-primary/5' : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'"
                     @click="togglePrereqQuestion(q.id)"
                   >
                     <div class="flex items-start gap-4">
-                      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors" :class="isPrereqQuestionSelected(q.id) ? 'bg-brand-primary text-white' : 'bg-slate-50 text-slate-300'">
+                      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors" :class="isPrereqQuestionSelected(q.id) ? 'bg-brand-primary text-[#428496]' : 'bg-slate-50 text-slate-300'">
                         <span class="material-icons-outlined text-sm">check</span>
                       </div>
                       <div class="space-y-4 flex-1">
@@ -997,10 +1011,9 @@ onMounted(() => {
                             :key="oIdx"
                             type="button"
                             @click="togglePrereqOption(q.id, oIdx)"
-                            class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold border transition-all"
-                            :class="isPrereqOptionSelected(q.id, oIdx) ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'"
+                            :class="getPrereqOptionClass(q.id, oIdx)"
                           >
-                            {{ typeof opt === 'string' ? opt : opt.label }}
+                            {{ getPrereqOptionLabel(opt) }}
                           </button>
                         </div>
                       </div>
