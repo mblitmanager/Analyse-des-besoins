@@ -149,7 +149,7 @@ async function goBack() {
 
       <div v-else-if="questions.length === 0" class="flex flex-col items-center justify-center min-h-[400px] animate-in fade-in duration-500">
          <div class="bg-white rounded-3xl shadow-xl p-10 border border-white text-center max-w-lg">
-            <div class="h-16 w-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto text-brand-primary mb-6">
+            <div class="h-16 w-16 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto text-brand-primary mb-6">
                 <span class="material-icons-outlined text-3xl">info</span>
             </div>
             <h2 class="text-2xl font-black text-blue-900 mb-2">Aucune question</h2>
@@ -179,7 +179,7 @@ async function goBack() {
           <div class="p-8 space-y-12">
             <div v-for="(q, idx) in filteredQuestions" :key="q.id" class="space-y-6">
               <div class="flex items-start">
-                <span class="shrink-0 w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-blue-100">
+                <span class="shrink-0 w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-brand-primary/20">
                   {{ idx + 1 }}
                 </span>
                 <p class="text-lg font-bold text-blue-900 mt-1" v-html="formatBoldText(q.text)"></p>
@@ -228,7 +228,7 @@ async function goBack() {
           <button
             @click="submitResponses()"
             :disabled="submitting"
-            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>

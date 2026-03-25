@@ -153,7 +153,8 @@ function getStepTitle(index) {
   const info = getLevelInfo(opt);
   
   if (session.value.formationChoisie) {
-    const formationSuffix = index === 0 ? " (Base)" : " (Avancé)";
+    const suffixes = [" (Base)", " (Intermédiaire)", " (Avancé)"];
+    const formationSuffix = suffixes[index] || " (Avancé)";
     return session.value.formationChoisie + formationSuffix;
   }
 
@@ -654,7 +655,7 @@ const downloadPDF = async () => {
             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Situation</p>
             <div class="flex flex-wrap gap-2">
               <span v-for="sit in (session.situation || [])" :key="sit" 
-                    class="px-3 py-1 bg-blue-50 text-brand-primary rounded-lg text-xs font-bold border border-blue-100">
+                    class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-xs font-bold border border-brand-primary/20">
                 {{ sit }}
               </span>
               <span v-if="!session.situation?.length" class="text-gray-400 text-sm italic">Non renseignée</span>
@@ -685,7 +686,7 @@ const downloadPDF = async () => {
           >
             <div class="flex items-start justify-between mb-5">
               <!-- <div
-                class="w-9 h-9 bg-indigo-600/10 text-indigo-600 rounded-lg flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-blue-400 transition-all text-sm"
+                class="w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-[#428496] transition-all text-sm">
               >
                 <span class="material-icons-outlined">menu_book</span>
               </div> -->
@@ -861,7 +862,7 @@ const downloadPDF = async () => {
             </div>
 
             <!-- Compact Financement Box -->
-            <div class="bg-brand-primary/10 rounded-xl p-4 border border-brand-primary/20 flex items-center gap-3">
+            <div class="bg-[#ebb973]/10 rounded-xl p-4 border border-brand-primary/20 flex items-center gap-3">
               <span class="material-icons-outlined text-brand-primary text-lg">verified</span>
               <p class="text-[11px] font-semibold text-gray-600">
                 Parcours certifiant et 100% finançable (CPF, Employeur).
@@ -885,7 +886,7 @@ const downloadPDF = async () => {
                 v-if="!isBlocked"
                 :disabled="!isSelectionComplete"
                 @click="confirmAndGoNext"
-                class="px-12 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                class="px-12 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <span>Valider ce parcours et continuer</span>
                 <span class="material-icons-outlined text-lg">arrow_forward</span>

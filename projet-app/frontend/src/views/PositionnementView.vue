@@ -819,7 +819,7 @@ async function saveAndExit() {
 
           <button
             @click="finishStep"
-            class="w-full md:w-auto px-16 py-6 bg-brand-primary hover:bg-brand-secondary text-blue-500 font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
+            class="w-full md:w-auto px-16 py-6 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
           >
             Continuer
           </button>
@@ -845,7 +845,7 @@ async function saveAndExit() {
               
             </div>
             <div
-              class="flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
+              class="flex items-center gap-2 px-5 py-2 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
             >
               <span class="material-icons-outlined text-sm">trending_up</span>
               Évaluation du niveau {{ displayLevel(levels[currentLevelIndex]?.label) }}
@@ -853,7 +853,7 @@ async function saveAndExit() {
           </div>
 
           <!-- Adaptive Introduction -->
-          <div class="bg-blue-400 rounded-3xl p-8 mb-8  shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+          <div class="bg-brand-primary rounded-3xl p-8 mb-8 shadow-xl shadow-brand-primary/20 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
               <!-- <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
@@ -1136,7 +1136,7 @@ async function saveAndExit() {
           >
             <div class="flex items-center gap-3">
               <div
-                class="shrink-0 w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"
+                class="shrink-0 w-10 h-10 bg-brand-primary rounded-lg flex items-center justify-center text-[#428496] text-sm">
               >
                 <span class="material-icons-outlined">auto_fix_high</span>
               </div>

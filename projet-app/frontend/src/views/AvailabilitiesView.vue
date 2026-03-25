@@ -177,7 +177,7 @@ function getOptionIcon(opt) {
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
-              class="w-9 h-9 rounded-lg bg-indigo-600/5 flex items-center justify-center"
+              class="w-9 h-9 rounded-lg bg-brand-primary/10 flex items-center justify-center"
             >
               <span class="material-icons-outlined text-indigo-600 text-lg"
                 >event_available</span
@@ -219,7 +219,7 @@ function getOptionIcon(opt) {
                   <div 
                     v-if="getOptionIcon(opt)"
                     class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300"
-                    :class="responses[q.id] === opt ? 'bg-brand-primary/10 text-brand-primary shadow-lg shadow-brand-primary/20' : 'bg-gray-100 text-gray-400'"
+                    :class="responses[q.id] === opt ? 'bg-[#ebb973]/10 text-brand-primary shadow-lg shadow-brand-primary/20' : 'bg-gray-100 text-gray-400'"
                   >
                     <span class="material-icons-outlined text-2xl">{{ getOptionIcon(opt) }}</span>
                   </div>
@@ -234,7 +234,7 @@ function getOptionIcon(opt) {
                   <!-- Checkmark sélection -->
                   <div 
                     v-if="responses[q.id] === opt"
-                    class="absolute top-3 right-3 w-5 h-5 bg-brand-primary rounded-full flex items-center justify-center text-white scale-110 shadow-sm"
+                    class="absolute top-3 right-3 w-5 h-5 bg-[#ebb973] rounded-full flex items-center justify-center text-white scale-110 shadow-sm"
                   >
                     <span class="material-icons-outlined text-[12px] font-bold">check</span>
                   </div>
@@ -332,7 +332,7 @@ function getOptionIcon(opt) {
           <button
             @click="nextStep"
             :disabled="submitting"
-            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span>Valider mes disponibilités</span>
             <span v-if="!submitting" class="material-icons-outlined text-xl">event_available</span>

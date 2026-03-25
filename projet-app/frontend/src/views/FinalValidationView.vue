@@ -329,7 +329,7 @@ function startP3() {
         <div class="flex flex-col sm:flex-row gap-3">
           <button
             @click="goHome"
-            class="flex-1 py-5 bg-white text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
+            class="flex-1 py-5 bg-[#ebb973] text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-[#ebb973]/80 transition-all flex items-center justify-center gap-3"
           >
             <span>Accueil</span>
             <span class="material-icons-outlined">home</span>
@@ -338,7 +338,7 @@ function startP3() {
           <button
             v-if="!store.isP3Mode && isP3Enabled"
             @click="startP3"
-            class="flex-1 py-5 bg-brand-primary text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
+            class="flex-1 py-5 bg-[#ebb973] text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:brightness-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
           >
             <span>Ajouter un autre parcours</span>
             <span class="material-icons-outlined">add_circle_outline</span>
