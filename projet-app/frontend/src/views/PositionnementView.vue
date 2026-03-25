@@ -61,7 +61,45 @@ const formation = ref(null);
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 // Computed: filter questions based on conditional logic
+const levelContent = computed(() => {
+  const messages = [
+    {
+      title: "Comment fonctionne ce test ?",
+      text: `Ce test est adaptatif. Il commence par le niveau <strong>${displayLevel(levels.value[0]?.label)}</strong>. Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.`
+    },
+    {
+      title: "Bravo, vous progressez !",
+      text: `Vous avez validé l'étape initiale. Passons maintenant au niveau <strong>${displayLevel(levels.value[1]?.label)}</strong> pour consolider vos acquis.`
+    },
+    {
+      title: "Excellent début !",
+      text: `Vos bases sont solides. Nous évaluons maintenant votre capacité à être <strong>opérationnel</strong> sur des tâches courantes.`
+    },
+    {
+      title: "En route vers la maîtrise",
+      text: `Vous démontrez de réelles compétences. Le niveau <strong>${displayLevel(levels.value[3]?.label)}</strong> va nous permettre d'identifier vos futurs points de perfectionnement.`
+    },
+    {
+      title: "Vers l'expertise",
+      text: `Vous atteignez un niveau avancé ! Ce bloc <strong>${displayLevel(levels.value[4]?.label)}</strong> vise à confirmer votre autonomie complète.`
+    },
+    {
+      title: "Le sommet approche",
+      text: `Vos résultats sont impressionnants. Nous testons maintenant vos compétences d'<strong>expert</strong>.`
+    },
+    {
+      title: "Maîtrise totale",
+      text: `Dernière étape ! Ce bloc final va valider l'étendue de votre <strong>expertise</strong>.`
+    }
+  ];
+  return messages[currentLevelIndex.value] || { title: "Bravo, vous progressez !", text: `Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau <strong>${displayLevel(levels.value[currentLevelIndex.value]?.label)}</strong> afin d'affiner votre programme de formation.` };
+});
+
 const filteredQuestions = computed(() => {
+  return filterConditionalQuestions(questions.value, currentResponses.value);
+});
+
+const shouldShowAlert = computed(() => {
   return filterConditionalQuestions(questions.value, currentResponses.value);
 });
 
@@ -819,7 +857,7 @@ async function saveAndExit() {
 
           <button
             @click="finishStep"
-            class="w-full md:w-auto px-16 py-6 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
+            class="w-full md:w-auto px-16 py-6 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
           >
             Continuer
           </button>
@@ -845,7 +883,7 @@ async function saveAndExit() {
               
             </div>
             <div
-              class="flex items-center gap-2 px-5 py-2 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
+              class="flex items-center gap-2 px-5 py-2 bg-[#ebb973]/80 text-brand-primary rounded-full text-xs font-bold uppercase tracking-wider shadow-sm whitespace-nowrap"
             >
               <span class="material-icons-outlined text-sm">trending_up</span>
               Évaluation du niveau {{ displayLevel(levels[currentLevelIndex]?.label) }}
@@ -853,21 +891,14 @@ async function saveAndExit() {
           </div>
 
           <!-- Adaptive Introduction -->
-          <div class="bg-brand-primary rounded-3xl p-8 mb-8 shadow-xl shadow-brand-primary/20 relative overflow-hidden group">
+          <div class="bg-[#ebb973]/20 rounded-3xl p-8 mb-8 shadow-xl shadow-brand-primary/20 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
-              <!-- <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
-                <span class="material-icons-outlined text-3xl">info</span>
-              </div> -->
               <div class="flex-1">
-                <h3 class="text-xl font-bold mb-2">
-                  {{ currentLevelIndex === 0 ? "Comment fonctionne ce test ?" : "Bravo, vous progressez !" }}
+                <h3 class="text-xl font-bold mb-2 text-[#0d1b3e]">
+                  {{ levelContent.title }}
                 </h3>
-                <p class="text-blue-50 text-sm leading-relaxed" v-if="currentLevelIndex === 0">
-                  Ce test est adaptatif. Il commence par le niveau <strong>{{ displayLevel(levels[0]?.label) }}</strong>. Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
-                </p>
-                <p class="text-blue-50 text-sm leading-relaxed" v-else>
-                  Vous avez validé l'étape précédente. Nous allons maintenant évaluer vos compétences pour le niveau <strong>{{ displayLevel(levels[currentLevelIndex]?.label) }}</strong> afin d'affiner votre programme de formation.
+                <p class="text-[#0d1b3e]/80 text-sm leading-relaxed" v-html="levelContent.text">
                 </p>
               </div>
             </div>
@@ -1167,7 +1198,7 @@ async function saveAndExit() {
                   v-if="currentQuestionIndex < filteredQuestions.length - 1"
                   @click="currentQuestionIndex++"
                   :disabled="!currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                  class="px-8 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-8 py-4 bg-brand-primary hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
                 >
                   <span>Question Suivante</span>
                   <span class="material-icons-outlined text-lg">arrow_forward</span>
@@ -1177,7 +1208,7 @@ async function saveAndExit() {
                   v-else
                   @click="nextStep"
                   :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-10 py-4 bg-brand-primary hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
                   <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
@@ -1195,7 +1226,7 @@ async function saveAndExit() {
                       return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
                     })
                   "
-                  class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer" : "Suivant" }}</span>
                   <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
@@ -1245,7 +1276,7 @@ async function saveAndExit() {
 
         <button
           @click="continueWithWarning"
-          class="flex-1 px-6 py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
+          class="flex-1 px-6 py-3 bg-[#ebb973] hover:brightness-95 text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
         >
           Continuer quand même
         </button>
