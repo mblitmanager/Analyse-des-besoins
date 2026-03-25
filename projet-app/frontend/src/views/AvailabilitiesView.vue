@@ -23,7 +23,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
   if (session.value.finalRecommendation)
-    return session.value.finalRecommendation.replace(/ \| /g, " / ");
+    return session.value.finalRecommendation;
 
   const level =
     session.value.lastValidatedLevel || session.value.stopLevel || "";
@@ -375,9 +375,9 @@ function getOptionIcon(opt) {
 }
 
 .option-card--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: white;
-  box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.15);
+  border-color: var(--brand-primary, #ebb973);
+  background: rgba(235, 185, 115, 0.05);
+  box-shadow: 0 15px 30px -10px rgba(235, 185, 115, 0.15);
   transform: translateY(-2px);
 }
 
@@ -389,7 +389,7 @@ function getOptionIcon(opt) {
 }
 
 .option-card--selected .option-card__label {
-  color: var(--color-brand-primary, #3b82f6);
+  color: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio {
@@ -405,8 +405,8 @@ function getOptionIcon(opt) {
 }
 
 .option-card__radio--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: var(--color-brand-primary, #3b82f6);
+  border-color: var(--brand-primary, #ebb973);
+  background: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio-dot {

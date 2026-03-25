@@ -331,9 +331,9 @@ async function skipStep() {
 }
 
 .option-card--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: #eef2ff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  border-color: var(--brand-primary, #ebb973);
+  background: rgba(235, 185, 115, 0.05);
+  box-shadow: 0 4px 12px rgba(235, 185, 115, 0.1);
 }
 
 .option-card__label {
@@ -345,7 +345,7 @@ async function skipStep() {
 }
 
 .option-card--selected .option-card__label {
-  color: var(--color-brand-primary, #3b82f6);
+  color: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio {
@@ -361,8 +361,8 @@ async function skipStep() {
 }
 
 .option-card__radio--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: var(--color-brand-primary, #3b82f6);
+  border-color: var(--brand-primary, #ebb973);
+  background: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio-dot {

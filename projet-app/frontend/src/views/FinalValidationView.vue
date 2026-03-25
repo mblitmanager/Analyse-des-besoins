@@ -42,7 +42,7 @@ const recommendedLabel = computed(() => {
 const recommendedLabelParts = computed(() => {
   if (!recommendedLabel.value) return [];
   // Split the exact ' & ' string or ' | ' returned by the logic
-  const rawParts = recommendedLabel.value.split(/ & | \/ | \| /);
+  const rawParts = recommendedLabel.value.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/);
   
   return rawParts.map(p => {
       let cleaned = p.trim();

@@ -32,14 +32,14 @@
 
 /* CSS variables for theming */
 :root {
-  --brand-primary: #3b82f6;
+  --brand-primary: #ebb973;
   --brand-secondary: #0d1b3e;
   --brand-accent: #60a5fa;
   /* Palette personnalisée */
   --title-color: #315264;
   --section-color: #428496;
-  --accent-color: #eab973;
-  --accent-color-soft: rgba(234, 185, 115, 0.14);
+  --accent-color: #ebb973;
+  --accent-color-soft: rgba(235, 185, 115, 0.14);
 }
 
 [data-brand="aopia"] {

@@ -250,13 +250,13 @@ const recommendedFormations = computed(() => {
                   <label class="flex items-center w-full cursor-pointer justify-between">
                     <input type="checkbox" class="sr-only" :value="sit" v-model="situation" />
                     <div class="flex items-center gap-4">
-                       <div :class="situation.includes(sit) ? 'bg-blue-400/10 text-blue-400' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
+                       <div :class="situation.includes(sit) ? 'bg-brand-primary/10 text-brand-primary' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
                           <span class="material-icons-outlined text-xl">person_outline</span>
                        </div>
                        <span class="formation-card__label">{{ sit }}</span>
                     </div>
                     <div class="formation-card__radio" :class="situation.includes(sit) ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                      <span v-if="situation.includes(sit)" class="material-icons-outlined text-blue-600 text-xl">check</span>
+                      <span v-if="situation.includes(sit)" class="material-icons-outlined text-brand-primary text-xl">check</span>
                     </div>
                   </label>
                 </div>
@@ -265,9 +265,8 @@ const recommendedFormations = computed(() => {
           </div>
         </div>
 
-        <!-- Section 2 : IT Skills -->
         <div v-for="group in groups" :key="group.title" class="bg-white rounded-l shadow-xl overflow-hidden border border-white mb-8">
-          <div class="bg-[#eab973] p-8 text-white">
+          <div class="bg-[#ebb973] p-8 text-white">
             <div class="flex items-center">
               <span class="material-icons-outlined mr-3 text-l">{{ group.icon }}</span>
               <h2 class="text-l font-black uppercase tracking-tight">{{ group.title }}</h2>
@@ -277,7 +276,7 @@ const recommendedFormations = computed(() => {
           <div class="p-8 space-y-12">
             <div v-for="(q, idx) in group.questions" :key="q.id" v-show="isQuestionVisible(q)" class="space-y-6">
               <div class="flex items-start">
-                <span class="shrink-0 w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-blue-100">
+                <span class="shrink-0 w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-brand-primary/20">
                   {{ idx + 1 }}
                 </span>
                 <p class="text-lg font-bold text-blue-900 mt-1">{{ q.text }}</p>
@@ -324,8 +323,8 @@ const recommendedFormations = computed(() => {
 
 <style scoped>
 :root {
-  --color-brand-primary: #3b82f6;
-  --title-color: #0d1b3e;
+  --brand-primary: #ebb973;
+  --title-color: #315264;
 }
 
 .font-outfit {
@@ -364,9 +363,9 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card--selected {
-  border-color: #60a5fa; /* blue-400 */
-  background: #f3f4f6; /* gray-100 */
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+  border-color: #ebb973; 
+  background: rgba(235, 185, 115, 0.05); 
+  box-shadow: 0 10px 25px rgba(235, 185, 115, 0.1);
 }
 
 .formation-card__label {
@@ -379,7 +378,7 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card--selected .formation-card__label {
-  color: #60a5fa; /* blue-400 */
+  color: #ebb973; 
 }
 
 .formation-card__radio {
@@ -395,7 +394,7 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card__radio--selected {
-  border-color: #60a5fa;
+  border-color: #ebb973;
   background: white;
 }
 
@@ -429,9 +428,9 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: #eef2ff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  border-color: var(--brand-primary, #ebb973);
+  background: rgba(235, 185, 115, 0.05);
+  box-shadow: 0 4px 12px rgba(235, 185, 115, 0.1);
 }
 
 .option-card__label {
@@ -443,7 +442,7 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card--selected .option-card__label {
-  color: var(--color-brand-primary, #3b82f6);
+  color: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio {
@@ -459,8 +458,8 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card__radio--selected {
-  border-color: var(--color-brand-primary, #3b82f6);
-  background: var(--color-brand-primary, #3b82f6);
+  border-color: var(--brand-primary, #ebb973);
+  background: var(--brand-primary, #ebb973);
 }
 
 .option-card__radio-dot {

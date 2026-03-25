@@ -394,7 +394,7 @@ function selectBureau(form, suite) {
                <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-2xl">
                  <button v-for="child in selectedFormation.children" :key="child.id"
                          @click="selectedFormation = child; selectedSuite=''"
-                         class="flex-1 p-4 rounded-xl border-2 hover:bg-slate-50 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
+                         class="flex-1 p-4 rounded-xl border-2 hover:bg-brand-primary/5 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
                          :style="{ borderColor: selectedAccent.accent + '60' }"
                  >
                    <span class="material-icons-outlined text-xl" :style="{ color: selectedAccent.accent }">{{ child.icon || 'smart_toy' }}</span>
@@ -419,7 +419,7 @@ function selectBureau(form, suite) {
               <div class="text-center md:text-left flex-1">
                 <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
                 <h3 class="text-2xl md:text-3xl font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</h3>
-                <div v-if="selectedSuite" class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div v-if="selectedSuite" class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-[10px] font-bold text-brand-primary uppercase tracking-wider">
                    <span class="material-icons-outlined text-xs">{{ selectedSuite === 'microsoft' ? 'description' : 'cloud' }}</span>
                    {{ selectedSuite === 'microsoft' ? 'Microsoft Office' : 'Google Workspace' }}
                 </div>
@@ -438,7 +438,7 @@ function selectBureau(form, suite) {
           <button
             @click="selectFormation"
             :disabled="submitting || !selectedFormation || selectedFormation.isIAGroup"
-            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-white font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
@@ -488,9 +488,9 @@ function selectBureau(form, suite) {
 
 /* CSS variables and animations */
 :root {
-  --color-brand-primary: #3b82f6;
-  --color-brand-secondary: #2563eb;
-  --title-color: #0d1b3e;
+  --color-brand-primary: #ebb973;
+  --color-brand-secondary: #0d1b3e;
+  --title-color: #315264;
 }
 
 .heading-primary {
