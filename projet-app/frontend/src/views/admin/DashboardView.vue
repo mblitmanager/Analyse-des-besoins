@@ -32,7 +32,7 @@ const stats = ref([
     label: "Sessions Totales",
     value: "0",
     icon: "groups",
-    color: "blue",
+    color: "brand",
     key: "totalSessions",
     trend: "+12.5%",
     trendUp: true
@@ -82,7 +82,7 @@ const formationDistribution = computed(() => {
     datasets: [
       {
         backgroundColor: [
-          "#3b82f6",
+          "#ebb973",
           "#10b981",
           "#8b5cf6",
           "#f59e0b",
@@ -123,7 +123,7 @@ const scoresTrend = computed(() => {
     datasets: [
       {
         label: "Sessions",
-        backgroundColor: "#3b82f6",
+        backgroundColor: "#ebb973",
         borderRadius: 8,
         data: dayCounts,
       },
@@ -361,6 +361,8 @@ function formatDate(date) {
 
 .stat-icon-container {
   /* Using standard tailwind colors via custom properties for group logic */
+  --brand-50: rgba(235, 185, 115, 0.1);
+  --brand-600: #ebb973;
   --blue-50: #eff6ff;
   --blue-600: #2563eb;
   --emerald-50: #ecfdf5;

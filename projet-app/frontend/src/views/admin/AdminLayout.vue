@@ -130,8 +130,8 @@ const navItems = [
 }
 
 .nav-item-active {
-  background: rgba(99, 179, 237, 0.12);
-  color: #90cdf4;
-  box-shadow: inset 3px 0 0 #3b82f6;
+  background: rgba(235, 185, 115, 0.12);
+  color: #ebb973;
+  box-shadow: inset 3px 0 0 #ebb973;
 }
 </style>

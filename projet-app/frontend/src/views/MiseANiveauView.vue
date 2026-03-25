@@ -246,7 +246,7 @@ async function nextStep() {
 
     <!-- Language Warning Modal -->
     <transition name="modal">
-      <div v-if="showLanguageWarning" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div v-if="showLanguageWarning" class="fixed inset-0 z-100 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-[#0d1b3e]/40 backdrop-blur-sm" @click="showLanguageWarning = false"></div>
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative overflow-hidden animate-scale-up border border-white/20">
           <div class="p-8 md:p-10 text-center">
@@ -266,7 +266,7 @@ async function nextStep() {
               </button>
               <button 
                 @click="proceedToNextStep" 
-                class="w-full py-4 px-6 bg-gray-50 text-gray-500 font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-gray-100 transition-colors text-center"
+                class="w-full py-4 px-6 bg-brand-primary/10 text-brand-primary font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-brand-primary/20 transition-colors text-center"
               >
                 Continuer quand même
               </button>

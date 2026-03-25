@@ -65,6 +65,6 @@ const router = useRouter();
 
 <style scoped>
 .text-brand-primary {
-  color: #3b82f6; /* Ensure it uses the primary blue */
+  color: #ebb973; 
 }
 </style>

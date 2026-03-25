@@ -173,24 +173,21 @@ const parcoursSteps = computed(() => {
 
   // Step 1: Detect sequential steps
   let steps = [];
-  if (rawStr.includes(' & ') || rawStr.includes(' et ')) {
-    steps = rawStr.split(/ & | et /i);
-  } else if (rawStr.includes(' | ') && (rawStr.includes(' / ') || rawStr.includes(' OU '))) {
-    // Heuristic: If both | and / (or OU) are present, | is likely the step separator
-    // while / and OU are choice separators within those steps.
-    steps = rawStr.split(/ \| /);
+  if (rawStr.includes(' & ') || rawStr.includes(' et ') || /\s&\s/i.test(rawStr) || /\set\s/i.test(rawStr)) {
+    steps = rawStr.split(/\s*&\s*|\s+et\s+/i);
+  } else if (rawStr.includes('|') || /\s\|\s/.test(rawStr)) {
+    steps = rawStr.split(/\s*\|\s*/);
   } else {
+    // We treat the string as a single step sequence by default, 
+    // and let choice logic handle alternatives within that step.
     steps = [rawStr];
   }
   
   const cleanedSteps = steps.map(s => s.trim()).filter(Boolean);
   
-  return cleanedSteps.map((stepStr, index) => {
-    // Step 2: Split by |, OU, or / to get choices for this step
-    // We allow choices on any step if the choice separators are present.
-    // BUT we don't use | as a choice separator if we used it as a step separator above.
-    const usedPipeAsStep = steps.length > 1 && !rawStr.includes(' & ') && !rawStr.includes(' et ') && rawStr.includes(' | ');
-    const choiceRegex = usedPipeAsStep ? / OU | \/ /i : / \| | OU | \/ /i;
+  return cleanedSteps.map((stepStr) => {
+    // Step 2: Split by OU or / to get choices for this step
+    const choiceRegex = /\s*\/\s*| OU /i;
     
     const choices = stepStr.split(choiceRegex).map(c => c.trim()).filter(Boolean);
     return choices;
@@ -781,7 +778,11 @@ const downloadPDF = async () => {
                 Nous vous proposons le parcours :
               </span>
               <h3 class="text-xl md:text-2xl font-extrabold text-brand-primary">
-                {{ recommendedLabel }}
+                <template v-for="(part, i) in recommendedLabel.split(' | ')" :key="i">
+                  <div v-if="i > 0" class="h-1"></div>
+                  <span>{{ part }}</span>
+                  <br v-if="i < recommendedLabel.split(' | ').length - 1" />
+                </template>
               </h3>
               <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
                 {{ isBlocked 
@@ -833,7 +834,7 @@ const downloadPDF = async () => {
                         @click="!choiceObj.disabled ? selectChoice(stepIdx, choiceObj.label) : null"
                         class="p-4 border-2 rounded-xl text-center transition-all relative overflow-hidden flex flex-col items-center justify-center gap-2"
                         :class="[
-                          selectedChoices[stepIdx] === choiceObj.label ? 'border-brand-primary bg-brand-primary/5 shadow-md ring-2 ring-brand-primary/20' : 'border-slate-200 bg-white hover:border-brand-primary/30',
+                          selectedChoices[stepIdx] === choiceObj.label ? 'border-brand-primary bg-brand-primary/10 shadow-md ring-2 ring-brand-primary/20' : 'border-slate-200 bg-white hover:border-brand-primary/30',
                           choiceObj.disabled ? 'opacity-40 cursor-not-allowed grayscale bg-slate-50' : 'cursor-pointer'
                         ]"
                       >
@@ -860,7 +861,7 @@ const downloadPDF = async () => {
             </div>
 
             <!-- Compact Financement Box -->
-            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex items-center gap-3">
+            <div class="bg-brand-primary/10 rounded-xl p-4 border border-brand-primary/20 flex items-center gap-3">
               <span class="material-icons-outlined text-brand-primary text-lg">verified</span>
               <p class="text-[11px] font-semibold text-gray-600">
                 Parcours certifiant et 100% finançable (CPF, Employeur).
