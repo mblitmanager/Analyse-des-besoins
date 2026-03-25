@@ -129,7 +129,7 @@ const isEmpty = computed(() => {
 
 .option-card--selected {
   border-color: var(--brand-primary, #ebb973);
-  background: #eef2ff;
+  background: rgba(235, 185, 115, 0.05);
   box-shadow: 0 4px 12px rgba(235, 185, 115, 0.1);
 }
 

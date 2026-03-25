@@ -112,7 +112,7 @@ async function testDbConnection() {
         <WorkflowProgressBar customPath="/" />
 
         <div class="bg-white py-8 px-6 shadow-xl rounded-3xl border border-white">
-          <div class="mb-8 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center justify-between">
+          <div class="mb-8 p-4 bg-brand-primary/10 rounded-2xl border border-brand-primary/20 flex items-center justify-between">
             <span class="text-[10px] font-black tracking-widest text-blue-400">Date de complétude</span>
             <span class="text-sm font-bold text-blue-900">{{ new Date().toLocaleDateString('fr-FR') }}</span>
           </div>
@@ -168,34 +168,34 @@ async function testDbConnection() {
             <div v-if="referralEnabled" class="pt-4 border-t border-gray-100 space-y-6">
               <div class="flex items-center gap-2">
                 <span class="material-icons-outlined text-brand-primary">group_add</span>
-                <h3 class="Wizi-label !mb-0">Parrainage (Facultatif)</h3>
+                <h3 class="Wizi-label mb-0!">Parrainage (Facultatif)</h3>
               </div>
               
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="Wizi-label text-[10px]" for="parrain-last-name">Nom du parrain</label>
-                  <input v-model="form.parrainNom" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-last-name" placeholder="Nom" type="text" />
+                  <input v-model="form.parrainNom" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-last-name" placeholder="Nom" type="text" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="Wizi-label text-[10px]" for="parrain-first-name">Prénom du parrain</label>
-                  <input v-model="form.parrainPrenom" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-first-name" placeholder="Prénom" type="text" />
+                  <input v-model="form.parrainPrenom" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-first-name" placeholder="Prénom" type="text" />
                 </div>
               </div>
-
+ 
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="Wizi-label text-[10px]" for="parrain-email">Email du parrain</label>
-                  <input v-model="form.parrainEmail" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-email" placeholder="email@exemple.com" type="email" />
+                  <input v-model="form.parrainEmail" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-email" placeholder="email@exemple.com" type="email" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="Wizi-label text-[10px]" for="parrain-phone">Téléphone du parrain</label>
-                  <input v-model="form.parrainTelephone" class="Wizi-input w-full !py-2.5 !text-xs" id="parrain-phone" placeholder="06.." type="tel" />
+                  <input v-model="form.parrainTelephone" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-phone" placeholder="06.." type="tel" />
                 </div>
               </div>
             </div>
 
             <div class="pt-4">
-              <button type="submit" :disabled="loading" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg text-sm font-black uppercase tracking-widest text-[#428496] bg-brand-primary hover:bg-brand-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg text-sm font-black uppercase tracking-widest text-[#428496] bg-[#ebb973] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
                 <span>Démarrer le parcours</span>
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>

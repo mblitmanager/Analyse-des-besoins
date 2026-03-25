@@ -234,7 +234,7 @@ async function nextStep() {
         <!-- Bottom Actions -->
         <div class="pt-8 flex items-center justify-center gap-4 mt-10">
           <div class="max-w-4xl mx-auto flex items-center justify-center gap-4 w-full">
-            <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
+            <button @click="nextStep" :disabled="submitting" class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
               <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
               <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
@@ -260,13 +260,13 @@ async function nextStep() {
             <div class="flex flex-col gap-3">
               <button 
                 @click="router.push('/formations')" 
-                class="w-full py-4 px-6 bg-brand-primary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-lg hover:-translate-y-0.5 transition-all text-center"
+                class="w-full py-4 px-6 bg-[#ebb973] text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-lg hover:-translate-y-0.5 transition-all text-center"
               >
                 Choisir une autre formation
               </button>
               <button 
                 @click="proceedToNextStep" 
-                class="w-full py-4 px-6 bg-brand-primary/10 text-brand-primary font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-brand-primary/20 transition-colors text-center"
+                class="w-full py-4 px-6 bg-[#ebb973]/10 text-brand-primary font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-brand-primary/20 transition-colors text-center"
               >
                 Continuer quand même
               </button>

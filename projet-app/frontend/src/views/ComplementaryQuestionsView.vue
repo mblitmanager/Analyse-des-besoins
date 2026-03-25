@@ -146,7 +146,7 @@ async function skipStep() {
             class="px-6 py-5 border-b border-gray-100 flex items-center gap-3"
           >
             <div
-              class="w-9 h-9 rounded-lg bg-blue-600/5 flex items-center justify-center"
+              class="w-9 h-9 rounded-lg bg-brand-primary/10 flex items-center justify-center"
             >
               <span class="material-icons-outlined text-blue-600 text-lg"
                 >person_search</span
@@ -286,7 +286,7 @@ async function skipStep() {
           <button
             @click="nextStep"
             :disabled="submitting"
-            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span>Continuer</span>
             <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>

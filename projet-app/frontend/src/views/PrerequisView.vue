@@ -184,9 +184,9 @@ const recommendedFormations = computed(() => {
 
       <div v-else class="space-y-8 animate-in fade-in duration-500">
         <!-- Overlay Proposition Spéciale (Dynamique via QuestionRules) -->
-        <div v-if="showProposal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/40 backdrop-blur-sm">
+        <div v-if="showProposal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-secondary/40 backdrop-blur-sm">
           <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-blue-100 animate-in fade-in zoom-in duration-300">
-            <div class="h-20 w-20 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
+            <div class="h-20 w-20 bg-brand-primary/10 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
               <span class="material-icons-outlined text-4xl">lightbulb</span>
             </div>
             <h2 class="text-2xl font-black text-blue-900 mb-4 text-center">Parcours Recommandé</h2>
@@ -198,7 +198,7 @@ const recommendedFormations = computed(() => {
               <div 
                 v-for="(f, i) in recommendedFormations" 
                 :key="i"
-                class="px-5 py-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300"
+                class="px-5 py-4 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300"
                 :style="{ animationDelay: `${i * 100}ms` }"
               >
                 <div class="h-10 w-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-brand-primary">
@@ -229,7 +229,7 @@ const recommendedFormations = computed(() => {
         <!-- Section 1 : Situation -->
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white p-8">
           <div class="flex items-center mb-8">
-            <div class="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center mr-4 text-brand-primary">
+            <div class="h-12 w-12 bg-brand-primary/10 rounded-2xl flex items-center justify-center mr-4 text-brand-primary">
               <span class="material-icons-outlined">work_outline</span>
             </div>
             <h2 class="text-xl font-black text-blue-900 uppercase tracking-tight">Votre Profil</h2>
@@ -307,7 +307,7 @@ const recommendedFormations = computed(() => {
           <button
             @click="submitPrerequis()"
             :disabled="submitting"
-            class="px-10 py-4 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
