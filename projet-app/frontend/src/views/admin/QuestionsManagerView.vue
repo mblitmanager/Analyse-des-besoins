@@ -31,6 +31,12 @@ const form = ref({
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
+const getHeader = () => {
+  const token = localStorage.getItem("admin_token");
+  if (!token) return null;
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
+
 const formations = ref([]);
 const formationFilter = ref(localStorage.getItem('admin_q_formationFilter') || "");
 const levelFilter = ref(localStorage.getItem('admin_q_levelFilter') || "");
@@ -59,13 +65,15 @@ function openDuplicateModal(ids) {
 
 async function confirmDuplicate() {
   if (duplicateIds.value.length === 0) return;
+  const header = getHeader();
+  if (!header) return;
   duplicating.value = true;
   try {
     const res = await axios.post(`${apiBaseUrl}/questions/duplicate`, {
       ids: duplicateIds.value,
       targetFormationId: dupFormationId.value ? Number(dupFormationId.value) : null,
       targetLevelId: dupLevelId.value ? Number(dupLevelId.value) : null,
-    }, { headers: { Authorization: `Bearer ${token}` } });
+    }, header);
     showDuplicateModal.value = false;
     selectedIds.value.clear();
     alert(`${res.data.count} question(s) dupliquée(s) avec succès`);
@@ -102,9 +110,10 @@ watch(filterType, (v) => localStorage.setItem('admin_q_filterType', v));
 watch(formationFilter, (v) => localStorage.setItem('admin_q_formationFilter', v));
 watch(levelFilter, (v) => localStorage.setItem('admin_q_levelFilter', v));
 const pageSize = ref(25);
-const token = localStorage.getItem("admin_token");
 
 async function fetchQuestions() {
+  const header = getHeader();
+  if (!header) return;
   loading.value = true;
   try {
     const url = filterType.value
@@ -112,7 +121,7 @@ async function fetchQuestions() {
       : `${apiBaseUrl}/questions`;
     const res = await axios.get(url, {
       params: { ...(formationFilter.value ? { formation: formationFilter.value } : {}) },
-      headers: { Authorization: `Bearer ${token}` }
+      headers: header.headers
     });
     // deduplicate fetched questions by id or text
     questions.value = Array.from(
@@ -126,8 +135,10 @@ async function fetchQuestions() {
 }
 
 async function fetchFormations() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations`);
+    const res = await axios.get(`${apiBaseUrl}/formations`, header);
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -135,8 +146,10 @@ async function fetchFormations() {
 }
 
 async function fetchWorkflowTypes() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/workflow`);
+    const res = await axios.get(`${apiBaseUrl}/workflow`, header);
     // Map ALL active workflow steps to question types (code -> lowercase)
     workflowTypes.value = res.data
       .filter(step => step.isActive !== false)
@@ -216,6 +229,8 @@ function openEditModal(q) {
 }
 
 async function saveQuestion() {
+  const header = getHeader();
+  if (!header) return;
   try {
     const payload = {
       ...form.value,
@@ -244,16 +259,14 @@ async function saveQuestion() {
       const res = await axios.patch(
         `${apiBaseUrl}/questions/${editingQuestion.value.id}`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        header
       );
       const idx = questions.value.findIndex((q) => q.id === editingQuestion.value.id);
       if (idx !== -1) {
         questions.value[idx] = { ...questions.value[idx], ...res.data };
       }
     } else {
-      const res = await axios.post(`${apiBaseUrl}/questions`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.post(`${apiBaseUrl}/questions`, payload, header);
       questions.value.push(res.data);
     }
 
@@ -266,12 +279,14 @@ async function saveQuestion() {
 }
 
 async function toggleStatus(q) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newStatus = !q.isActive;
     await axios.patch(
       `${apiBaseUrl}/questions/${q.id}`,
       { isActive: newStatus },
-      { headers: { Authorization: `Bearer ${token}` } },
+      header,
     );
     q.isActive = newStatus;
   } catch (error) {
@@ -280,10 +295,10 @@ async function toggleStatus(q) {
 }
 
 async function deleteQuestion(id) {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const checkRes = await axios.get(`${apiBaseUrl}/questions/${id}/is-used`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const checkRes = await axios.get(`${apiBaseUrl}/questions/${id}/is-used`, header);
     
     let confirmMsg = "Êtes-vous sûr de vouloir supprimer cette question ?";
     if (checkRes.data === true) {
@@ -292,9 +307,7 @@ async function deleteQuestion(id) {
 
     if (!confirm(confirmMsg)) return;
 
-    await axios.delete(`${apiBaseUrl}/questions/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await axios.delete(`${apiBaseUrl}/questions/${id}`, header);
     const idx = questions.value.findIndex((q) => q.id === id);
     if (idx !== -1) questions.value.splice(idx, 1);
     selectedIds.value.delete(id);
@@ -306,12 +319,14 @@ async function deleteQuestion(id) {
 
 async function bulkToggleStatus(isActive) {
   if (selectedIds.value.size === 0) return;
+  const header = getHeader();
+  if (!header) return;
   try {
     const ids = Array.from(selectedIds.value);
     await axios.patch(`${apiBaseUrl}/questions/bulk`, {
       ids,
       data: { isActive }
-    }, { headers: { Authorization: `Bearer ${token}` } });
+    }, header);
     
     questions.value.forEach(q => {
       if (selectedIds.value.has(q.id)) q.isActive = isActive;
@@ -326,12 +341,13 @@ async function bulkToggleStatus(isActive) {
 async function bulkDelete() {
   if (selectedIds.value.size === 0) return;
   if (!confirm(`Supprimer ces ${selectedIds.value.size} questions ?`)) return;
-  
+  const header = getHeader();
+  if (!header) return;
   try {
     const ids = Array.from(selectedIds.value);
     await axios.delete(`${apiBaseUrl}/questions/bulk`, {
       data: { ids },
-      headers: { Authorization: `Bearer ${token}` }
+      ...header
     });
     
     questions.value = questions.value.filter(q => !selectedIds.value.has(q.id));
@@ -405,15 +421,15 @@ function moveQuestion(levelGroup, index, direction) {
 }
 
 async function saveOrder(questionsList) {
+  const header = getHeader();
+  if (!header) return;
   savingOrder.value = true;
   try {
     const payload = questionsList.map((q, idx) => ({
       id: q.id,
       order: idx + 1
     }));
-    await axios.patch(`${apiBaseUrl}/questions/order`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await axios.patch(`${apiBaseUrl}/questions/order`, payload, header);
     questionsList.forEach((q, idx) => {
       const idxAll = questions.value.findIndex((x) => x.id === q.id);
       if (idxAll !== -1) questions.value[idxAll].order = idx + 1;

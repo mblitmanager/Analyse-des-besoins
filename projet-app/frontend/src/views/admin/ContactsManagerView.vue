@@ -17,13 +17,18 @@ const form = ref({
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-const token = localStorage.getItem("admin_token");
+
+const getHeader = () => {
+  const token = localStorage.getItem("admin_token");
+  if (!token) return null;
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
 
 async function fetchContacts() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const response = await axios.get(`${apiBaseUrl}/contacts`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(`${apiBaseUrl}/contacts`, header);
     contacts.value = response.data;
   } catch (error) {
     console.error("Failed to fetch contacts:", error);
@@ -61,17 +66,17 @@ function openEditModal(contact) {
 }
 
 async function saveContact() {
+  const header = getHeader();
+  if (!header) return;
   try {
     if (editingContact.value) {
       await axios.patch(
         `${apiBaseUrl}/contacts/${editingContact.value.id}`,
         form.value,
-        { headers: { Authorization: `Bearer ${token}` } },
+        header,
       );
     } else {
-      await axios.post(`${apiBaseUrl}/contacts`, form.value, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(`${apiBaseUrl}/contacts`, form.value, header);
     }
     showModal.value = false;
     await fetchContacts();
@@ -82,10 +87,10 @@ async function saveContact() {
 
 async function deleteContact(id) {
   if (!confirm("Supprimer ce conseiller ?")) return;
+  const header = getHeader();
+  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/contacts/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await axios.delete(`${apiBaseUrl}/contacts/${id}`, header);
     await fetchContacts();
   } catch (error) {
     alert("Erreur lors de la suppression");
@@ -93,12 +98,14 @@ async function deleteContact(id) {
 }
 
 async function toggleStatus(contact) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newStatus = !contact.isActive;
     await axios.patch(
       `${apiBaseUrl}/contacts/${contact.id}`,
       { isActive: newStatus },
-      { headers: { Authorization: `Bearer ${token}` } },
+      header,
     );
     contact.isActive = newStatus;
   } catch (error) {

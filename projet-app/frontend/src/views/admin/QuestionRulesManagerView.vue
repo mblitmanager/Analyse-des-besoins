@@ -3,12 +3,18 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+const getHeader = () => {
+  const token = localStorage.getItem("admin_token");
+  if (!token) return null;
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
+
 const rules = ref([]);
 const workflows = ref([]);
 const questions = ref([]);
 const formations = ref([]);
 const loading = ref(true);
-const token = localStorage.getItem("admin_token");
 
 onMounted(async () => {
   await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions(), fetchFormations()]);
@@ -16,8 +22,10 @@ onMounted(async () => {
 });
 
 async function fetchRules() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/question-rules`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(`${apiBaseUrl}/question-rules`, header);
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch question rules:", error);
@@ -25,8 +33,10 @@ async function fetchRules() {
 }
 
 async function fetchWorkflows() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/workflow`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(`${apiBaseUrl}/workflow`, header);
     workflows.value = res.data;
   } catch (error) {
     console.error("Failed to fetch workflows:", error);
@@ -34,8 +44,10 @@ async function fetchWorkflows() {
 }
 
 async function fetchQuestions() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/questions`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(`${apiBaseUrl}/questions`, header);
     questions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
@@ -43,8 +55,10 @@ async function fetchQuestions() {
 }
 
 async function fetchFormations() {
+  const header = getHeader();
+  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, header);
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -98,14 +112,16 @@ function openEditModal(rule) {
 }
 
 async function saveRule() {
+  const header = getHeader();
+  if (!header) return;
   try {
     const payload = { ...ruleForm.value };
     if (!payload.questionId) payload.questionId = null;
 
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload, header);
     } else {
-      await axios.post(`${apiBaseUrl}/question-rules`, payload, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`${apiBaseUrl}/question-rules`, payload, header);
     }
     await fetchRules();
     showModal.value = false;
@@ -117,8 +133,10 @@ async function saveRule() {
 
 async function deleteRule(id) {
   if (!confirm("Supprimer cette règle ?")) return;
+  const header = getHeader();
+  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/question-rules/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.delete(`${apiBaseUrl}/question-rules/${id}`, header);
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -126,9 +144,11 @@ async function deleteRule(id) {
 }
 
 async function toggleRuleActive(rule) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newState = !rule.isActive;
-    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, { isActive: newState }, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, { isActive: newState }, header);
     rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule active status:", error);

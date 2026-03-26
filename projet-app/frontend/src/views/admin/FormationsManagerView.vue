@@ -86,14 +86,23 @@ const form = ref({
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-const token = localStorage.getItem("admin_token");
+
+const getHeader = () => {
+  const token = localStorage.getItem("admin_token");
+  if (!token) {
+    console.error("No admin token found. Please log in.");
+    // Optionally, redirect to login or show a user-friendly message
+    return null;
+  }
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
 
 async function fetchFormations() {
+  const header = getHeader();
+  if (!header) return;
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(`${apiBaseUrl}/formations`, header);
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -151,6 +160,7 @@ function moveLevel(index, direction) {
 }
 
 function removeLevel(index) {
+  // if (!confirm("Supprimer ce niveau ? Cette action sera définitive lors de l'enregistrement.")) return;
   form.value.levels.splice(index, 1);
 }
 
@@ -158,20 +168,35 @@ function openEditModal(f, tab = 'details') {
   editingFormation.value = f;
   // S'assurer que les paliers sont triés par ordre à l'ouverture
   const sortedLevels = f.levels ? [...f.levels].sort((a,b) => (a.order || 0) - (b.order || 0)) : [];
-  form.value = { ...f, levels: sortedLevels };
+  form.value = { 
+    ...f, 
+    levels: sortedLevels,
+    color: f.color || "#3B82F6" // Fallback to prevent HTML5 color input warning
+  };
   activeTab.value = tab;
   showModal.value = true;
   fetchRulesForFormation(f.id);
 }
 
+async function fetchLevelsForFormation(formationId) {
+  const header = getHeader();
+  if (!header) return;
+  try {
+    const res = await axios.get(`${apiBaseUrl}/formations/${formationId}`, header);
+    selectedFormationLevels.value = res.data.levels || [];
+  } catch (error) {
+    console.error("Failed to fetch levels:", error);
+    selectedFormationLevels.value = [];
+  }
+}
+
 async function fetchRulesForFormation(formationId) {
+  const header = getHeader();
+  if (!header) return;
   rulesLoading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours`);
-    const formation = formations.value.find(f => f.id === formationId);
-    if (formation) {
-      rules.value = res.data.filter(r => r.formation === formation.label);
-    }
+    const res = await axios.get(`${apiBaseUrl}/parcours?formationId=${formationId}`, header);
+    rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch rules:", error);
   } finally {
@@ -180,10 +205,12 @@ async function fetchRulesForFormation(formationId) {
 }
 
 async function fetchPrereqQuestions() {
+  const header = getHeader();
+  if (!header) return;
   try {
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
       params: { scope: "global" },
-      headers: { Authorization: `Bearer ${token}` }
+      headers: header.headers
     });
     prereqQuestions.value = res.data || [];
   } catch (error) {
@@ -191,19 +218,13 @@ async function fetchPrereqQuestions() {
   }
 }
 
-async function fetchLevelsForFormation(label) {
+async function fetchLevelsForFormationByLabel(label) {
   const formation = formations.value.find(f => f.label === label);
   if (!formation) {
     selectedFormationLevels.value = [];
     return;
   }
-  try {
-    const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`);
-    selectedFormationLevels.value = res.data || [];
-  } catch (error) {
-    console.error("Failed to fetch levels:", error);
-    selectedFormationLevels.value = [];
-  }
+  await fetchLevelsForFormation(formation.id);
 }
 
 function openNewRuleForm() {
@@ -241,7 +262,12 @@ async function openEditRuleForm(rule) {
     prerequisiteLogic: rule.prerequisiteLogic || "OR"
   };
   
-  if (rule.formation) await fetchLevelsForFormation(rule.formation);
+  if (rule.formation) {
+    const matchedFormation = formations.value.find(f => f.label === rule.formation);
+    if (matchedFormation) {
+      await fetchLevelsForFormation(matchedFormation.id);
+    }
+  }
 
   const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
   if (condMatch) {
@@ -321,11 +347,13 @@ const getPrereqOptionLabel = (opt) => {
 };
 
 async function saveRule() {
+  const header = getHeader();
+  if (!header) return;
   try {
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value);
+      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value, header);
     } else {
-      await axios.post(`${apiBaseUrl}/parcours`, newRule.value);
+      await axios.post(`${apiBaseUrl}/parcours`, newRule.value, header);
     }
     showRuleForm.value = false;
     editingRule.value = null;
@@ -337,8 +365,10 @@ async function saveRule() {
 
 async function deleteRule(rule) {
   if (!confirm(`Supprimer cette règle ?`)) return;
+  const header = getHeader();
+  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`);
+    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`, header);
     await fetchRulesForFormation(editingFormation.value.id);
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -346,9 +376,11 @@ async function deleteRule(rule) {
 }
 
 async function toggleRuleActive(rule) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newState = !(rule.isActive !== false);
-    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState });
+    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState }, header);
     rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule:", error);
@@ -365,7 +397,7 @@ watch(() => newRule.value.formation, async (val) => {
     const matched = formations.value.find(f => f.label === val);
     if (matched) {
       newRule.value.formationId = matched.id;
-      await fetchLevelsForFormation(val);
+      await fetchLevelsForFormation(matched.id);
     }
   }
   if (!isInitializingRuleForm.value) {
@@ -385,17 +417,29 @@ watch([f1Formation, f1Level], ([form, level]) => {
   if (isInitializingRuleForm.value || f1Manual.value) return;
   if (form === "Parcours Libre") f1Level.value = "";
   newRule.value.formation1 = buildTargetString(form, level);
-  if (form) fetchLevelsForFormation(form);
+  if (form) {
+    const matchedFormation = formations.value.find(f => f.label === form);
+    if (matchedFormation) {
+      fetchLevelsForFormation(matchedFormation.id);
+    }
+  }
 });
 
 watch([f2Formation, f2Level], ([form, level]) => {
   if (isInitializingRuleForm.value || f2Manual.value) return;
   if (form === "Parcours Libre") f2Level.value = "";
   newRule.value.formation2 = buildTargetString(form, level);
-  if (form) fetchLevelsForFormation(form);
+  if (form) {
+    const matchedFormation = formations.value.find(f => f.label === form);
+    if (matchedFormation) {
+      fetchLevelsForFormation(matchedFormation.id);
+    }
+  }
 });
 
 async function saveFormation() {
+  const header = getHeader();
+  if (!header) return;
   try {
     if (!form.value.slug) {
       form.value.slug = form.value.label
@@ -414,18 +458,15 @@ async function saveFormation() {
     });
 
     const payload = { ...form.value, levels: sanitizedLevels };
-    delete payload.questions;
 
     if (editingFormation.value) {
       await axios.patch(
         `${apiBaseUrl}/formations/${editingFormation.value.id}`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } },
+        header,
       );
     } else {
-      await axios.post(`${apiBaseUrl}/formations`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(`${apiBaseUrl}/formations`, payload, header);
     }
     showModal.value = false;
     await fetchFormations();
@@ -435,12 +476,12 @@ async function saveFormation() {
   }
 }
 
-async function deleteFormation(id) {
-  if (!confirm("Êtes-vous sûr de vouloir supprimer cette formation ?")) return;
+async function deleteFormation(formation) {
+  if (!confirm(`Supprimer définitivement ${formation.label} ?`)) return;
+  const header = getHeader();
+  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/formations/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await axios.delete(`${apiBaseUrl}/formations/${formation.id}`, header);
     await fetchFormations();
   } catch (error) {
     alert("Erreur lors de la suppression");
@@ -449,12 +490,14 @@ async function deleteFormation(id) {
 }
 
 async function toggleStatus(formation) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newStatus = !formation.isActive;
     await axios.patch(
       `${apiBaseUrl}/formations/${formation.id}`,
       { isActive: newStatus },
-      { headers: { Authorization: `Bearer ${token}` } },
+      header,
     );
     formation.isActive = newStatus;
   } catch (error) {
@@ -463,12 +506,14 @@ async function toggleStatus(formation) {
 }
 
 async function toggleLowScoreWarning(formation) {
+  const header = getHeader();
+  if (!header) return;
   try {
     const newValue = !formation.enableLowScoreWarning;
     await axios.patch(
       `${apiBaseUrl}/formations/${formation.id}`,
       { enableLowScoreWarning: newValue },
-      { headers: { Authorization: `Bearer ${token}` } },
+      header,
     );
     formation.enableLowScoreWarning = newValue;
   } catch (error) {
@@ -834,6 +879,14 @@ onMounted(() => {
                   <span class="material-icons-outlined text-[20px]">delete_outline</span>
                 </button>
               </div>
+            </div>
+
+            <!-- Save Button for Levels -->
+            <div class="flex justify-end pt-4">
+              <button type="button" @click="saveFormation" class="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95 flex items-center gap-2">
+                <span class="material-icons-outlined text-sm">check_circle</span>
+                Valider les modifications
+              </button>
             </div>
           </div>
 
