@@ -209,7 +209,7 @@ const recommendedFormations = computed(() => {
             </div>
             
             <div class="flex flex-col space-y-3">
-              <button @click="acceptProposal" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
+              <button @click="acceptProposal" class="w-full py-4 bg-[#ebb973] text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
                 Accepter et voir mon bilan
               </button>
               <button @click="refuseProposal" class="w-full py-4 text-gray-500 font-bold text-sm hover:text-blue-900 transition-colors">
