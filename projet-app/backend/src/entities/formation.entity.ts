@@ -26,7 +26,7 @@ export class Formation {
   objectifs: string;
 
   @Column({ type: 'text', nullable: true })
-  prequis: string;
+  prequis: string; // Note: this is a typo for 'prerequis' — requires a DB migration to rename
 
   @Column({ type: 'text', nullable: true })
   modaliteDuree: string;

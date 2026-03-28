@@ -12,12 +12,6 @@ const savingWorkflow = ref(false);
 const newStep = ref({ code: '', label: '', route: '' });
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-const getHeader = () => {
-  const token = localStorage.getItem("admin_token");
-  if (!token) return null;
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
-
 const activeTab = ref('settings'); // 'settings' or 'workflow'
 const searchQuery = ref('');
 
@@ -90,13 +84,11 @@ async function toggleSetting(setting) {
 }
 
 async function fetchSettings() {
-  const header = getHeader();
-  if (!header) return;
   loading.value = false;
   try {
     const [settingsRes, workflowRes] = await Promise.all([
-      axios.get(`${apiBaseUrl}/settings`, header),
-      axios.get(`${apiBaseUrl}/workflow?all=true`, header)
+      axios.get(`${apiBaseUrl}/settings`),
+      axios.get(`${apiBaseUrl}/workflow?all=true`)
     ]);
     settings.value = settingsRes.data;
     workflowSteps.value = workflowRes.data;
@@ -108,14 +100,11 @@ async function fetchSettings() {
 }
 
 async function saveSetting(key, value) {
-  const header = getHeader();
-  if (!header) return;
   saving.value = true;
   try {
     await axios.patch(
       `${apiBaseUrl}/settings/${key}`,
-      { value },
-      header,
+      { value }
     );
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
@@ -125,15 +114,13 @@ async function saveSetting(key, value) {
 }
 
 async function saveWorkflowOrder() {
-  const header = getHeader();
-  if (!header) return;
   savingWorkflow.value = true;
   try {
     const payload = workflowSteps.value.map((step, index) => ({
       id: step.id,
       order: index
     }));
-    await axios.put(`${apiBaseUrl}/workflow/order`, payload, header);
+    await axios.put(`${apiBaseUrl}/workflow/order`, payload);
     await appStore.fetchWorkflow(); 
     alert("Configuration du workflow enregistrée !");
   } catch (error) {
@@ -149,11 +136,9 @@ async function createWorkflowStep() {
     alert('Informations manquantes');
     return;
   }
-  const header = getHeader();
-  if (!header) return;
   try {
     const payload = { ...newStep.value };
-    await axios.post(`${apiBaseUrl}/workflow`, payload, header);
+    await axios.post(`${apiBaseUrl}/workflow`, payload);
     await fetchSettings();
     await appStore.fetchWorkflow();
     newStep.value = { code: '', label: '', route: '' };
@@ -165,10 +150,8 @@ async function createWorkflowStep() {
 async function deleteWorkflowStep(step) {
   const isHardDelete = step.isActive === false;
   if (!confirm(isHardDelete ? 'Supprimer définitivement ?' : 'Désactiver ?')) return;
-  const header = getHeader();
-  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`, header);
+    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`);
     await fetchSettings();
     await appStore.fetchWorkflow();
   } catch (error) {
@@ -177,11 +160,9 @@ async function deleteWorkflowStep(step) {
 }
 
 async function toggleStepActive(step) {
-  const header = getHeader();
-  if (!header) return;
   try {
     const newStatus = !step.isActive;
-    await axios.put(`${apiBaseUrl}/workflow/${step.id}`, { isActive: newStatus }, header);
+    await axios.put(`${apiBaseUrl}/workflow/${step.id}`, { isActive: newStatus });
     step.isActive = newStatus;
     await appStore.fetchWorkflow();
   } catch (error) {
