@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
+import axios from 'axios'
 import router from '../router';
 
 export const useAppStore = defineStore('app', () => {
@@ -29,8 +30,8 @@ export const useAppStore = defineStore('app', () => {
   async function fetchWorkflow() {
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-      const response = await fetch(`${apiBaseUrl}/workflow`);
-      const allSteps = await response.json();
+      const response = await axios.get(`${apiBaseUrl}/workflow`);
+      const allSteps = response.data;
       // only keep active steps for navigation/progress
       workflowSteps.value = allSteps.filter(s => s.isActive !== false);
 
@@ -73,22 +74,14 @@ export const useAppStore = defineStore('app', () => {
     if (settings.value[key] !== undefined) return settings.value[key];
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-      const res = await fetch(`${apiBaseUrl}/settings/${key}`);
-      if (res.ok) {
-        const text = await res.text();
-        if (!text || text === 'null') {
-          settings.value[key] = null;
-          return null;
-        }
-        try {
-          const data = JSON.parse(text);
-          settings.value[key] = data?.value;
-          return data?.value;
-        } catch (parseError) {
-          console.error(`Invalid JSON for setting ${key}:`, text);
-          return null;
-        }
+      const res = await axios.get(`${apiBaseUrl}/settings/${key}`);
+      const data = res.data;
+      if (!data || data === 'null') {
+        settings.value[key] = null;
+        return null;
       }
+      settings.value[key] = data?.value;
+      return data?.value;
     } catch (e) {
       console.error(`Failed to fetch setting ${key}`, e);
     }
@@ -147,12 +140,9 @@ export const useAppStore = defineStore('app', () => {
         } else {
           params = `?scope=global`;
         }
-        const res = await fetch(url + params);
-        if (res.ok) {
-          const text = await res.text();
-          if (!text) return [];
-          const questions = JSON.parse(text);
-          if (Array.isArray(questions)) {
+        const res = await axios.get(url + params);
+        const questions = res.data;
+        if (Array.isArray(questions)) {
             const NO_QUESTION_STEPS = ['identification', 'formation_selection', 'resultats', 'validation'];
             let skipThisStep = questions.length === 0 && !NO_QUESTION_STEPS.includes(codeLower);
 
@@ -174,7 +164,6 @@ export const useAppStore = defineStore('app', () => {
               continue;
             }
           }
-        }
       } catch (e) {
         // if the fetch fails just stop skipping
         console.error('Error while checking questions for step', code, e);
@@ -225,10 +214,9 @@ export const useAppStore = defineStore('app', () => {
         let url = `${apiBaseUrl}/questions/workflow/${codeLower}`;
         let params = formationSlug ? `?formation=${formationSlug}&scope=auto` : `?scope=global`;
         
-        const res = await fetch(url + params);
-        if (res.ok) {
-          const questions = await res.json();
-          if (Array.isArray(questions)) {
+        const res = await axios.get(url + params);
+        const questions = res.data;
+        if (Array.isArray(questions)) {
             const NO_QUESTION_STEPS = ['identification', 'formation_selection', 'resultats', 'validation'];
             let skipThisStep = questions.length === 0 && !NO_QUESTION_STEPS.includes(codeLower);
 
@@ -244,10 +232,6 @@ export const useAppStore = defineStore('app', () => {
               actual.push(step);
             }
           }
-        } else {
-          // If API fails, keep the step as safe fallback
-          actual.push(step);
-        }
       } catch (e) {
         actual.push(step);
       }

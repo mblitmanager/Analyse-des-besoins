@@ -87,22 +87,11 @@ const form = ref({
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-const getHeader = () => {
-  const token = localStorage.getItem("admin_token");
-  if (!token) {
-    console.error("No admin token found. Please log in.");
-    // Optionally, redirect to login or show a user-friendly message
-    return null;
-  }
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
 
 async function fetchFormations() {
-  const header = getHeader();
-  if (!header) return;
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations`, header);
+    const res = await axios.get(`${apiBaseUrl}/formations`);
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -138,6 +127,7 @@ function openAddModal() {
 
 function addLevel() {
   form.value.levels.push({
+    _clientKey: `lvl-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     label: "",
     order: form.value.levels.length,
     successThreshold: 0,
@@ -160,8 +150,10 @@ function moveLevel(index, direction) {
 }
 
 function removeLevel(index) {
-  // if (!confirm("Supprimer ce niveau ? Cette action sera définitive lors de l'enregistrement.")) return;
   form.value.levels.splice(index, 1);
+  form.value.levels.forEach((lvl, i) => {
+    lvl.order = i;
+  });
 }
 
 function openEditModal(f, tab = 'details') {
@@ -179,10 +171,8 @@ function openEditModal(f, tab = 'details') {
 }
 
 async function fetchLevelsForFormation(formationId) {
-  const header = getHeader();
-  if (!header) return;
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations/${formationId}`, header);
+    const res = await axios.get(`${apiBaseUrl}/formations/${formationId}`);
     selectedFormationLevels.value = res.data.levels || [];
   } catch (error) {
     console.error("Failed to fetch levels:", error);
@@ -191,11 +181,9 @@ async function fetchLevelsForFormation(formationId) {
 }
 
 async function fetchRulesForFormation(formationId) {
-  const header = getHeader();
-  if (!header) return;
   rulesLoading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours?formationId=${formationId}`, header);
+    const res = await axios.get(`${apiBaseUrl}/parcours?formationId=${formationId}`);
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch rules:", error);
@@ -205,12 +193,9 @@ async function fetchRulesForFormation(formationId) {
 }
 
 async function fetchPrereqQuestions() {
-  const header = getHeader();
-  if (!header) return;
   try {
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
-      params: { scope: "global" },
-      headers: header.headers
+      params: { scope: "global" }
     });
     prereqQuestions.value = res.data || [];
   } catch (error) {
@@ -347,13 +332,11 @@ const getPrereqOptionLabel = (opt) => {
 };
 
 async function saveRule() {
-  const header = getHeader();
-  if (!header) return;
   try {
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value, header);
+      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value);
     } else {
-      await axios.post(`${apiBaseUrl}/parcours`, newRule.value, header);
+      await axios.post(`${apiBaseUrl}/parcours`, newRule.value);
     }
     showRuleForm.value = false;
     editingRule.value = null;
@@ -365,10 +348,8 @@ async function saveRule() {
 
 async function deleteRule(rule) {
   if (!confirm(`Supprimer cette règle ?`)) return;
-  const header = getHeader();
-  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`, header);
+    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`);
     await fetchRulesForFormation(editingFormation.value.id);
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -376,11 +357,9 @@ async function deleteRule(rule) {
 }
 
 async function toggleRuleActive(rule) {
-  const header = getHeader();
-  if (!header) return;
   try {
     const newState = !(rule.isActive !== false);
-    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState }, header);
+    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState });
     rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule:", error);
@@ -438,8 +417,6 @@ watch([f2Formation, f2Level], ([form, level]) => {
 });
 
 async function saveFormation() {
-  const header = getHeader();
-  if (!header) return;
   try {
     if (!form.value.slug) {
       form.value.slug = form.value.label
@@ -462,11 +439,10 @@ async function saveFormation() {
     if (editingFormation.value) {
       await axios.patch(
         `${apiBaseUrl}/formations/${editingFormation.value.id}`,
-        payload,
-        header,
+        payload
       );
     } else {
-      await axios.post(`${apiBaseUrl}/formations`, payload, header);
+      await axios.post(`${apiBaseUrl}/formations`, payload);
     }
     showModal.value = false;
     await fetchFormations();
@@ -478,10 +454,8 @@ async function saveFormation() {
 
 async function deleteFormation(formation) {
   if (!confirm(`Supprimer définitivement ${formation.label} ?`)) return;
-  const header = getHeader();
-  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/formations/${formation.id}`, header);
+    await axios.delete(`${apiBaseUrl}/formations/${formation.id}`);
     await fetchFormations();
   } catch (error) {
     alert("Erreur lors de la suppression");
@@ -490,14 +464,11 @@ async function deleteFormation(formation) {
 }
 
 async function toggleStatus(formation) {
-  const header = getHeader();
-  if (!header) return;
   try {
     const newStatus = !formation.isActive;
     await axios.patch(
       `${apiBaseUrl}/formations/${formation.id}`,
-      { isActive: newStatus },
-      header,
+      { isActive: newStatus }
     );
     formation.isActive = newStatus;
   } catch (error) {
@@ -506,14 +477,11 @@ async function toggleStatus(formation) {
 }
 
 async function toggleLowScoreWarning(formation) {
-  const header = getHeader();
-  if (!header) return;
   try {
     const newValue = !formation.enableLowScoreWarning;
     await axios.patch(
       `${apiBaseUrl}/formations/${formation.id}`,
-      { enableLowScoreWarning: newValue },
-      header,
+      { enableLowScoreWarning: newValue }
     );
     formation.enableLowScoreWarning = newValue;
   } catch (error) {
@@ -853,7 +821,7 @@ onMounted(() => {
             <div class="space-y-4">
               <div
                 v-for="(lvl, idx) in form.levels"
-                :key="idx"
+                :key="lvl.id ?? lvl._clientKey ?? idx"
                 class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-end gap-6 relative group animate-slide-in"
               >
                 <div class="flex-1 space-y-2 w-full">

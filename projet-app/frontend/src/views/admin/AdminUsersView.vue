@@ -12,12 +12,6 @@ const pageSize = ref(10);
 const newUser = ref({ email: "", password: "" });
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-const getHeader = () => {
-  const token = localStorage.getItem("admin_token");
-  if (!token) return null;
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
-
 const uniqueRoles = computed(() => {
   const set = new Set();
   for (const u of users.value || []) if (u?.role) set.add(u.role);
@@ -52,10 +46,8 @@ const pageNumbers = computed(() => {
 watch([searchTerm, filterRole, pageSize], () => (page.value = 1));
 
 async function fetchUsers() {
-  const header = getHeader();
-  if (!header) return;
   try {
-    const response = await axios.get(`${apiBaseUrl}/admin/users`, header);
+    const response = await axios.get(`${apiBaseUrl}/admin/users`);
     users.value = response.data;
   } catch (error) {
     console.error("Failed to fetch users:", error);
@@ -65,10 +57,8 @@ async function fetchUsers() {
 }
 
 async function createUser() {
-  const header = getHeader();
-  if (!header) return;
   try {
-    await axios.post(`${apiBaseUrl}/admin/users`, newUser.value, header);
+    await axios.post(`${apiBaseUrl}/admin/users`, newUser.value);
     showAddModal.value = false;
     newUser.value = { email: "", password: "" };
     fetchUsers();
@@ -79,10 +69,8 @@ async function createUser() {
 
 async function deleteUser(id) {
   if (!confirm("Supprimer définitivement cet accès administrateur ?")) return;
-  const header = getHeader();
-  if (!header) return;
   try {
-    await axios.delete(`${apiBaseUrl}/admin/users/${id}`, header);
+    await axios.delete(`${apiBaseUrl}/admin/users/${id}`);
     fetchUsers();
   } catch (error) {
     alert("Erreur lors de la suppression.");

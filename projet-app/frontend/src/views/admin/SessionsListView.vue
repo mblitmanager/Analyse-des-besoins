@@ -21,11 +21,6 @@ const loadingProcessed = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-const getHeader = () => {
-  const token = localStorage.getItem("admin_token");
-  if (!token) return null;
-  return { headers: { Authorization: `Bearer ${token}` } };
-};
 
 // Pagination
 const page = ref(1);
@@ -38,8 +33,6 @@ watch([searchQuery, activeTab, formationFilter], () => {
 });
 
 async function viewSession(session) {
-  const header = getHeader();
-  if (!header) return;
   selectedSession.value = session;
   editableSession.value = JSON.parse(JSON.stringify(session));
   processedData.value = null;
@@ -47,7 +40,7 @@ async function viewSession(session) {
   
   loadingProcessed.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/processed`, header);
+    const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/processed`);
     processedData.value = res.data;
   } catch (error) {
     console.error("Failed to fetch processed session data:", error);
@@ -110,13 +103,11 @@ function toggleSelection(id) {
 
 async function deleteSelectedSessions() {
   if (!selectedSessionIds.value.size) return;
-  const header = getHeader();
-  if (!header) return;
   if (!confirm(`Supprimer définitivement les ${selectedSessionIds.value.size} sessions sélectionnées ?`)) return;
 
   try {
     await Promise.all(
-      Array.from(selectedSessionIds.value).map(id => axios.delete(`${apiBaseUrl}/sessions/${id}`, header))
+      Array.from(selectedSessionIds.value).map(id => axios.delete(`${apiBaseUrl}/sessions/${id}`))
     );
     selectedSessionIds.value.clear();
     await fetchSessions();
@@ -127,11 +118,9 @@ async function deleteSelectedSessions() {
 }
 
 async function fetchSessions() {
-  const header = getHeader();
-  if (!header) return;
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/sessions`, header);
+    const res = await axios.get(`${apiBaseUrl}/sessions`);
     sessions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch sessions:", error);
@@ -155,8 +144,6 @@ async function fetchQuestionsIndex() {
 
 async function saveSessionEdits() {
   if (!editableSession.value) return;
-  const header = getHeader();
-  if (!header) return;
   savingSession.value = true;
   try {
     const payload = {
@@ -175,8 +162,7 @@ async function saveSessionEdits() {
 
     await axios.patch(
       `${apiBaseUrl}/sessions/${editableSession.value.id}`,
-      payload,
-      header
+      payload
     );
 
     await fetchSessions();
@@ -196,8 +182,6 @@ async function saveSessionEdits() {
 }
 
 async function deleteSession(session) {
-  const header = getHeader();
-  if (!header) return;
   if (
     !confirm(
       `Supprimer définitivement la session de ${session.prenom || session.stagiaire?.prenom || ""} ${session.nom || session.stagiaire?.nom || ""} ?`,
@@ -206,7 +190,7 @@ async function deleteSession(session) {
     return;
   }
   try {
-    await axios.delete(`${apiBaseUrl}/sessions/${session.id}`, header);
+    await axios.delete(`${apiBaseUrl}/sessions/${session.id}`);
     await fetchSessions();
   } catch (error) {
     console.error("Failed to delete session:", error);
@@ -215,8 +199,6 @@ async function deleteSession(session) {
 }
 
 async function exportToExcel() {
-  const header = getHeader();
-  if (!header) return;
   if (filteredSessions.value.length === 0) return;
 
   const confirmExport = confirm(`Exporter les ${filteredSessions.value.length} sessions filtrées ?\n\nNote: Les données seront filtrées pour correspondre exactement au PDF (questions masquées par la logique métier).`);
@@ -224,7 +206,7 @@ async function exportToExcel() {
 
   const allSessionsProcessed = await Promise.all(
     filteredSessions.value.map(s => 
-      axios.get(`${apiBaseUrl}/sessions/${s.id}/processed`, header)
+      axios.get(`${apiBaseUrl}/sessions/${s.id}/processed`)
         .then(res => ({ ...s, processed: res.data }))
         .catch(() => ({ ...s, processed: null }))
     )
@@ -292,12 +274,9 @@ async function exportToExcel() {
 }
 
 async function downloadPdf(session) {
-  const header = getHeader();
-  if (!header) return;
   try {
     const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
-      responseType: 'blob',
-      headers: header.headers
+      responseType: 'blob'
     });
     const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
     const link = document.createElement('a');
