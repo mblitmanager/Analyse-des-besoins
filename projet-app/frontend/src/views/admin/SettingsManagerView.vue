@@ -15,6 +15,10 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const activeTab = ref('settings'); // 'settings' or 'workflow'
 const searchQuery = ref('');
 
+const testEmailForm = ref({ to: '', subject: 'Test email from Admin', body: '<h1>It works!</h1><p>Ceci est un email de test.</p>' });
+const showTestEmailModal = ref(false);
+const sendingEmail = ref(false);
+
 const categories = [
   { id: 'general', label: 'Général', icon: 'settings', patterns: ['ENABLE_', 'PLATFORM_'] },
   { id: 'comm', label: 'Communication', icon: 'chat', patterns: ['EMAIL', 'PHONE', 'SMS'] },
@@ -86,9 +90,10 @@ async function toggleSetting(setting) {
 async function fetchSettings() {
   loading.value = false;
   try {
+    const token = localStorage.getItem("admin_token");
     const [settingsRes, workflowRes] = await Promise.all([
-      axios.get(`${apiBaseUrl}/settings`),
-      axios.get(`${apiBaseUrl}/workflow?all=true`)
+      axios.get(`${apiBaseUrl}/settings`, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get(`${apiBaseUrl}/workflow?all=true`, { headers: { Authorization: `Bearer ${token}` } })
     ]);
     settings.value = settingsRes.data;
     workflowSteps.value = workflowRes.data;
@@ -102,9 +107,11 @@ async function fetchSettings() {
 async function saveSetting(key, value) {
   saving.value = true;
   try {
+    const token = localStorage.getItem("admin_token");
     await axios.patch(
       `${apiBaseUrl}/settings/${key}`,
-      { value }
+      { value },
+      { headers: { Authorization: `Bearer ${token}` } }
     );
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
@@ -116,11 +123,12 @@ async function saveSetting(key, value) {
 async function saveWorkflowOrder() {
   savingWorkflow.value = true;
   try {
+    const token = localStorage.getItem("admin_token");
     const payload = workflowSteps.value.map((step, index) => ({
       id: step.id,
       order: index
     }));
-    await axios.put(`${apiBaseUrl}/workflow/order`, payload);
+    await axios.put(`${apiBaseUrl}/workflow/order`, payload, { headers: { Authorization: `Bearer ${token}` } });
     await appStore.fetchWorkflow(); 
     alert("Configuration du workflow enregistrée !");
   } catch (error) {
@@ -137,8 +145,9 @@ async function createWorkflowStep() {
     return;
   }
   try {
+    const token = localStorage.getItem("admin_token");
     const payload = { ...newStep.value };
-    await axios.post(`${apiBaseUrl}/workflow`, payload);
+    await axios.post(`${apiBaseUrl}/workflow`, payload, { headers: { Authorization: `Bearer ${token}` } });
     await fetchSettings();
     await appStore.fetchWorkflow();
     newStep.value = { code: '', label: '', route: '' };
@@ -151,7 +160,8 @@ async function deleteWorkflowStep(step) {
   const isHardDelete = step.isActive === false;
   if (!confirm(isHardDelete ? 'Supprimer définitivement ?' : 'Désactiver ?')) return;
   try {
-    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`);
+    const token = localStorage.getItem("admin_token");
+    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`, { headers: { Authorization: `Bearer ${token}` } });
     await fetchSettings();
     await appStore.fetchWorkflow();
   } catch (error) {
@@ -161,8 +171,9 @@ async function deleteWorkflowStep(step) {
 
 async function toggleStepActive(step) {
   try {
+    const token = localStorage.getItem("admin_token");
     const newStatus = !step.isActive;
-    await axios.put(`${apiBaseUrl}/workflow/${step.id}`, { isActive: newStatus });
+    await axios.put(`${apiBaseUrl}/workflow/${step.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
     step.isActive = newStatus;
     await appStore.fetchWorkflow();
   } catch (error) {
@@ -183,16 +194,38 @@ function moveStep(index, direction) {
 }
 
 onMounted(fetchSettings);
+
+async function sendTestEmail() {
+  if (!testEmailForm.value.to) return alert("Veuillez saisir une adresse email");
+  sendingEmail.value = true;
+  try {
+    const token = localStorage.getItem("admin_token");
+    await axios.post(`${apiBaseUrl}/send-email`, testEmailForm.value, { headers: { Authorization: `Bearer ${token}` } });
+    alert("Email envoyé avec succès !");
+    showTestEmailModal.value = false;
+  } catch(error) {
+    console.error("Erreur d'envoi:", error);
+    alert("Erreur lors de l'envoi de l'email : " + (error.response?.data?.message || error.message));
+  } finally {
+    sendingEmail.value = false;
+  }
+}
 </script>
 
 <template>
   <div class="space-y-12 animate-fade-in font-outfit">
     <!-- Header -->
-    <div class="space-y-1">
-      <h2 class="text-3xl font-black text-slate-900 tracking-tight">Configuration Système</h2>
-      <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-        Paramètres globaux et Orchestration du Workflow Candidat
-      </p>
+    <div class="flex items-start justify-between">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Configuration Système</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Paramètres globaux et Orchestration du Workflow Candidat
+        </p>
+      </div>
+      <button @click="showTestEmailModal = true" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2">
+        <span class="material-icons-outlined text-sm">mail</span>
+        Test Envoi Mail
+      </button>
     </div>
 
     <!-- Navigation Tabs -->
@@ -408,6 +441,32 @@ onMounted(fetchSettings);
       </div>
     </div>
   </div>
+
+    <!-- Test Email Modal -->
+    <div v-if="showTestEmailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-fade-in">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-black text-slate-900">Test Envoi Email</h3>
+          <button @click="showTestEmailModal = false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+            <span class="material-icons-outlined text-sm">close</span>
+          </button>
+        </div>
+        <div class="space-y-5">
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Destinataire</label>
+            <input v-model="testEmailForm.to" type="email" placeholder="test@example.com" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-blue-500 transition-all" />
+          </div>
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Sujet</label>
+            <input v-model="testEmailForm.subject" type="text" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-blue-500 transition-all" />
+          </div>
+          <button @click="sendTestEmail" :disabled="sendingEmail" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2 disabled:opacity-50">
+            <span class="material-icons-outlined text-sm">{{ sendingEmail ? 'autorenew' : 'send' }}</span>
+            {{ sendingEmail ? 'Envoi en cours...' : 'Envoyer' }}
+          </button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <style scoped>

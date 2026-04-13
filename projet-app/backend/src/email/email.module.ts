@@ -29,4 +29,4 @@ import { EmailController } from './email.controller';
   providers: [EmailService],
   exports: [EmailService],
 })
-export class EmailModule {}
+export class EmailModule {} // Trigger backend reload for .env
