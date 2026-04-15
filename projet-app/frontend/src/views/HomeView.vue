@@ -173,22 +173,22 @@ async function testDbConnection() {
               
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                  <label class="Wizi-label text-[10px]" for="parrain-last-name">Nom du parrain</label>
+                  <label class="Wizi-label text-[10px]" for="parrain-last-name">Nom du parrain / marraine</label>
                   <input v-model="form.parrainNom" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-last-name" placeholder="Nom" type="text" />
                 </div>
                 <div class="space-y-1.5">
-                  <label class="Wizi-label text-[10px]" for="parrain-first-name">Prénom du parrain</label>
+                  <label class="Wizi-label text-[10px]" for="parrain-first-name">Prénom du parrain / marraine</label>
                   <input v-model="form.parrainPrenom" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-first-name" placeholder="Prénom" type="text" />
                 </div>
               </div>
  
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
-                  <label class="Wizi-label text-[10px]" for="parrain-email">Email du parrain</label>
+                  <label class="Wizi-label text-[10px]" for="parrain-email">Email du parrain / marraine</label>
                   <input v-model="form.parrainEmail" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-email" placeholder="email@exemple.com" type="email" />
                 </div>
                 <div class="space-y-1.5">
-                  <label class="Wizi-label text-[10px]" for="parrain-phone">Téléphone du parrain</label>
+                  <label class="Wizi-label text-[10px]" for="parrain-phone">Téléphone du parrain / marraine</label>
                   <input v-model="form.parrainTelephone" class="Wizi-input w-full py-2.5! text-xs!" id="parrain-phone" placeholder="06.." type="tel" />
                 </div>
               </div>
