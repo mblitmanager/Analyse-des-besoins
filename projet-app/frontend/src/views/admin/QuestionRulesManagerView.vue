@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('admin_token')}` });
 
 
 const rules = ref([]);
@@ -18,7 +19,7 @@ onMounted(async () => {
 
 async function fetchRules() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/question-rules`);
+    const res = await axios.get(`${apiBaseUrl}/question-rules`, { headers: getAuthHeaders() });
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch question rules:", error);
@@ -27,7 +28,7 @@ async function fetchRules() {
 
 async function fetchWorkflows() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/workflow`);
+    const res = await axios.get(`${apiBaseUrl}/workflow`, { headers: getAuthHeaders() });
     workflows.value = res.data;
   } catch (error) {
     console.error("Failed to fetch workflows:", error);
@@ -36,7 +37,7 @@ async function fetchWorkflows() {
 
 async function fetchQuestions() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/questions`);
+    const res = await axios.get(`${apiBaseUrl}/questions`, { headers: getAuthHeaders() });
     questions.value = res.data;
   } catch (error) {
     console.error("Failed to fetch questions:", error);
@@ -45,7 +46,7 @@ async function fetchQuestions() {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { headers: getAuthHeaders() });
     formations.value = res.data;
   } catch (error) {
     console.error("Failed to fetch formations:", error);
@@ -104,9 +105,9 @@ async function saveRule() {
     if (!payload.questionId) payload.questionId = null;
 
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload);
+      await axios.patch(`${apiBaseUrl}/question-rules/${editingRule.value.id}`, payload, { headers: getAuthHeaders() });
     } else {
-      await axios.post(`${apiBaseUrl}/question-rules`, payload);
+      await axios.post(`${apiBaseUrl}/question-rules`, payload, { headers: getAuthHeaders() });
     }
     await fetchRules();
     showModal.value = false;
@@ -119,7 +120,7 @@ async function saveRule() {
 async function deleteRule(id) {
   if (!confirm("Supprimer cette règle ?")) return;
   try {
-    await axios.delete(`${apiBaseUrl}/question-rules/${id}`);
+    await axios.delete(`${apiBaseUrl}/question-rules/${id}`, { headers: getAuthHeaders() });
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -129,7 +130,7 @@ async function deleteRule(id) {
 async function toggleRuleActive(rule) {
   try {
     const newState = !rule.isActive;
-    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, { isActive: newState });
+    await axios.patch(`${apiBaseUrl}/question-rules/${rule.id}`, { isActive: newState }, { headers: getAuthHeaders() });
     rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule active status:", error);

@@ -169,9 +169,12 @@ const pieOptions = {
 async function fetchStats() {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const token = localStorage.getItem("admin_token");
+    const getAuthHeaders = () => ({ Authorization: `Bearer ${token}` });
+
     const [statsRes, sessionsRes] = await Promise.all([
-      axios.get(`${apiBaseUrl}/admin/stats`),
-      axios.get(`${apiBaseUrl}/sessions`),
+      axios.get(`${apiBaseUrl}/admin/stats`, { headers: getAuthHeaders() }),
+      axios.get(`${apiBaseUrl}/sessions`, { headers: getAuthHeaders() }),
     ]);
 
     stats.value = stats.value.map((s) => ({

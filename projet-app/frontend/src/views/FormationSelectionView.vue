@@ -350,6 +350,13 @@ function selectBureau(form, suite) {
   // selectFormation();
 }
 
+function isSectionActive(section) {
+  if (!selectedFormation.value) return false;
+  if (section.items?.some(i => i.id === selectedFormation.value.id)) return true;
+  if (section.subSections?.some(sub => sub.items.some(i => i.id === selectedFormation.value.id))) return true;
+  return false;
+}
+
 </script>
 
 <template>
@@ -441,57 +448,60 @@ function selectBureau(form, suite) {
                 </div>
               </button>
             </div>
+
+            <!-- Selected Formation Feedback (prominent inline banner) placed immediately after the active section -->
+            <div v-if="isSectionActive(section)" class="mt-8">
+              <transition name="fade-slide" mode="out-in">
+                <div v-if="selectedFormation && selectedFormation.isIAGroup"
+                     class="p-6 md:p-8 rounded-3xl border-2 flex flex-col items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden bg-white"
+                     :style="{ borderColor: selectedAccent.accent + '40', boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25` }">
+                   <h3 class="text-xl md:text-2xl font-black text-[#0d1b3e] text-center mb-2">Choisissez votre outil de spécialisation IA :</h3>
+                   <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-2xl">
+                     <button v-for="child in selectedFormation.children" :key="child.id"
+                             @click="selectedFormation = child; selectedSuite=''"
+                             class="flex-1 p-4 rounded-xl border-2 hover:bg-brand-primary/5 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
+                             :style="{ borderColor: selectedAccent.accent + '60' }"
+                     >
+                       <span class="material-icons-outlined text-xl" :style="{ color: selectedAccent.accent }">{{ child.icon || 'smart_toy' }}</span>
+                       <span class="text-lg">{{ child.label }}</span>
+                     </button>
+                   </div>
+                </div>
+
+                <div v-else-if="selectedFormation" 
+                     class="p-6 md:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden" 
+                     :style="{ 
+                       backgroundColor: 'white',
+                       borderColor: selectedAccent.accent + '40',
+                       boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25`
+                     }">
+                  <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-10 pointer-events-none" :style="{ backgroundColor: selectedAccent.accent }"></div>
+                  
+                  <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-lg" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+                    <span class="material-icons-outlined text-3xl">verified</span>
+                  </div>
+                  <div class="text-center md:text-left flex-1">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
+                    <h3 class="text-2xl md:text-3xl font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</h3>
+                    <div v-if="selectedSuite" class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-[10px] font-bold text-brand-primary uppercase tracking-wider">
+                       <span class="material-icons-outlined text-xs">{{ selectedSuite === 'microsoft' ? 'description' : 'cloud' }}</span>
+                       {{ selectedSuite === 'microsoft' ? 'Microsoft Office' : 'Google Workspace' }}
+                    </div>
+                  </div>
+                  <div class="hidden lg:block h-12 w-px bg-gray-100 mx-4"></div>
+                  <div class="flex items-center gap-2 text-gray-400">
+                    <span class="material-icons-outlined text-sm">info</span>
+                    <span class="text-xs font-bold italic">Cliquez sur « Continuer » pour valider</span>
+                  </div>
+                </div>
+              </transition>
+            </div>
           </div>
         </div>
 
-        <!-- Selected Formation Feedback (prominent inline banner) -->
-        <div ref="inlineBannerRef" class="mt-12">
-          <transition name="fade-slide" mode="out-in">
-            <div v-if="selectedFormation && selectedFormation.isIAGroup"
-                 class="p-6 md:p-8 rounded-3xl border-2 flex flex-col items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden bg-white"
-                 :style="{ borderColor: selectedAccent.accent + '40', boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25` }">
-               <h3 class="text-xl md:text-2xl font-black text-[#0d1b3e] text-center mb-2">Choisissez votre outil de spécialisation IA :</h3>
-               <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-2xl">
-                 <button v-for="child in selectedFormation.children" :key="child.id"
-                         @click="selectedFormation = child; selectedSuite=''"
-                         class="flex-1 p-4 rounded-xl border-2 hover:bg-brand-primary/5 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
-                         :style="{ borderColor: selectedAccent.accent + '60' }"
-                 >
-                   <span class="material-icons-outlined text-xl" :style="{ color: selectedAccent.accent }">{{ child.icon || 'smart_toy' }}</span>
-                   <span class="text-lg">{{ child.label }}</span>
-                 </button>
-               </div>
-            </div>
-
-            <div v-else-if="selectedFormation" 
-                 class="p-6 md:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden" 
-                 :style="{ 
-                   backgroundColor: 'white',
-                   borderColor: selectedAccent.accent + '40',
-                   boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25`
-                 }">
-              <!-- Decorative background element -->
-              <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full opacity-10 pointer-events-none" :style="{ backgroundColor: selectedAccent.accent }"></div>
-              
-              <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-lg" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-                <span class="material-icons-outlined text-3xl">verified</span>
-              </div>
-              <div class="text-center md:text-left flex-1">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-1" :style="{ color: selectedAccent.accent }">Formation sélectionnée</p>
-                <h3 class="text-2xl md:text-3xl font-black text-[#0d1b3e] leading-tight">{{ selectedFormation.label }}</h3>
-                <div v-if="selectedSuite" class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-[10px] font-bold text-brand-primary uppercase tracking-wider">
-                   <span class="material-icons-outlined text-xs">{{ selectedSuite === 'microsoft' ? 'description' : 'cloud' }}</span>
-                   {{ selectedSuite === 'microsoft' ? 'Microsoft Office' : 'Google Workspace' }}
-                </div>
-              </div>
-              <div class="hidden lg:block h-12 w-px bg-gray-100 mx-4"></div>
-              <div class="flex items-center gap-2 text-gray-400">
-                <span class="material-icons-outlined text-sm">info</span>
-                <span class="text-xs font-bold italic">Cliquez sur « Continuer » pour valider</span>
-              </div>
-            </div>
-          </transition>
-        </div>
+        <!-- Reference for sticky bottom bar (empty block just to trigger IntersectionObserver) -->
+        <div ref="inlineBannerRef" class="h-1"></div>
+        <!-- removed old inline banner block -->
 
         <!-- Bottom Actions -->
         <div class="pt-12 flex items-center justify-center border-t border-gray-50 mt-12">

@@ -59,6 +59,7 @@ const f1Manual = ref(false);
 const f2Manual = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('admin_token')}` });
 
 
 const categories = computed(() => {
@@ -92,7 +93,7 @@ const filteredRules = computed(() => {
 async function fetchRules() {
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours`);
+    const res = await axios.get(`${apiBaseUrl}/parcours`, { headers: getAuthHeaders() });
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch parcours rules:", error);
@@ -219,9 +220,9 @@ function isPrereqOptionSelected(questionId, optIndex) {
 async function saveRule() {
   try {
     if (editingRule.value) {
-      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value);
+      await axios.patch(`${apiBaseUrl}/parcours/${editingRule.value.id}`, newRule.value, { headers: getAuthHeaders() });
     } else {
-      await axios.post(`${apiBaseUrl}/parcours`, newRule.value);
+      await axios.post(`${apiBaseUrl}/parcours`, newRule.value, { headers: getAuthHeaders() });
     }
     showForm.value = false;
     editingRule.value = null;
@@ -235,7 +236,7 @@ async function saveRule() {
 async function deleteRule(rule) {
   if (!confirm(`Supprimer cette règle de parcours ?`)) return;
   try {
-    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`);
+    await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`, { headers: getAuthHeaders() });
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
@@ -246,7 +247,7 @@ async function deleteRule(rule) {
 async function toggleRuleActive(rule) {
   try {
     const newState = !(rule.isActive !== false);
-    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState });
+    await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState }, { headers: getAuthHeaders() });
     rule.isActive = newState;
   } catch (error) {
     console.error("Failed to toggle rule:", error);
@@ -256,7 +257,7 @@ async function toggleRuleActive(rule) {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations`);
+    const res = await axios.get(`${apiBaseUrl}/formations`, { headers: getAuthHeaders() });
     formationsList.value = res.data;
     if (formationsList.value.length > 0 && !activeFormationId.value) {
       const savedId = localStorage.getItem('admin_parcours_activeFormationId');
@@ -278,7 +279,7 @@ async function saveFormationSettings() {
     const payload = { ...formationForm.value };
     delete payload.questions;
     
-    await axios.patch(`${apiBaseUrl}/formations/${activeFormationId.value}`, payload);
+    await axios.patch(`${apiBaseUrl}/formations/${activeFormationId.value}`, payload, { headers: getAuthHeaders() });
     await fetchFormations();
     alert("Paramètres enregistrés.");
   } catch (error) {
@@ -293,7 +294,7 @@ async function fetchLevelsForFormation(label) {
     return;
   }
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`);
+    const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`, { headers: getAuthHeaders() });
     selectedFormationLevels.value = res.data || [];
   } catch (error) {
     console.error("Failed to fetch levels:", error);
@@ -304,7 +305,8 @@ async function fetchLevelsForFormation(label) {
 async function fetchPrereqQuestions() {
   try {
     const res = await axios.get(`${apiBaseUrl}/questions/prerequisites`, {
-      params: { scope: "global" }
+      params: { scope: "global" },
+      headers: getAuthHeaders()
     });
     prereqQuestions.value = res.data || [];
   } catch (error) {

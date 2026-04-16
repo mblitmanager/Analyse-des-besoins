@@ -832,7 +832,7 @@ onMounted(() => {
                   <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Seuil Réussite</label>
                   <div class="relative">
                     <input type="number" v-model.number="lvl.successThreshold" min="0" max="100" class="w-full pl-5 pr-10 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
-                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">%</span>
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">réponses</span>
                   </div>
                 </div>
                 <div class="flex flex-col gap-1 mb-0.5 shrink-0 opacity-40 hover:opacity-100 transition-opacity">
