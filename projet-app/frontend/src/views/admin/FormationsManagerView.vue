@@ -183,7 +183,7 @@ async function fetchLevelsForFormation(formationId) {
 async function fetchRulesForFormation(formationId) {
   rulesLoading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours?formationId=${formationId}`);
+    const res = await axios.get(`${apiBaseUrl}/parcours?formation=${formationId}`);
     rules.value = res.data;
   } catch (error) {
     console.error("Failed to fetch rules:", error);
