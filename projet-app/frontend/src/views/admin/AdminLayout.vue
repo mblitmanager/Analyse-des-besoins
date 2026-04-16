@@ -25,6 +25,7 @@ const navItems = [
   { label: "Conseillers", icon: "contacts", route: "/admin/contacts" },
   { label: "Parcours", icon: "route", route: "/admin/parcours" },
   { label: "Règles Questions", icon: "rule", route: "/admin/question-rules" },
+  { label: "Règles P3", icon: "filter_alt", route: "/admin/p3-rules" },
   { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
   { label: "Administrateurs", icon: "group", route: "/admin/users" },
   { label: "Paramètres", icon: "settings", route: "/admin/settings" },

@@ -82,6 +82,7 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
             Setting,
             ParcoursRule,
             QuestionRule,
+            P3FilterRule,
           ],
           synchronize: true,
         };

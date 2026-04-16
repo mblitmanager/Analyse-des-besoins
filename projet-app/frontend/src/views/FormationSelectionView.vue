@@ -24,6 +24,7 @@ const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 
 const formations = ref([]);
 const currentSession = ref(null);
+const p3Rules = ref([]);
 
 async function fetchFormations() {
   try {
@@ -36,6 +37,17 @@ async function fetchFormations() {
     console.error("Failed to fetch formations:", error);
   } finally {
     loading.value = false;
+  }
+}
+
+async function fetchP3Rules() {
+  if (!store.isP3Mode) return;
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const res = await axios.get(`${apiBaseUrl}/p3-filter-rules?activeOnly=true`);
+    p3Rules.value = res.data;
+  } catch (err) {
+    console.error("Failed to fetch P3 rules:", err);
   }
 }
 
@@ -52,6 +64,7 @@ onMounted(() => {
   }).catch(err => console.error("Failed to fetch session for P3 filtering", err));
 
   fetchFormations();
+  fetchP3Rules();
 
   // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
   observer = new IntersectionObserver(
@@ -197,17 +210,17 @@ const selectedAccent = computed(() => getSectionAccent(selectedFormation.value))
 const sections = computed(() => {
   const map = new Map(groupedFormations.value.map((g) => [g.category, g.items]));
 
-  // P3 Filtering Logic
+  // P3 Filtering Logic based on API rules
   const isP3 = store.isP3Mode;
-  const lastFormation = currentSession.value?.formationChoisie || "";
+  const lastFormationSlug = localStorage.getItem('p3_prev_formation_slug') || ""; // Assuming we have the slug, or we can use label
+  const lastFormationLabel = currentSession.value?.formationChoisie || "";
   const lastLevel = (currentSession.value?.stopLevel || "").toLowerCase();
-  const lastLevelOrder = currentSession.value?.stopLevelOrder || 0; // Backend should ideally provide this, but we can fall back
+  const lastLevelOrder = currentSession.value?.stopLevelOrder || 0;
 
-  // Dynamic level order from formation data
+  // Dynamic level order getter
   const getLevelOrder = (formationLabel, levelLabel) => {
     const f = formations.value.find(form => form.label === formationLabel);
     if (!f || !f.levels) {
-      // Fallback for legacy keywords if formation not found or has no levels in memory
       const lvl = levelLabel.toLowerCase();
       if (lvl.includes('initial')) return 1;
       if (lvl.includes('basique')) return 2;
@@ -222,38 +235,85 @@ const sections = computed(() => {
     return l ? (l.order || 0) : 0;
   };
 
-  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastFormation, lastLevel);
-  const isBureautiqueLast = lastFormation.toLowerCase().includes('word') || 
-                            lastFormation.toLowerCase().includes('excel') || 
-                            lastFormation.toLowerCase().includes('ppt') || 
-                            lastFormation.toLowerCase().includes('powerpoint') || 
-                            lastFormation.toLowerCase().includes('outlook');
+  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastFormationLabel, lastLevel);
+  const prevCategory = formations.value.find(f => f.label === lastFormationLabel)?.category?.toLowerCase() || '';
 
-  let filteredBureauItems = map.get('bureautique') || [];
-  let filteredOtherCategories = true; // By default show others
-
-  if (isP3 && isBureautiqueLast) {
-    if (currentLevelOrder <= 2) { // Initial (1) or Basique (2)
-      // Proposer: la suite dans la même formation (Niveau Opérationnel)
-      // OU le niveau initial dans une autre formation bureautique
-      // (On laisse les bureautique visibles pour l'instant, mais on pourrait affiner le texte)
-    } else if (currentLevelOrder >= 3) { // Opérationnel (3) or more
-      // Basique et opérationnel au minimum => Possibilité de choisir une formation dans une autre catégorie.
-      // On bloque la catégorie Bureautique
-      filteredBureauItems = [];
+  // Determine applicable rules based on priority (lowest order first)
+  const sortedRules = [...p3Rules.value].sort((a, b) => a.order - b.order);
+  
+  const rulesToApply = sortedRules.filter(rule => {
+    // Check level condition
+    if (rule.maxLevelOrder != null && currentLevelOrder > rule.maxLevelOrder) {
+       return false;
     }
+    // Check source category match
+    const categoryMatches = rule.sourceCategory && prevCategory.includes(rule.sourceCategory.toLowerCase());
+    
+    // Check source slug/label match
+    const slugMatches = rule.sourceSlugs?.length > 0 && rule.sourceSlugs.some(s => 
+      lastFormationSlug.toLowerCase() === s.toLowerCase() || 
+      lastFormationLabel.toLowerCase().includes(s.toLowerCase())
+    );
+    
+    return categoryMatches || slugMatches;
+  });
+
+  // Allowed / Excluded sets
+  let allowMap = { formations: new Set(), categories: new Set() };
+  let excludeMap = { formations: new Set(), categories: new Set() };
+  let hasAllowRule = false;
+
+  if (isP3 && rulesToApply.length > 0) {
+    rulesToApply.forEach(r => {
+      if (r.filterMode === 'ALLOW_ONLY') {
+        hasAllowRule = true;
+        r.targetSlugs?.forEach(s => allowMap.formations.add(s.toLowerCase()));
+        r.targetCategories?.forEach(c => allowMap.categories.add(c.toLowerCase()));
+      } else if (r.filterMode === 'EXCLUDE') {
+        r.targetSlugs?.forEach(s => excludeMap.formations.add(s.toLowerCase()));
+        r.targetCategories?.forEach(c => excludeMap.categories.add(c.toLowerCase()));
+      }
+    });
   }
 
-  const bureauItems = filteredBureauItems;
+  // Filter helper
+  const filterGroup = (items) => {
+    if (!isP3 || rulesToApply.length === 0) return items;
+    
+    return items.filter(f => {
+      const slug = (f.slug || '').toLowerCase();
+      const label = (f.label || '').toLowerCase();
+      const cat = (f.category || '').toLowerCase();
+
+      // Check Exclude first
+      const isExcluded = 
+        [...excludeMap.formations].some(ex => slug === ex || label.includes(ex)) ||
+        [...excludeMap.categories].some(ex => cat.includes(ex));
+        
+      if (isExcluded) return false;
+
+      // Check Allow Only
+      if (hasAllowRule) {
+        const isAllowed = 
+          [...allowMap.formations].some(al => slug === al || label.includes(al)) ||
+          [...allowMap.categories].some(al => cat.includes(al));
+        return isAllowed;
+      }
+
+      return true; // If no allow rule, keep it (assuming not excluded)
+    });
+  };
+
+  const bureauItems = filterGroup(map.get('bureautique') || []);
   const microsoft = bureauItems.filter(f => {
     const l = f.label.toLowerCase();
     return l.includes('microsoft') || l.includes('office') || l.includes('word') || l.includes('excel') || l.includes('ppt') || l.includes('powerpoint') || l.includes('outlook');
   });
   const google = bureauItems.filter(f => f.label.toLowerCase().includes('google'));
 
-  const langs = map.get('anglais-francais') || [];
-  const creation = map.get('illustration') || [];
-  const ia = map.get('ia-generative') || [];
+  const langs = filterGroup(map.get('anglais-francais') || []);
+  const creation = filterGroup(map.get('illustration') || []);
+  const ia = filterGroup(map.get('ia-generative') || []);
   let iaGrp = [];
   if (ia.length > 0) {
     iaGrp = [{
@@ -264,7 +324,7 @@ const sections = computed(() => {
       children: ia
     }];
   }
-  const digcompGroup = map.get('digcomp-google-wordpress') || [];
+  const digcompGroup = filterGroup(map.get('digcomp-google-wordpress') || []);
 
   return [
     { 
@@ -280,7 +340,7 @@ const sections = computed(() => {
     { key: 'langues', title: 'Langues', items: langs, style: sectionStyles.langues },
     { key: 'creation', title: 'Création', items: [...creation, ...iaGrp], style: sectionStyles.creation },
     { key: 'internet', title: 'Internet', items: digcompGroup, style: sectionStyles.internet },
-  ].filter(s => !s.hidden);
+  ].filter(s => !s.hidden && (s.items?.length > 0 || (s.subSections && s.subSections.some(sub => sub.items?.length > 0))));
 });
 
 function selectBureau(form, suite) {
