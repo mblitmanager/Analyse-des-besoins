@@ -212,34 +212,63 @@ async function loadLevelQuestions() {
       }
       return;
     }
-    const levelLabel = levels.value[currentLevelIndex.value].label;
-    const response = await axios.get(
-      `${apiBaseUrl}/questions/positionnement?formation=${formationSlug}&niveau=${levelLabel}`,
-    );
-    const allQuestions = response.data || [];
-    // Deduplicate by text (case-insensitive) just in case
-    const seen = new Set();
-    questions.value = allQuestions.filter((q) => {
-      const key = q.text.trim().toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    const fetchQuestionsForLevel = async (levelLabel) => {
+      const response = await axios.get(`${apiBaseUrl}/questions/positionnement`, {
+        params: {
+          formation: formationSlug,
+          niveau: levelLabel,
+        },
+      });
+      const allQuestions = response.data || [];
+      // Deduplicate by text (case-insensitive) just in case
+      const seen = new Set();
+      return allQuestions.filter((q) => {
+        const key = (q.text || "").trim().toLowerCase();
+        if (!key) return false;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    };
+
+    // Try current level; if empty at the start, seek the first level that has questions
+    let nextIndex = currentLevelIndex.value;
+    let fetched = await fetchQuestionsForLevel(levels.value[nextIndex]?.label);
+    if (fetched.length === 0 && currentLevelIndex.value === 0) {
+      for (let i = 1; i < levels.value.length; i++) {
+        const attempt = await fetchQuestionsForLevel(levels.value[i]?.label);
+        if (attempt.length > 0) {
+          nextIndex = i;
+          fetched = attempt;
+          break;
+        }
+      }
+      if (nextIndex !== currentLevelIndex.value) {
+        currentLevelIndex.value = nextIndex;
+      }
+    }
+
+    questions.value = fetched;
+
     const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
         initialResponses[q.id] = [];
       } else if (q.metadata?.type === "radio_toggle") {
         initialResponses[q.id] = "Non";
-      } else if (q.metadata?.type === "qcm" || q.responseType === "qcm" || (q.options?.length > 0)) {
+      } else if (
+        q.metadata?.type === "qcm" ||
+        q.responseType === "qcm" ||
+        q.options?.length > 0
+      ) {
         initialResponses[q.id] = null;
       } else {
         initialResponses[q.id] = "";
       }
     });
     currentResponses.value = initialResponses;
-    
-    // Auto-skip or finish if no questions found for this level
+
+    // Auto-skip or finish if no questions found for this level (and no further levels have questions)
     if (questions.value.length === 0) {
       if (currentLevelIndex.value === 0) {
         if (allowSkip.value) {
@@ -247,7 +276,9 @@ async function loadLevelQuestions() {
           router.push(nextRoute || "/resultats");
           return;
         } else {
-          alert("Aucune question de positionnement pour cette formation. Vous pouvez continuer.");
+          alert(
+            "Aucune question de positionnement pour cette formation. Vous pouvez continuer.",
+          );
         }
       } else {
         // We reached an empty level AFTER doing some levels.
