@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('admin_token') || null,
@@ -12,7 +14,6 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async login(email, password) {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
       try {
         const response = await axios.post(`${apiBaseUrl}/auth/login`, { email, password })
         this.token = response.data.access_token
@@ -35,9 +36,21 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('admin_user')
       delete axios.defaults.headers.common['Authorization']
     },
-    init() {
-      if (this.token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+    async init() {
+      if (!this.token) {
+        return false
+      }
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
+
+      try {
+        const response = await axios.get(`${apiBaseUrl}/auth/me`)
+        this.user = response.data
+        localStorage.setItem('admin_user', JSON.stringify(this.user))
+        return true
+      } catch (error) {
+        this.logout()
+        return false
       }
     }
   }
