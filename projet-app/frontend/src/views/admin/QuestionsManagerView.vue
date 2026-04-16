@@ -215,8 +215,6 @@ function openEditModal(q) {
 }
 
 async function saveQuestion() {
-  const header = getHeader();
-  if (!header) return;
   try {
     const payload = {
       ...form.value,
