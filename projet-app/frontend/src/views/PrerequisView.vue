@@ -122,10 +122,9 @@ async function submitPrerequis(force = false) {
       metier: metier.value,
       situation: situation.value,
       prerequisiteScore: responses.value,
+      // Always sync this flag: if user did not force ignore, we must reactivate rules.
+      ignoreQuestionRules: isForced,
     };
-    if (isForced) {
-      patchPayload.ignoreQuestionRules = true;
-    }
 
     const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, patchPayload);
     
@@ -186,9 +185,9 @@ const recommendedFormations = computed(() => {
         <!-- Overlay Proposition Spéciale (Dynamique via QuestionRules) -->
         <div v-if="showProposal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-secondary/40 backdrop-blur-sm">
           <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-blue-100 animate-in fade-in zoom-in duration-300">
-            <div class="h-20 w-20 bg-brand-primary/10 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
+            <!-- <div class="h-20 w-20 bg-brand-primary/10 rounded-2xl flex items-center justify-center mb-6 mx-auto text-brand-primary">
               <span class="material-icons-outlined text-4xl">lightbulb</span>
-            </div>
+            </div> -->
             <h2 class="text-2xl font-black text-blue-900 mb-4 text-center">Parcours Recommandé</h2>
             <p class="text-gray-500 mb-6 text-center text-sm font-medium">
               Afin de sécuriser votre parcours, nous vous suggérons de débuter par :
