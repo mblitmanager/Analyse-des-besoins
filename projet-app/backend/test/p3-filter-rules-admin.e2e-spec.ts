@@ -52,6 +52,21 @@ describe('P3 filter rules admin flow (e2e)', () => {
       .expect(HttpStatus.BAD_REQUEST);
   });
 
+  it('refuse filterMode invalide', async () => {
+    await request(app.getHttpServer())
+      .post(`${api}/p3-filter-rules`)
+      .set(authHeader(token))
+      .send({
+        name: 'Invalid mode',
+        sourceCategory: 'bureautique',
+        filterMode: 'INVALID_MODE',
+        targetSlugs: ['wordpress'],
+        order: 2,
+        isActive: true,
+      })
+      .expect(HttpStatus.BAD_REQUEST);
+  });
+
   it('cree une regle valide', async () => {
     const res = await request(app.getHttpServer())
       .post(`${api}/p3-filter-rules`)
@@ -59,11 +74,11 @@ describe('P3 filter rules admin flow (e2e)', () => {
       .send({
         name: 'Bureautique restriction e2e',
         sourceCategory: 'BUREAUTIQUE',
-        sourceSlugs: ['microsoft-word', 'microsoft-excel'],
+        sourceSlugs: ['microsoft-word', 'MICROSOFT-WORD', 'microsoft-excel'],
         maxLevelOrder: 2,
         filterMode: 'ALLOW_ONLY',
-        targetSlugs: ['google-workspace', 'microsoft-word'],
-        targetCategories: ['Bureautique'],
+        targetSlugs: ['google-workspace', 'microsoft-word', 'MICROSOFT-WORD'],
+        targetCategories: ['Bureautique', 'BUREAUTIQUE'],
         isActive: true,
         order: 1,
       })
@@ -75,6 +90,8 @@ describe('P3 filter rules admin flow (e2e)', () => {
     expect(res.body.targetSlugs).toEqual(
       expect.arrayContaining(['google-workspace', 'microsoft-word']),
     );
+    expect(res.body.targetSlugs.filter((s: string) => s === 'microsoft-word')).toHaveLength(1);
+    expect(res.body.targetCategories).toEqual(['bureautique']);
     createdRuleId = res.body.id;
   });
 

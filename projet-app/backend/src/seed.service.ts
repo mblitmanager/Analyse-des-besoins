@@ -8,6 +8,7 @@ import { Setting } from './entities/setting.entity';
 import { User } from './entities/user.entity';
 import { ParcoursRule } from './entities/parcours-rule.entity';
 import { QuestionRule } from './entities/question-rule.entity';
+import { P3FilterRule } from './entities/p3-filter-rule.entity';
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
@@ -26,6 +27,8 @@ export class SeedService implements OnApplicationBootstrap {
     private parcoursRuleRepo: Repository<ParcoursRule>,
     @InjectRepository(QuestionRule)
     private questionRuleRepo: Repository<QuestionRule>,
+    @InjectRepository(P3FilterRule)
+    private p3FilterRuleRepo: Repository<P3FilterRule>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -34,6 +37,7 @@ export class SeedService implements OnApplicationBootstrap {
     // await this.seedWorkflow();
     // await this.seedAdmin();
     await this.seedSettings();
+    await this.seedP3FilterRules();
     // await this.seedParcours();
     // await this.seedQuestionRules();
     console.log('Seeding check complete!');
@@ -127,6 +131,61 @@ export class SeedService implements OnApplicationBootstrap {
       const exists = await this.settingRepo.findOne({ where: { key: s.key } });
       if (!exists) {
         await this.settingRepo.save(this.settingRepo.create(s));
+      }
+    }
+  }
+
+  async seedP3FilterRules() {
+    const defaults: Partial<P3FilterRule>[] = [
+      {
+        name: 'Bureautique restriction',
+        sourceCategory: 'bureautique',
+        sourceSlugs: [],
+        maxLevelOrder: 2,
+        filterMode: 'ALLOW_ONLY',
+        targetSlugs: ['microsoft-word', 'microsoft-excel', 'google-workspace'],
+        targetCategories: [],
+        isActive: true,
+        order: 1,
+      },
+      {
+        name: 'Digcomp exclusion création',
+        sourceCategory: 'digital',
+        sourceSlugs: ['digcomp'],
+        maxLevelOrder: undefined,
+        filterMode: 'EXCLUDE',
+        targetSlugs: ['wordpress'],
+        targetCategories: ['creation', 'design'],
+        isActive: true,
+        order: 2,
+      },
+    ];
+
+    for (const rule of defaults) {
+      const existing = await this.p3FilterRuleRepo.findOne({
+        where: { name: rule.name },
+      });
+
+      const payload: Partial<P3FilterRule> = {
+        ...rule,
+        sourceCategory: rule.sourceCategory
+          ? String(rule.sourceCategory).toLowerCase()
+          : undefined,
+        sourceSlugs: (rule.sourceSlugs || []).map((s) =>
+          String(s).trim().toLowerCase(),
+        ),
+        targetSlugs: (rule.targetSlugs || []).map((s) =>
+          String(s).trim().toLowerCase(),
+        ),
+        targetCategories: (rule.targetCategories || []).map((s) =>
+          String(s).trim().toLowerCase(),
+        ),
+      };
+
+      if (!existing) {
+        await this.p3FilterRuleRepo.save(this.p3FilterRuleRepo.create(payload));
+      } else {
+        await this.p3FilterRuleRepo.update(existing.id, payload);
       }
     }
   }
