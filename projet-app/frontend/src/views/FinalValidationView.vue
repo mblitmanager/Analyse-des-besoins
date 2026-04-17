@@ -116,6 +116,15 @@ function goHome() {
 }
 
 function startP3() {
+  // Persist previous parcours context for P3 filtering rules.
+  const previousFormationSlug = localStorage.getItem("selected_formation_slug");
+  if (previousFormationSlug) {
+    localStorage.setItem("p3_prev_formation_slug", previousFormationSlug);
+  }
+  if (session.value?.formationChoisie) {
+    localStorage.setItem("p3_prev_formation", session.value.formationChoisie);
+  }
+
   store.setP3Mode(true);
   router.push("/formations");
 }

@@ -5,6 +5,7 @@ import axios from "axios";
 const rules = ref([]);
 const loading = ref(true);
 const saving = ref(false);
+const formations = ref([]);
 
 const isModalOpen = ref(false);
 const editingRule = ref(null);
@@ -13,11 +14,11 @@ const formError = ref("");
 const form = ref({
   name: "",
   sourceCategory: "",
-  sourceSlugs: "",
+  sourceSlugs: [],
   maxLevelOrder: null,
   filterMode: "EXCLUDE",
-  targetSlugs: "",
-  targetCategories: "",
+  targetSlugs: [],
+  targetCategories: [],
   isActive: true,
   order: 0,
 });
@@ -36,14 +37,49 @@ async function fetchRules() {
   }
 }
 
-onMounted(fetchRules);
+async function fetchFormations() {
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+    formations.value = res.data || [];
+  } catch (err) {
+    console.error("Failed to fetch formations:", err);
+    formations.value = [];
+  }
+}
+
+onMounted(async () => {
+  loading.value = true;
+  await Promise.all([fetchRules(), fetchFormations()]);
+  loading.value = false;
+});
+
+const categoryOptions = computed(() =>
+  Array.from(
+    new Set(
+      (formations.value || [])
+        .map((f) => String(f.category || "").trim().toLowerCase())
+        .filter(Boolean)
+    )
+  ).sort()
+);
+
+const slugOptions = computed(() =>
+  Array.from(
+    new Set(
+      (formations.value || [])
+        .map((f) => String(f.slug || "").trim().toLowerCase())
+        .filter(Boolean)
+    )
+  ).sort()
+);
 
 const isFormValid = computed(() => {
   const hasName = !!form.value.name?.trim();
   const hasSource =
-    !!form.value.sourceCategory?.trim() || !!form.value.sourceSlugs?.trim();
+    !!form.value.sourceCategory?.trim() || form.value.sourceSlugs.length > 0;
   const hasTarget =
-    !!form.value.targetSlugs?.trim() || !!form.value.targetCategories?.trim();
+    form.value.targetSlugs.length > 0 || form.value.targetCategories.length > 0;
   return hasName && hasSource && hasTarget;
 });
 
@@ -51,15 +87,28 @@ const submitLabel = computed(() =>
   editingRule.value ? "Enregistrer les modifications" : "Créer la règle"
 );
 
-function parseCsv(value) {
+function normalizeList(value) {
+  const source = Array.isArray(value) ? value : [];
   return Array.from(
     new Set(
-      String(value || "")
-        .split(",")
-        .map((s) => s.trim().toLowerCase())
+      source
+        .map((s) => String(s || "").trim().toLowerCase())
         .filter(Boolean)
     )
   );
+}
+
+function toggleListValue(field, value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  const current = new Set(normalizeList(form.value[field]));
+  if (current.has(normalized)) current.delete(normalized);
+  else current.add(normalized);
+  form.value[field] = Array.from(current);
+}
+
+function isInList(field, value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return normalizeList(form.value[field]).includes(normalized);
 }
 
 function buildPayload() {
@@ -79,10 +128,10 @@ function buildPayload() {
   if (!form.value.name?.trim()) {
     throw new Error("Le nom de la règle est obligatoire.");
   }
-  if (!form.value.sourceCategory?.trim() && !form.value.sourceSlugs?.trim()) {
+  if (!form.value.sourceCategory?.trim() && form.value.sourceSlugs.length === 0) {
     throw new Error("Ajoutez au moins une condition source (catégorie ou slugs).");
   }
-  if (!form.value.targetCategories?.trim() && !form.value.targetSlugs?.trim()) {
+  if (form.value.targetCategories.length === 0 && form.value.targetSlugs.length === 0) {
     throw new Error("Ajoutez au moins une cible (catégories ou slugs).");
   }
   if (maxLevel !== null && (!Number.isFinite(maxLevel) || maxLevel < 0)) {
@@ -95,11 +144,11 @@ function buildPayload() {
   return {
     name: form.value.name.trim(),
     sourceCategory: form.value.sourceCategory?.trim().toLowerCase() || null,
-    sourceSlugs: parseCsv(form.value.sourceSlugs),
+    sourceSlugs: normalizeList(form.value.sourceSlugs),
     maxLevelOrder: maxLevel,
     filterMode: form.value.filterMode === "ALLOW_ONLY" ? "ALLOW_ONLY" : "EXCLUDE",
-    targetSlugs: parseCsv(form.value.targetSlugs),
-    targetCategories: parseCsv(form.value.targetCategories),
+    targetSlugs: normalizeList(form.value.targetSlugs),
+    targetCategories: normalizeList(form.value.targetCategories),
     isActive: form.value.isActive !== false,
     order,
   };
@@ -111,20 +160,20 @@ function openModal(rule = null) {
     editingRule.value = rule;
     form.value = {
       ...rule,
-      sourceSlugs: rule.sourceSlugs ? rule.sourceSlugs.join(", ") : "",
-      targetSlugs: rule.targetSlugs ? rule.targetSlugs.join(", ") : "",
-      targetCategories: rule.targetCategories ? rule.targetCategories.join(", ") : "",
+      sourceSlugs: rule.sourceSlugs || [],
+      targetSlugs: rule.targetSlugs || [],
+      targetCategories: rule.targetCategories || [],
     };
   } else {
     editingRule.value = null;
     form.value = {
       name: "",
       sourceCategory: "",
-      sourceSlugs: "",
+      sourceSlugs: [],
       maxLevelOrder: null,
       filterMode: "EXCLUDE",
-      targetSlugs: "",
-      targetCategories: "",
+      targetSlugs: [],
+      targetCategories: [],
       isActive: true,
       order: 0,
     };
@@ -299,11 +348,25 @@ async function toggleActive(rule) {
             
             <div>
               <label class="text-xs font-bold text-slate-500">Catégorie source (si applicable)</label>
-              <input v-model="form.sourceCategory" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" placeholder="ex: bureautique" />
+              <select v-model="form.sourceCategory" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg">
+                <option value="">-- Optionnel --</option>
+                <option v-for="cat in categoryOptions" :key="cat" :value="cat">{{ cat }}</option>
+              </select>
             </div>
             <div>
-              <label class="text-xs font-bold text-slate-500">Slugs sources (séparés par des virgules)</label>
-              <input v-model="form.sourceSlugs" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" placeholder="ex: microsoft-word, microsoft-excel" />
+              <label class="text-xs font-bold text-slate-500">Slugs sources</label>
+              <div class="mt-1 p-2 border border-slate-200 rounded-lg bg-white max-h-36 overflow-y-auto space-y-1">
+                <button
+                  v-for="slug in slugOptions"
+                  :key="slug"
+                  type="button"
+                  @click="toggleListValue('sourceSlugs', slug)"
+                  class="w-full text-left px-3 py-1.5 rounded text-xs font-semibold transition-colors"
+                  :class="isInList('sourceSlugs', slug) ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
+                >
+                  {{ slug }}
+                </button>
+              </div>
             </div>
             <div class="col-span-2">
               <label class="text-xs font-bold text-slate-500">Seuil Ordre Niveau Max (optionnel)</label>
@@ -324,11 +387,33 @@ async function toggleActive(rule) {
             </div>
             <div>
               <label class="text-xs font-bold text-slate-500">Catégories cibles</label>
-              <input v-model="form.targetCategories" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" placeholder="ex: création, réseaux-sociaux" />
+              <div class="mt-1 p-2 border border-slate-200 rounded-lg bg-white max-h-36 overflow-y-auto space-y-1">
+                <button
+                  v-for="cat in categoryOptions"
+                  :key="cat"
+                  type="button"
+                  @click="toggleListValue('targetCategories', cat)"
+                  class="w-full text-left px-3 py-1.5 rounded text-xs font-semibold transition-colors"
+                  :class="isInList('targetCategories', cat) ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
+                >
+                  {{ cat }}
+                </button>
+              </div>
             </div>
             <div>
-              <label class="text-xs font-bold text-slate-500">Slugs cibles (séparés par des virgules)</label>
-              <input v-model="form.targetSlugs" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" placeholder="ex: wordpress, photoshop" />
+              <label class="text-xs font-bold text-slate-500">Slugs cibles</label>
+              <div class="mt-1 p-2 border border-slate-200 rounded-lg bg-white max-h-36 overflow-y-auto space-y-1">
+                <button
+                  v-for="slug in slugOptions"
+                  :key="slug"
+                  type="button"
+                  @click="toggleListValue('targetSlugs', slug)"
+                  class="w-full text-left px-3 py-1.5 rounded text-xs font-semibold transition-colors"
+                  :class="isInList('targetSlugs', slug) ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'"
+                >
+                  {{ slug }}
+                </button>
+              </div>
             </div>
           </div>
 

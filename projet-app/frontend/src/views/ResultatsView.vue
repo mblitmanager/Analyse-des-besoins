@@ -155,8 +155,7 @@ function getStepTitle(index) {
   if (session.value.formationChoisie) {
     const suffixes = [" (Base)", " (Intermédiaire)", " (Avancé)"];
     const formationSuffix = suffixes[index] || " (Avancé)";
-    return session.value.formationChoisie 
-    // + formationSuffix;
+    return session.value.formationChoisie + formationSuffix;
   }
 
   return `Étape ${index + 1}${info ? ` : ${info.theme}` : ''}`;
