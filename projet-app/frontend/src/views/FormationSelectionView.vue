@@ -206,6 +206,31 @@ function getSectionAccent(form) {
 
 const selectedAccent = computed(() => getSectionAccent(selectedFormation.value));
 
+function normalizeKey(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function canonicalSlug(value) {
+  const v = normalizeKey(value);
+  const aliases = {
+    "microsoft-word": "word",
+    "microsoft-excel": "excel",
+    "microsoft-powerpoint": "powerpoint",
+    "microsoft-outlook": "outlook",
+    "google-workspace": "google-docs-sheets-slides",
+    "google-docs": "google-docs-sheets-slides",
+    "google-sheets": "google-docs-sheets-slides",
+    "google-slides": "google-docs-sheets-slides",
+    "digcomp-google-wordpress": "digcomp",
+  };
+  return aliases[v] || v;
+}
+
 // Build explicit sections per requested layout
 const sections = computed(() => {
   const map = new Map(groupedFormations.value.map((g) => [g.category, g.items]));
@@ -215,7 +240,9 @@ const sections = computed(() => {
   const lastFormationSlug = localStorage.getItem('p3_prev_formation_slug') || ""; // Assuming we have the slug, or we can use label
   const lastFormationLabel = currentSession.value?.formationChoisie || "";
   const lastLevel = (currentSession.value?.stopLevel || "").toLowerCase();
-  const lastLevelOrder = currentSession.value?.stopLevelOrder || 0;
+  const lastLevelOrder =
+    currentSession.value?.stopLevelOrder ||
+    Number(localStorage.getItem('p3_prev_level_order') || 0);
 
   // Dynamic level order getter
   const getLevelOrder = (formationLabel, levelLabel) => {
@@ -236,7 +263,10 @@ const sections = computed(() => {
   };
 
   const currentLevelOrder = lastLevelOrder || getLevelOrder(lastFormationLabel, lastLevel);
-  const prevCategory = formations.value.find(f => f.label === lastFormationLabel)?.category?.toLowerCase() || '';
+  const prevCategory = normalizeKey(
+    formations.value.find(f => f.label === lastFormationLabel)?.category || ''
+  );
+  const prevSlug = canonicalSlug(lastFormationSlug);
 
   // Determine applicable rules based on priority (lowest order first)
   const sortedRules = [...p3Rules.value].sort((a, b) => a.order - b.order);
@@ -247,13 +277,15 @@ const sections = computed(() => {
        return false;
     }
     // Check source category match
-    const categoryMatches = rule.sourceCategory && prevCategory.includes(rule.sourceCategory.toLowerCase());
+    const ruleSourceCategory = normalizeKey(rule.sourceCategory);
+    const categoryMatches = ruleSourceCategory && prevCategory.includes(ruleSourceCategory);
     
     // Check source slug/label match
-    const slugMatches = rule.sourceSlugs?.length > 0 && rule.sourceSlugs.some(s => 
-      lastFormationSlug.toLowerCase() === s.toLowerCase() || 
-      lastFormationLabel.toLowerCase().includes(s.toLowerCase())
-    );
+    const slugMatches = rule.sourceSlugs?.length > 0 && rule.sourceSlugs.some(s => {
+      const ruleSlug = canonicalSlug(s);
+      const labelKey = canonicalSlug(lastFormationLabel);
+      return prevSlug === ruleSlug || labelKey.includes(ruleSlug);
+    });
     
     return categoryMatches || slugMatches;
   });
@@ -267,11 +299,11 @@ const sections = computed(() => {
     rulesToApply.forEach(r => {
       if (r.filterMode === 'ALLOW_ONLY') {
         hasAllowRule = true;
-        r.targetSlugs?.forEach(s => allowMap.formations.add(s.toLowerCase()));
-        r.targetCategories?.forEach(c => allowMap.categories.add(c.toLowerCase()));
+        r.targetSlugs?.forEach(s => allowMap.formations.add(canonicalSlug(s)));
+        r.targetCategories?.forEach(c => allowMap.categories.add(normalizeKey(c)));
       } else if (r.filterMode === 'EXCLUDE') {
-        r.targetSlugs?.forEach(s => excludeMap.formations.add(s.toLowerCase()));
-        r.targetCategories?.forEach(c => excludeMap.categories.add(c.toLowerCase()));
+        r.targetSlugs?.forEach(s => excludeMap.formations.add(canonicalSlug(s)));
+        r.targetCategories?.forEach(c => excludeMap.categories.add(normalizeKey(c)));
       }
     });
   }
@@ -281,9 +313,9 @@ const sections = computed(() => {
     if (!isP3 || rulesToApply.length === 0) return items;
     
     return items.filter(f => {
-      const slug = (f.slug || '').toLowerCase();
-      const label = (f.label || '').toLowerCase();
-      const cat = (f.category || '').toLowerCase();
+      const slug = canonicalSlug(f.slug);
+      const label = canonicalSlug(f.label);
+      const cat = normalizeKey(f.category);
 
       // Check Exclude first
       const isExcluded = 

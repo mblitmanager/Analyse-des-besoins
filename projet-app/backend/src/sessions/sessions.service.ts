@@ -226,14 +226,12 @@ export class SessionsService {
 
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
-    const formation = await this.sessionRepo.manager
-      .getRepository(Formation)
-      .findOne({
-        where: [
-          { slug: session.formationChoisie as string },
-          { label: session.formationChoisie as string },
-        ],
-      });
+    const formationChoice = String(session.formationChoisie ?? '').trim();
+    const formation = formationChoice
+      ? await this.sessionRepo.manager.getRepository(Formation).findOne({
+          where: [{ slug: formationChoice }, { label: formationChoice }],
+        })
+      : null;
 
     // 1. Evaluate Question Rules first (gives absolute priority)
     const questionRules = await this.questionRuleRepo.find({
@@ -247,10 +245,7 @@ export class SessionsService {
         // Only evaluate if rule formation matches session formation, or if rule is global
         if (rule.formationId) {
           if (rule.formationId !== formation?.id) continue;
-        } else if (
-          rule.formation &&
-          rule.formation !== session.formationChoisie
-        ) {
+        } else if (rule.formation && rule.formation !== formationChoice) {
           continue;
         }
 
@@ -263,14 +258,22 @@ export class SessionsService {
         else continue;
 
         if (rule.questionId) {
-          const userAnswer = answers[rule.questionId];
+          const userAnswer =
+            answers[rule.questionId] ?? answers[String(rule.questionId)];
           let conditionMet = false;
 
           // Normalize values for comparison
-          const normalize = (v: any) =>
-            String(v || '')
-              .trim()
-              .toLowerCase();
+          const normalize = (v: any) => {
+            let raw = String(v ?? '').trim();
+            // Handle persisted values like "\"Non\"" or "'Non'"
+            if (
+              (raw.startsWith('"') && raw.endsWith('"')) ||
+              (raw.startsWith("'") && raw.endsWith("'"))
+            ) {
+              raw = raw.slice(1, -1).trim();
+            }
+            return raw.toLowerCase();
+          };
           const target = normalize(rule.expectedValue);
           const actual = normalize(userAnswer);
 
@@ -337,25 +340,30 @@ export class SessionsService {
       };
     }
 
-    const allLevels = await this.levelRepo.find({
-      where: { formation: { id: formation?.id } },
-      order: { order: 'ASC' },
-    });
+    const allLevels = formation?.id
+      ? await this.levelRepo.find({
+          where: { formation: { id: formation.id } },
+          order: { order: 'ASC' },
+        })
+      : [];
 
     const levels = allLevels.filter((l) => l.isActive !== false);
 
     // ── Try active parcours rules first ──
-    const activeRules = await this.parcoursRuleRepo.find({
-      where: [
-        { formationId: formation?.id, isActive: true },
-        // Legacy fallback if formationId is not yet populated
-        {
-          formation: ILike(String(session.formationChoisie)),
-          isActive: true,
-        },
-      ],
-      order: { order: 'ASC' },
-    });
+    const activeRulesWhere: any[] = [];
+    if (formation?.id) {
+      activeRulesWhere.push({ formationId: formation.id, isActive: true });
+    }
+    if (formationChoice) {
+      // Legacy fallback if formationId is not yet populated
+      activeRulesWhere.push({ formation: ILike(formationChoice), isActive: true });
+    }
+    const activeRules = activeRulesWhere.length
+      ? await this.parcoursRuleRepo.find({
+          where: activeRulesWhere,
+          order: { order: 'ASC' },
+        })
+      : [];
 
     if (activeRules.length > 0) {
       const stopLevelLabel = session.stopLevel || '';
