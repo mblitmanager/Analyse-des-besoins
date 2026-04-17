@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, DeepPartial, IsNull, In, DataSource } from 'typeorm';
 import { Question } from '../entities/question.entity';
@@ -205,6 +205,12 @@ export class QuestionsService {
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
 
+    if (rest.type === 'positionnement' && !levelId) {
+      throw new BadRequestException(
+        "Le champ 'levelId' est obligatoire pour les questions de positionnement.",
+      );
+    }
+
     // Calcul automatique de l'ordre (dernier + 1 dans le même contexte)
     const whereForOrder: FindOptionsWhere<Question> = {
       type: rest.type as string,
@@ -296,6 +302,12 @@ export class QuestionsService {
     } = data;
     const isLevelScoped =
       rest.type === 'prerequis' || rest.type === 'positionnement';
+
+    if (rest.type === 'positionnement' && !levelId) {
+      throw new BadRequestException(
+        "Le champ 'levelId' est obligatoire pour les questions de positionnement.",
+      );
+    }
 
     const updateData: DeepPartial<Question> = {
       ...(rest as DeepPartial<Question>),

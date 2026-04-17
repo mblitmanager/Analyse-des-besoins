@@ -216,6 +216,10 @@ function openEditModal(q) {
 
 async function saveQuestion() {
   try {
+    if (form.value.type === 'positionnement' && !form.value.levelId) {
+      alert("Pour une question de positionnement, le champ 'Niveau' est obligatoire.");
+      return;
+    }
     const payload = {
       ...form.value,
       options: (form.value.responseType === 'text' || form.value.responseType === 'dropdown') ? form.value.options.filter((o) => o.trim() !== "") : form.value.options.filter((o) => o.trim() !== ""),

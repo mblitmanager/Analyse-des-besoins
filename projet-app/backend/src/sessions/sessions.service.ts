@@ -4,6 +4,7 @@ import { In, Repository, ILike } from 'typeorm';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
+import { Formation } from '../entities/formation.entity';
 import { EmailService } from '../email/email.service';
 import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
@@ -226,7 +227,7 @@ export class SessionsService {
     // Adaptive Logic / Cumulative Logic
     // 1. Identify all levels for the chosen formation
     const formation = await this.sessionRepo.manager
-      .getRepository('Formation')
+      .getRepository(Formation)
       .findOne({
         where: [
           { slug: session.formationChoisie as string },

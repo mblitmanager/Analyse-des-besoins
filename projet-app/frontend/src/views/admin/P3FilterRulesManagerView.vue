@@ -8,6 +8,7 @@ const saving = ref(false);
 
 const isModalOpen = ref(false);
 const editingRule = ref(null);
+const formError = ref("");
 
 const form = ref({
   name: "",
@@ -37,7 +38,71 @@ async function fetchRules() {
 
 onMounted(fetchRules);
 
+const isFormValid = computed(() => {
+  const hasName = !!form.value.name?.trim();
+  const hasSource =
+    !!form.value.sourceCategory?.trim() || !!form.value.sourceSlugs?.trim();
+  const hasTarget =
+    !!form.value.targetSlugs?.trim() || !!form.value.targetCategories?.trim();
+  return hasName && hasSource && hasTarget;
+});
+
+function parseCsv(value) {
+  return Array.from(
+    new Set(
+      String(value || "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  );
+}
+
+function buildPayload() {
+  const maxLevel =
+    form.value.maxLevelOrder === null ||
+    form.value.maxLevelOrder === undefined ||
+    form.value.maxLevelOrder === ""
+      ? null
+      : Number(form.value.maxLevelOrder);
+  const order =
+    form.value.order === null ||
+    form.value.order === undefined ||
+    form.value.order === ""
+      ? 0
+      : Number(form.value.order);
+
+  if (!form.value.name?.trim()) {
+    throw new Error("Le nom de la règle est obligatoire.");
+  }
+  if (!form.value.sourceCategory?.trim() && !form.value.sourceSlugs?.trim()) {
+    throw new Error("Ajoutez au moins une condition source (catégorie ou slugs).");
+  }
+  if (!form.value.targetCategories?.trim() && !form.value.targetSlugs?.trim()) {
+    throw new Error("Ajoutez au moins une cible (catégories ou slugs).");
+  }
+  if (maxLevel !== null && (!Number.isFinite(maxLevel) || maxLevel < 0)) {
+    throw new Error("Le seuil de niveau max doit être un nombre positif.");
+  }
+  if (!Number.isFinite(order) || order < 0) {
+    throw new Error("La priorité doit être un nombre positif.");
+  }
+
+  return {
+    name: form.value.name.trim(),
+    sourceCategory: form.value.sourceCategory?.trim().toLowerCase() || null,
+    sourceSlugs: parseCsv(form.value.sourceSlugs),
+    maxLevelOrder: maxLevel,
+    filterMode: form.value.filterMode === "ALLOW_ONLY" ? "ALLOW_ONLY" : "EXCLUDE",
+    targetSlugs: parseCsv(form.value.targetSlugs),
+    targetCategories: parseCsv(form.value.targetCategories),
+    isActive: form.value.isActive !== false,
+    order,
+  };
+}
+
 function openModal(rule = null) {
+  formError.value = "";
   if (rule) {
     editingRule.value = rule;
     form.value = {
@@ -69,20 +134,17 @@ function closeModal() {
 }
 
 async function saveRule() {
+  formError.value = "";
   saving.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const token = localStorage.getItem("admin_token");
+    if (!token) {
+      throw new Error("Session admin expirée. Reconnectez-vous.");
+    }
     const headers = { Authorization: `Bearer ${token}` };
 
-    const payload = {
-      ...form.value,
-      sourceSlugs: form.value.sourceSlugs ? form.value.sourceSlugs.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      targetSlugs: form.value.targetSlugs ? form.value.targetSlugs.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      targetCategories: form.value.targetCategories ? form.value.targetCategories.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      maxLevelOrder: form.value.maxLevelOrder ? parseInt(form.value.maxLevelOrder, 10) : null,
-      order: parseInt(form.value.order, 10) || 0,
-    };
+    const payload = buildPayload();
 
     if (editingRule.value) {
       await axios.patch(`${apiBaseUrl}/p3-filter-rules/${editingRule.value.id}`, payload, { headers });
@@ -94,7 +156,10 @@ async function saveRule() {
     await fetchRules();
   } catch (err) {
     console.error("Save failed:", err);
-    alert("Erreur lors de l'enregistrement de la règle");
+    formError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Erreur lors de l'enregistrement de la règle";
   } finally {
     saving.value = false;
   }
@@ -201,6 +266,9 @@ async function toggleActive(rule) {
         </div>
         
         <form @submit.prevent="saveRule" class="p-6 space-y-6">
+          <div v-if="formError" class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
+            {{ formError }}
+          </div>
           <div class="space-y-1">
             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Nom de la règle</label>
             <input v-model="form.name" required class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-primary" placeholder="Description claire" />
@@ -259,7 +327,7 @@ async function toggleActive(rule) {
 
           <div class="flex gap-3 justify-end pt-4 border-t border-gray-100">
             <button type="button" @click="closeModal" class="px-6 py-2 font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Annuler</button>
-            <button type="submit" :disabled="saving" class="px-6 py-2 bg-brand-primary text-white font-bold rounded-xl hover:brightness-95 transition-all flex items-center gap-2">
+            <button type="submit" :disabled="saving || !isFormValid" class="px-6 py-2 bg-brand-primary text-white font-bold rounded-xl hover:brightness-95 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               <span v-if="saving" class="material-icons-outlined animate-spin text-sm">sync</span>
               Enregistrer
             </button>

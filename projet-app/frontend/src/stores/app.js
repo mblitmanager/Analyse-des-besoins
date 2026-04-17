@@ -105,6 +105,13 @@ export const useAppStore = defineStore('app', () => {
       if (!step) break;
       const code = step.code.toUpperCase();
       const codeLower = code.toLowerCase();
+
+      // POSITIONNEMENT is level-based, so the generic /questions/workflow/{code} check
+      // can incorrectly return 0 even when questions exist for later levels.
+      // We always allow navigation to the Positionnement step; PositionnementView handles the real skip logic.
+      if (codeLower === 'positionnement') {
+        break;
+      }
       
       // Global and P3 skip logic
       let forceSkip = false;
@@ -190,6 +197,12 @@ export const useAppStore = defineStore('app', () => {
     for (const step of workflowSteps.value) {
       const code = step.code.toUpperCase();
       const codeLower = code.toLowerCase();
+
+      // Always include positionnement: question availability is level-based and checked in the view.
+      if (codeLower === 'positionnement') {
+        actual.push(step);
+        continue;
+      }
       
       // Global and P3 skip logic
       let forceSkip = false;
