@@ -50,6 +50,13 @@ describe('API smoke (e2e) - /api prefix', () => {
       expect(res.body).toHaveProperty('email');
       expect(res.body).toHaveProperty('role');
     });
+
+    it('GET /api/auth/me -> 401 with invalid token', async () => {
+      await request(app.getHttpServer())
+        .get(`${api}/auth/me`)
+        .set({ Authorization: 'Bearer invalid.token.value' })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Formations', () => {
@@ -82,6 +89,22 @@ describe('API smoke (e2e) - /api prefix', () => {
         .get(`${api}/questions`)
         .set(authHeader(token))
         .expect(200);
+    });
+
+    it('POST /api/questions -> 400 for positionnement without levelId', async () => {
+      await request(app.getHttpServer())
+        .post(`${api}/questions`)
+        .set(authHeader(token))
+        .send({
+          text: 'Question positionnement invalide',
+          type: 'positionnement',
+          responseType: 'qcm',
+          options: ['A', 'B'],
+          correctResponseIndex: 0,
+          formationId: 1,
+          isActive: true,
+        })
+        .expect(HttpStatus.BAD_REQUEST);
     });
   });
 
