@@ -113,6 +113,8 @@ async function saveSetting(key, value) {
       { value },
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    // Keep runtime workflow/settings logic in sync after admin update.
+    appStore.invalidateSetting(key);
   } catch (error) {
     alert("Erreur lors de l'enregistrement");
   } finally {

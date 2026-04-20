@@ -70,8 +70,9 @@ export const useAppStore = defineStore('app', () => {
 
   const settings = ref({});
 
-  async function fetchSetting(key) {
-    if (settings.value[key] !== undefined) return settings.value[key];
+  async function fetchSetting(key, options = {}) {
+    const forceRefresh = options?.force === true;
+    if (!forceRefresh && settings.value[key] !== undefined) return settings.value[key];
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
       const res = await axios.get(`${apiBaseUrl}/settings/${key}`);
@@ -86,6 +87,14 @@ export const useAppStore = defineStore('app', () => {
       console.error(`Failed to fetch setting ${key}`, e);
     }
     return null;
+  }
+
+  function invalidateSetting(key) {
+    if (key) {
+      delete settings.value[key];
+      return;
+    }
+    settings.value = {};
   }
 
   // Returns the next route skipping any workflow steps that currently have zero questions.
@@ -285,6 +294,7 @@ export const useAppStore = defineStore('app', () => {
     fetchWorkflow, 
     updateActualWorkflow,
     fetchSetting,
+    invalidateSetting,
     getNextRoute, 
     getNextRouteWithQuestions,
     getProgress 
