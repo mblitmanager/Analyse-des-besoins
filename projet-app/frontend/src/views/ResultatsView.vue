@@ -5,9 +5,7 @@ import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
-import AppLogo from '../components/AppLogo.vue';
 import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 
@@ -153,9 +151,10 @@ function getStepTitle(index) {
   const info = getLevelInfo(opt);
   
   if (session.value.formationChoisie) {
-    const suffixes = [" (Base)", " (Intermédiaire)", " (Avancé)"];
-    const formationSuffix = suffixes[index] || " (Avancé)";
-    return session.value.formationChoisie + formationSuffix;
+    // const suffixes = [" (Base)", " (Intermédiaire)", " (Avancé)"];
+    // const formationSuffix = suffixes[index] || " (Avancé)";
+    return session.value.formationChoisie ;
+    // + formationSuffix;
   }
 
   return `Étape ${index + 1}${info ? ` : ${info.theme}` : ''}`;
@@ -225,6 +224,7 @@ async function loadResultats() {
     router.push("/");
     return;
   }
+  
   try {
     const response = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = response.data;
@@ -551,9 +551,8 @@ const downloadPDF = async () => {
 
 <template>
   <div class="min-h-screen flex flex-col font-outfit bg-[#F0F4F8]">
-    <SiteHeader>
-      <template #actions>
-        <!-- <div v-if="session" class="flex items-center gap-4"><div v-if="session" class="flex items-center gap-4">
+    <template>
+      <!-- <div v-if="session" class="flex items-center gap-4"><div v-if="session" class="flex items-center gap-4">
           <button
             @click="downloadPDF"
             :disabled="downloadingPDF"
@@ -580,8 +579,7 @@ const downloadPDF = async () => {
             >
           </div>
         </div> -->
-      </template>
-    </SiteHeader>
+    </template>
 
     <main
       v-if="loading"
@@ -926,6 +924,7 @@ const downloadPDF = async () => {
       @continue="handleContinueAlert"
       @changeFormation="handleChangeFormation"
     />
+
   </div>
 </template>
 
@@ -944,5 +943,39 @@ const downloadPDF = async () => {
   background-position: left;
   background-size: 1px 12px;
   background-repeat: repeat-y;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.3s ease-out;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
