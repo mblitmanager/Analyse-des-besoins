@@ -11,6 +11,7 @@ import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
 import { QuestionRule } from '../entities/question-rule.entity';
+import { Contact } from '../entities/contact.entity';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -829,11 +830,10 @@ export class SessionsService {
         qTextById,
       )}
       ${renderAnswersTable(
-        'Disponibilités (réponses)',
-        filteredAvailabilities,
+        'Usage de la langue',
+        filteredMiseAnswers,
         qTextById,
       )}
-      ${renderAnswersTable(miseTitle, filteredMiseAnswers, qTextById)}
       ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div>` : ''}
     `;
 
@@ -843,31 +843,23 @@ export class SessionsService {
       'herizo.randrianiaina@mbl-service.com',
     );
 
-    // Generate PDF attachment
-    const pdfBuffer = await this.pdfService.generateSessionPdf({
-      civilite: session.civilite,
-      prenom: session.prenom,
-      nom: session.nom,
-      telephone: session.telephone,
-      conseiller: session.conseiller,
-      metier: session.metier,
-      situation: session.situation,
-      formationChoisie: session.formationChoisie,
-      finalRecommendation: recommendation,
-      scoreFinal: scorePretest,
-      levelsScores: session.levelsScores as Record<string, any>,
-      prerequisiteAnswers: filteredPrerequis as Record<string, any>,
-      complementaryAnswers: finalComplementary as Record<string, any>,
-      availabilityAnswers: filteredAvailabilities as Record<string, any>,
-      miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
-      qTextById,
-      parrainNom: session.parrainNom,
-      parrainPrenom: session.parrainPrenom,
-      parrainEmail: session.parrainEmail,
-      parrainTelephone: session.parrainTelephone,
-      highLevelContinue: session.highLevelContinue,
-      isP3Mode: session.isP3Mode,
-    });
+    let commercialEmail: string | null = null;
+    if (session.conseiller) {
+      const contactRepo = this.sessionRepo.manager.getRepository(Contact);
+      const contacts = await contactRepo.find();
+      const conseillerLower = session.conseiller.toLowerCase().trim();
+      const match = contacts.find(c => 
+        `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) || 
+        `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+        conseillerLower.includes(c.nom.toLowerCase())
+      );
+      if (match && match.email) {
+        commercialEmail = match.email;
+      }
+    }
+
+    const emailTo = commercialEmail || adminEmail;
+    const emailCc = 'adv@ns-conseil.com';
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {
@@ -883,8 +875,51 @@ export class SessionsService {
       .replace(/:/g, '-')
       .slice(0, 16);
 
-    const pdfFilename =
-      `Analyse - ${session.prenom || ''} ${session.nom || ''} - ${filenameTimestamp}.pdf`.trim();
+    const emailAttachments: any[] = [];
+    const recommendationsList = recommendation
+      .replace(/\|/g, '&')
+      .split('&')
+      .map(r => r.trim())
+      .filter(Boolean);
+
+    if (recommendationsList.length === 0) {
+      recommendationsList.push(session.formationChoisie || 'Parcours');
+    }
+
+    // Generate PDF attachment for EACH formation
+    for (let i = 0; i < recommendationsList.length; i++) {
+      const rec = recommendationsList[i];
+      const pdfBuffer = await this.pdfService.generateSessionPdf({
+        civilite: session.civilite,
+        prenom: session.prenom,
+        nom: session.nom,
+        email: session.stagiaire?.email,
+        telephone: session.telephone,
+        conseiller: session.conseiller,
+        metier: session.metier,
+        situation: session.situation,
+        formationChoisie: rec, // Specific formation
+        finalRecommendation: rec, // Specific recommendation
+        scoreFinal: scorePretest,
+        levelsScores: session.levelsScores as Record<string, any>,
+        prerequisiteAnswers: filteredPrerequis as Record<string, any>,
+        complementaryAnswers: finalComplementary as Record<string, any>,
+        availabilityAnswers: filteredAvailabilities as Record<string, any>,
+        miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
+        qTextById,
+        parrainNom: session.parrainNom,
+        parrainPrenom: session.parrainPrenom,
+        parrainEmail: session.parrainEmail,
+        parrainTelephone: session.parrainTelephone,
+        highLevelContinue: session.highLevelContinue,
+        isP3Mode: session.isP3Mode,
+      });
+
+      const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const pdfFilename = `Analyse_${session.prenom || ''}_${session.nom || ''}_${safeRec}_${filenameTimestamp}.pdf`.trim();
+
+      emailAttachments.push({ filename: pdfFilename, content: pdfBuffer });
+    }
 
     const publicPath = path.join(process.cwd(), 'public');
     const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
@@ -893,10 +928,6 @@ export class SessionsService {
       'logo',
       'Logo_Like_Formation.png',
     );
-
-    const emailAttachments: any[] = [
-      { filename: pdfFilename, content: pdfBuffer },
-    ];
 
     if (fs.existsSync(logoAopiaPath)) {
       emailAttachments.push({
@@ -921,7 +952,7 @@ export class SessionsService {
 
     if (autoSendEmail !== 'false') {
       await this.emailService.sendReport(
-        adminEmail,
+        emailTo,
         `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
         ${session.isP3Mode ? `<div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"><span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE</span></div>` : ''}
@@ -963,6 +994,7 @@ export class SessionsService {
           </p>
         </div>`,
         emailAttachments,
+        emailCc,
       );
     } else {
       console.log(

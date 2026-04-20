@@ -9,6 +9,7 @@ const router = useRouter();
 const sessionId = localStorage.getItem("session_id");
 const session = ref(null);
 const loading = ref(true);
+const showP3Modal = ref(false);
 
 const levelsEntries = computed(() => {
   if (!session.value?.levelsScores) return [];
@@ -110,7 +111,16 @@ async function validate() {
 }
 
 
-function goHome() {
+function goHomeClick() {
+  if (!store.isP3Mode && isP3Enabled.value) {
+    showP3Modal.value = true;
+  } else {
+    confirmGoHome();
+  }
+}
+
+function confirmGoHome() {
+  showP3Modal.value = false;
   store.setP3Mode(false);
   router.push("/");
 }
@@ -127,6 +137,11 @@ function startP3() {
 
   store.setP3Mode(true);
   router.push("/formations");
+}
+
+function confirmStartP3() {
+  showP3Modal.value = false;
+  startP3();
 }
 </script>
 
@@ -337,20 +352,11 @@ function startP3() {
 
         <div class="flex flex-col sm:flex-row gap-3">
           <button
-            @click="goHome"
+            @click="goHomeClick"
             class="flex-1 py-5 bg-[#ebb973] text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-[#ebb973]/80 transition-all flex items-center justify-center gap-3"
           >
             <span>Accueil</span>
             <span class="material-icons-outlined">home</span>
-          </button>
-          
-          <button
-            v-if="!store.isP3Mode && isP3Enabled"
-            @click="startP3"
-            class="flex-1 py-5 bg-[#ebb973] text-[#428496] rounded-2xl font-black uppercase tracking-widest text-sm hover:brightness-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-brand-primary/20"
-          >
-            <span>Ajouter un autre parcours</span>
-            <span class="material-icons-outlined">add_circle_outline</span>
           </button>
         </div>
       </div>
@@ -359,6 +365,34 @@ function startP3() {
         <div
           class="animate-spin border-4 border-brand-primary/20 border-t-brand-primary rounded-full h-12 w-12"
         ></div>
+      </div>
+    </div>
+
+    <!-- P3 Modal -->
+    <div v-if="showP3Modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        
+        <div class="relative z-10">
+          <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[#0D8ABC] shadow-inner">
+            <span class="material-icons-outlined text-3xl">psychology_alt</span>
+          </div>
+          
+          <h2 class="text-2xl font-black text-center text-[#0D1B3E] mb-4">Parcours complémentaire</h2>
+          <p class="text-gray-600 font-medium text-center mb-8 leading-relaxed">
+            Souhaitez-vous réaliser une troisième formation avec nous ?
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button @click="confirmGoHome" class="flex-1 py-3 px-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all">
+              Non, merci
+            </button>
+            <button @click="confirmStartP3" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30">
+              Oui, avec plaisir
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

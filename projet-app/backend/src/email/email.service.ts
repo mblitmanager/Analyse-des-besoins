@@ -12,10 +12,12 @@ export class EmailService {
     subject: string,
     content: string,
     attachments?: any[],
+    cc?: string,
   ) {
     try {
       await this.mailerService.sendMail({
         to,
+        cc,
         subject,
         html: content,
         attachments: attachments || [],
