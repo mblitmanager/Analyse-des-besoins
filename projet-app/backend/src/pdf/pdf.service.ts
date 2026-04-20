@@ -82,7 +82,7 @@ export class PdfService {
       doc
         .fontSize(10)
         .fillColor(grayText)
-        .text(`Date de soumission : ${dateStr}`, { align: 'center' });
+        .text(`Date de complétude : ${dateStr}`, { align: 'center' });
       doc.moveDown(1.5);
 
       // ─── Beneficiary Info ───
@@ -92,7 +92,6 @@ export class PdfService {
           'Bénéficiaire',
           `${data.civilite || ''} ${data.prenom || ''} ${data.nom || ''}`.trim(),
         ],
-        // ['Email', data.email || 'N/A'],
         ['Téléphone', data.telephone || 'N/A'],
         ['Conseiller', data.conseiller || 'N/A'],
         ['Métier', data.metier || 'N/A'],
@@ -102,7 +101,6 @@ export class PdfService {
             ? data.situation.join(', ')
             : data.situation || 'N/A',
         ],
-        // ['Marque', data.brand || 'N/A'],
       ];
       this.drawTable(doc, beneficiary, darkText, grayText, lightBg);
 
@@ -123,9 +121,20 @@ export class PdfService {
         this.drawTable(doc, referral, darkText, grayText, lightBg);
       }
 
+      // ─── PRÉ-REQUIS ───
+      this.renderAnswersSection(
+        doc,
+        'Pré-requis (réponses)',
+        data.prerequisiteAnswers,
+        data.qTextById,
+        darkText,
+        grayText,
+        lightBg,
+      );
+
       // ─── Formation + Recommendation ───
+      doc.moveDown(0.5);
       if (data.highLevelContinue) {
-        doc.moveDown(0.5);
         doc
           .fillColor('#991B1B')
           .font('Helvetica-Bold')
@@ -136,7 +145,6 @@ export class PdfService {
           );
         doc.moveDown(0.5);
       }
-      doc.moveDown(0.5);
       this.sectionTitle(doc, 'Formation et Résultat');
 
       const recommendations = (data.finalRecommendation || '').split(' | ');
@@ -174,7 +182,7 @@ export class PdfService {
         );
         this.drawTable(
           doc,
-          [['Niveau', 'Score', 'Validé'], ...levelRows],
+          [['Niveau', 'Score obtenu', 'Validé'], ...levelRows],
           darkText,
           grayText,
           lightBg,
@@ -183,15 +191,6 @@ export class PdfService {
       }
 
       // ─── Answers Sections ───
-      this.renderAnswersSection(
-        doc,
-        'Pré-requis (réponses)',
-        data.prerequisiteAnswers,
-        data.qTextById,
-        darkText,
-        grayText,
-        lightBg,
-      );
       this.renderAnswersSection(
         doc,
         'Questions complémentaires (réponses)',
@@ -210,13 +209,10 @@ export class PdfService {
         grayText,
         lightBg,
       );
-      // title includes formation when available
-      const miseTitle = data.formationChoisie
-        ? `Mise à niveau (réponses – ${data.formationChoisie})`
-        : 'Mise à niveau (réponses)';
+      
       this.renderAnswersSection(
         doc,
-        miseTitle,
+        'Usage de la langue',
         data.miseANiveauAnswers,
         data.qTextById,
         darkText,
@@ -262,9 +258,11 @@ export class PdfService {
 
   private sectionTitle(doc: PDFKit.PDFDocument, title: string) {
     doc
-      .fontSize(13)
-      .fillColor('#0D1B3E')
-      .text(title, { underline: false })
+      .fontSize(11)
+      .fillColor('#0D8ABC')
+      .font('Helvetica-Bold')
+      .text(title.toUpperCase(), { underline: false, align: 'left' })
+      .font('Helvetica')
       .moveDown(0.3);
     // Draw a thin separator line
     const y = doc.y;
@@ -317,8 +315,8 @@ export class PdfService {
           });
       });
 
-      // Move to after the tallest cell + some padding
-      doc.y = y + maxHeight + 4;
+      // Move to after the tallest cell + more padding for readability
+      doc.y = y + maxHeight + 10;
 
       // Row separator
       if (rowIndex < rows.length - 1) {
