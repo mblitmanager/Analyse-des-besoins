@@ -710,6 +710,12 @@ export class SessionsService {
 
   async submit(id: string) {
     const session = await this.findOne(id);
+
+    // P3 same-formation shortcut: skip recommendation calc, use pre-set values
+    if (session.p3SkipQuiz && session.finalRecommendation) {
+      return this.submitP3SkipQuiz(session);
+    }
+
     const {
       recommendation,
       scorePretest,
@@ -1010,6 +1016,137 @@ export class SessionsService {
           ? levels[0].label
           : 'Initial',
       scorePretest,
+      emailSentAt: new Date(),
+      isCompleted: true,
+    });
+  }
+
+  /**
+   * P3 same-formation shortcut: submit without quiz.
+   * Uses the pre-set finalRecommendation and stopLevel from the frontend.
+   * Generates PDF and sends email like normal submit.
+   */
+  private async submitP3SkipQuiz(session: Session) {
+    const recommendation = session.finalRecommendation || session.formationChoisie || 'Parcours P3';
+    const qTextById: Record<number, string> = {};
+
+    // Gather question texts for any existing answers
+    const allQuestions = await this.sessionRepo.manager
+      .getRepository(Question)
+      .find();
+    allQuestions.forEach((q) => {
+      qTextById[q.id] = q.text;
+    });
+
+    const adminEmail = await this.settingsService.getValue(
+      'ADMIN_EMAIL',
+      'herizo.randrianiaina@mbl-service.com',
+    );
+
+    let commercialEmail: string | null = null;
+    if (session.conseiller) {
+      const contactRepo = this.sessionRepo.manager.getRepository(Contact);
+      const contacts = await contactRepo.find();
+      const conseillerLower = session.conseiller.toLowerCase().trim();
+      const match = contacts.find(c =>
+        `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
+        `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+        conseillerLower.includes(c.nom.toLowerCase())
+      );
+      if (match && match.email) {
+        commercialEmail = match.email;
+      }
+    }
+
+    const emailTo = commercialEmail || adminEmail;
+    const emailCc = 'adv@ns-conseil.com';
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+    const filenameTimestamp = now.toISOString().replace(/T/, '_').replace(/:/g, '-').slice(0, 16);
+
+    // Generate a single PDF for the P3 recommendation
+    const pdfBuffer = await this.pdfService.generateSessionPdf({
+      civilite: session.civilite,
+      prenom: session.prenom,
+      nom: session.nom,
+      telephone: session.telephone,
+      conseiller: session.conseiller,
+      metier: session.metier,
+      situation: session.situation,
+      formationChoisie: recommendation,
+      finalRecommendation: recommendation,
+      scoreFinal: -1, // No quiz taken
+      levelsScores: {},
+      prerequisiteAnswers: session.prerequisiteScore as Record<string, any>,
+      complementaryAnswers: session.complementaryQuestions as Record<string, any>,
+      availabilityAnswers: session.availabilities as Record<string, any>,
+      miseANiveauAnswers: session.miseANiveauAnswers as Record<string, any>,
+      qTextById,
+      parrainNom: session.parrainNom,
+      parrainPrenom: session.parrainPrenom,
+      parrainEmail: session.parrainEmail,
+      parrainTelephone: session.parrainTelephone,
+      highLevelContinue: false,
+      isP3Mode: true,
+    });
+
+    const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const pdfFilename = `Analyse_${session.prenom || ''}_${session.nom || ''}_P3_${safeRec}_${filenameTimestamp}.pdf`;
+
+    const emailAttachments: any[] = [
+      { filename: pdfFilename, content: pdfBuffer },
+    ];
+
+    const publicPath = path.join(process.cwd(), 'public');
+    const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
+    const logoLikePath = path.join(publicPath, 'logo', 'Logo_Like_Formation.png');
+
+    if (fs.existsSync(logoAopiaPath)) {
+      emailAttachments.push({ filename: 'logo-aopia.png', path: logoAopiaPath, cid: 'logo_aopia' });
+    }
+    if (fs.existsSync(logoLikePath)) {
+      emailAttachments.push({ filename: 'logo-like.png', path: logoLikePath, cid: 'logo_like' });
+    }
+
+    const autoSendEmail = await this.settingsService.getValue('AUTO_SEND_EMAIL', 'true');
+    if (autoSendEmail !== 'false') {
+      await this.emailService.sendReport(
+        emailTo,
+        `Analyse des besoins - P3 ${session.prenom} ${session.nom} - ${recommendation}`,
+        `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+          <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+            <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE (Même formation - Niveau supérieur)</span>
+          </div>
+          <h2 style="color: #0D8ABC; margin-bottom: 5px;">Analyse des besoins - P3</h2>
+          <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le ${dateStr}</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
+          <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
+          <p><strong>Formation P3 :</strong> ${recommendation}</p>
+          <p style="background: #f0fdf4; border-left: 4px solid #22C55E; padding: 10px; font-weight: bold; color: #166534;">
+            Même formation que le parcours précédent → Niveau supérieur attribué automatiquement
+          </p>
+          <div style="margin-top: 20px; text-align: right;">
+            <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
+            <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
+          </div>
+          <p style="font-size: 11px; color: #999; margin-top: 40px;">
+            Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
+          </p>
+        </div>`,
+        emailAttachments,
+        emailCc,
+      );
+    }
+
+    return this.update(session.id, {
+      finalRecommendation: recommendation,
+      stopLevel: session.stopLevel || 'P3 Auto',
+      scorePretest: -1,
       emailSentAt: new Date(),
       isCompleted: true,
     });

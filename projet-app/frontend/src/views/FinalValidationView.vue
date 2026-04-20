@@ -134,6 +134,12 @@ function startP3() {
   if (session.value?.formationChoisie) {
     localStorage.setItem("p3_prev_formation", session.value.formationChoisie);
   }
+  if (session.value?.finalRecommendation) {
+    localStorage.setItem("p3_prev_recommendations", session.value.finalRecommendation);
+  }
+  if (session.value?.stopLevel) {
+    localStorage.setItem("p3_prev_stop_level", session.value.stopLevel);
+  }
 
   store.setP3Mode(true);
   router.push("/formations");

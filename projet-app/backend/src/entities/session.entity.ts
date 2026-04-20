@@ -76,6 +76,9 @@ export class Session {
   @Column({ default: false })
   isP3Mode: boolean;
 
+  @Column({ default: false })
+  p3SkipQuiz: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
