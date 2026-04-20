@@ -607,9 +607,31 @@ export class SessionsService {
       }
     }
 
-    // Since we remove hardcoded fallback, we just assign the base formation.
-    const l1 = session.formationChoisie || 'Parcours personnalisé';
-    const finalRecommendationValue = l1;
+    // Default fallback recommendation
+    const baseFormation = session.formationChoisie || 'Parcours personnalisé';
+    let proposedParcours = [baseFormation];
+
+    // In P3 mode, prefer a 2-step fallback when no explicit parcours rule matched.
+    if (session.isP3Mode && levels.length > 0 && session.formationChoisie) {
+      const targetLevelLabel = session.stopLevel || session.lastValidatedLevel || '';
+      const currentIdx = Math.max(
+        0,
+        levels.findIndex((l) => l.label === targetLevelLabel),
+      );
+      const currentLevel = levels[currentIdx];
+      const nextLevel = levels[currentIdx + 1];
+
+      if (currentLevel && nextLevel) {
+        proposedParcours = [
+          `${baseFormation} ${currentLevel.label}`.trim(),
+          `${baseFormation} ${nextLevel.label}`.trim(),
+        ];
+      } else if (currentLevel) {
+        proposedParcours = [`${baseFormation} ${currentLevel.label}`.trim()];
+      }
+    }
+
+    const finalRecommendationValue = proposedParcours.join(' & ');
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores
@@ -669,10 +691,6 @@ export class SessionsService {
     const miseTitle = session.formationChoisie
       ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
       : 'Mise à niveau (réponses)';
-
-    const proposedParcours = finalRecommendationValue.includes(' & ') 
-      ? finalRecommendationValue.split(' & ') 
-      : [finalRecommendationValue];
 
     return {
       recommendation: finalRecommendationValue,
