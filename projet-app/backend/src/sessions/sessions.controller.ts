@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
+import { FormationsService } from '../formations/formations.service';
 import { PdfService } from '../pdf/pdf.service';
 import type { Response } from 'express';
 import { Res } from '@nestjs/common';
@@ -41,6 +42,7 @@ export class UpdateSessionDto {
 export class SessionsController {
   constructor(
     private readonly sessionsService: SessionsService,
+    private readonly formationsService: FormationsService,
     private readonly pdfService: PdfService,
   ) {}
 
@@ -121,5 +123,23 @@ export class SessionsController {
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.sessionsService.remove(id);
+  }
+
+  /**
+   * Get available formations for a session with P3 filter rules applied
+   * 
+   * Returns formations that are available to the user based on their
+   * previous training path and applicable P3 filter rules
+   * 
+   * @param id - Session ID
+   * @returns Filtered list of formations based on P3 rules
+   */
+  @Get(':id/available-formations-with-p3')
+  async getAvailableFormationsWithP3(@Param('id') id: string) {
+    const session = await this.sessionsService.findOne(id);
+    return this.formationsService.getAvailableFormationsForSession(
+      session,
+      true, // activeOnly
+    );
   }
 }

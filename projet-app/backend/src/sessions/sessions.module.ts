@@ -11,6 +11,7 @@ import { QuestionRule } from '../entities/question-rule.entity';
 import { EmailModule } from '../email/email.module';
 import { SettingsModule } from '../settings/settings.module';
 import { PdfModule } from '../pdf/pdf.module';
+import { FormationsModule } from '../formations/formations.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PdfModule } from '../pdf/pdf.module';
     EmailModule,
     SettingsModule,
     PdfModule,
+    FormationsModule,
   ],
   providers: [SessionsService],
   controllers: [SessionsController],

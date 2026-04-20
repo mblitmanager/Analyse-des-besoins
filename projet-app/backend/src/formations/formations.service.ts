@@ -4,6 +4,8 @@ import { Repository, In } from 'typeorm';
 import { Formation } from '../entities/formation.entity';
 import { Level } from '../entities/level.entity';
 import { Question } from '../entities/question.entity';
+import { Session } from '../entities/session.entity';
+import { P3FilterRulesApplicationService } from '../p3-filter-rules/p3-filter-rules-application.service';
 
 @Injectable()
 export class FormationsService {
@@ -12,6 +14,7 @@ export class FormationsService {
     private formationRepo: Repository<Formation>,
     @InjectRepository(Level)
     private levelRepo: Repository<Level>,
+    private p3FilterRulesApplicationService: P3FilterRulesApplicationService,
   ) {}
 
   findAll(activeOnly: boolean = false) {
@@ -123,4 +126,31 @@ export class FormationsService {
     }
     return null;
   }
+
+  /**
+   * Get available formations for a session with P3 filtering applied
+   * 
+   * This method:
+   * 1. Retrieves all active formations
+   * 2. Applies P3 filter rules based on the session's previous training path
+   * 3. Returns the filtered list
+   * 
+   * @param session - Session with previous formation info
+   * @param activeOnly - Whether to return only active formations
+   * @returns Filtered list of formations based on P3 rules
+   */
+  async getAvailableFormationsForSession(
+    session: Session,
+    activeOnly: boolean = true,
+  ): Promise<Formation[]> {
+    // Get all active formations
+    const formations = await this.findAll(activeOnly);
+
+    // Apply P3 filter rules
+    return this.p3FilterRulesApplicationService.applyP3Rules(
+      formations,
+      session,
+    );
+  }
 }
+
