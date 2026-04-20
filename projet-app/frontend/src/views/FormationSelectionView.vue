@@ -21,6 +21,8 @@ const loading = ref(true);
 const submitting = ref(false);
 const selectedFormation = ref(null);
 const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
+const showP3SameFormationModal = ref(false);
+const p3SameFormationLabel = ref('');
 
 const formations = ref([]);
 const currentSession = ref(null);
@@ -92,6 +94,20 @@ async function selectFormation() {
     return;
   }
 
+  // P3: if user chose the SAME formation as P2, skip quiz entirely
+  if (store.isP3Mode) {
+    const prevFormation = localStorage.getItem('p3_prev_formation') || '';
+    if (prevFormation && selectedFormation.value.label === prevFormation) {
+      p3SameFormationLabel.value = selectedFormation.value.label;
+      showP3SameFormationModal.value = true;
+      return;
+    }
+  }
+
+  await doSelectFormation();
+}
+
+async function doSelectFormation() {
   submitting.value = true;
   try {
     const apiBaseUrl =
@@ -127,6 +143,29 @@ async function selectFormation() {
   } catch (error) {
     console.error("Failed to select formation:", error);
     alert("Erreur lors de la sélection de la formation.");
+  } finally {
+    submitting.value = false;
+  }
+}
+
+async function confirmP3SameFormation() {
+  showP3SameFormationModal.value = false;
+  submitting.value = true;
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    // Save the formation choice and submit immediately (no quiz)
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      formationChoisie: selectedFormation.value.label,
+      isP3Mode: true,
+    });
+    // Submit (finalize) the session directly
+    await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
+    // Go to home
+    store.setP3Mode(false);
+    router.push('/');
+  } catch (error) {
+    console.error('Failed to confirm P3 same formation:', error);
+    alert('Erreur lors de la validation du P3.');
   } finally {
     submitting.value = false;
   }
@@ -310,9 +349,29 @@ const sections = computed(() => {
 
   // Filter helper
   const filterGroup = (items) => {
-    if (!isP3 || rulesToApply.length === 0) return items;
+    let filtered = items;
+
+    // P3: Language restriction – only show Anglais if P2 was Anglais, Voltaire if P2 was Voltaire
+    if (isP3) {
+      const prevLabel = (lastFormationLabel || '').toLowerCase();
+      const prevWasAnglais = prevLabel.includes('anglais');
+      const prevWasVoltaire = prevLabel.includes('voltaire');
+
+      filtered = filtered.filter(f => {
+        const fLabel = (f.label || '').toLowerCase();
+        const isAnglais = fLabel.includes('anglais');
+        const isVoltaire = fLabel.includes('voltaire');
+
+        // If it's a language formation, only keep if matches the previous one
+        if (isAnglais) return prevWasAnglais;
+        if (isVoltaire) return prevWasVoltaire;
+        return true; // non-language formations pass through
+      });
+    }
+
+    if (!isP3 || rulesToApply.length === 0) return filtered;
     
-    return items.filter(f => {
+    return filtered.filter(f => {
       const slug = canonicalSlug(f.slug);
       const label = canonicalSlug(f.label);
       const cat = normalizeKey(f.category);
@@ -583,6 +642,38 @@ function isSectionActive(section) {
         </div>
       </div>
     </transition>
+
+    <!-- P3 Same Formation Modal -->
+    <div v-if="showP3SameFormationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        
+        <div class="relative z-10">
+          <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-green-500 shadow-inner">
+            <span class="material-icons-outlined text-3xl">check_circle</span>
+          </div>
+          
+          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation sélectionnée</h2>
+          <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
+            Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong>, la même formation que votre parcours précédent.
+          </p>
+          <p class="text-gray-500 text-sm text-center mb-8">
+            Aucun test supplémentaire n'est nécessaire. Souhaitez-vous confirmer ce choix ?
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button @click="showP3SameFormationModal = false" class="flex-1 py-3 px-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all">
+              Annuler
+            </button>
+            <button @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
+              <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
+              Confirmer le P3
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
