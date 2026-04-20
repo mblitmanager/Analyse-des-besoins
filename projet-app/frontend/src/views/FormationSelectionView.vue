@@ -23,10 +23,19 @@ const selectedFormation = ref(null);
 const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 const showP3SameFormationModal = ref(false);
 const p3SameFormationLabel = ref('');
+const p3NextLevelLabel = ref('');
 
 const formations = ref([]);
 const currentSession = ref(null);
 const p3Rules = ref([]);
+
+// P3 context from localStorage
+const p3PrevFormation = computed(() => localStorage.getItem('p3_prev_formation') || '');
+const p3PrevRecommendations = computed(() => {
+  const raw = localStorage.getItem('p3_prev_recommendations') || '';
+  if (!raw) return [];
+  return raw.replace(/\|/g, '&').split('&').map(r => r.trim()).filter(Boolean);
+});
 
 async function fetchFormations() {
   try {
@@ -99,6 +108,8 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
+      const { label: nextLabel } = computeNextLevel();
+      p3NextLevelLabel.value = nextLabel;
       showP3SameFormationModal.value = true;
       return;
     }
@@ -148,17 +159,46 @@ async function doSelectFormation() {
   }
 }
 
+function computeNextLevel() {
+  const formation = selectedFormation.value;
+  if (!formation || !formation.levels || formation.levels.length === 0) {
+    return { label: formation?.label || 'Niveau suivant', nextLevelLabel: 'Niveau suivant' };
+  }
+  
+  const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+  const sortedLevels = [...formation.levels].sort((a, b) => (a.order || 0) - (b.order || 0));
+  
+  // Find index of previous stop level
+  const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
+  const prevClean = clean(prevStopLevel);
+  let prevIdx = sortedLevels.findIndex(l => clean(l.label) === prevClean);
+  if (prevIdx === -1) prevIdx = 0; // fallback to first level
+  
+  // Next level is prevIdx + 1
+  const nextIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
+  const nextLevel = sortedLevels[nextIdx];
+  return {
+    label: `${formation.label} - ${nextLevel.label}`,
+    nextLevelLabel: nextLevel.label,
+  };
+}
+
 async function confirmP3SameFormation() {
   showP3SameFormationModal.value = false;
   submitting.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    // Save the formation choice and submit immediately (no quiz)
+    const { label: recommendation, nextLevelLabel } = computeNextLevel();
+    
+    // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       formationChoisie: selectedFormation.value.label,
       isP3Mode: true,
+      p3SkipQuiz: true,
+      finalRecommendation: recommendation,
+      stopLevel: nextLevelLabel,
     });
-    // Submit (finalize) the session directly
+    // Submit (finalize) the session - backend will use pre-set values
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
     // Go to home
     store.setP3Mode(false);
@@ -461,11 +501,32 @@ function isSectionActive(section) {
       
         <div class="text-center">
           <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
-            Quelle formation souhaitez-vous suivre ?
+            {{ store.isP3Mode ? 'Choisissez votre 3ème formation' : 'Quelle formation souhaitez-vous suivre ?' }}
           </h1>
           <p class="text-gray-400 text-base md:text-lg">
-            Faites votre choix ci-dessous :
+            {{ store.isP3Mode ? 'Sélectionnez un parcours complémentaire (1 seul parcours)' : 'Faites votre choix ci-dessous :' }}
           </p>
+        </div>
+
+        <!-- P3 Banner: Previous Parcours -->
+        <div v-if="store.isP3Mode && p3PrevRecommendations.length > 0" class="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-5 border border-indigo-100">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="material-icons-outlined text-indigo-500 text-xl">history_edu</span>
+            </div>
+            <div>
+              <p class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-2">Vos parcours précédents</p>
+              <div class="space-y-1.5">
+                <div v-for="(rec, idx) in p3PrevRecommendations" :key="idx" class="flex items-center gap-2">
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black text-white" :class="idx === 0 ? 'bg-blue-400' : 'bg-green-400'">
+                    P{{ idx + 1 }}
+                  </span>
+                  <span class="text-sm font-bold text-gray-700">{{ rec }}</span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2 italic">Un 3ème parcours vous est proposé ci-dessous.</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -651,15 +712,19 @@ function isSectionActive(section) {
         
         <div class="relative z-10">
           <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-green-500 shadow-inner">
-            <span class="material-icons-outlined text-3xl">check_circle</span>
+            <span class="material-icons-outlined text-3xl">trending_up</span>
           </div>
           
-          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation sélectionnée</h2>
+          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation – Niveau supérieur</h2>
           <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
             Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong>, la même formation que votre parcours précédent.
           </p>
-          <p class="text-gray-500 text-sm text-center mb-8">
-            Aucun test supplémentaire n'est nécessaire. Souhaitez-vous confirmer ce choix ?
+          <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
+            <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Parcours P3 attribué</p>
+            <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
+          </div>
+          <p class="text-gray-500 text-sm text-center mb-6">
+            Aucun test supplémentaire n'est nécessaire. Le niveau supérieur sera attribué automatiquement.
           </p>
           
           <div class="flex flex-col sm:flex-row gap-3">
