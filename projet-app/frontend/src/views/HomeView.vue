@@ -24,12 +24,55 @@ const form = ref({
 const referralEnabled = ref(false);
 const loading = ref(false);
 
-onMounted(async () => {
-  // fetchConseillers supprimé car on utilise désormais un champ libre
+const conseillers = ref([]);
+const conseillerInput = ref(null);
+
+const onConseillerInput = (event) => {
+  const inputType = event.inputType;
+  // Ne pas autocompléter si l'utilisateur efface
+  if (inputType === 'deleteContentBackward' || inputType === 'deleteContentForward') {
+    return;
+  }
   
+  let val = form.value.conseiller;
+  if (!val) return;
+
+  // Trouver le premier conseiller qui commence par ce qui est tapé
+  const match = conseillers.value.find(c => c.toLowerCase().startsWith(val.toLowerCase()));
+  
+  if (match && match.toLowerCase() !== val.toLowerCase()) {
+    const originalLength = val.length;
+    // On conserve la casse originale tapée par l'utilisateur et on ajoute le reste de la prédiction
+    form.value.conseiller = val + match.substring(val.length);
+    
+    // On sélectionne la partie auto-complétée pour qu'elle puisse être écrasée si l'utilisateur continue de taper
+    setTimeout(() => {
+      if (conseillerInput.value) {
+        conseillerInput.value.setSelectionRange(originalLength, match.length);
+      }
+    }, 0);
+  }
+};
+
+onMounted(async () => {
   // Fetch referral setting
   const enabled = await store.fetchSetting('ENABLE_REFERRAL');
   referralEnabled.value = enabled === 'true';
+
+  // Fetch conseillers from contacts
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const res = await fetch(`${apiBaseUrl}/contacts`);
+    if (res.ok) {
+      const data = await res.json();
+      // On combine prénom et nom pour faire la liste des noms
+      conseillers.value = data
+        .map(c => `${c.prenom} ${c.nom}`.trim())
+        .filter(c => c.length > 0);
+    }
+  } catch (error) {
+    console.error("Failed to fetch conseillers:", error);
+  }
 });
 
 async function startTest() {
@@ -160,7 +203,18 @@ async function testDbConnection() {
                   <span class="material-icons-outlined text-gray-400 text-[20px]">person</span>
                 </div>
                 <!-- field is optional, user may leave blank -->
-                <input v-model="form.conseiller" class="Wizi-input pl-10" id="conseiller" name="conseiller" placeholder="Nom de votre conseiller" type="text" />
+                <input 
+                  ref="conseillerInput"
+                  v-model="form.conseiller" 
+                  @input="onConseillerInput"
+                  class="Wizi-input pl-10" 
+                  id="conseiller" 
+                  name="conseiller" 
+                  placeholder="Nom de votre conseiller" 
+                  type="text" 
+                  autocomplete="off"
+                  spellcheck="false"
+                />
               </div>
             </div>
 
