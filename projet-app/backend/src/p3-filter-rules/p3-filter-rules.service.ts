@@ -103,7 +103,10 @@ export class P3FilterRulesService {
   }
 
   async update(id: string, data: Partial<P3FilterRule>) {
-    await this.repo.update(id, this.sanitize(data));
+    const existing = await this.repo.findOne({ where: { id } });
+    if (!existing) throw new BadRequestException('Règle introuvable');
+    const merged = { ...existing, ...data };
+    await this.repo.update(id, this.sanitize(merged));
     return this.repo.findOne({ where: { id } });
   }
 
