@@ -155,11 +155,6 @@ export class PdfService {
           r,
         ]),
       ];
-      if (data.scoreFinal !== undefined && data.scoreFinal !== -1) {
-        formationInfo.push(['Score final', `${data.scoreFinal}%`]);
-      } else if (data.scoreFinal === undefined) {
-        formationInfo.push(['Score final', 'N/A']);
-      }
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
 
       // ─── Level Scores ───

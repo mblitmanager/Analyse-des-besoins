@@ -345,13 +345,13 @@ const confirmAndGoNext = async () => {
   goNext();
 };
 
-const goNext = () => {
+const goNext = async () => {
   if (shouldShowAlert.value && !showHighLevelAlert.value) {
     showHighLevelAlert.value = true;
     return;
   }
-  const nextRoute = store.getNextRoute("/resultats");
-  router.push(nextRoute || "/complementary");
+  const nextRoute = await store.getNextRouteWithQuestions("/resultats");
+  router.push(nextRoute || "/validation");
 };
 
 const shouldShowAlert = computed(() => {
@@ -379,8 +379,8 @@ const handleContinueAlert = async () => {
     console.error("Failed to update session with highLevelContinue flag", error);
   }
   showHighLevelAlert.value = false;
-  const nextRoute = store.getNextRoute("/resultats");
-  router.push(nextRoute || "/complementary");
+  const nextRoute = await store.getNextRouteWithQuestions("/resultats");
+  router.push(nextRoute || "/validation");
 };
 
 const handleChangeFormation = () => {

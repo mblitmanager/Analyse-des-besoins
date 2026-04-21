@@ -521,8 +521,14 @@ export class SessionsService {
       if (matchedRule) {
         const f1 = matchedRule.formation1 || '';
         const f2 = matchedRule.formation2 || '';
-        const proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
-        const finalRecommendationValue = proposedParcours.join(' & ');
+        let proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
+        let finalRecommendationValue = proposedParcours.join(' & ');
+
+        // Enforce ONE formation exactly for P3 mode, regardless of DB rules
+        if (session.isP3Mode && proposedParcours.length > 0) {
+          finalRecommendationValue = proposedParcours[0];
+          proposedParcours = [proposedParcours[0]];
+        }
 
         const levelsEntries: any[] = session.levelsScores
           ? Object.values(session.levelsScores)
@@ -562,8 +568,16 @@ export class SessionsService {
     // 4. CHECK FOR EXPLICIT QUESTION OVERRIDES
     const overrideSession = (session as any).overrideData;
     if (overrideSession?.isQuestionRuleOverride) {
+      let overrideRecValue = String(overrideSession.recommendations);
+      if (session.isP3Mode) {
+        const parts = overrideRecValue.split(/\s*&\s*|\s*\|\s*|,/);
+        if (parts.length > 0) {
+          overrideRecValue = parts[0];
+        }
+      }
+
       return {
-        recommendation: String(overrideSession.recommendations),
+        recommendation: overrideRecValue,
         isQuestionRuleOverride: overrideSession.isQuestionRuleOverride,
         ruleResultType: overrideSession.ruleResultType,
         finalLevel: null,
@@ -612,27 +626,51 @@ export class SessionsService {
     const baseFormation = session.formationChoisie || 'Parcours personnalisé';
     let proposedParcours = [baseFormation];
 
-    // In P3 mode, prefer a 2-step fallback when no explicit parcours rule matched.
-    if (session.isP3Mode && levels.length > 0 && session.formationChoisie) {
-      const targetLevelLabel = session.stopLevel || session.lastValidatedLevel || '';
+    // Build the fallback parcours
+    let currentLevel = levels.length > 0 ? levels[0] : null;
+    const targetLevelLabel = session.stopLevel || session.lastValidatedLevel || '';
+    if (targetLevelLabel) {
       const currentIdx = Math.max(
         0,
         levels.findIndex((l) => l.label === targetLevelLabel),
       );
-      const currentLevel = levels[currentIdx];
-      const nextLevel = levels[currentIdx + 1];
+      currentLevel = levels[currentIdx];
+    } else {
+      currentLevel = finalLevel; // Use the parsed level from scores
+    }
 
-      if (currentLevel && nextLevel) {
-        proposedParcours = [
-          `${baseFormation} ${currentLevel.label}`.trim(),
-          `${baseFormation} ${nextLevel.label}`.trim(),
-        ];
-      } else if (currentLevel) {
-        proposedParcours = [`${baseFormation} ${currentLevel.label}`.trim()];
+    if (currentLevel) {
+      proposedParcours = [`${baseFormation} ${currentLevel.label}`.trim()];
+      
+      // If we are NOT in P3 mode, we might propose current + next (2-step).
+      // But actually, the normal mode might already have matched a ParcoursRule. 
+      // If no ParcoursRule matched, let's keep the existing behaviour for normal mode (if there was one).
+      // Wait, let's just make it 1-step fallback if P3 mode, otherwise keep whatever it does normally.
+      if (!session.isP3Mode && levels.length > 0) {
+          const currentIdx = levels.findIndex((l) => l.label === currentLevel.label);
+          const nextLevel = levels[currentIdx + 1];
+          if (nextLevel && session.formationChoisie) {
+            // Note: The previous logic was explicitly adding a 2-step for P3!
+            // But the user requested only 1 for P3. 
+            // In normal mode (P1/P2), it's standard to propose 2.
+            proposedParcours = [
+              `${baseFormation} ${currentLevel.label}`.trim(),
+              `${baseFormation} ${nextLevel.label}`.trim(),
+            ];
+          }
       }
     }
 
-    const finalRecommendationValue = proposedParcours.join(' & ');
+    let finalRecommendationValue = proposedParcours.join(' & ');
+
+    // Enforce ONE formation exactly for P3 mode, regardless of DB rules or fallbacks!
+    if (session.isP3Mode) {
+      const parts = finalRecommendationValue.split(/\s*&\s*|\s*\|\s*/);
+      if (parts.length > 0) {
+        finalRecommendationValue = parts[0];
+        proposedParcours = [parts[0]];
+      }
+    }
 
     // Score final global
     const levelsEntries: any[] = session.levelsScores
@@ -1028,15 +1066,15 @@ export class SessionsService {
    */
   private async submitP3SkipQuiz(session: Session) {
     const recommendation = session.finalRecommendation || session.formationChoisie || 'Parcours P3';
-    const qTextById: Record<number, string> = {};
 
-    // Gather question texts for any existing answers
-    const allQuestions = await this.sessionRepo.manager
-      .getRepository(Question)
-      .find();
-    allQuestions.forEach((q) => {
-      qTextById[q.id] = q.text;
-    });
+    // Retrieve all processed maps/filters just like a normal submit
+    const {
+      qTextById,
+      filteredMiseAnswers,
+      filteredPrerequis,
+      filteredComplementaryAnswers,
+      filteredAvailabilities,
+    } = await this.getRecommendationData(session);
 
     const adminEmail = await this.settingsService.getValue(
       'ADMIN_EMAIL',
@@ -1081,10 +1119,10 @@ export class SessionsService {
       finalRecommendation: recommendation,
       scoreFinal: -1, // No quiz taken
       levelsScores: {},
-      prerequisiteAnswers: session.prerequisiteScore as Record<string, any>,
-      complementaryAnswers: session.complementaryQuestions as Record<string, any>,
-      availabilityAnswers: session.availabilities as Record<string, any>,
-      miseANiveauAnswers: session.miseANiveauAnswers as Record<string, any>,
+      prerequisiteAnswers: filteredPrerequis,
+      complementaryAnswers: filteredComplementaryAnswers,
+      availabilityAnswers: filteredAvailabilities,
+      miseANiveauAnswers: filteredMiseAnswers,
       qTextById,
       parrainNom: session.parrainNom,
       parrainPrenom: session.parrainPrenom,
