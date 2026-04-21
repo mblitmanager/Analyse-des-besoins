@@ -32,9 +32,12 @@ const p3Rules = ref([]);
 // P3 context from localStorage
 const p3PrevFormation = computed(() => localStorage.getItem('p3_prev_formation') || '');
 const p3PrevRecommendations = computed(() => {
-  const raw = localStorage.getItem('p3_prev_recommendations') || '';
+  let raw = localStorage.getItem('p3_prev_recommendations') || '';
+  if (!raw && currentSession.value?.finalRecommendation) {
+    raw = currentSession.value.finalRecommendation;
+  }
   if (!raw) return [];
-  return raw.replace(/\|/g, '&').split('&').map(r => r.trim()).filter(Boolean);
+  return raw.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
 });
 
 async function fetchFormations() {

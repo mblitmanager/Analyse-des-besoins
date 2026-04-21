@@ -134,11 +134,11 @@ function startP3() {
   if (session.value?.formationChoisie) {
     localStorage.setItem("p3_prev_formation", session.value.formationChoisie);
   }
-  if (session.value?.finalRecommendation) {
-    localStorage.setItem("p3_prev_recommendations", session.value.finalRecommendation);
+  if (recommendedLabel.value) {
+    localStorage.setItem("p3_prev_recommendations", recommendedLabel.value);
   }
-  if (session.value?.stopLevel) {
-    localStorage.setItem("p3_prev_stop_level", session.value.stopLevel);
+  if (session.value?.stopLevel || session.value?.lastValidatedLevel) {
+    localStorage.setItem("p3_prev_stop_level", session.value.stopLevel || session.value.lastValidatedLevel);
   }
 
   store.setP3Mode(true);

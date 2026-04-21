@@ -36,6 +36,12 @@ export class UpdateSessionDto {
   complementaryQuestions?: any;
   availabilities?: any;
   ignoreQuestionRules?: boolean;
+  formationChoisie?: string;
+  isP3Mode?: boolean;
+  p3SkipQuiz?: boolean;
+  isCompleted?: boolean;
+  scorePretest?: number;
+  emailSentAt?: Date;
 }
 
 @Controller('sessions')
