@@ -311,13 +311,13 @@ export class PdfService {
       });
 
       // Move to after the tallest cell + more padding for readability
-      doc.y = y + maxHeight + 10;
+      doc.y = y + maxHeight + 25;
 
       // Row separator
       if (rowIndex < rows.length - 1) {
         doc
-          .strokeColor('#f3f4f6')
-          .lineWidth(0.3)
+          .strokeColor('#e5e7eb')
+          .lineWidth(0.5)
           .moveTo(startX, doc.y)
           .lineTo(doc.page.width - 50, doc.y)
           .stroke();
