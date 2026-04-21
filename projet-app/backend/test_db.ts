@@ -22,7 +22,7 @@ async function run() {
     process.exit(0);
   }
 
-  const session = lastSession[0];
+  const session: any = lastSession[0];
   console.log('Session ID:', session.id);
   console.log('Formation Choisie:', session.formationChoisie);
   console.log('Mise a niveau answers:', session.miseANiveauAnswers);
@@ -39,7 +39,7 @@ async function run() {
       .getMany();
 
     console.log('Questions found:', questions.length);
-    questions.forEach((q) => {
+    questions.forEach((q: any) => {
       console.log(
         `Q ${q.id}: ${q.text.substring(0, 30)}... | Formation: ${q.formation ? q.formation.label : 'NULL'} | Workflow: ${q.workflow}`,
       );

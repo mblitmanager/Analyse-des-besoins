@@ -109,19 +109,6 @@ onMounted(async () => {
     // if there are no relevant questions (including after filtering):
     // - skip automatically only when configuration allows
     // - otherwise keep the page loaded so the user can click «Continuer» manually
-    if (questions.value.length === 0) {
-      if (allowSkip.value) {
-        const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
-        router.push(nextRoute || "/positionnement");
-        return;
-      } else {
-        // inform user there is nothing to answer
-        unanswered.value = false; // clear any warnings
-        // maybe show a light notice for clarity
-        alert("Aucune question de mise à niveau pour votre formation, vous pouvez continuer.");
-      }
-    }
-
     const initialResponses = {};
     questions.value.forEach((q) => {
       if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
@@ -135,10 +122,24 @@ onMounted(async () => {
       }
     });
     responses.value = initialResponses;
-    // groups will automatically recompute via computedGroups
+    
+    // next tick equivalent to ensure computed properties update
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // if there are no relevant questions (after conditional filtering & formation filtering):
+    if (filteredQuestions.value.length === 0) {
+      if (allowSkip.value) {
+        const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
+        router.push(nextRoute || "/positionnement");
+        return;
+      } else {
+        unanswered.value = false;
+        alert("Aucune question de mise à niveau pour votre formation, vous pouvez continuer.");
+      }
+    }
+
   } catch (error) {
     console.error("Failed to fetch mise à niveau questions:", error);
-    // if the request failed, there's nothing to answer – skip this step
     const nextRoute = await store.getNextRouteWithQuestions("/mise-a-niveau");
     router.push(nextRoute || "/positionnement");
     return;
