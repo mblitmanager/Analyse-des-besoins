@@ -22,7 +22,7 @@ export class EmailService {
       let finalCc = cc ? cc : '';
       
       try {
-        const advCcSetting = await this.settingsService.getSetting('EMAIL_CC_ADV');
+        const advCcSetting = await this.settingsService.findOne('EMAIL_CC_ADV');
         if (advCcSetting && advCcSetting.value && advCcSetting.value.trim() !== '' && advCcSetting.value !== 'false') {
           const advEmails = advCcSetting.value.split(',').map(e => e.trim()).filter(e => e);
           if (advEmails.length > 0) {

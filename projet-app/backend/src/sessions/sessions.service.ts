@@ -884,7 +884,7 @@ export class SessionsService {
     // Determine admin recipients from settings (can be comma-separated)
     const adminEmail = await this.settingsService.getValue(
       'ADMIN_EMAIL',
-      'herizo.randrianiaina@mbl-service.com',
+      'contact@wizi-learn.com',
     );
 
     let commercialEmail: string | null = null;
@@ -903,7 +903,7 @@ export class SessionsService {
     }
 
     const emailTo = commercialEmail || adminEmail;
-    const emailCc = 'adv@ns-conseil.com';
+    const emailCc = undefined;
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {
@@ -1078,7 +1078,7 @@ export class SessionsService {
 
     const adminEmail = await this.settingsService.getValue(
       'ADMIN_EMAIL',
-      'herizo.randrianiaina@mbl-service.com',
+      'contact@wizi-learn.com',
     );
 
     let commercialEmail: string | null = null;
@@ -1097,7 +1097,7 @@ export class SessionsService {
     }
 
     const emailTo = commercialEmail || adminEmail;
-    const emailCc = 'adv@ns-conseil.com';
+    const emailCc = undefined;
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {
