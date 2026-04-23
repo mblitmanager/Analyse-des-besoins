@@ -117,11 +117,26 @@ const recommendedLevel2 = computed(() => {
 });
 
 const levelMapping = {
-  "initial": { theme: "Découverte", desc: "Découverte et acquisition des notions fondamentales." },
-  "basique": { theme: "Essentiel", desc: "Développement des compétences essentielles." },
-  "opérationnel": { theme: "Renforcement", desc: "Utilisation autonome des compétences" },
-  "avancé": { theme: "Perfectionnement", desc: "Approfondissement et Maîtrise avancée" },
-  "expert": { theme: "Expertise", desc: "Maîtrise experte" }
+  "initial": { 
+    theme: "Découverte", 
+    desc: "Découverte et acquisition des notions fondamentales." 
+  },
+  "basique": { 
+    theme: "Essentiel", 
+    desc: "Développement des compétences essentielles. Compréhension des bases et premières mises en pratique guidées." 
+  },
+  "opérationnel": { 
+    theme: "Renforcement", 
+    desc: "Utilisation autonome des compétences dans des situations courantes. Renforcement des compétences et optimisation des pratiques." 
+  },
+  "avancé": { 
+    theme: "Perfectionnement", 
+    desc: "Maîtrise approfondie du logiciel via des manipulations plus complexes." 
+  },
+  "expert": { 
+    theme: "Expertise", 
+    desc: "Maîtrise experte du logiciel." 
+  }
 };
 
 function getLevelInfo(label) {
@@ -772,17 +787,28 @@ const downloadPDF = async () => {
           >
             <div class="relative z-10">
               <span
-                class="inline-block px-3 py-1 bg-brand-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest mb-2"
+                class="inline-block px-3 py-1 bg-brand-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest mb-4"
               >
                 Nous vous proposons le parcours :
               </span>
-              <h3 class="text-xl md:text-2xl font-extrabold text-brand-primary">
-                <template v-for="(part, i) in recommendedLabel.split(' | ')" :key="i">
-                  <div v-if="i > 0" class="h-1"></div>
-                  <span>{{ part }}</span>
-                  <br v-if="i < recommendedLabel.split(' | ').length - 1" />
-                </template>
-              </h3>
+              <!-- Numbered steps display: 1. Formation A / 2. Formation B ou Formation C -->
+              <div class="space-y-2 mt-1">
+                <div
+                  v-for="(choices, stepIdx) in parcoursSteps"
+                  :key="stepIdx"
+                  class="flex items-start gap-3"
+                >
+                  <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-primary text-white text-[11px] font-black flex items-center justify-center mt-0.5">
+                    {{ stepIdx + 1 }}
+                  </span>
+                  <div>
+                    <template v-for="(choice, ci) in choices" :key="choice">
+                      <span class="text-lg md:text-xl font-extrabold text-brand-primary">{{ choice }}</span>
+                      <span v-if="ci < choices.length - 1" class="text-sm font-bold text-gray-400 mx-2">ou</span>
+                    </template>
+                  </div>
+                </div>
+              </div>
               <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
                 {{ isBlocked 
                    ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."

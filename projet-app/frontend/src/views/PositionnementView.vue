@@ -851,27 +851,27 @@ async function saveAndExit() {
             Voici votre parcours de formation recommandé :
           </p>
 
-          <div
-            class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500"
-          >
-            <div
-              v-if="finalRecommendation.includes(' | ')"
-              class="flex flex-col gap-2"
-            >
-              <span
-                v-for="(part, idx) in finalRecommendation.split(' | ')"
-                :key="idx"
-                class="text-[#315264] font-black text-2xl md:text-3xl tracking-tight"
-              >
-                {{ part }}
-              </span>
-            </div>
-            <span
-              v-else
-              class="text-[#315264] font-black text-3xl md:text-4xl tracking-tight"
-            >
-              {{ finalRecommendation }}
-            </span>
+          <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
+            <!-- Parse steps (& separator) then alternatives (/ or OU) -->
+            <template v-if="finalRecommendation">
+              <div class="flex flex-col gap-3">
+                <div
+                  v-for="(step, stepIdx) in finalRecommendation.split(/\s*&\s*|\s*\|\s*/)"
+                  :key="stepIdx"
+                  class="flex items-center gap-3"
+                >
+                  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-white/50 text-[#315264] text-xs font-black flex items-center justify-center">
+                    {{ stepIdx + 1 }}
+                  </span>
+                  <div class="text-left">
+                    <template v-for="(choice, ci) in step.split(/\s*\/\s*|\s+OU\s+/i)" :key="choice">
+                      <span class="text-[#315264] font-black text-xl md:text-2xl tracking-tight">{{ choice.trim() }}</span>
+                      <span v-if="ci < step.split(/\s*\/\s*|\s+OU\s+/i).length - 1" class="text-[#315264]/60 font-bold text-base mx-2">ou</span>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
 
           <div
