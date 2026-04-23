@@ -140,6 +140,10 @@ function startP3() {
   if (session.value?.stopLevel || session.value?.lastValidatedLevel) {
     localStorage.setItem("p3_prev_stop_level", session.value.stopLevel || session.value.lastValidatedLevel);
   }
+  // Store numeric level order for reliable matching in computeNextLevel
+  if (session.value?.stopLevelOrder) {
+    localStorage.setItem("p3_prev_level_order", String(session.value.stopLevelOrder));
+  }
 
   store.setP3Mode(true);
   router.push("/formations");

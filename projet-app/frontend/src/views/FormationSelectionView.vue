@@ -49,10 +49,40 @@ async function fetchFormations() {
     const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
 
     formations.value = res.data;
+    
+    // Once formations are loaded, compute level order if in P3 mode
+    computeAndStorePrevLevelOrder();
   } catch (error) {
     console.error("Failed to fetch formations:", error);
   } finally {
     loading.value = false;
+  }
+}
+
+/**
+ * Computes and stores p3_prev_level_order from loaded formations data.
+ * Called after formations are fetched so we have the levels with their order numbers.
+ * This allows computeNextLevel() to use numeric order matching (reliable)
+ * instead of fragile text matching.
+ */
+function computeAndStorePrevLevelOrder() {
+  if (!store.isP3Mode) return;
+  // Only compute if not already set
+  if (localStorage.getItem('p3_prev_level_order') && Number(localStorage.getItem('p3_prev_level_order')) > 0) return;
+  
+  const prevFormationLabel = localStorage.getItem('p3_prev_formation') || '';
+  const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+  if (!prevFormationLabel || !prevStopLevel) return;
+  
+  const prevFormation = formations.value.find(f => f.label === prevFormationLabel);
+  if (!prevFormation?.levels?.length) return;
+  
+  const clean = (s) => (s || '').toLowerCase().replace(/^niveau\s+/i, '').trim();
+  const prevClean = clean(prevStopLevel);
+  const matchedLevel = prevFormation.levels.find(l => clean(l.label) === prevClean);
+  if (matchedLevel?.order) {
+    localStorage.setItem('p3_prev_level_order', String(matchedLevel.order));
+    console.log(`[P3] Level order resolved: ${prevStopLevel} → order ${matchedLevel.order}`);
   }
 }
 
@@ -171,7 +201,7 @@ function computeNextLevel() {
   if (!formation) {
     return { label: 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: true, isSingleLevel: true };
   }
-  
+
   // Formation has no levels configured: treat as single-level (no progression possible)
   if (!formation.levels || formation.levels.length === 0) {
     return { label: formation.label, nextLevelLabel: formation.label, isMaxLevel: true, isSingleLevel: true };
@@ -187,18 +217,33 @@ function computeNextLevel() {
       isSingleLevel: true
     };
   }
-  
-  const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+
   const sortedLevels = [...formation.levels].sort((a, b) => (a.order || 0) - (b.order || 0));
-  
-  // Find index of previous stop level
-  const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
-  const prevClean = clean(prevStopLevel);
-  let prevIdx = sortedLevels.findIndex(l => clean(l.label) === prevClean);
-  if (prevIdx === -1) prevIdx = 0; // fallback to first level
-  
+
+  let prevIdx = -1;
+
+  // Priority 1: match by numeric order (most reliable — stored by startP3)
+  const prevLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
+  if (prevLevelOrder > 0) {
+    prevIdx = sortedLevels.findIndex(l => (l.order || 0) === prevLevelOrder);
+  }
+
+  // Priority 2: match by stop level label text
+  if (prevIdx === -1) {
+    const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+    if (prevStopLevel) {
+      const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
+      const prevClean = clean(prevStopLevel);
+      prevIdx = sortedLevels.findIndex(l => clean(l.label) === prevClean);
+    }
+  }
+
+  // Safety fallback: assume max level reached (avoids proposing wrong level)
+  if (prevIdx === -1) {
+    prevIdx = sortedLevels.length - 1;
+  }
+
   const isMaxLevel = prevIdx >= sortedLevels.length - 1;
-  // Next level is prevIdx + 1
   const nextIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
   const nextLevel = sortedLevels[nextIdx];
   return {
