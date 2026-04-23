@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 const sessions = ref([]);
 const loading = ref(true);
@@ -266,11 +266,21 @@ async function exportToExcel() {
     return [...baseRow, ...questionRow];
   });
 
-  const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Sessions");
-
-  XLSX.writeFile(workbook, `sessions_export_${new Date().toISOString().split("T")[0]}.xlsx`);
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Sessions");
+  
+  worksheet.addRow(headers);
+  rows.forEach(row => worksheet.addRow(row));
+  
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `sessions_export_${new Date().toISOString().split("T")[0]}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
 async function downloadPdf(session) {
