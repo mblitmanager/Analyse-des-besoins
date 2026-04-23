@@ -25,6 +25,7 @@ const showP3SameFormationModal = ref(false);
 const p3SameFormationLabel = ref("");
 const p3NextLevelLabel = ref("");
 const p3IsMaxLevel = ref(false);
+const p3IsSingleLevel = ref(false);
 
 const formations = ref([]);
 const currentSession = ref(null);
@@ -112,9 +113,10 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
-      const { label: nextLabel, isMaxLevel } = computeNextLevel();
+      const { label: nextLabel, isMaxLevel, isSingleLevel } = computeNextLevel();
       p3NextLevelLabel.value = nextLabel;
       p3IsMaxLevel.value = isMaxLevel;
+      p3IsSingleLevel.value = isSingleLevel || false;
       showP3SameFormationModal.value = true;
       return;
     }
@@ -166,8 +168,24 @@ async function doSelectFormation() {
 
 function computeNextLevel() {
   const formation = selectedFormation.value;
-  if (!formation || !formation.levels || formation.levels.length === 0) {
-    return { label: formation?.label || 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: false };
+  if (!formation) {
+    return { label: 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: true, isSingleLevel: true };
+  }
+  
+  // Formation has no levels configured: treat as single-level (no progression possible)
+  if (!formation.levels || formation.levels.length === 0) {
+    return { label: formation.label, nextLevelLabel: formation.label, isMaxLevel: true, isSingleLevel: true };
+  }
+
+  // Formation has exactly one level: already at max by definition
+  if (formation.levels.length === 1) {
+    const onlyLevel = formation.levels[0];
+    return {
+      label: `${formation.label} - ${onlyLevel.label}`,
+      nextLevelLabel: onlyLevel.label,
+      isMaxLevel: true,
+      isSingleLevel: true
+    };
   }
   
   const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
@@ -186,7 +204,8 @@ function computeNextLevel() {
   return {
     label: `${formation.label} - ${nextLevel.label}`,
     nextLevelLabel: nextLevel.label,
-    isMaxLevel
+    isMaxLevel,
+    isSingleLevel: false
   };
 }
 
@@ -708,12 +727,22 @@ function isSectionActive(section) {
             <span class="material-icons-outlined text-3xl">{{ p3IsMaxLevel ? 'block' : 'trending_up' }}</span>
           </div>
           
-          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation</h2>
+          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">{{ p3IsSingleLevel ? 'Formation à parcours unique' : 'Même formation' }}</h2>
           <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
-            Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong>, la même formation que votre parcours précédent.
+            Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong><span v-if="!p3IsSingleLevel">, la même formation que votre parcours précédent</span>.
           </p>
           
-          <template v-if="!p3IsMaxLevel">
+          <template v-if="p3IsSingleLevel">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center mb-4">
+              <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Parcours unique disponible</p>
+              <p class="text-lg font-black text-amber-700">{{ p3NextLevelLabel }}</p>
+            </div>
+            <p class="text-amber-600 font-medium text-sm text-center mb-6">
+              Cette formation ne propose qu'un seul niveau. Vous l'avez déjà suivi lors d'un parcours précédent. Veuillez choisir une formation différente pour votre 3ème parcours.
+            </p>
+          </template>
+
+          <template v-else-if="!p3IsMaxLevel">
             <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
               <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Parcours P3 attribué automatiquement</p>
               <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
@@ -734,10 +763,10 @@ function isSectionActive(section) {
           </template>
           
           <div class="flex flex-col sm:flex-row gap-3">
-            <button @click="showP3SameFormationModal = false" :class="['flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all', p3IsMaxLevel ? 'bg-[#0D1B3E] text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
-              {{ p3IsMaxLevel ? 'Changer de formation' : 'Annuler' }}
+            <button @click="showP3SameFormationModal = false" :class="['flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all', (p3IsMaxLevel || p3IsSingleLevel) ? 'bg-[#0D1B3E] text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
+              {{ (p3IsMaxLevel || p3IsSingleLevel) ? 'Changer de formation' : 'Annuler' }}
             </button>
-            <button v-if="!p3IsMaxLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
+            <button v-if="!p3IsMaxLevel && !p3IsSingleLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
               Confirmer le P3
             </button>
