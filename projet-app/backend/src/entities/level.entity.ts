@@ -25,6 +25,9 @@ export class Level {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  consigne: string;
+
   @Column({ type: 'varchar', nullable: true })
   recommendationLabel: string;
 
