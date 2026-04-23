@@ -472,7 +472,7 @@ function selectBureau(form, suite) {
 
 function isSectionActive(section) {
   if (!selectedFormation.value) return false;
-  if (section.items?.some(i => i.id === selectedFormation.value.id)) return true;
+  if (section.items?.some(i => i.id === selectedFormation.value.id || (i.isIAGroup && i.children?.some(c => c.id === selectedFormation.value.id)))) return true;
   if (section.subSections?.some(sub => sub.items.some(i => i.id === selectedFormation.value.id))) return true;
   return false;
 }
@@ -573,18 +573,18 @@ function isSectionActive(section) {
                 :key="form.id"
                 @click="selectedFormation = form; if(section.key!=='bureautique') selectedSuite=''"
                 class="formation-card relative"
-                :class="selectedFormation?.id === form.id ? 'formation-card--selected' : 'formation-card--default'"
-                :style="selectedFormation?.id === form.id ? { borderColor: selectedAccent.accent, boxShadow: `0 15px 30px -10px ${selectedAccent.accent}33` } : {}"
+                :class="(selectedFormation?.id === form.id || (form.isIAGroup && form.children?.some(c => c.id === selectedFormation?.id))) ? 'formation-card--selected' : 'formation-card--default'"
+                :style="(selectedFormation?.id === form.id || (form.isIAGroup && form.children?.some(c => c.id === selectedFormation?.id))) ? { borderColor: selectedAccent.accent, boxShadow: `0 15px 30px -10px ${selectedAccent.accent}33` } : {}"
               >
                 <div class="flex items-center gap-4">
-                   <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm" :style="selectedFormation?.id === form.id ? { backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 16px -4px ${selectedAccent.accent}40` } : { backgroundColor: 'white', color: '#9ca3af' }">
+                   <div class="w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm" :style="(selectedFormation?.id === form.id || (form.isIAGroup && form.children?.some(c => c.id === selectedFormation?.id))) ? { backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 8px 16px -4px ${selectedAccent.accent}40` } : { backgroundColor: 'white', color: '#9ca3af' }">
                       <span class="material-icons-outlined text-xl">{{ form.icon || 'star' }}</span>
                    </div>
-                   <span class="formation-card__label" :style="selectedFormation?.id === form.id ? { color: selectedAccent.accent } : {}">{{ form.label }}</span>
+                   <span class="formation-card__label" :style="(selectedFormation?.id === form.id || (form.isIAGroup && form.children?.some(c => c.id === selectedFormation?.id))) ? { color: selectedAccent.accent } : {}">{{ form.label }}</span>
                 </div>
 
                 <!-- Selected badge -->
-                <div v-if="selectedFormation?.id === form.id" class="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up" :style="{ backgroundColor: selectedAccent.accent }">
+                <div v-if="(selectedFormation?.id === form.id || (form.isIAGroup && form.children?.some(c => c.id === selectedFormation?.id)))" class="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10 animate-scale-up" :style="{ backgroundColor: selectedAccent.accent }">
                   <span class="material-icons-outlined text-[14px] font-bold">check</span>
                 </div>
               </button>
@@ -593,23 +593,27 @@ function isSectionActive(section) {
             <!-- Selected Formation Feedback (prominent inline banner) placed immediately after the active section -->
             <div v-if="isSectionActive(section)" class="mt-8">
               <transition name="fade-slide" mode="out-in">
-                <div v-if="selectedFormation && selectedFormation.isIAGroup"
+                <div v-if="(selectedFormation && selectedFormation.isIAGroup) || (section.items?.some(i => i.isIAGroup && i.children?.some(c => c.id === selectedFormation?.id)))"
                      class="p-6 md:p-8 rounded-3xl border-2 flex flex-col items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden bg-white"
                      :style="{ borderColor: selectedAccent.accent + '40', boxShadow: `0 20px 50px -12px ${selectedAccent.accent}25` }">
                    <h3 class="text-xl md:text-2xl font-black text-[#0d1b3e] text-center mb-2">Choisissez votre outil de spécialisation IA :</h3>
                    <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-2xl">
-                     <button v-for="child in selectedFormation.children" :key="child.id"
+                     <button v-for="child in (selectedFormation?.isIAGroup ? selectedFormation.children : section.items.find(i => i.isIAGroup).children)" :key="child.id"
                              @click="selectedFormation = child; selectedSuite=''"
-                             class="flex-1 p-4 rounded-xl border-2 hover:bg-brand-primary/5 active:scale-95 transition-all font-bold text-gray-700 flex items-center justify-center gap-3"
-                             :style="{ borderColor: selectedAccent.accent + '60' }"
+                             class="flex-1 p-4 rounded-xl border-2 transition-all font-bold flex items-center justify-center gap-3 relative"
+                             :class="selectedFormation?.id === child.id ? 'bg-brand-primary/10 text-[#0d1b3e]' : 'hover:bg-brand-primary/5 text-gray-700 active:scale-95'"
+                             :style="{ borderColor: selectedFormation?.id === child.id ? selectedAccent.accent : selectedAccent.accent + '60' }"
                      >
                        <span class="material-icons-outlined text-xl" :style="{ color: selectedAccent.accent }">{{ child.icon || 'smart_toy' }}</span>
                        <span class="text-lg">{{ child.label }}</span>
+                       <div v-if="selectedFormation?.id === child.id" class="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white scale-110 z-10" :style="{ backgroundColor: selectedAccent.accent }">
+                          <span class="material-icons-outlined text-[12px] font-bold">check</span>
+                       </div>
                      </button>
                    </div>
                 </div>
 
-                <div v-else-if="selectedFormation" 
+                <div v-else-if="selectedFormation && !selectedFormation.isIAGroup" 
                      class="p-6 md:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-center gap-6 animate-scale-up shadow-2xl relative overflow-hidden" 
                      :style="{ 
                        backgroundColor: 'white',
