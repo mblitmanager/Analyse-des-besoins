@@ -495,7 +495,12 @@ async function finishTest(overrideSession = null) {
   
   if (overrideSession?.isQuestionRuleOverride) {
     // If a backend rule already decided the result, use it immediately
-    finalRecommendation.value = overrideSession.recommendation || "";
+    let rec = overrideSession.recommendation || "";
+    if (store.isP3Mode && rec) {
+      const parts = rec.split(/\s*&\s*|\s*\|\s*|,/);
+      if (parts.length > 0) rec = parts[0];
+    }
+    finalRecommendation.value = rec;
     showResults.value = true;
     submitting.value = false;
     return;
@@ -645,7 +650,7 @@ async function finishTest(overrideSession = null) {
       if (matchedRule) {
         const f1 = matchedRule.formation1 || "";
         const f2 = matchedRule.formation2 || "";
-        if (f2 && f1 !== f2) {
+        if (f2 && f1 !== f2 && !store.isP3Mode) {
           finalRecommendation.value = `${f1} | ${f2}`;
         } else {
           finalRecommendation.value = f1;
@@ -718,6 +723,12 @@ async function finishTest(overrideSession = null) {
       if (isTargetFormation && validatedLevelObj.order >= alertSettings.value.thresholdOrder) {
         isHighLevel = true;
       }
+    }
+
+    // NEVER trigger high level alert if they only validated the absolute first level (unless it's the only level)
+    const isFirstLevel = sortedLevelsDesc.length > 0 && validatedLevelObj.order === sortedLevelsDesc[sortedLevelsDesc.length - 1].order;
+    if (isFirstLevel && !isMaxLevel) {
+      isHighLevel = false;
     }
   }
 
