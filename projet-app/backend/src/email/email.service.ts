@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import * as path from 'path';
 import * as fs from 'fs';
+import { SettingsService } from '../settings/settings.service';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly settingsService: SettingsService,
+  ) {}
 
   async sendReport(
     to: string,
@@ -15,9 +19,24 @@ export class EmailService {
     cc?: string,
   ) {
     try {
+      let finalCc = cc ? cc : '';
+      
+      try {
+        const advCcSetting = await this.settingsService.getSetting('EMAIL_CC_ADV');
+        if (advCcSetting && advCcSetting.value && advCcSetting.value.trim() !== '' && advCcSetting.value !== 'false') {
+          const advEmails = advCcSetting.value.split(',').map(e => e.trim()).filter(e => e);
+          if (advEmails.length > 0) {
+            const currentCcs = finalCc ? finalCc.split(',').map(e => e.trim()).filter(e => e) : [];
+            finalCc = [...new Set([...currentCcs, ...advEmails])].join(',');
+          }
+        }
+      } catch (err) {
+        console.error('[EmailService] Error fetching ADV CC setting:', err);
+      }
+
       await this.mailerService.sendMail({
         to,
-        cc,
+        cc: finalCc !== '' ? finalCc : undefined,
         subject,
         html: content,
         attachments: attachments || [],

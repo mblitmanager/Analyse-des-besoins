@@ -115,6 +115,12 @@ export class SeedService implements OnApplicationBootstrap {
           "Envoyer automatiquement le bilan par email à l'administrateur",
       },
       {
+        key: 'EMAIL_CC_ADV',
+        value: '',
+        description:
+          "Adresses emails en copie (CC) pour l'ADV (séparées par des virgules)",
+      },
+      {
         key: 'ENABLE_P3',
         value: 'true',
         description:

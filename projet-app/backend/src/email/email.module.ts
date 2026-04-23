@@ -3,9 +3,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
+    SettingsModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
