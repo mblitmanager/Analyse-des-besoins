@@ -398,24 +398,6 @@ const sections = computed(() => {
   const filterGroup = (items) => {
     let filtered = items;
 
-    // P3: Language restriction – only show Anglais if P2 was Anglais, Voltaire if P2 was Voltaire
-    if (isP3) {
-      const prevLabel = (lastFormationLabel || '').toLowerCase();
-      const prevWasAnglais = prevLabel.includes('anglais');
-      const prevWasVoltaire = prevLabel.includes('voltaire');
-
-      filtered = filtered.filter(f => {
-        const fLabel = (f.label || '').toLowerCase();
-        const isAnglais = fLabel.includes('anglais');
-        const isVoltaire = fLabel.includes('voltaire');
-
-        // If it's a language formation, only keep if matches the previous one
-        if (isAnglais) return prevWasAnglais;
-        if (isVoltaire) return prevWasVoltaire;
-        return true; // non-language formations pass through
-      });
-    }
-
     if (!isP3 || rulesToApply.length === 0) return filtered;
     
     return filtered.filter(f => {
