@@ -973,6 +973,12 @@ async function saveAndExit() {
             </div> -->
 
             <div class="space-y-5">
+              
+              <!-- Consigne du niveau -->
+              <div v-if="levels[currentLevelIndex]?.consigne" class="border-2 border-brand-primary bg-amber-50 text-brand-primary font-bold px-6 py-4 rounded-2xl shadow-sm text-center mb-6">
+                {{ levels[currentLevelIndex].consigne }}
+              </div>
+
               <!-- MODE LISTE (CLASSIQUE) -->
               <template v-if="!isPaginated">
                 <div

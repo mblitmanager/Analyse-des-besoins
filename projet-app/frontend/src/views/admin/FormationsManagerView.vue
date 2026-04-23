@@ -129,6 +129,7 @@ function addLevel() {
   form.value.levels.push({
     _clientKey: `lvl-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     label: "",
+    consigne: "",
     order: form.value.levels.length,
     successThreshold: 0,
   });
@@ -429,6 +430,7 @@ async function saveFormation() {
       return {
         ...(lvl.id ? { id: lvl.id } : {}),
         label: lvl.label,
+        consigne: lvl.consigne,
         order: index,
         successThreshold: Number(lvl.successThreshold) || 0,
       };
@@ -822,30 +824,36 @@ onMounted(() => {
               <div
                 v-for="(lvl, idx) in form.levels"
                 :key="lvl.id ?? lvl._clientKey ?? idx"
-                class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-end gap-6 relative group animate-slide-in"
+                class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex flex-col gap-4 relative group animate-slide-in"
               >
-                <div class="flex-1 space-y-2 w-full">
-                  <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Nom du Niveau</label>
-                  <input v-model="lvl.label" placeholder="ex: Niveau A1" class="w-full px-5 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
-                </div>
-                <div class="w-full md:w-32 space-y-2">
-                  <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Seuil Réussite</label>
-                  <div class="relative">
-                    <input type="number" v-model.number="lvl.successThreshold" min="0" max="100" class="w-full pl-5 pr-10 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
-                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">réponses</span>
+                <div class="flex flex-col md:flex-row items-end gap-6 w-full">
+                  <div class="flex-1 space-y-2 w-full">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Nom du Niveau</label>
+                    <input v-model="lvl.label" placeholder="ex: Niveau A1" class="w-full px-5 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
                   </div>
-                </div>
-                <div class="flex flex-col gap-1 mb-0.5 shrink-0 opacity-40 hover:opacity-100 transition-opacity">
-                  <button type="button" @click="moveLevel(idx, -1)" :disabled="idx === 0" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
-                    <span class="material-icons-outlined text-[14px]">expand_less</span>
+                  <div class="w-full md:w-32 space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Seuil Réussite</label>
+                    <div class="relative">
+                      <input type="number" v-model.number="lvl.successThreshold" min="0" max="100" class="w-full pl-5 pr-10 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
+                      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">réponses</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-1 mb-0.5 shrink-0 opacity-40 hover:opacity-100 transition-opacity">
+                    <button type="button" @click="moveLevel(idx, -1)" :disabled="idx === 0" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
+                      <span class="material-icons-outlined text-[14px]">expand_less</span>
+                    </button>
+                    <button type="button" @click="moveLevel(idx, 1)" :disabled="idx === form.levels.length - 1" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
+                      <span class="material-icons-outlined text-[14px]">expand_more</span>
+                    </button>
+                  </div>
+                  <button type="button" @click="removeLevel(idx)" class="w-11 h-11 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all mb-0.5 shrink-0">
+                    <span class="material-icons-outlined text-[20px]">delete_outline</span>
                   </button>
-                  <button type="button" @click="moveLevel(idx, 1)" :disabled="idx === form.levels.length - 1" class="w-7 h-5 bg-slate-100 rounded flex items-center justify-center text-slate-400 hover:text-slate-900 disabled:opacity-30 transition-colors">
-                    <span class="material-icons-outlined text-[14px]">expand_more</span>
-                  </button>
                 </div>
-                <button type="button" @click="removeLevel(idx)" class="w-11 h-11 rounded-xl flex items-center justify-center text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-all mb-0.5 shrink-0">
-                  <span class="material-icons-outlined text-[20px]">delete_outline</span>
-                </button>
+                <div class="w-full space-y-2">
+                  <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Consigne (affichée au-dessus des questions)</label>
+                  <input v-model="lvl.consigne" placeholder="ex: Les phrases ci-dessous sont-elles correctes ou incorrectes :" class="w-full px-5 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
+                </div>
               </div>
             </div>
 
