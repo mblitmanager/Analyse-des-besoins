@@ -22,8 +22,9 @@ const submitting = ref(false);
 const selectedFormation = ref(null);
 const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 const showP3SameFormationModal = ref(false);
-const p3SameFormationLabel = ref('');
-const p3NextLevelLabel = ref('');
+const p3SameFormationLabel = ref("");
+const p3NextLevelLabel = ref("");
+const p3IsMaxLevel = ref(false);
 
 const formations = ref([]);
 const currentSession = ref(null);
@@ -111,8 +112,9 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
-      const { label: nextLabel } = computeNextLevel();
+      const { label: nextLabel, isMaxLevel } = computeNextLevel();
       p3NextLevelLabel.value = nextLabel;
+      p3IsMaxLevel.value = isMaxLevel;
       showP3SameFormationModal.value = true;
       return;
     }
@@ -165,7 +167,7 @@ async function doSelectFormation() {
 function computeNextLevel() {
   const formation = selectedFormation.value;
   if (!formation || !formation.levels || formation.levels.length === 0) {
-    return { label: formation?.label || 'Niveau suivant', nextLevelLabel: 'Niveau suivant' };
+    return { label: formation?.label || 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: false };
   }
   
   const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
@@ -177,12 +179,14 @@ function computeNextLevel() {
   let prevIdx = sortedLevels.findIndex(l => clean(l.label) === prevClean);
   if (prevIdx === -1) prevIdx = 0; // fallback to first level
   
+  const isMaxLevel = prevIdx >= sortedLevels.length - 1;
   // Next level is prevIdx + 1
   const nextIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
   const nextLevel = sortedLevels[nextIdx];
   return {
     label: `${formation.label} - ${nextLevel.label}`,
     nextLevelLabel: nextLevel.label,
+    isMaxLevel
   };
 }
 
@@ -714,27 +718,40 @@ function isSectionActive(section) {
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
         
         <div class="relative z-10">
-          <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-green-500 shadow-inner">
-            <span class="material-icons-outlined text-3xl">trending_up</span>
+          <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner', p3IsMaxLevel ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500']">
+            <span class="material-icons-outlined text-3xl">{{ p3IsMaxLevel ? 'block' : 'trending_up' }}</span>
           </div>
           
-          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation – Niveau supérieur</h2>
+          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">Même formation</h2>
           <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
             Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong>, la même formation que votre parcours précédent.
           </p>
-          <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
-            <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Parcours P3 attribué</p>
-            <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
-          </div>
-          <p class="text-gray-500 text-sm text-center mb-6">
-            Aucun test supplémentaire n'est nécessaire. Le niveau supérieur sera attribué automatiquement.
-          </p>
+          
+          <template v-if="!p3IsMaxLevel">
+            <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
+              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Parcours P3 attribué automatiquement</p>
+              <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
+            </div>
+            <p class="text-gray-500 text-sm text-center mb-6">
+              Aucun test supplémentaire n'est nécessaire.
+            </p>
+          </template>
+          
+          <template v-else>
+            <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center mb-4">
+              <p class="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">Niveau Maximum Atteint</p>
+              <p class="text-lg font-black text-red-700">{{ p3NextLevelLabel }}</p>
+            </div>
+            <p class="text-red-500 font-medium text-sm text-center mb-6">
+              Vous avez déjà atteint le niveau maximum disponible pour cette formation. Veuillez sélectionner une formation différente pour votre 3ème parcours.
+            </p>
+          </template>
           
           <div class="flex flex-col sm:flex-row gap-3">
-            <button @click="showP3SameFormationModal = false" class="flex-1 py-3 px-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all">
-              Annuler
+            <button @click="showP3SameFormationModal = false" :class="['flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all', p3IsMaxLevel ? 'bg-[#0D1B3E] text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
+              {{ p3IsMaxLevel ? 'Changer de formation' : 'Annuler' }}
             </button>
-            <button @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
+            <button v-if="!p3IsMaxLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
               Confirmer le P3
             </button>
