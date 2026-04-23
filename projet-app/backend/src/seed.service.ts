@@ -50,8 +50,7 @@ export class SeedService implements OnApplicationBootstrap {
     const settings = [
       {
         key: 'ADMIN_EMAIL',
-        // value: 'contact@wizi-learn.com',
-        value: 'herizo.randrianiaina@mbl-service.com',
+        value: 'contact@wizi-learn.com',
         description: 'Email de réception des bilans',
       },
       {
