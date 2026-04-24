@@ -31,6 +31,7 @@ export class PdfService {
     parrainTelephone?: string | null;
     highLevelContinue?: boolean;
     isP3Mode?: boolean;
+    parcoursNumber?: number;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
@@ -70,7 +71,17 @@ export class PdfService {
         .fillColor(brandBlue)
         .text('Analyse des besoins', { align: 'center' });
 
-      if (data.isP3Mode) {
+      if (data.parcoursNumber) {
+        let parcoursText = `P${data.parcoursNumber} - PARCOURS ${data.parcoursNumber === 1 ? 'INITIAL' : 'COMPLÉMENTAIRE'}`;
+        
+        doc
+          .fontSize(12)
+          .fillColor(data.parcoursNumber > 1 ? '#4338CA' : '#047857') // Purple for P2/P3, Green for P1
+          .font('Helvetica-Bold')
+          .text(parcoursText, { align: 'center' });
+        doc.font('Helvetica'); // Reset
+      } else if (data.isP3Mode) {
+        // Fallback if parcoursNumber is missing
         doc
           .fontSize(12)
           .fillColor('#4338CA')

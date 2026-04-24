@@ -62,6 +62,29 @@ export class SessionsService {
     return this.sessionRepo.save(session);
   }
 
+  /**
+   * Determine the sequence number of the parcours (P1, P2, P3) for a given session.
+   */
+  async getParcoursNumber(session: Session): Promise<number> {
+    if (session.isP3Mode) return 3;
+    if (!session.stagiaire && !session.stagiaire?.id) {
+      const loaded = await this.sessionRepo.findOne({
+        where: { id: session.id },
+        relations: ['stagiaire'],
+      });
+      if (!loaded || !loaded.stagiaire) return 1;
+      session.stagiaire = loaded.stagiaire;
+    }
+
+    const allSessions = await this.sessionRepo.find({
+      where: { stagiaire: { id: session.stagiaire.id } },
+      order: { createdAt: 'ASC' },
+    });
+
+    const idx = allSessions.findIndex((s) => s.id === session.id);
+    return idx !== -1 ? idx + 1 : 1;
+  }
+
   async findAll() {
     return this.sessionRepo.find({
       relations: ['stagiaire'],
@@ -933,6 +956,7 @@ export class SessionsService {
     }
 
     // Generate PDF attachment for EACH formation
+    const parcoursNumber = await this.getParcoursNumber(session);
     for (let i = 0; i < recommendationsList.length; i++) {
       const rec = recommendationsList[i];
       const pdfBuffer = await this.pdfService.generateSessionPdf({
@@ -959,6 +983,7 @@ export class SessionsService {
         parrainTelephone: session.parrainTelephone,
         highLevelContinue: session.highLevelContinue,
         isP3Mode: session.isP3Mode,
+        parcoursNumber,
       });
 
       const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -1132,6 +1157,7 @@ export class SessionsService {
       parrainTelephone: session.parrainTelephone,
       highLevelContinue: false,
       isP3Mode: true,
+      parcoursNumber: 3,
     });
 
     const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();
