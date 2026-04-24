@@ -327,6 +327,8 @@ const isChoiceSelectedInOtherStep = (currentStepIdx, choiceLabel) => {
   });
 };
 
+const isChoiceDisabled = isChoiceSelectedInOtherStep;
+
 const selectChoice = (stepIdx, choiceLabel) => {
   selectedChoices.value[stepIdx] = choiceLabel;
   
@@ -615,29 +617,20 @@ const downloadPDF = async () => {
         class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
       ></div>
       <p class="text-gray-400 font-bold italic">
-        Calcul de votre parcours personnalisé...
-      </p>
-    </main>
-
-    <main
+        Calcul de votre parc    <main
       v-else-if="session"
-      class="flex-1 max-w-4xl w-full mx-auto p-4 py-12 md:py-16"
+      class="flex-1 max-w-4xl w-full mx-auto p-4 py-8 md:py-10"
       ref="pdfContent"
     >
       <!-- Success Banner -->
-      <div class="text-center mb-14 relative">
-        <!-- <div
-          class="w-14 h-14 bg-success-soft text-success rounded-full flex items-center justify-center mx-auto mb-5 animate-bounce shadow-sm"
-        >
-          <span class="material-icons-outlined text-2xl">celebration</span>
-        </div> -->
+      <div class="text-center mb-8 relative">
         <h1
           class="text-3xl md:text-4xl font-extrabold heading-primary mb-4 tracking-tight"
         >
           Bravo {{ session.prenom }} !
         </h1>
         <p
-          class="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-8"
+          class="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-6"
         >
           Félicitations, vous avez franchi la première étape vers votre nouvelle
           carrière. Nous avons analysé votre profil pour vous construire un
@@ -645,6 +638,12 @@ const downloadPDF = async () => {
         </p>
 
         <div class="flex flex-wrap items-center justify-center gap-3">
+          <!-- Parcours Badge -->
+          <div class="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-full shadow-sm text-xs font-black uppercase tracking-widest">
+            <span class="material-icons-outlined text-sm mr-1.5">route</span>
+            Parcours P{{ session.parcoursNumber || (session.isP3Mode ? '3' : '1') }}
+          </div>
+
           <div
             class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
           >
@@ -661,12 +660,18 @@ const downloadPDF = async () => {
             >
             Évaluation complétée
           </div>
+
+          <button @click="downloadPDF" :disabled="downloadingPDF" 
+            class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm text-xs font-bold hover:bg-blue-100 transition-colors disabled:opacity-50">
+            <span class="material-icons-outlined text-sm mr-1.5">{{ downloadingPDF ? 'sync' : 'picture_as_pdf' }}</span>
+            {{ downloadingPDF ? 'PDF' : 'Télécharger PDF' }}
+          </button>
         </div>
       </div>
 
       <!-- Profile Summary Section -->
-      <section class="mb-14">
-        <div class="flex items-center gap-3 mb-6">
+      <section class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
           <span class="material-icons-outlined text-brand-primary text-lg">person_search</span>
           <h2 class="text-base font-bold section-title uppercase tracking-widest">Votre Profil</h2>
         </div>
@@ -689,18 +694,20 @@ const downloadPDF = async () => {
       </section>
 
       <!-- Progress Bar -->
-      <WorkflowProgressBar customPath="/resultats" />
+      <div class="mb-8">
+        <WorkflowProgressBar customPath="/resultats" />
+      </div>
 
       <!-- Strengths Section -->
-      <section class="mb-14">
-        <div class="flex items-center gap-3 mb-6">
+      <section class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
           <span class="material-icons-outlined text-brand-primary text-lg"
-            >auto_graph</span
+            >{{ hasInsufficientPrereq ? 'fact_check' : 'auto_graph' }}</span
           >
           <h2
             class="text-base font-bold section-title uppercase tracking-widest"
           >
-            Vos points forts
+            {{ hasInsufficientPrereq ? 'Analyse de vos acquis' : 'Vos points forts' }}
           </h2>
         </div>
 
@@ -708,17 +715,6 @@ const downloadPDF = async () => {
           <div
             class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
           >
-            <div class="flex items-start justify-between mb-5">
-              <!-- <div
-                class="w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-[#428496] transition-all text-sm">
-              >
-                <span class="material-icons-outlined">menu_book</span>
-              </div> -->
-              <!-- <span
-                class="px-3 py-1 bg-success-soft text-success rounded-full text-[10px] font-bold uppercase tracking-widest"
-                >Déjà Acquis</span
-              > -->
-            </div>
             <h3 class="text-base font-bold heading-primary mb-2">
               Bases Informatiques
             </h3>
@@ -733,52 +729,12 @@ const downloadPDF = async () => {
               </template>
             </p>
           </div>
-
-          <!-- <div
-            v-if="session.stopLevel && session.scorePretest !== -1"
-            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
-          >
-            <div class="flex items-start justify-between mb-5">
-              <span
-                class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-bold uppercase tracking-widest"
-                >Niveau {{ session.stopLevel }}</span
-              >
-            </div>
-            <h3 class="text-base font-bold heading-primary mb-2">
-              Niveau {{ niveauDe(session.formationChoisie) }}{{ session.formationChoisie }}
-            </h3>
-            <p class="text-sm text-gray-400 leading-relaxed">
-              Le parcours choisi vous permettra de valider le niveau {{ session.stopLevel }}.
-            </p>
-          </div>
-          <div
-            v-else-if="session.scorePretest === -1"
-            class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all group"
-          >
-             <div class="flex items-start justify-between mb-5">
-              <div
-                class="w-9 h-9 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-blue-400 transition-all text-sm"
-              >
-                <span class="material-icons-outlined">history_edu</span>
-              </div>
-              <span
-                class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold uppercase tracking-widest"
-                >Bilan Initial</span
-              >
-            </div>
-            <h3 class="text-base font-bold heading-primary mb-2">
-              Évaluation Initiale
-            </h3>
-            <p class="text-sm text-gray-400 leading-relaxed">
-              Ce parcours correspond à un démarrage pour acquérir les bases fondamentales.
-            </p>
-          </div> -->
         </div>
       </section>
 
       <!-- Recommendation Section -->
-      <section class="mb-14">
-        <div class="flex items-center gap-3 mb-6">
+      <section class="mb-10">
+        <div class="flex items-center gap-3 mb-4">
           <span class="material-icons-outlined text-brand-primary text-lg"
             >map</span
           >
@@ -824,7 +780,7 @@ const downloadPDF = async () => {
                   </div>
                 </div>
               </div>
-              <p class="text-gray-500 text-sm mt-2 max-w-2xl leading-relaxed">
+              <p class="text-gray-500 text-sm mt-3 max-w-2xl leading-relaxed">
                 {{ isBlocked 
                    ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
                    : (session?.parcoursRuleHadPrereqCondition && !isLowLevelResult)
@@ -833,10 +789,6 @@ const downloadPDF = async () => {
                 }}
               </p>
 
-            </div>
-            <!-- Subtle decoration -->
-            <div class="absolute right-6 top-1/2 -translate-y-1/2 opacity-5">
-              <span class="material-icons-outlined text-7xl">auto_awesome</span>
             </div>
           </div>
 

@@ -38,14 +38,15 @@ export class SessionsService {
   async create(data: Partial<Session> & { email?: string }) {
     let stagiaire: Stagiaire | undefined = undefined;
     if (data.email) {
+      const normalizedEmail = data.email.toLowerCase().trim();
       const found = await this.stagiaireRepo.findOne({
-        where: { email: data.email },
+        where: { email: normalizedEmail },
       });
       stagiaire = found ?? undefined;
 
       if (!stagiaire) {
         stagiaire = this.stagiaireRepo.create({
-          email: data.email,
+          email: normalizedEmail,
           nom: data.nom,
           prenom: data.prenom,
           civilite: data.civilite,
@@ -107,6 +108,7 @@ export class SessionsService {
       try {
         const data = await this.getRecommendationData(session);
         (session as any).recommendations = data.recommendations;
+        (session as any).parcoursNumber = await this.getParcoursNumber(session);
 
         // Ensure visibility flags are passed to the frontend
         (session as any).isQuestionRuleOverride = data.isQuestionRuleOverride;
@@ -1026,7 +1028,11 @@ export class SessionsService {
         emailTo,
         `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
-        ${session.isP3Mode ? `<div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"><span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE</span></div>` : ''}
+        <div style="background-color: ${parcoursNumber > 1 ? '#EEF2FF' : '#ecfdf5'}; border: 1px solid ${parcoursNumber > 1 ? '#C7D2FE' : '#6ee7b7'}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+          <span style="color: ${parcoursNumber > 1 ? '#4338CA' : '#047857'}; font-weight: bold; font-size: 14px;">
+            🔷 P${parcoursNumber} - PARCOURS ${parcoursNumber === 1 ? 'INITIAL' : 'COMPLÉMENTAIRE'}
+          </span>
+        </div>
         <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
           <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
           
