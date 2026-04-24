@@ -27,6 +27,8 @@ const p3NextLevelLabel = ref("");
 const p3IsMaxLevel = ref(false);
 const p3IsSingleLevel = ref(false);
 const p3IsUnselectedChoice = ref(false);
+const p3UnselectedChoicesList = ref([]);
+const p3SelectedRemainingChoice = ref('');
 
 const formations = ref([]);
 const currentSession = ref(null);
@@ -144,11 +146,15 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
-      const { label: nextLabel, isMaxLevel, isSingleLevel, isUnselectedChoice } = computeNextLevel();
+      const { label: nextLabel, isMaxLevel, isSingleLevel, isUnselectedChoice, unselectedChoices } = computeNextLevel();
       p3NextLevelLabel.value = nextLabel;
       p3IsMaxLevel.value = isMaxLevel;
       p3IsSingleLevel.value = isSingleLevel || false;
       p3IsUnselectedChoice.value = isUnselectedChoice || false;
+      p3UnselectedChoicesList.value = unselectedChoices || [];
+      if (p3UnselectedChoicesList.value.length > 0) {
+        p3SelectedRemainingChoice.value = p3UnselectedChoicesList.value[0];
+      }
       showP3SameFormationModal.value = true;
       return;
     }
@@ -218,7 +224,8 @@ function computeNextLevel() {
             nextLevelLabel: joinedLabel,
             isMaxLevel: false,
             isSingleLevel: false,
-            isUnselectedChoice: true
+            isUnselectedChoice: true,
+            unselectedChoices: unselected
           };
         }
       }
@@ -286,13 +293,21 @@ async function confirmP3SameFormation() {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const { label: recommendation, nextLevelLabel } = computeNextLevel();
     
+    let finalRec = recommendation;
+    let finalStopLevel = nextLevelLabel;
+    
+    if (p3IsUnselectedChoice.value && p3SelectedRemainingChoice.value) {
+      finalRec = p3SelectedRemainingChoice.value;
+      finalStopLevel = p3SelectedRemainingChoice.value;
+    }
+    
     // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       formationChoisie: selectedFormation.value.label,
       isP3Mode: true,
       p3SkipQuiz: true,
-      finalRecommendation: recommendation,
-      stopLevel: nextLevelLabel,
+      finalRecommendation: finalRec,
+      stopLevel: finalStopLevel,
     });
     // Submit (finalize) the session - backend will use pre-set values
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
@@ -814,10 +829,31 @@ function isSectionActive(section) {
 
           <template v-else-if="!p3IsMaxLevel">
             <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
-              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">
+              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
                 {{ p3IsUnselectedChoice ? 'Option restante attribuée' : 'Parcours P3 attribué automatiquement' }}
               </p>
-              <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
+              
+              <!-- Selection mode if multiple unselected choices -->
+              <div v-if="p3IsUnselectedChoice && p3UnselectedChoicesList.length > 1" class="flex flex-col gap-2 mt-2">
+                <p class="text-sm text-green-800 font-medium mb-1">Veuillez choisir votre prochaine spécialité :</p>
+                <label 
+                  v-for="choice in p3UnselectedChoicesList" 
+                  :key="choice"
+                  class="flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all bg-white"
+                  :class="p3SelectedRemainingChoice === choice ? 'border-green-500 shadow-md' : 'border-transparent hover:border-green-300 shadow-sm'"
+                >
+                  <span class="font-black text-green-900 text-sm">{{ choice }}</span>
+                  <input 
+                    type="radio" 
+                    :value="choice" 
+                    v-model="p3SelectedRemainingChoice"
+                    class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                  />
+                </label>
+              </div>
+              
+              <!-- Simple text mode -->
+              <p v-else class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
             </div>
             <p class="text-gray-500 text-sm text-center mb-6">
               Aucun test supplémentaire n'est nécessaire.

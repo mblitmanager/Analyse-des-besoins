@@ -65,6 +65,7 @@ export class SessionsController {
     }
 
     const processed = await this.sessionsService.getRecommendationData(session);
+    const parcoursNumber = await this.sessionsService.getParcoursNumber(session);
 
     const pdfBuffer = await this.pdfService.generateSessionPdf({
       civilite: session.civilite,
@@ -85,6 +86,7 @@ export class SessionsController {
       qTextById: processed.qTextById,
       highLevelContinue: session.highLevelContinue,
       isP3Mode: session.isP3Mode,
+      parcoursNumber,
     });
 
     res.set({

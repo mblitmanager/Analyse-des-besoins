@@ -840,32 +840,15 @@ const downloadPDF = async () => {
             </div>
           </div>
 
-          <div class="p-6 md:p-8 space-y-6">
+          <div v-if="parcoursSteps.some(c => c.length > 1)" class="p-6 md:p-8 space-y-6">
             <template v-for="(stepChoices, stepIdx) in parcoursSteps" :key="stepIdx">
-              <!-- Step Connector Logic (Only if not first step) -->
-              <div v-if="stepIdx > 0" class="ml-4 flex items-center">
-                <div class="w-6 h-6 rounded-full bg-white border border-brand-primary/20 text-brand-primary flex items-center justify-center relative z-10 shadow-sm">
-                  <span class="material-icons-outlined text-xs">add</span>
-                </div>
-              </div>
-
-              <!-- Step Content -->
-              <div class="flex items-start gap-5 relative">
+              <div v-if="stepChoices.length > 1" class="flex items-start gap-5 relative">
                 <div class="flex-1">
                   <h4 class="text-base font-bold text-gray-800">
                     {{ getStepTitle(stepIdx) }}
                   </h4>
                   
-                  <!-- If only 1 option -->
-                  <div v-if="stepChoices.length === 1">
-                    <p v-if="getStepTitle(stepIdx) !== stepChoices[0]" class="text-brand-primary font-bold text-lg mt-1">{{ stepChoices[0] }}</p>
-                    <p class="text-gray-400 font-medium text-xs mt-1">
-                      {{ getLevelInfo(stepChoices[0])?.desc || (stepIdx === 0 ? 'Développement des compétences fondamentales.' : 'Approfondissement et maîtrise avancée.') }}
-                    </p>
-                  </div>
-                  
-                  <!-- If multiple options -->
-                  <div v-else class="mt-4">
+                  <div class="mt-4">
                     <p class="text-sm font-bold text-gray-500 mb-3">Veuillez choisir votre spécialité pour cette étape :</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       <div 
@@ -891,14 +874,8 @@ const downloadPDF = async () => {
                     </div>
                   </div>
                 </div>
-                
-                <div v-if="stepIdx < parcoursSteps.length - 1" class="absolute left-[15px] top-8 -bottom-6 w-px bg-brand-primary/10"></div>
               </div>
             </template>
-            
-            <div v-if="parcoursSteps.length === 1 && !nextLevel" class="text-center py-3 text-gray-400 italic text-xs border-t border-gray-50 mt-4">
-              Parcours de formation complet.
-            </div>
 
             <!-- Compact Financement Box -->
             <div class="bg-[#ebb973]/10 rounded-xl p-4 border border-brand-primary/20 flex items-center gap-3">
