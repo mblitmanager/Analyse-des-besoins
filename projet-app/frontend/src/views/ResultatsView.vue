@@ -617,7 +617,11 @@ const downloadPDF = async () => {
         class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"
       ></div>
       <p class="text-gray-400 font-bold italic">
-        Calcul de votre parc    <main
+        Calcul de votre parcours personnalisé...
+      </p>
+    </main>
+
+    <main
       v-else-if="session"
       class="flex-1 max-w-4xl w-full mx-auto p-4 py-8 md:py-10"
       ref="pdfContent"
@@ -639,9 +643,28 @@ const downloadPDF = async () => {
 
         <div class="flex flex-wrap items-center justify-center gap-3">
           <!-- Parcours Badge -->
-          <div class="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-full shadow-sm text-xs font-black uppercase tracking-widest">
+          <div 
+            v-if="session"
+            class="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm text-xs font-black uppercase tracking-widest transition-all"
+            :class="[
+              (session.parcoursNumber === 1) 
+                ? 'bg-[#ecfdf5] text-[#047857] border border-[#6ee7b7]' 
+                : 'bg-brand-primary text-white'
+            ]"
+          >
             <span class="material-icons-outlined text-sm mr-1.5">route</span>
-            Parcours P{{ session.parcoursNumber || (session.isP3Mode ? '3' : '1') }}
+            <template v-if="session.parcoursNumber === 1 && parcoursSteps.length > 1">
+              P1 & P2 - INITIAL & COMPLÉMENTAIRE
+            </template>
+            <template v-else-if="session.parcoursNumber === 1">
+              P1 - PARCOURS INITIAL
+            </template>
+            <template v-else-if="session.parcoursNumber === 3 || session.isP3Mode">
+              P3 - 3ÈME PARCOURS
+            </template>
+            <template v-else>
+              P{{ session.parcoursNumber }} - PARCOURS COMPLÉMENTAIRE
+            </template>
           </div>
 
           <div
@@ -661,11 +684,11 @@ const downloadPDF = async () => {
             Évaluation complétée
           </div>
 
-          <button @click="downloadPDF" :disabled="downloadingPDF" 
+          <!-- <button @click="downloadPDF" :disabled="downloadingPDF" 
             class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm text-xs font-bold hover:bg-blue-100 transition-colors disabled:opacity-50">
             <span class="material-icons-outlined text-sm mr-1.5">{{ downloadingPDF ? 'sync' : 'picture_as_pdf' }}</span>
             {{ downloadingPDF ? 'PDF' : 'Télécharger PDF' }}
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -754,40 +777,51 @@ const downloadPDF = async () => {
           >
             <div class="relative z-10">
               <span
-                class="inline-block px-3 py-1 bg-brand-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest mb-4"
+                class="inline-block px-3 py-1 bg-brand-primary text-black rounded-full text-[10px] font-bold uppercase tracking-widest mb-4"
               >
                 Nous vous proposons le parcours :
               </span>
               <!-- Numbered steps display -->
-              <div class="space-y-4 mt-2">
+              <div class="space-y-8 mt-6 relative">
                 <div
                   v-for="(choices, stepIdx) in parcoursSteps"
                   :key="stepIdx"
-                  class="flex flex-col sm:flex-row sm:items-center gap-3"
+                  class="relative flex items-start gap-6"
                 >
-                  <div class="flex items-center gap-3">
-                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary text-[#428496] text-xs font-black flex items-center justify-center shadow-md">
-                      {{ stepIdx + 1 }}
-                    </span>
+                  <!-- Connector line for multi-steps -->
+                  <div v-if="stepIdx < parcoursSteps.length - 1" class="absolute left-[15px] top-10 bottom-[-32px] w-[2px] bg-brand-primary/10"></div>
+
+                  <!-- Step Number Bubble -->
+                  <div class="relative z-10 w-8 h-8 rounded-full bg-brand-primary text-black font-black flex items-center justify-center shadow-md shrink-0 text-xs">
+                    {{ stepIdx + 1 }}
                   </div>
-                  <div class="flex flex-wrap items-center gap-2 ml-10 sm:ml-0">
+
+                  <!-- Formation Cards -->
+                  <div class="flex flex-wrap items-center gap-3">
                     <template v-for="(choice, ci) in choices" :key="choice">
-                      <span class="px-4 py-2 bg-white border-2 border-brand-primary/20 rounded-xl text-brand-primary font-black shadow-sm text-sm md:text-base whitespace-nowrap">
-                        {{ choice }}
-                      </span>
-                      <span v-if="ci < choices.length - 1" class="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">ou</span>
+                      <div class="px-5 py-3 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                        <div class="w-8 h-8 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-black transition-colors">
+                          <span class="material-icons-outlined text-sm">school</span>
+                        </div>
+                        <span class="font-bold text-slate-800 tracking-tight">{{ choice }}</span>
+                      </div>
+                      <span v-if="ci < choices.length - 1" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ou</span>
                     </template>
                   </div>
                 </div>
               </div>
-              <p class="text-gray-500 text-sm mt-3 max-w-2xl leading-relaxed">
-                {{ isBlocked 
-                   ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
-                   : (session?.parcoursRuleHadPrereqCondition && !isLowLevelResult)
-                     ? "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test."
-                     : "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace." 
-                }}
-              </p>
+              
+              <div class="mt-8 flex items-start gap-3 p-4 bg-white/50 rounded-2xl border border-brand-primary/5">
+                <span class="material-icons-outlined text-brand-primary text-lg mt-0.5">info</span>
+                <p class="text-gray-500 text-sm leading-relaxed italic">
+                  {{ isBlocked 
+                     ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
+                     : (session?.parcoursRuleHadPrereqCondition && !isLowLevelResult)
+                       ? "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test."
+                       : "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace." 
+                  }}
+                </p>
+              </div>
 
             </div>
           </div>

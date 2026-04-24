@@ -971,7 +971,7 @@ export class SessionsService {
         metier: session.metier,
         situation: session.situation,
         formationChoisie: rec, // Specific formation
-        finalRecommendation: rec, // Specific recommendation
+        finalRecommendation: recommendation, // Full recommendation string for labeling logic
         scoreFinal: scorePretest,
         levelsScores: session.levelsScores as Record<string, any>,
         prerequisiteAnswers: filteredPrerequis as Record<string, any>,
@@ -1023,14 +1023,28 @@ export class SessionsService {
       'true',
     );
 
+    // Determine dynamic labeling based on sequence and steps
+    let badgeText = `P${parcoursNumber}`;
+    let badgeStatus = parcoursNumber === 1 ? 'INITIAL' : (parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
+    
+    if (parcoursNumber === 1 && recommendationsList.length > 1) {
+      badgeText = 'P1 & P2';
+      badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
+    }
+
+    const isInitial = parcoursNumber === 1;
+    const badgeBg = isInitial ? '#ecfdf5' : '#EEF2FF';
+    const badgeBorder = isInitial ? '#6ee7b7' : '#C7D2FE';
+    const badgeColor = isInitial ? '#047857' : '#4338CA';
+
     if (autoSendEmail !== 'false') {
       await this.emailService.sendReport(
         emailTo,
-        `Analyse des besoins - Évaluation de ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+        `Analyse des besoins - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
-        <div style="background-color: ${parcoursNumber > 1 ? '#EEF2FF' : '#ecfdf5'}; border: 1px solid ${parcoursNumber > 1 ? '#C7D2FE' : '#6ee7b7'}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
-          <span style="color: ${parcoursNumber > 1 ? '#4338CA' : '#047857'}; font-weight: bold; font-size: 14px;">
-            🔷 P${parcoursNumber} - PARCOURS ${parcoursNumber === 1 ? 'INITIAL' : 'COMPLÉMENTAIRE'}
+        <div style="background-color: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+          <span style="color: ${badgeColor}; font-weight: bold; font-size: 14px;">
+            🔷 ${badgeText} - PARCOURS ${badgeStatus}
           </span>
         </div>
         <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
@@ -1191,7 +1205,7 @@ export class SessionsService {
         `Analyse des besoins - P3 ${session.prenom} ${session.nom} - ${recommendation}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
           <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
-            <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE (Même formation - Suite du parcours)</span>
+            <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - 3ÈME PARCOURS (Même formation - Suite du parcours)</span>
           </div>
           <h2 style="color: #0D8ABC; margin-bottom: 5px;">Analyse des besoins - P3</h2>
           <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le ${dateStr}</p>
