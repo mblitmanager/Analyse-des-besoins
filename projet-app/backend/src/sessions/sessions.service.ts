@@ -67,7 +67,7 @@ export class SessionsService {
    */
   async getParcoursNumber(session: Session): Promise<number> {
     if (session.isP3Mode) return 3;
-    if (!session.stagiaire && !session.stagiaire?.id) {
+    if (!session.stagiaire || !session.stagiaire.id) {
       const loaded = await this.sessionRepo.findOne({
         where: { id: session.id },
         relations: ['stagiaire'],
