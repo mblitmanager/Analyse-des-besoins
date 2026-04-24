@@ -72,13 +72,24 @@ export class PdfService {
         .text('Analyse des besoins', { align: 'center' });
 
       if (data.parcoursNumber) {
-        let parcoursText = `P${data.parcoursNumber} - PARCOURS ${data.parcoursNumber === 1 ? 'INITIAL' : 'COMPLÉMENTAIRE'}`;
+        let badgeText = `P${data.parcoursNumber}`;
+        let badgeStatus = data.parcoursNumber === 1 ? 'INITIAL' : (data.parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
         
+        // Handle multi-step P1 & P2 case
+        // We check if the overall recommendation had multiple steps (passed as finalRecommendation or inferred)
+        if (data.parcoursNumber === 1 && data.finalRecommendation?.includes(' & ')) {
+          badgeText = 'P1 & P2';
+          badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
+        }
+
+        const isInitial = data.parcoursNumber === 1;
+        const badgeColor = isInitial ? '#047857' : '#4338CA';
+
         doc
           .fontSize(12)
-          .fillColor(data.parcoursNumber > 1 ? '#4338CA' : '#047857') // Purple for P2/P3, Green for P1
+          .fillColor(badgeColor)
           .font('Helvetica-Bold')
-          .text(parcoursText, { align: 'center' });
+          .text(`${badgeText} - PARCOURS ${badgeStatus}`, { align: 'center' });
         doc.font('Helvetica'); // Reset
       } else if (data.isP3Mode) {
         // Fallback if parcoursNumber is missing
