@@ -524,10 +524,12 @@ export class SessionsService {
         let proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
         let finalRecommendationValue = proposedParcours.join(' & ');
 
-        // Enforce ONE formation exactly for P3 mode, regardless of DB rules
-        if (session.isP3Mode && proposedParcours.length > 0) {
+        // P3 mode: present multiple options as a CHOICE (OU) instead of sequential (&)
+        // e.g. "ICDL - Google Docs OU ICDL - Google Sheets" = pick ONE
+        if (session.isP3Mode && proposedParcours.length > 1) {
+          finalRecommendationValue = proposedParcours.join(' OU ');
+        } else if (session.isP3Mode && proposedParcours.length === 1) {
           finalRecommendationValue = proposedParcours[0];
-          proposedParcours = [proposedParcours[0]];
         }
 
         const levelsEntries: any[] = session.levelsScores

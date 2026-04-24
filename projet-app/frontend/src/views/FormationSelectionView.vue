@@ -26,6 +26,7 @@ const p3SameFormationLabel = ref("");
 const p3NextLevelLabel = ref("");
 const p3IsMaxLevel = ref(false);
 const p3IsSingleLevel = ref(false);
+const p3IsUnselectedChoice = ref(false);
 
 const formations = ref([]);
 const currentSession = ref(null);
@@ -143,10 +144,11 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
-      const { label: nextLabel, isMaxLevel, isSingleLevel } = computeNextLevel();
+      const { label: nextLabel, isMaxLevel, isSingleLevel, isUnselectedChoice } = computeNextLevel();
       p3NextLevelLabel.value = nextLabel;
       p3IsMaxLevel.value = isMaxLevel;
       p3IsSingleLevel.value = isSingleLevel || false;
+      p3IsUnselectedChoice.value = isUnselectedChoice || false;
       showP3SameFormationModal.value = true;
       return;
     }
@@ -199,12 +201,33 @@ async function doSelectFormation() {
 function computeNextLevel() {
   const formation = selectedFormation.value;
   if (!formation) {
-    return { label: 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: true, isSingleLevel: true };
+    return { label: 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: true, isSingleLevel: true, isUnselectedChoice: false };
+  }
+
+  // CHECK FOR UNSELECTED CHOICES IF SAME FORMATION
+  const prevFormationStr = localStorage.getItem('p3_prev_formation') || '';
+  if (prevFormationStr && formation.label === prevFormationStr) {
+    try {
+      const unselectedStr = localStorage.getItem('p3_unselected_choices');
+      if (unselectedStr) {
+        const unselected = JSON.parse(unselectedStr);
+        if (unselected && unselected.length > 0) {
+          const joinedLabel = unselected.join(' OU ');
+          return {
+            label: joinedLabel,
+            nextLevelLabel: joinedLabel,
+            isMaxLevel: false,
+            isSingleLevel: false,
+            isUnselectedChoice: true
+          };
+        }
+      }
+    } catch(e) {}
   }
 
   // Formation has no levels configured: treat as single-level (no progression possible)
   if (!formation.levels || formation.levels.length === 0) {
-    return { label: formation.label, nextLevelLabel: formation.label, isMaxLevel: true, isSingleLevel: true };
+    return { label: formation.label, nextLevelLabel: formation.label, isMaxLevel: true, isSingleLevel: true, isUnselectedChoice: false };
   }
 
   // Formation has exactly one level: already at max by definition
@@ -214,7 +237,8 @@ function computeNextLevel() {
       label: `${formation.label} - ${onlyLevel.label}`,
       nextLevelLabel: onlyLevel.label,
       isMaxLevel: true,
-      isSingleLevel: true
+      isSingleLevel: true,
+      isUnselectedChoice: false
     };
   }
 
@@ -250,7 +274,8 @@ function computeNextLevel() {
     label: `${formation.label} - ${nextLevel.label}`,
     nextLevelLabel: nextLevel.label,
     isMaxLevel,
-    isSingleLevel: false
+    isSingleLevel: false,
+    isUnselectedChoice: false
   };
 }
 
@@ -789,7 +814,9 @@ function isSectionActive(section) {
 
           <template v-else-if="!p3IsMaxLevel">
             <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
-              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Parcours P3 attribué automatiquement</p>
+              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">
+                {{ p3IsUnselectedChoice ? 'Option restante attribuée' : 'Parcours P3 attribué automatiquement' }}
+              </p>
               <p class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
             </div>
             <p class="text-gray-500 text-sm text-center mb-6">
