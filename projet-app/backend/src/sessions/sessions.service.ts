@@ -697,6 +697,38 @@ export class SessionsService {
         finalRecommendationValue = parts[0];
         proposedParcours = [parts[0]];
       }
+
+      // Logic to avoid repeating P2 in P3 for the same formation
+      if (session.stagiaire?.id) {
+        try {
+          const allUserSessions = await this.sessionRepo.find({
+            where: { stagiaire: { id: session.stagiaire.id } },
+            order: { createdAt: 'DESC' },
+            take: 5
+          });
+          
+          // The current session is at index 0, P2 was at index 1
+          const prevSession = allUserSessions[1];
+          if (prevSession && prevSession.formationChoisie === session.formationChoisie) {
+            // Check if recommendation is identical (normalized)
+            const norm = (s: string) => (s || '').toLowerCase().trim();
+            if (norm(finalRecommendationValue) === norm(prevSession.finalRecommendation)) {
+              // Try to find next level
+              const currentLvlLabel = levels.find(l => norm(finalRecommendationValue).includes(norm(l.label)))?.label;
+              if (currentLvlLabel) {
+                const currentIdx = levels.findIndex(l => l.label === currentLvlLabel);
+                if (currentIdx !== -1 && currentIdx < levels.length - 1) {
+                  const nextLvl = levels[currentIdx + 1];
+                  finalRecommendationValue = `${session.formationChoisie} ${nextLvl.label}`.trim();
+                  proposedParcours = [finalRecommendationValue];
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[P3] Failed to check previous session for recommendation overlap:', e.message);
+        }
+      }
     }
 
     // Score final global

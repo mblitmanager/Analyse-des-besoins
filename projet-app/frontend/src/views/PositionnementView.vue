@@ -140,7 +140,7 @@ async function restoreProgressFromSession() {
       const prevOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
 
       // Same formation: start AFTER previous results
-      if (prevFormation === formationLabel && prevOrder > 0) {
+      if (prevFormation === formationLabel && localStorage.getItem('p3_prev_level_order') !== null) {
         // Pre-validate dummy entries for previously achieved levels
         levels.value.forEach((lvl, idx) => {
           if (idx < prevOrder) {

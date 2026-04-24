@@ -648,8 +648,8 @@ const downloadPDF = async () => {
             class="flex items-center gap-2 px-4 py-2 rounded-full shadow-sm text-xs font-black uppercase tracking-widest transition-all"
             :class="[
               (session.parcoursNumber === 1) 
-                ? 'bg-[#ecfdf5] text-[#047857] border border-[#6ee7b7]' 
-                : 'bg-brand-primary text-white'
+                ? 'bg-[#ecfdf5] border border-[#6ee7b7]' 
+                : 'bg-brand-primary text-black'
             ]"
           >
             <span class="material-icons-outlined text-sm mr-1.5">route</span>
@@ -668,7 +668,7 @@ const downloadPDF = async () => {
           </div>
 
           <div
-            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-800"
           >
             <span class="material-icons-outlined text-sm text-gray-400"
               >calendar_today</span
@@ -676,7 +676,7 @@ const downloadPDF = async () => {
             Bilan du {{ formatDate(session.createdAt) }}
           </div>
           <div
-            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-500"
+            class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-bold text-gray-800"
           >
             <span class="material-icons-outlined text-sm text-success"
               >verified</span
@@ -700,17 +700,17 @@ const downloadPDF = async () => {
         </div>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row gap-8">
           <div class="flex-1 space-y-2">
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Métier / Poste</p>
+            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Métier / Poste</p>
             <p class="text-lg font-bold text-blue-900">{{ session.metier || 'Non renseigné' }}</p>
           </div>
           <div class="flex-1 space-y-2">
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Situation</p>
+            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Situation</p>
             <div class="flex flex-wrap gap-2">
               <span v-for="sit in (session.situation || [])" :key="sit" 
                     class="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-xs font-bold border border-brand-primary/20">
                 {{ sit }}
               </span>
-              <span v-if="!session.situation?.length" class="text-gray-400 text-sm italic">Non renseignée</span>
+              <span v-if="!session.situation?.length" class="text-gray-600 text-sm italic">Non renseignée</span>
             </div>
           </div>
         </div>
@@ -741,7 +741,7 @@ const downloadPDF = async () => {
             <h3 class="text-base font-bold heading-primary mb-2">
               Bases Informatiques
             </h3>
-            <p class="text-sm text-gray-400 leading-relaxed">
+            <p class="text-sm text-gray-600 leading-relaxed">
               <template v-if="hasInsufficientPrereq">
                 Certaines compétences de base sont insuffisantes. Le parcours choisi
                 vous aidera à les renforcer avant de poursuivre.
@@ -878,7 +878,7 @@ const downloadPDF = async () => {
             <!-- Final CTA -->
             <div class="flex flex-col items-center gap-6">
               <p
-                class="text-gray-400 font-medium max-w-lg mx-auto leading-relaxed text-sm text-center"
+                class="text-gray-600 font-medium max-w-lg mx-auto leading-relaxed text-sm text-center"
               >
                 Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous
                 pour le valider.
