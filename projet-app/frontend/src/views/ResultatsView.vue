@@ -348,6 +348,17 @@ const isSelectionComplete = computed(() => {
 const confirmAndGoNext = async () => {
   if (isSelectionComplete.value) {
     const finalRec = parcoursSteps.value.map((_, idx) => selectedChoices.value[idx]).join(' & ');
+    
+    // SAVE UNSELECTED CHOICES for P3
+    const unselectedChoices = [];
+    parcoursSteps.value.forEach((choices, idx) => {
+      const selected = selectedChoices.value[idx];
+      choices.forEach(c => {
+        if (c !== selected) unselectedChoices.push(c);
+      });
+    });
+    localStorage.setItem('p3_unselected_choices', JSON.stringify(unselectedChoices));
+
     try {
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
         finalRecommendation: finalRec
@@ -791,20 +802,24 @@ const downloadPDF = async () => {
               >
                 Nous vous proposons le parcours :
               </span>
-              <!-- Numbered steps display: 1. Formation A / 2. Formation B ou Formation C -->
-              <div class="space-y-2 mt-1">
+              <!-- Numbered steps display -->
+              <div class="space-y-4 mt-2">
                 <div
                   v-for="(choices, stepIdx) in parcoursSteps"
                   :key="stepIdx"
-                  class="flex items-start gap-3"
+                  class="flex flex-col sm:flex-row sm:items-center gap-3"
                 >
-                  <span class="flex-shrink-0 w-6 h-6 rounded-full bg-brand-primary text-white text-[11px] font-black flex items-center justify-center mt-0.5">
-                    {{ stepIdx + 1 }}
-                  </span>
-                  <div>
+                  <div class="flex items-center gap-3">
+                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-primary text-[#428496] text-xs font-black flex items-center justify-center shadow-md">
+                      {{ stepIdx + 1 }}
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2 ml-10 sm:ml-0">
                     <template v-for="(choice, ci) in choices" :key="choice">
-                      <span class="text-lg md:text-xl font-extrabold text-brand-primary">{{ choice }}</span>
-                      <span v-if="ci < choices.length - 1" class="text-sm font-bold text-gray-400 mx-2">ou</span>
+                      <span class="px-4 py-2 bg-white border-2 border-brand-primary/20 rounded-xl text-brand-primary font-black shadow-sm text-sm md:text-base whitespace-nowrap">
+                        {{ choice }}
+                      </span>
+                      <span v-if="ci < choices.length - 1" class="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">ou</span>
                     </template>
                   </div>
                 </div>
