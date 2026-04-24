@@ -65,10 +65,20 @@ onMounted(async () => {
     const res = await fetch(`${apiBaseUrl}/contacts`);
     if (res.ok) {
       const data = await res.json();
-      // On combine prénom et nom pour faire la liste des noms
-      conseillers.value = data
-        .map(c => `${c.prenom} ${c.nom}`.trim())
-        .filter(c => c.length > 0);
+      // On combine prénom et nom, et on ajoute aussi la version nom + prénom 
+      // pour que l'autocomplétion fonctionne dans les deux sens
+      conseillers.value = data.reduce((acc, c) => {
+        const prenom = (c.prenom || '').trim();
+        const nom = (c.nom || '').trim();
+        
+        if (prenom && nom) {
+          acc.push(`${prenom} ${nom}`);
+          acc.push(`${nom} ${prenom}`);
+        } else if (prenom || nom) {
+          acc.push(`${prenom} ${nom}`.trim());
+        }
+        return acc;
+      }, []);
     }
   } catch (error) {
     console.error("Failed to fetch conseillers:", error);

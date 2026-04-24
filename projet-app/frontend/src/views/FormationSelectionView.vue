@@ -259,13 +259,45 @@ function computeNextLevel() {
     prevIdx = sortedLevels.findIndex(l => (l.order || 0) === prevLevelOrder);
   }
 
-  // Priority 2: match by stop level label text
+  // Priority 2: match by stop level text across ALL previous propositions
   if (prevIdx === -1) {
-    const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
-    if (prevStopLevel) {
-      const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
-      const prevClean = clean(prevStopLevel);
-      prevIdx = sortedLevels.findIndex(l => clean(l.label) === prevClean);
+    const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
+    
+    // Search in all previous recommendations to find the highest level reached for THIS formation
+    const prevRecommendationsStr = localStorage.getItem('p3_prev_recommendations') || '';
+    if (prevRecommendationsStr) {
+      const recs = prevRecommendationsStr.split('&').map(r => r.trim());
+      const formClean = clean(formation.label);
+      
+      let highestFoundIdx = -1;
+      for (const rec of recs) {
+        const recClean = clean(rec);
+        // Ensure this recommendation is related to the selected formation
+        if (recClean.includes(formClean) || formClean.includes(recClean.replace(/tosa|icdl/gi, '').trim())) {
+          const foundIdx = sortedLevels.findIndex(l => {
+            const lvlClean = clean(l.label);
+            return recClean === lvlClean || recClean.includes(lvlClean) || lvlClean.includes(recClean);
+          });
+          if (foundIdx > highestFoundIdx) {
+            highestFoundIdx = foundIdx;
+          }
+        }
+      }
+      if (highestFoundIdx !== -1) {
+        prevIdx = highestFoundIdx;
+      }
+    }
+
+    // Fallback to stop level if not found in recommendations array
+    if (prevIdx === -1) {
+      const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+      if (prevStopLevel) {
+        const prevClean = clean(prevStopLevel);
+        prevIdx = sortedLevels.findIndex(l => {
+          const lvlClean = clean(l.label);
+          return prevClean === lvlClean || prevClean.includes(lvlClean) || lvlClean.includes(prevClean);
+        });
+      }
     }
   }
 

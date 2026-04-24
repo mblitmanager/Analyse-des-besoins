@@ -1185,7 +1185,7 @@ export class SessionsService {
         `Analyse des besoins - P3 ${session.prenom} ${session.nom} - ${recommendation}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
           <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
-            <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE (Même formation - Niveau supérieur)</span>
+            <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - PARCOURS COMPLÉMENTAIRE (Même formation - Suite du parcours)</span>
           </div>
           <h2 style="color: #0D8ABC; margin-bottom: 5px;">Analyse des besoins - P3</h2>
           <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le ${dateStr}</p>
@@ -1194,7 +1194,7 @@ export class SessionsService {
           <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
           <p><strong>Formation P3 :</strong> ${recommendation}</p>
           <p style="background: #f0fdf4; border-left: 4px solid #22C55E; padding: 10px; font-weight: bold; color: #166534;">
-            Même formation que le parcours précédent → Niveau supérieur attribué automatiquement
+            Même formation que le parcours précédent → Suite logique du parcours attribuée (Niveau supérieur ou Option restante)
           </p>
           <div style="margin-top: 20px; text-align: right;">
             <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
