@@ -863,13 +863,7 @@ const downloadPDF = async () => {
               </div>
             </template>
 
-            <!-- Compact Financement Box -->
-            <div class="bg-[#ebb973]/10 rounded-xl p-4 border border-brand-primary/20 flex items-center gap-3">
-              <span class="material-icons-outlined text-brand-primary text-lg">verified</span>
-              <p class="text-[11px] font-semibold text-gray-600">
-                Parcours certifiant et 100% finançable (CPF, Employeur).
-              </p>
-            </div>
+        
           </div>
         </div>
 
