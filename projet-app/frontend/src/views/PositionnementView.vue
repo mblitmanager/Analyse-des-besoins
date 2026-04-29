@@ -40,7 +40,7 @@ const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour ré
 const showResults = ref(false);
 const finalRecommendation = ref("");
 const p3Redirected = ref(false);
-const submitting = ref(false);
+const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
 const showHighLevelAlert = ref(false);
 const highLevelValidated = ref("");
@@ -909,9 +909,9 @@ async function saveAndExit() {
                 <span class="material-icons-outlined text-blue-600">auto_awesome</span>
               </div>
               <div>
-                <h4 class="text-blue-900 font-black text-sm uppercase tracking-wider mb-1">Optimisation P3</h4>
+                <h4 class="text-blue-900 font-black text-sm uppercase tracking-wider mb-1">Optimisation Parcours supplémentaire</h4>
                 <p class="text-blue-700 text-sm font-medium leading-relaxed">
-                  Certains niveaux ont été ignorés car ils font déjà partie de vos parcours précédents (P1/P2). 
+                  Certains niveaux ont été ignorés car ils font déjà partie de vos parcours précédents. 
                   Nous vous proposons directement le <strong>niveau supérieur</strong> pour compléter votre progression.
                 </p>
               </div>

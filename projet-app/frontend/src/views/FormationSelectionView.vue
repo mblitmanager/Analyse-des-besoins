@@ -364,7 +364,7 @@ function computeNextLevel() {
       prevIdx = findInText(prevStopLevel);
       if (prevIdx === -1) {
           // Try each part of the recommendation
-          const parts = prevRecommendationsStr.split(/\s*&\s*|\s*\|\s*/);
+          const parts = prevRecs.split(/\s*&\s*|\s*\|\s*/);
           for (const part of parts) {
               const idx = findInText(part);
               if (idx > prevIdx) prevIdx = idx; // take the highest found
