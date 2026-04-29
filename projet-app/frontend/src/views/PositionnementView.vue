@@ -39,7 +39,8 @@ const prerequisiteAnswers = ref({}); // Réponses aux questions prérequis (éta
 const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour résoudre texte → index
 const showResults = ref(false);
 const finalRecommendation = ref("");
-const isPaginated = ref(false);
+const p3Redirected = ref(false);
+const submitting = ref(false);
 const currentQuestionIndex = ref(0);
 const showHighLevelAlert = ref(false);
 const highLevelValidated = ref("");
@@ -650,10 +651,35 @@ async function finishTest(overrideSession = null) {
       if (matchedRule) {
         const f1 = matchedRule.formation1 || "";
         const f2 = matchedRule.formation2 || "";
-        if (f2 && f1 !== f2 && !store.isP3Mode) {
-          finalRecommendation.value = `${f1} | ${f2}`;
+        
+        if (store.isP3Mode) {
+            // P3 Mode: Skip history duplicates
+            const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
+            const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+            const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
+            
+            const isProposed = (val) => {
+                const vClean = cleanS(val);
+                return recs.some(r => {
+                    const rClean = cleanS(r);
+                    const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                    const vWords = vClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                    return vWords.some(vw => rWords.includes(vw));
+                });
+            };
+
+            if (isProposed(f1) && f2) {
+                finalRecommendation.value = f2;
+                p3Redirected.value = true;
+            } else {
+                finalRecommendation.value = f1;
+            }
         } else {
-          finalRecommendation.value = f1;
+            if (f2 && f1 !== f2) {
+                finalRecommendation.value = `${f1} | ${f2}`;
+            } else {
+                finalRecommendation.value = f1;
+            }
         }
         usedParcoursRule = true;
         // Track if the winning rule had a prerequisite condition
@@ -670,8 +696,33 @@ async function finishTest(overrideSession = null) {
     
     // Si on a des niveaux on tente de proposer le niveau validé ou le focus actuel
     if (levels.value && levels.value.length > 0) {
-      const safeIdx = Math.min(Math.max(0, currentLevelIndex.value), levels.value.length - 1);
-      l1 = ensureNiveau(levels.value[safeIdx].label);
+      let targetIdx = Math.min(Math.max(0, currentLevelIndex.value), levels.value.length - 1);
+      
+      if (store.isP3Mode) {
+          const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
+          const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+          const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
+          
+          while (targetIdx < levels.value.length) {
+              const currentLvl = levels.value[targetIdx];
+              const lvlClean = cleanS(currentLvl.label);
+              const isDuplicate = recs.some(r => {
+                  const rClean = cleanS(r);
+                  const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                  const vWords = lvlClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                  return vWords.some(vw => rWords.includes(vw));
+              });
+              if (!isDuplicate) break;
+              targetIdx++;
+          }
+          if (targetIdx >= levels.value.length) targetIdx = levels.value.length - 1;
+          
+          if (targetIdx > Math.min(Math.max(0, currentLevelIndex.value), levels.value.length - 1)) {
+              p3Redirected.value = true;
+          }
+      }
+      
+      l1 = ensureNiveau(levels.value[targetIdx].label);
     }
     
     finalRecommendation.value = l1;
@@ -846,10 +897,26 @@ async function saveAndExit() {
           </h1>
 
           <p
-            class="text-gray-400 text-lg md:text-xl mb-12 max-w-lg mx-auto leading-relaxed"
+            class="text-gray-400 text-lg md:text-xl mb-6 max-w-lg mx-auto leading-relaxed"
           >
             Voici votre parcours de formation recommandé :
           </p>
+
+          <!-- P3 Redirection Message -->
+          <div v-if="p3Redirected" class="max-w-2xl mx-auto mb-8 animate-in zoom-in duration-500">
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 flex items-center gap-5 text-left">
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                <span class="material-icons-outlined text-blue-600">auto_awesome</span>
+              </div>
+              <div>
+                <h4 class="text-blue-900 font-black text-sm uppercase tracking-wider mb-1">Optimisation P3</h4>
+                <p class="text-blue-700 text-sm font-medium leading-relaxed">
+                  Certains niveaux ont été ignorés car ils font déjà partie de vos parcours précédents (P1/P2). 
+                  Nous vous proposons directement le <strong>niveau supérieur</strong> pour compléter votre progression.
+                </p>
+              </div>
+            </div>
+          </div>
 
           <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
             <!-- Parse steps (& separator) then alternatives (/ or OU) -->

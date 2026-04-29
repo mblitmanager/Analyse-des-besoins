@@ -581,7 +581,7 @@ export class SessionsService {
 
         // Determine the final level order based on the proposed parcours
         let highestOrder = 0;
-        let finalLevel = null;
+        let finalLevel: any = null;
         
         if (levels.length > 0) {
             const clean = (s: string) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl)\s+/i, '').trim();
@@ -617,7 +617,7 @@ export class SessionsService {
           miseTitle: 'Mise à niveau (réponses)',
           certification: matchedRule.certification,
           levels,
-          stopLevelOrder: session.stopLevelOrder || (finalLevel ? finalLevel.order : 0),
+          stopLevelOrder: session.stopLevelOrder || (finalLevel ? (finalLevel as any).order : 0),
         };
       }
     }
@@ -1046,7 +1046,6 @@ export class SessionsService {
         parrainPrenom: session.parrainPrenom,
         parrainEmail: session.parrainEmail,
         parrainTelephone: session.parrainTelephone,
-        parrainTelephone: session.parrainTelephone,
         highLevelContinue: session.highLevelContinue,
         isP3Mode: session.isP3Mode,
         parcoursNumber,
@@ -1092,12 +1091,18 @@ export class SessionsService {
     let badgeText = `P${parcoursNumber}`;
     let badgeStatus = parcoursNumber === 1 ? 'INITIAL' : (parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
     
-    if (parcoursNumber === 1 && recommendationsList.length > 1) {
+    // Explicit overrides for clear labeling
+    if (recommendationsList.length > 1) {
+      // If we have multiple recommendations (standard P1 & P2 outcome), force this label
       badgeText = 'P1 & P2';
       badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
+    } else if (session.isP3Mode || parcoursNumber >= 3) {
+      // If we are in P3 mode or reached the 3rd session, force P3
+      badgeText = 'P3';
+      badgeStatus = '3ÈME PARCOURS';
     }
 
-    const isInitial = parcoursNumber === 1;
+    const isInitial = badgeText.includes('P1');
     const badgeBg = isInitial ? '#ecfdf5' : '#EEF2FF';
     const badgeBorder = isInitial ? '#6ee7b7' : '#C7D2FE';
     const badgeColor = isInitial ? '#047857' : '#4338CA';
