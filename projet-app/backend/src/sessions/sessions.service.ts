@@ -176,10 +176,14 @@ export class SessionsService {
     // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
     const ids = new Set<number>();
     const addIds = (obj: any) => {
-      if (!obj) return;
-      Object.keys(obj).forEach((k) => {
+      if (!obj || typeof obj !== 'object') return;
+      Object.entries(obj).forEach(([k, v]) => {
         const n = Number(k);
         if (!isNaN(n)) ids.add(n);
+        // Recursively add IDs from nested objects (e.g. positionnementAnswers grouped by level)
+        if (v && typeof v === 'object' && !Array.isArray(v)) {
+          addIds(v);
+        }
       });
     };
     addIds(session.prerequisiteScore);
