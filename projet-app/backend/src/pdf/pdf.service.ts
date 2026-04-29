@@ -33,6 +33,7 @@ export class PdfService {
     highLevelContinue?: boolean;
     isP3Mode?: boolean;
     parcoursNumber?: number;
+    stopLevelOrder?: number;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
@@ -319,24 +320,56 @@ export class PdfService {
       row.forEach((cell, colIndex) => {
         const h = doc.heightOfString(cell || '', { width: colWidth - 10 });
         if (h > maxHeight) maxHeight = h;
+      });
 
+      row.forEach((cell, colIndex) => {
+        const cellX = startX + colIndex * colWidth;
         doc
           .fontSize(isHeader ? 9 : 10)
-          .fillColor(isHeader ? grayText : colIndex === 0 ? darkText : grayText)
-          // Reduced bold for questions (colIndex 0) - using Helvetica instead of Bold as requested
-          .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
-          .text(cell || '', startX + colIndex * colWidth, y, {
-            width: colWidth - 10,
-            lineBreak: true,
-          });
+          .fillColor(isHeader ? grayText : colIndex === 0 ? darkText : grayText);
+        
+        const baseFont = isHeader ? 'Helvetica-Bold' : 'Helvetica';
+        const boldFont = 'Helvetica-Bold';
+        
+        this.renderFormattedText(doc, cell || '', cellX, y, colWidth - 10, baseFont, boldFont);
       });
 
       doc.y = y + maxHeight + 10; // Tightened vertical spacing
-
-      // Removed row separator line as requested
     });
 
     doc.moveDown(0.5);
+  }
+
+  private renderFormattedText(
+    doc: any,
+    text: string,
+    x: number,
+    y: number,
+    width: number,
+    baseFont: string,
+    boldFont: string,
+  ) {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    let currentY = y;
+    
+    // We use a single text call with continued: true to handle wrapping correctly
+    doc.font(baseFont);
+    
+    parts.forEach((part, i) => {
+      const isLast = i === parts.length - 1;
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const cleanPart = part.substring(2, part.length - 2);
+        doc.font(boldFont).text(cleanPart, x, currentY, {
+          width: width,
+          continued: !isLast,
+        });
+      } else {
+        doc.font(baseFont).text(part, x, currentY, {
+          width: width,
+          continued: !isLast,
+        });
+      }
+    });
   }
 
   private renderAnswersSection(
@@ -353,11 +386,12 @@ export class PdfService {
     doc.moveDown(0.5);
     this.sectionTitle(doc, title);
 
-    const rows = Object.entries(answers).map(([key, val]) => {
+    const rows = Object.entries(answers).map(([key, val], index) => {
       const idNum = Number(key);
       const label = qTextById?.[idNum] || `Question ${key}`;
+      const questionLabel = `Q${index + 1} : ${label}`;
       const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-      return [label, display];
+      return [questionLabel, display];
     });
 
     this.drawTable(doc, rows, darkText, grayText, lightBg);
@@ -381,8 +415,9 @@ export class PdfService {
       const rows = Object.entries(levelAnswers).map(([qId, val], index) => {
         const idNum = Number(qId);
         const questionText = qTextById?.[idNum] || `Question ${qId}`;
+        const questionLabel = `Q${index + 1} : ${questionText}`;
         const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-        return [questionText, display];
+        return [questionLabel, display];
       });
 
       this.drawTable(doc, rows, darkText, grayText, lightBg);

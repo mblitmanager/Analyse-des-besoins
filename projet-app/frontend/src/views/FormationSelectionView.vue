@@ -33,6 +33,7 @@ const p3SelectedRemainingChoice = ref('');
 const formations = ref([]);
 const currentSession = ref(null);
 const p3Rules = ref([]);
+const allParcoursRules = ref([]);
 
 // P3 context from localStorage
 const p3PrevFormation = computed(() => localStorage.getItem('p3_prev_formation') || '');
@@ -93,10 +94,14 @@ async function fetchP3Rules() {
   if (!store.isP3Mode) return;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const res = await axios.get(`${apiBaseUrl}/p3-filter-rules?activeOnly=true`);
-    p3Rules.value = res.data;
+    const [p3Res, parcoursRes] = await Promise.all([
+      axios.get(`${apiBaseUrl}/p3-filter-rules?activeOnly=true`),
+      axios.get(`${apiBaseUrl}/parcours`)
+    ]);
+    p3Rules.value = p3Res.data;
+    allParcoursRules.value = parcoursRes.data || [];
   } catch (err) {
-    console.error("Failed to fetch P3 rules:", err);
+    console.error("Failed to fetch P3/Parcours rules:", err);
   }
 }
 
@@ -104,6 +109,12 @@ onMounted(() => {
   if (!sessionId) {
     router.push("/");
     return;
+  }
+  
+  // Fresh P1 session: clear any leftover P3 state from previous journeys
+  if (store.parcoursNumber === 1) {
+    const p3Keys = ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices'];
+    p3Keys.forEach(k => localStorage.removeItem(k));
   }
   
   // Fetch session data first for P3 filtering
@@ -218,15 +229,32 @@ function computeNextLevel() {
       if (unselectedStr) {
         const unselected = JSON.parse(unselectedStr);
         if (unselected && unselected.length > 0) {
-          const joinedLabel = unselected.join(' OU ');
-          return {
-            label: joinedLabel,
-            nextLevelLabel: joinedLabel,
-            isMaxLevel: false,
-            isSingleLevel: false,
-            isUnselectedChoice: true,
-            unselectedChoices: unselected
-          };
+          // FILTER: Remove choices that are already in the P1/P2 history
+          const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
+          const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
+          const cleanU = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+          
+          const filtered = unselected.filter(u => {
+              const uClean = cleanU(u);
+              return !recs.some(r => {
+                  const rClean = cleanU(r);
+                  const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                  const vWords = uClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                  return vWords.some(vw => rWords.includes(vw));
+              });
+          });
+
+          if (filtered.length > 0) {
+            const joinedLabel = filtered.join(' OU ');
+            return {
+              label: joinedLabel,
+              nextLevelLabel: joinedLabel,
+              isMaxLevel: false,
+              isSingleLevel: false,
+              isUnselectedChoice: true,
+              unselectedChoices: filtered
+            };
+          }
         }
       }
     } catch(e) {}
@@ -251,7 +279,7 @@ function computeNextLevel() {
 
   const sortedLevels = [...formation.levels].sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  const clean = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl)\s+/i, '').trim();
+  const clean = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
   
   // Helper to extract level codes like A1, B2, C1 etc for languages
   const extractLevelCode = (s) => {
@@ -270,13 +298,22 @@ function computeNextLevel() {
       if (lower.includes('professionnel')) return 'Professionnel';
       if (lower.includes('affaires')) return 'Affaires';
       
+      // Bureautique (TOSA) keywords
+      if (lower.includes('initial')) return 'Initial';
+      if (lower.includes('basique')) return 'Basique';
+      if (lower.includes('opérationnel') || lower.includes('operationnel')) return 'Opérationnel';
+      if (lower.includes('avancé') || lower.includes('avance')) return 'Avancé';
+      if (lower.includes('expert')) return 'Expert';
+
       return null;
   };
 
   let prevIdx = -1;
+  let prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
+  const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+  const prevLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
 
   // Priority 1: match by numeric order (most reliable — stored by startP3)
-  const prevLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
   if (prevLevelOrder > 0) {
     prevIdx = sortedLevels.findIndex(l => (l.order || 0) === prevLevelOrder);
   }
@@ -284,12 +321,10 @@ function computeNextLevel() {
   // Priority 2: match by stop level text across ALL previous propositions
   if (prevIdx === -1) {
     // Search in all previous recommendations to find the highest level reached for THIS formation
-    const prevRecommendationsStr = localStorage.getItem('p3_prev_recommendations') || '';
-    const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
-    const allHistory = (prevRecommendationsStr + ' & ' + prevStopLevel);
+    const allHistory = (prevRecs + ' & ' + prevStopLevel);
     const historyCode = extractLevelCode(allHistory);
-    if (prevRecommendationsStr) {
-      const recs = prevRecommendationsStr.split('&').map(r => r.trim());
+    if (prevRecs) {
+      const recs = prevRecs.split('&').map(r => r.trim());
       const formClean = clean(formation.label);
       
       let highestFoundIdx = -1;
@@ -354,17 +389,36 @@ function computeNextLevel() {
   // LOGIC TO SKIP ALREADY TAKEN LEVELS
   // We look forward to find the first level that is NOT in the previous recommendations
   let nextIdx = prevIdx + 1;
-  const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
   
+  const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
+
   while (nextIdx < sortedLevels.length) {
     const nextLvl = sortedLevels[nextIdx];
     const nClean = clean(nextLvl.label);
     const nCode = extractLevelCode(nextLvl.label);
     
-    // Check if this level label or code is already in the history
-    const alreadyProposed = 
-        prevRecs.toLowerCase().includes(nClean) || 
-        (nCode && prevRecs.toUpperCase().includes(nCode));
+    // Check if this level label or code is already in any of the historical recommendations
+    const alreadyProposed = recs.some(rec => {
+      const rClean = clean(rec);
+      const nClean = clean(nextLvl.label);
+      const rCode = extractLevelCode(rec);
+      
+      // 1. Match by code (A1, B2, etc)
+      if (nCode && rCode === nCode) return true;
+      
+      // 2. Match by whole words (highly reliable for TOSA/Language levels)
+      // e.g. "excel basique" contains "basique"
+      const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 2);
+      const nWords = nClean.split(/[\s\-\']+/).filter(w => w.length > 2);
+      
+      const wordMatch = nWords.some(nw => rWords.includes(nw));
+      if (wordMatch) return true;
+
+      // 3. Match by text (lenient) - strip common suffixes like " - TOEIC" for comparison
+      const rText = rClean.split(/\s*-\s*/)[0].trim();
+      const nText = nClean.split(/\s*-\s*/)[0].trim();
+      return rText.includes(nText) || nText.includes(rText);
+    });
     
     if (!alreadyProposed) break;
     nextIdx++;
@@ -373,11 +427,63 @@ function computeNextLevel() {
   // If we skipped levels, update prevIdx to be the one just before the new nextIdx
   prevIdx = nextIdx - 1;
 
-  const isMaxLevel = prevIdx >= sortedLevels.length - 1;
-  const targetIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
+  const isMaxLevel = nextIdx >= sortedLevels.length;
+  const targetIdx = Math.min(nextIdx, sortedLevels.length - 1);
   const nextLevel = sortedLevels[targetIdx];
+
+  // Try to match the style of previous recommendations (e.g. "Anglais Consolider les bases - TOEIC")
+  let displayLabel = `${formation.label} - ${nextLevel.label}`;
+  
+  // ── RULE-BASED LABELING (Priority) ──
+  // Search for a direction rule (ParcoursRule) that matches this level
+  const cleanL = (s) => (s || '').toLowerCase().replace(/^(si résultat du test\s*=\s*|niveau\s+)/i, '').trim();
+  const targetClean = cleanL(nextLevel.label);
+  
+  const matchedRule = allParcoursRules.value.find(r => {
+    // Match by formation ID or EXACT label
+    const isTargetForm = (r.formationId && Number(r.formationId) === Number(formation.id)) || 
+                         (r.formation && r.formation.trim().toLowerCase() === formation.label.trim().toLowerCase());
+    if (!isTargetForm) return false;
+
+    const condClean = cleanL(r.condition);
+    // Flexible matching: condition includes level label OR level label includes condition
+    return condClean.includes(targetClean) || targetClean.includes(condClean);
+  });
+
+  if (matchedRule) {
+    // If formation1 is already in history, try formation2 as fallback
+    const f1Already = recs.some(rec => {
+        const rClean = clean(rec);
+        const f1Clean = clean(matchedRule.formation1);
+        return rClean.includes(f1Clean) || f1Clean.includes(rClean);
+    });
+
+    if (f1Already && matchedRule.formation2) {
+        displayLabel = matchedRule.formation2;
+    } else {
+        displayLabel = matchedRule.formation1;
+    }
+  } else {
+    // ── FALLBACK DYNAMIC LABELING ──
+    // 1. Look for prefixes like "Anglais" or "TOSA Excel"
+    const escapedForm = formation.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const prefixMatch = prevRecs.match(new RegExp(`(TOSA\\s+)?${escapedForm}`, 'i'));
+    
+    // 2. Look for suffixes like "- TOEIC" or "- VOLTAIRE"
+    const suffixMatch = prevRecs.match(/\s*-\s*(TOEIC|VOLTAIRE|TOSA|ICDL|BUREAUTIQUE)\b/i);
+    const suffix = suffixMatch ? suffixMatch[0] : '';
+    
+    if (prefixMatch) {
+      const hasDashInHistory = prevRecs.includes(' - ');
+      const sep = hasDashInHistory ? ' - ' : ' ';
+      displayLabel = `${prefixMatch[0]}${sep}${nextLevel.label}${suffix}`;
+    } else {
+      displayLabel = `${formation.label} - ${nextLevel.label}${suffix}`;
+    }
+  }
+
   return {
-    label: `${formation.label} - ${nextLevel.label}`,
+    label: displayLabel,
     nextLevelLabel: nextLevel.label,
     nextLevelOrder: nextLevel.order,
     isMaxLevel,
@@ -400,8 +506,9 @@ async function confirmP3SameFormation() {
     if (p3IsUnselectedChoice.value && p3SelectedRemainingChoice.value) {
       finalRec = p3SelectedRemainingChoice.value;
       finalStopLevel = p3SelectedRemainingChoice.value;
-      // For unselected choices (specialties), we usually stay at the same numeric level order
-      finalStopLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
+      // Use the order from the selected choice if available, otherwise fallback to history
+      const choiceObj = p3UnselectedChoicesListWithOrder.value.find(c => c.label === finalRec);
+      finalStopLevelOrder = choiceObj ? choiceObj.order : Number(localStorage.getItem('p3_prev_level_order') || 0);
     }
     
     // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
@@ -956,8 +1063,10 @@ function isSectionActive(section) {
                 </label>
               </div>
               
-              <!-- Simple text mode -->
-              <p v-else class="text-lg font-black text-green-700">{{ p3NextLevelLabel }}</p>
+              <!-- Simple text mode (single choice or standard next level) -->
+              <p v-else class="text-lg font-black text-green-700">
+                {{ p3IsUnselectedChoice ? p3SelectedRemainingChoice : p3NextLevelLabel }}
+              </p>
             </div>
             <p class="text-gray-500 text-sm text-center mb-6">
               Aucun test supplémentaire n'est nécessaire.
