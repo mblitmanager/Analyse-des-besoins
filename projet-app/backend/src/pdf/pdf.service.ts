@@ -382,7 +382,7 @@ export class PdfService {
         const idNum = Number(qId);
         const questionText = qTextById?.[idNum] || `Question ${qId}`;
         const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-        return [`Q${index + 1}: ${questionText}`, display];
+        return [questionText, display];
       });
 
       this.drawTable(doc, rows, darkText, grayText, lightBg);

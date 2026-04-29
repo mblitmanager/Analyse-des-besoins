@@ -251,6 +251,28 @@ function computeNextLevel() {
 
   const sortedLevels = [...formation.levels].sort((a, b) => (a.order || 0) - (b.order || 0));
 
+  const clean = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl)\s+/i, '').trim();
+  
+  // Helper to extract level codes like A1, B2, C1 etc for languages
+  const extractLevelCode = (s) => {
+      const match = (s || '').toUpperCase().match(/\b([A-C][1-2])\b/);
+      if (match) return match[1];
+      
+      // Keyword fallback for descriptive language labels
+      const lower = (s || '').toLowerCase();
+      if (lower.includes('revoir les bases')) return 'A1';
+      if (lower.includes('consolider les bases')) return 'A2';
+      if (lower.includes('autonomie')) return 'B1';
+      if (lower.includes('renforcer')) return 'B2';
+      if (lower.includes('perfectionner')) return 'C1';
+      if (lower.includes('découverte')) return 'Découverte';
+      if (lower.includes('technique')) return 'Technique';
+      if (lower.includes('professionnel')) return 'Professionnel';
+      if (lower.includes('affaires')) return 'Affaires';
+      
+      return null;
+  };
+
   let prevIdx = -1;
 
   // Priority 1: match by numeric order (most reliable — stored by startP3)
@@ -261,10 +283,11 @@ function computeNextLevel() {
 
   // Priority 2: match by stop level text across ALL previous propositions
   if (prevIdx === -1) {
-    const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
-    
     // Search in all previous recommendations to find the highest level reached for THIS formation
     const prevRecommendationsStr = localStorage.getItem('p3_prev_recommendations') || '';
+    const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
+    const allHistory = (prevRecommendationsStr + ' & ' + prevStopLevel);
+    const historyCode = extractLevelCode(allHistory);
     if (prevRecommendationsStr) {
       const recs = prevRecommendationsStr.split('&').map(r => r.trim());
       const formClean = clean(formation.label);
@@ -306,24 +329,53 @@ function computeNextLevel() {
       prevIdx = findInText(prevStopLevel);
       if (prevIdx === -1) {
           // Try each part of the recommendation
-          const parts = prevRecs.split(/\s*&\s*|\s*\|\s*/);
+          const parts = prevRecommendationsStr.split(/\s*&\s*|\s*\|\s*/);
           for (const part of parts) {
               const idx = findInText(part);
               if (idx > prevIdx) prevIdx = idx; // take the highest found
           }
       }
+      
+      // Language specific code matching (A1, B2 etc)
+      if (prevIdx === -1 && historyCode) {
+          prevIdx = sortedLevels.findIndex(l => {
+              const lCode = extractLevelCode(l.label);
+              return lCode && lCode === historyCode;
+          });
+      }
     }
   }
 
   // Safety fallback: assume first level (prevIdx = -1 means we are before the first level)
-  // This avoids blocking the user with "Max Level reached" when matching fails.
   if (prevIdx === -1) {
-    prevIdx = -1; // Keep it -1, next level will be index 0
+    prevIdx = -1; 
   }
 
+  // LOGIC TO SKIP ALREADY TAKEN LEVELS
+  // We look forward to find the first level that is NOT in the previous recommendations
+  let nextIdx = prevIdx + 1;
+  const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
+  
+  while (nextIdx < sortedLevels.length) {
+    const nextLvl = sortedLevels[nextIdx];
+    const nClean = clean(nextLvl.label);
+    const nCode = extractLevelCode(nextLvl.label);
+    
+    // Check if this level label or code is already in the history
+    const alreadyProposed = 
+        prevRecs.toLowerCase().includes(nClean) || 
+        (nCode && prevRecs.toUpperCase().includes(nCode));
+    
+    if (!alreadyProposed) break;
+    nextIdx++;
+  }
+  
+  // If we skipped levels, update prevIdx to be the one just before the new nextIdx
+  prevIdx = nextIdx - 1;
+
   const isMaxLevel = prevIdx >= sortedLevels.length - 1;
-  const nextIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
-  const nextLevel = sortedLevels[nextIdx];
+  const targetIdx = Math.min(prevIdx + 1, sortedLevels.length - 1);
+  const nextLevel = sortedLevels[targetIdx];
   return {
     label: `${formation.label} - ${nextLevel.label}`,
     nextLevelLabel: nextLevel.label,
