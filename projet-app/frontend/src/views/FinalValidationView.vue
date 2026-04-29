@@ -141,8 +141,9 @@ function startP3() {
     localStorage.setItem("p3_prev_stop_level", session.value.stopLevel || session.value.lastValidatedLevel);
   }
   // Store numeric level order for reliable matching in computeNextLevel
-  if (session.value?.stopLevelOrder) {
-    localStorage.setItem("p3_prev_level_order", String(session.value.stopLevelOrder));
+  const stopOrder = session.value?.stopLevelOrder !== undefined ? session.value.stopLevelOrder : 0;
+  if (stopOrder > 0) {
+    localStorage.setItem("p3_prev_level_order", String(stopOrder));
   }
 
   store.setP3Mode(true);

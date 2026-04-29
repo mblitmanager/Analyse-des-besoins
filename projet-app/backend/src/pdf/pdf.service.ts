@@ -24,6 +24,7 @@ export class PdfService {
     complementaryAnswers?: Record<string, any>;
     availabilityAnswers?: Record<string, any>;
     miseANiveauAnswers?: Record<string, any>;
+    positionnementAnswers?: Record<string, Record<string, any>>;
     qTextById?: Record<number, string>;
     parrainNom?: string | null;
     parrainPrenom?: string | null;
@@ -50,7 +51,7 @@ export class PdfService {
       doc.on('error', reject);
 
       const now = new Date();
-      const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} à ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
       const brandBlue = '#0D8ABC';
       const darkText = '#1f2937';
@@ -76,7 +77,6 @@ export class PdfService {
         let badgeStatus = data.parcoursNumber === 1 ? 'INITIAL' : (data.parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
         
         // Handle multi-step P1 & P2 case
-        // We check if the overall recommendation had multiple steps (passed as finalRecommendation or inferred)
         if (data.parcoursNumber === 1 && data.finalRecommendation?.includes(' & ')) {
           badgeText = 'P1 & P2';
           badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
@@ -92,7 +92,6 @@ export class PdfService {
           .text(`${badgeText} - PARCOURS ${badgeStatus}`, { align: 'center' });
         doc.font('Helvetica'); // Reset
       } else if (data.isP3Mode) {
-        // Fallback if parcoursNumber is missing
         doc
           .fontSize(12)
           .fillColor('#4338CA')
@@ -104,7 +103,7 @@ export class PdfService {
       doc
         .fontSize(10)
         .fillColor(grayText)
-        .text(`Date de complétude : ${dateStr}`, { align: 'center' });
+        .text(`Date : ${dateStr}`, { align: 'center' });
       doc.moveDown(1.5);
 
       // ─── Beneficiary Info ───
@@ -237,6 +236,11 @@ export class PdfService {
         lightBg,
       );
 
+      // ─── Annex: Detailed Test Answers ───
+      if (data.positionnementAnswers && Object.keys(data.positionnementAnswers).length > 0) {
+        this.renderPositionnementAnnex(doc, data.positionnementAnswers, data.qTextById, darkText, grayText, lightBg);
+      }
+
       // ─── Footer with Logos ───
       const footerY = doc.page.height - 80;
 
@@ -261,7 +265,7 @@ export class PdfService {
         .fillColor(grayText)
         .text(
           'Document généré automatiquement par NS Conseil - Analyse des besoins',
-          doc.page.width / 2 - 200, // Manual center adjustment if needed, but text() with align: center is better
+          doc.page.width / 2 - 200,
           footerY + 35,
           {
             align: 'center',
@@ -274,22 +278,18 @@ export class PdfService {
   }
 
   private sectionTitle(doc: PDFKit.PDFDocument, title: string) {
-    doc
-      .fontSize(11)
-      .fillColor('#0D8ABC')
-      .font('Helvetica-Bold')
-      .text(title.toUpperCase(), { underline: false, align: 'left' })
-      .font('Helvetica')
-      .moveDown(0.3);
-    // Draw a thin separator line
     const y = doc.y;
+    // Colored band (light grey/blue)
+    doc.rect(50, y, doc.page.width - 100, 20).fill('#E0F2FE'); // Light blue band
     doc
-      .strokeColor('#e5e7eb')
-      .lineWidth(0.5)
-      .moveTo(50, y)
-      .lineTo(doc.page.width - 50, y)
-      .stroke();
-    doc.moveDown(0.3);
+      .fontSize(10)
+      .fillColor('#0369A1') // Darker blue text for contrast
+      .font('Helvetica-Bold')
+      .text(title.toUpperCase(), 60, y + 5, { underline: false, align: 'left' })
+      .font('Helvetica');
+    
+    doc.y = y + 25;
+    doc.moveDown(0.2);
   }
 
   private drawTable(
@@ -304,15 +304,13 @@ export class PdfService {
     const startX = 50;
 
     rows.forEach((row, rowIndex) => {
-      // Check if we need a new page
-      if (doc.y > doc.page.height - 80) {
+      if (doc.y > doc.page.height - 100) {
         doc.addPage();
       }
 
       const y = doc.y;
       const isHeader = hasHeader && rowIndex === 0;
 
-      // Row background
       if (isHeader) {
         doc.rect(startX, y - 2, doc.page.width - 100, 20).fill(lightBg);
       }
@@ -325,25 +323,17 @@ export class PdfService {
         doc
           .fontSize(isHeader ? 9 : 10)
           .fillColor(isHeader ? grayText : colIndex === 0 ? darkText : grayText)
-          .font(isHeader || colIndex === 0 ? 'Helvetica-Bold' : 'Helvetica')
+          // Reduced bold for questions (colIndex 0) - using Helvetica instead of Bold as requested
+          .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
           .text(cell || '', startX + colIndex * colWidth, y, {
             width: colWidth - 10,
             lineBreak: true,
           });
       });
 
-      // Move to after the tallest cell + more padding for readability
-      doc.y = y + maxHeight + 25;
+      doc.y = y + maxHeight + 10; // Tightened vertical spacing
 
-      // Row separator
-      if (rowIndex < rows.length - 1) {
-        doc
-          .strokeColor('#e5e7eb')
-          .lineWidth(0.5)
-          .moveTo(startX, doc.y)
-          .lineTo(doc.page.width - 50, doc.y)
-          .stroke();
-      }
+      // Removed row separator line as requested
     });
 
     doc.moveDown(0.5);
@@ -371,5 +361,32 @@ export class PdfService {
     });
 
     this.drawTable(doc, rows, darkText, grayText, lightBg);
+  }
+
+  private renderPositionnementAnnex(
+    doc: PDFKit.PDFDocument,
+    positionnementAnswers: Record<string, Record<string, any>>,
+    qTextById: Record<number, string> | undefined,
+    darkText: string,
+    grayText: string,
+    lightBg: string,
+  ) {
+    doc.addPage();
+    doc.moveDown(1);
+    this.sectionTitle(doc, 'ANNEXE : DÉTAIL DES RÉPONSES DU TEST');
+    
+    Object.entries(positionnementAnswers).forEach(([level, levelAnswers]) => {
+      doc.fontSize(10).fillColor('#0D8ABC').font('Helvetica-Bold').text(level, { align: 'left' }).moveDown(0.5).font('Helvetica');
+      
+      const rows = Object.entries(levelAnswers).map(([qId, val], index) => {
+        const idNum = Number(qId);
+        const questionText = qTextById?.[idNum] || `Question ${qId}`;
+        const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
+        return [`Q${index + 1}: ${questionText}`, display];
+      });
+
+      this.drawTable(doc, rows, darkText, grayText, lightBg);
+      doc.moveDown(1);
+    });
   }
 }

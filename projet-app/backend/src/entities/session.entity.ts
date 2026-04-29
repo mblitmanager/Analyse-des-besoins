@@ -58,6 +58,9 @@ export class Session {
   @Column({ nullable: true })
   stopLevel: string;
 
+  @Column({ type: 'int', nullable: true })
+  stopLevelOrder: number;
+
   @Column({ nullable: true })
   finalRecommendation: string;
 
