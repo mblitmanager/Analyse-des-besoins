@@ -170,6 +170,7 @@ export class SessionsService {
     isQuestionRuleOverride?: boolean;
     ruleResultType?: string | null;
     levels: Level[];
+    stopLevelOrder?: number;
   }> {
     // 0. Fetch all question texts and details for filtering and labeling
     // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
@@ -246,7 +247,8 @@ export class SessionsService {
           : 'Mise à niveau (réponses)',
         isQuestionRuleOverride: false,
         ruleResultType: null,
-        levels: [] as Level[], // Legacy/Fallback case usually questions aren't linked to levels here
+        levels: [] as Level[],
+        stopLevelOrder: session.stopLevelOrder,
       };
     }
 
@@ -573,7 +575,30 @@ export class SessionsService {
             ? Math.round((totalCorrect / totalAnswered) * 100)
             : 0;
 
-        const finalLevel = levels[levels.length - 1] || null;
+        // Determine the final level order based on the proposed parcours
+        let highestOrder = 0;
+        let finalLevel = null;
+        
+        if (levels.length > 0) {
+            const clean = (s: string) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl)\s+/i, '').trim();
+            proposedParcours.forEach(rec => {
+                const recClean = clean(rec);
+                levels.forEach(l => {
+                    const lClean = clean(l.label);
+                    if (recClean.includes(lClean) || lClean.includes(recClean)) {
+                        if ((l.order || 0) > highestOrder) {
+                            highestOrder = l.order || 0;
+                            finalLevel = l;
+                        }
+                    }
+                });
+            });
+        }
+
+        if (!finalLevel && levels.length > 0) {
+            finalLevel = levels[levels.length - 1];
+            highestOrder = finalLevel.order || 0;
+        }
 
         return {
           recommendation: finalRecommendationValue,
@@ -588,6 +613,7 @@ export class SessionsService {
           miseTitle: 'Mise à niveau (réponses)',
           certification: matchedRule.certification,
           levels,
+          stopLevelOrder: session.stopLevelOrder || (finalLevel ? finalLevel.order : 0),
         };
       }
     }
@@ -1010,14 +1036,17 @@ export class SessionsService {
         complementaryAnswers: finalComplementary as Record<string, any>,
         availabilityAnswers: filteredAvailabilities as Record<string, any>,
         miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
+        positionnementAnswers: session.positionnementAnswers as Record<string, any>,
         qTextById,
         parrainNom: session.parrainNom,
         parrainPrenom: session.parrainPrenom,
         parrainEmail: session.parrainEmail,
         parrainTelephone: session.parrainTelephone,
+        parrainTelephone: session.parrainTelephone,
         highLevelContinue: session.highLevelContinue,
         isP3Mode: session.isP3Mode,
         parcoursNumber,
+        stopLevelOrder: session.stopLevelOrder,
       });
 
       const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -1132,6 +1161,7 @@ export class SessionsService {
         : levels.length > 0
           ? levels[0].label
           : 'Initial',
+      stopLevelOrder: finalLevel ? finalLevel.order : (levels.length > 0 ? levels[0].order : 0),
       scorePretest,
       emailSentAt: new Date(),
       isCompleted: true,
@@ -1202,6 +1232,7 @@ export class SessionsService {
       complementaryAnswers: filteredComplementaryAnswers,
       availabilityAnswers: filteredAvailabilities,
       miseANiveauAnswers: filteredMiseAnswers,
+      positionnementAnswers: session.positionnementAnswers as Record<string, any>,
       qTextById,
       parrainNom: session.parrainNom,
       parrainPrenom: session.parrainPrenom,
@@ -1264,6 +1295,7 @@ export class SessionsService {
     return this.update(session.id, {
       finalRecommendation: recommendation,
       stopLevel: session.stopLevel || 'P3 Auto',
+      stopLevelOrder: session.stopLevelOrder,
       scorePretest: -1,
       emailSentAt: new Date(),
       isCompleted: true,

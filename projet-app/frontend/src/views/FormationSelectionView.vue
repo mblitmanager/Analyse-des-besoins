@@ -291,19 +291,34 @@ function computeNextLevel() {
     // Fallback to stop level if not found in recommendations array
     if (prevIdx === -1) {
       const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
-      if (prevStopLevel) {
-        const prevClean = clean(prevStopLevel);
-        prevIdx = sortedLevels.findIndex(l => {
-          const lvlClean = clean(l.label);
-          return prevClean === lvlClean || prevClean.includes(lvlClean) || lvlClean.includes(prevClean);
+      const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
+      
+      const findInText = (text) => {
+        if (!text) return -1;
+        const tClean = clean(text);
+        return sortedLevels.findIndex(l => {
+          const lClean = clean(l.label);
+          // Check if level label is in text or vice versa
+          return tClean === lClean || tClean.includes(lClean) || lClean.includes(tClean);
         });
+      };
+
+      prevIdx = findInText(prevStopLevel);
+      if (prevIdx === -1) {
+          // Try each part of the recommendation
+          const parts = prevRecs.split(/\s*&\s*|\s*\|\s*/);
+          for (const part of parts) {
+              const idx = findInText(part);
+              if (idx > prevIdx) prevIdx = idx; // take the highest found
+          }
       }
     }
   }
 
-  // Safety fallback: assume max level reached (avoids proposing wrong level)
+  // Safety fallback: assume first level (prevIdx = -1 means we are before the first level)
+  // This avoids blocking the user with "Max Level reached" when matching fails.
   if (prevIdx === -1) {
-    prevIdx = sortedLevels.length - 1;
+    prevIdx = -1; // Keep it -1, next level will be index 0
   }
 
   const isMaxLevel = prevIdx >= sortedLevels.length - 1;
@@ -312,6 +327,7 @@ function computeNextLevel() {
   return {
     label: `${formation.label} - ${nextLevel.label}`,
     nextLevelLabel: nextLevel.label,
+    nextLevelOrder: nextLevel.order,
     isMaxLevel,
     isSingleLevel: false,
     isUnselectedChoice: false
@@ -323,14 +339,17 @@ async function confirmP3SameFormation() {
   submitting.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const { label: recommendation, nextLevelLabel } = computeNextLevel();
+    const { label: recommendation, nextLevelLabel, nextLevelOrder } = computeNextLevel();
     
     let finalRec = recommendation;
     let finalStopLevel = nextLevelLabel;
+    let finalStopLevelOrder = nextLevelOrder;
     
     if (p3IsUnselectedChoice.value && p3SelectedRemainingChoice.value) {
       finalRec = p3SelectedRemainingChoice.value;
       finalStopLevel = p3SelectedRemainingChoice.value;
+      // For unselected choices (specialties), we usually stay at the same numeric level order
+      finalStopLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
     }
     
     // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
@@ -340,6 +359,7 @@ async function confirmP3SameFormation() {
       p3SkipQuiz: true,
       finalRecommendation: finalRec,
       stopLevel: finalStopLevel,
+      stopLevelOrder: finalStopLevelOrder,
     });
     // Submit (finalize) the session - backend will use pre-set values
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
