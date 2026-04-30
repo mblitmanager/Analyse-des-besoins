@@ -969,7 +969,7 @@ function isSectionActive(section) {
           <template v-else-if="!p3IsMaxLevel">
             <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
               <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
-                {{ p3IsUnselectedChoice ? 'Option restante attribuée' : 'Parcours P3 attribué automatiquement' }}
+                {{ p3IsUnselectedChoice ? 'Option restante attribuée' : 'Parcours attribué automatiquement' }}
               </p>
               
               <!-- Selection mode if multiple unselected choices -->
@@ -1017,7 +1017,7 @@ function isSectionActive(section) {
             </button>
             <button v-if="!p3IsMaxLevel && !p3IsSingleLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
-              Confirmer le P3
+              Confirmer
             </button>
           </div>
         </div>
