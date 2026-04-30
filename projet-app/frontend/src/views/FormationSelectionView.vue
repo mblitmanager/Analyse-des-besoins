@@ -241,45 +241,6 @@ function computeNextLevel() {
     return { label: 'Niveau suivant', nextLevelLabel: 'Niveau suivant', isMaxLevel: true, isSingleLevel: true, isUnselectedChoice: false };
   }
 
-  // CHECK FOR UNSELECTED CHOICES IF SAME FORMATION
-  const prevFormationStr = localStorage.getItem('p3_prev_formation') || '';
-  if (prevFormationStr && formation.label === prevFormationStr) {
-    try {
-      const unselectedStr = localStorage.getItem('p3_unselected_choices');
-      if (unselectedStr) {
-        const unselected = JSON.parse(unselectedStr);
-        if (unselected && unselected.length > 0) {
-          // FILTER: Remove choices that are already in the P1/P2 history
-          const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
-          const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
-          const cleanU = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
-          
-          const filtered = unselected.filter(u => {
-              const uClean = cleanU(u);
-              return !recs.some(r => {
-                  const rClean = cleanU(r);
-                  const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                  const vWords = uClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                  return vWords.some(vw => rWords.includes(vw));
-              });
-          });
-
-          if (filtered.length > 0) {
-            const joinedLabel = filtered.join(' OU ');
-            return {
-              label: joinedLabel,
-              nextLevelLabel: joinedLabel,
-              isMaxLevel: false,
-              isSingleLevel: false,
-              isUnselectedChoice: true,
-              unselectedChoices: filtered
-            };
-          }
-        }
-      }
-    } catch(e) {}
-  }
-
   // Formation has no levels configured: treat as single-level (no progression possible)
   if (!formation.levels || formation.levels.length === 0) {
     return { label: formation.label, nextLevelLabel: formation.label, isMaxLevel: true, isSingleLevel: true, isUnselectedChoice: false };
@@ -340,7 +301,6 @@ function computeNextLevel() {
 
   // Priority 2: match by stop level text across ALL previous propositions
   if (prevIdx === -1) {
-    // Search in all previous recommendations to find the highest level reached for THIS formation
     const allHistory = (prevRecs + ' & ' + prevStopLevel);
     const historyCode = extractLevelCode(allHistory);
     if (prevRecs) {
@@ -350,7 +310,6 @@ function computeNextLevel() {
       let highestFoundIdx = -1;
       for (const rec of recs) {
         const recClean = clean(rec);
-        // Ensure this recommendation is related to the selected formation
         if (recClean.includes(formClean) || formClean.includes(recClean.replace(/tosa|icdl/gi, '').trim())) {
           const foundIdx = sortedLevels.findIndex(l => {
             const lvlClean = clean(l.label);
@@ -368,30 +327,27 @@ function computeNextLevel() {
 
     // Fallback to stop level if not found in recommendations array
     if (prevIdx === -1) {
-      const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
-      const prevRecs = localStorage.getItem('p3_prev_recommendations') || '';
+      const prevStopLevel2 = localStorage.getItem('p3_prev_stop_level') || '';
+      const prevRecs2 = localStorage.getItem('p3_prev_recommendations') || '';
       
       const findInText = (text) => {
         if (!text) return -1;
         const tClean = clean(text);
         return sortedLevels.findIndex(l => {
           const lClean = clean(l.label);
-          // Check if level label is in text or vice versa
           return tClean === lClean || tClean.includes(lClean) || lClean.includes(tClean);
         });
       };
 
-      prevIdx = findInText(prevStopLevel);
+      prevIdx = findInText(prevStopLevel2);
       if (prevIdx === -1) {
-          // Try each part of the recommendation
-          const parts = prevRecs.split(/\s*&\s*|\s*\|\s*/);
+          const parts = prevRecs2.split(/\s*&\s*|\s*\|\s*/);
           for (const part of parts) {
               const idx = findInText(part);
-              if (idx > prevIdx) prevIdx = idx; // take the highest found
+              if (idx > prevIdx) prevIdx = idx;
           }
       }
       
-      // Language specific code matching (A1, B2 etc)
       if (prevIdx === -1 && historyCode) {
           prevIdx = sortedLevels.findIndex(l => {
               const lCode = extractLevelCode(l.label);
@@ -401,63 +357,20 @@ function computeNextLevel() {
     }
   }
 
-  // Safety fallback: assume first level (prevIdx = -1 means we are before the first level)
-  if (prevIdx === -1) {
-    prevIdx = -1; 
-  }
-
-  // LOGIC TO SKIP ALREADY TAKEN LEVELS
-  // We look forward to find the first level that is NOT in the previous recommendations
-  let nextIdx = prevIdx + 1;
-  
-  const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
-
-  while (nextIdx < sortedLevels.length) {
-    const nextLvl = sortedLevels[nextIdx];
-    const nClean = clean(nextLvl.label);
-    const nCode = extractLevelCode(nextLvl.label);
-    
-    // Check if this level label or code is already in any of the historical recommendations
-    const alreadyProposed = recs.some(rec => {
-      const rClean = clean(rec);
-      const nClean = clean(nextLvl.label);
-      const rCode = extractLevelCode(rec);
-      
-      // 1. Match by code (A1, B2, etc)
-      if (nCode && rCode === nCode) return true;
-      
-      // 2. Match by whole words (highly reliable for TOSA/Language levels)
-      // e.g. "excel basique" contains "basique"
-      const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 2);
-      const nWords = nClean.split(/[\s\-\']+/).filter(w => w.length > 2);
-      
-      const wordMatch = nWords.some(nw => rWords.includes(nw));
-      if (wordMatch) return true;
-
-      // 3. Match by text (lenient) - strip common suffixes like " - TOEIC" for comparison
-      const rText = rClean.split(/\s*-\s*/)[0].trim();
-      const nText = nClean.split(/\s*-\s*/)[0].trim();
-      return rText.includes(nText) || nText.includes(rText);
-    });
-    
-    if (!alreadyProposed) break;
-    nextIdx++;
-  }
-  
-  // If we skipped levels, update prevIdx to be the one just before the new nextIdx
-  prevIdx = nextIdx - 1;
+  // The next level is simply prevIdx + 1 (no skipping needed — prevLevelOrder already
+  // points to the HIGHEST level from the previous parcours)
+  const nextIdx = prevIdx + 1;
 
   const isMaxLevel = nextIdx >= sortedLevels.length;
   const targetIdx = Math.min(nextIdx, sortedLevels.length - 1);
   const nextLevel = sortedLevels[targetIdx];
 
-  // Try to match the style of previous recommendations (e.g. "Anglais Consolider les bases - TOEIC")
-  let displayLabel = `${formation.label} - ${nextLevel.label}`;
+  // ── RULE-BASED LABELING ──
+  // Find the parcours rule whose formation1 or formation2 contains the target level
+  const cleanR = (s) => (s || '').toLowerCase().trim();
+  const nextLevelClean = cleanR(nextLevel.label);
   
-  // ── RULE-BASED LABELING (Priority) ──
-  // Search for a direction rule (ParcoursRule) that matches this level
-  const cleanL = (s) => (s || '').toLowerCase().replace(/^(si résultat du test\s*=\s*|niveau\s+)/i, '').trim();
-  const targetClean = cleanL(nextLevel.label);
+  let displayLabel = `${formation.label} - ${nextLevel.label}`;
   
   const matchedRule = allParcoursRules.value.find(r => {
     // Match by formation ID or EXACT label
@@ -465,31 +378,26 @@ function computeNextLevel() {
                          (r.formation && r.formation.trim().toLowerCase() === formation.label.trim().toLowerCase());
     if (!isTargetForm) return false;
 
-    const condClean = cleanL(r.condition);
-    // Flexible matching: condition includes level label OR level label includes condition
-    return condClean.includes(targetClean) || targetClean.includes(condClean);
+    // Check if the target level appears in formation1 or formation2 OUTPUT labels
+    const f1Clean = cleanR(r.formation1);
+    const f2Clean = cleanR(r.formation2);
+    return f1Clean.includes(nextLevelClean) || f2Clean.includes(nextLevelClean);
   });
 
   if (matchedRule) {
-    // If formation1 is already in history, try formation2 as fallback
-    const f1Already = recs.some(rec => {
-        const rClean = clean(rec);
-        const f1Clean = clean(matchedRule.formation1);
-        return rClean.includes(f1Clean) || f1Clean.includes(rClean);
-    });
-
-    if (f1Already && matchedRule.formation2) {
-        displayLabel = matchedRule.formation2;
-    } else {
-        displayLabel = matchedRule.formation1;
+    // Pick the output label that matches the target level
+    const f1Clean = cleanR(matchedRule.formation1);
+    const f2Clean = cleanR(matchedRule.formation2);
+    if (f1Clean.includes(nextLevelClean)) {
+      displayLabel = matchedRule.formation1;
+    } else if (f2Clean.includes(nextLevelClean)) {
+      displayLabel = matchedRule.formation2;
     }
   } else {
     // ── FALLBACK DYNAMIC LABELING ──
-    // 1. Look for prefixes like "Anglais" or "TOSA Excel"
     const escapedForm = formation.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const prefixMatch = prevRecs.match(new RegExp(`(TOSA\\s+)?${escapedForm}`, 'i'));
     
-    // 2. Look for suffixes like "- TOEIC" or "- VOLTAIRE"
     const suffixMatch = prevRecs.match(/\s*-\s*(TOEIC|VOLTAIRE|TOSA|ICDL|BUREAUTIQUE)\b/i);
     const suffix = suffixMatch ? suffixMatch[0] : '';
     
