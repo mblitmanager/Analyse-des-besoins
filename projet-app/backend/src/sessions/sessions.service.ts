@@ -129,7 +129,9 @@ export class SessionsService {
 
   async update(id: string, data: Partial<Session>) {
     // If formation is changed, reset progress to avoid mixing results from different formations
-    if (data.formationChoisie) {
+    // BUT skip reset when p3SkipQuiz is set — the P3 shortcut intentionally sends
+    // formationChoisie + finalRecommendation + stopLevel together
+    if (data.formationChoisie && !(data as any).p3SkipQuiz) {
       const resetData = data as any;
       resetData.levelsScores = {};
       resetData.stopLevel = null;
@@ -388,7 +390,10 @@ export class SessionsService {
     }
     if (formationChoice) {
       // Legacy fallback if formationId is not yet populated
-      activeRulesWhere.push({ formation: ILike(formationChoice), isActive: true });
+      activeRulesWhere.push({
+        formation: ILike(formationChoice),
+        isActive: true,
+      });
     }
     const activeRules = activeRulesWhere.length
       ? await this.parcoursRuleRepo.find({
@@ -488,10 +493,12 @@ export class SessionsService {
           let targetIdx = levels.findIndex(
             (l) => cleanLabel(l.label) === targetStr,
           );
-          
+
           if (targetIdx === -1 && targetStr.length > 0) {
-              // Try substring match as fallback
-              targetIdx = levels.findIndex(l => cleanLabel(l.label).includes(targetStr));
+            // Try substring match as fallback
+            targetIdx = levels.findIndex((l) =>
+              cleanLabel(l.label).includes(targetStr),
+            );
           }
 
           // If the target level doesn't exist in the formation, rule cannot be evaluated
@@ -502,7 +509,7 @@ export class SessionsService {
           // Example: [Débutant, Initial, Basique]. If they fail Débutant, stopIdx = 0.
 
           const stopScore = session.levelsScores?.[stopLevelLabel]?.score || 0;
-          const userLevel = (stopIdx === 0 && stopScore === 0) ? -1 : stopIdx;
+          const userLevel = stopIdx === 0 && stopScore === 0 ? -1 : stopIdx;
 
           switch (operator) {
             case '=':
@@ -554,7 +561,6 @@ export class SessionsService {
         const f2 = matchedRule.formation2 || '';
         let proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
         let finalRecommendationValue = proposedParcours.join(' & ');
-
         // P3 mode: present multiple options as a CHOICE (OU) instead of sequential (&)
         // e.g. "ICDL - Google Docs OU ICDL - Google Sheets" = pick ONE
         if (session.isP3Mode && proposedParcours.length > 1) {
@@ -582,26 +588,30 @@ export class SessionsService {
         // Determine the final level order based on the proposed parcours
         let highestOrder = 0;
         let finalLevel: any = null;
-        
+
         if (levels.length > 0) {
-            const clean = (s: string) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl)\s+/i, '').trim();
-            proposedParcours.forEach(rec => {
-                const recClean = clean(rec);
-                levels.forEach(l => {
-                    const lClean = clean(l.label);
-                    if (recClean.includes(lClean) || lClean.includes(recClean)) {
-                        if ((l.order || 0) > highestOrder) {
-                            highestOrder = l.order || 0;
-                            finalLevel = l;
-                        }
-                    }
-                });
+          const clean = (s: string) =>
+            (s || '')
+              .toLowerCase()
+              .replace(/^(niveau|tosa|icdl)\s+/i, '')
+              .trim();
+          proposedParcours.forEach((rec) => {
+            const recClean = clean(rec);
+            levels.forEach((l) => {
+              const lClean = clean(l.label);
+              if (recClean.includes(lClean) || lClean.includes(recClean)) {
+                if ((l.order || 0) > highestOrder) {
+                  highestOrder = l.order || 0;
+                  finalLevel = l;
+                }
+              }
             });
+          });
         }
 
         if (!finalLevel && levels.length > 0) {
-            finalLevel = levels[levels.length - 1];
-            highestOrder = finalLevel.order || 0;
+          finalLevel = levels[levels.length - 1];
+          highestOrder = finalLevel.order || 0;
         }
 
         return {
@@ -617,7 +627,9 @@ export class SessionsService {
           miseTitle: 'Mise à niveau (réponses)',
           certification: matchedRule.certification,
           levels,
-          stopLevelOrder: session.stopLevelOrder || (finalLevel ? (finalLevel as any).order : 0),
+          stopLevelOrder:
+            session.stopLevelOrder ||
+            (finalLevel ? (finalLevel as any).order : 0),
         };
       }
     }
@@ -650,12 +662,12 @@ export class SessionsService {
     // If no active rule was found in DB and it reached here,
     // Assign default based on their chosen formation name or empty generic response.
     // Ensure finalLevel doesn't break if no levels defined.
-    
+
     // Calculate global score fallback
     const scores =
       (session.levelsScores as Record<string, number | { score?: number }>) ||
       {};
-    
+
     let finalLevel = levels.length > 0 ? levels[0] : null;
 
     if (levels.length > 0) {
@@ -685,7 +697,8 @@ export class SessionsService {
 
     // Build the fallback parcours
     let currentLevel = levels.length > 0 ? levels[0] : null;
-    const targetLevelLabel = session.stopLevel || session.lastValidatedLevel || '';
+    const targetLevelLabel =
+      session.stopLevel || session.lastValidatedLevel || '';
     if (targetLevelLabel) {
       const currentIdx = Math.max(
         0,
@@ -698,23 +711,25 @@ export class SessionsService {
 
     if (currentLevel) {
       proposedParcours = [`${baseFormation} ${currentLevel.label}`.trim()];
-      
+
       // If we are NOT in P3 mode, we might propose current + next (2-step).
-      // But actually, the normal mode might already have matched a ParcoursRule. 
+      // But actually, the normal mode might already have matched a ParcoursRule.
       // If no ParcoursRule matched, let's keep the existing behaviour for normal mode (if there was one).
       // Wait, let's just make it 1-step fallback if P3 mode, otherwise keep whatever it does normally.
       if (!session.isP3Mode && levels.length > 0) {
-          const currentIdx = levels.findIndex((l) => l.label === currentLevel.label);
-          const nextLevel = levels[currentIdx + 1];
-          if (nextLevel && session.formationChoisie) {
-            // Note: The previous logic was explicitly adding a 2-step for P3!
-            // But the user requested only 1 for P3. 
-            // In normal mode (P1/P2), it's standard to propose 2.
-            proposedParcours = [
-              `${baseFormation} ${currentLevel.label}`.trim(),
-              `${baseFormation} ${nextLevel.label}`.trim(),
-            ];
-          }
+        const currentIdx = levels.findIndex(
+          (l) => l.label === currentLevel.label,
+        );
+        const nextLevel = levels[currentIdx + 1];
+        if (nextLevel && session.formationChoisie) {
+          // Note: The previous logic was explicitly adding a 2-step for P3!
+          // But the user requested only 1 for P3.
+          // In normal mode (P1/P2), it's standard to propose 2.
+          proposedParcours = [
+            `${baseFormation} ${currentLevel.label}`.trim(),
+            `${baseFormation} ${nextLevel.label}`.trim(),
+          ];
+        }
       }
     }
 
@@ -734,29 +749,43 @@ export class SessionsService {
           const allUserSessions = await this.sessionRepo.find({
             where: { stagiaire: { id: session.stagiaire.id } },
             order: { createdAt: 'DESC' },
-            take: 5
+            take: 5,
           });
-          
+
           // The current session is at index 0, P2 was at index 1
           const prevSession = allUserSessions[1];
-          if (prevSession && prevSession.formationChoisie === session.formationChoisie) {
+          if (
+            prevSession &&
+            prevSession.formationChoisie === session.formationChoisie
+          ) {
             // Check if recommendation is identical (normalized)
             const norm = (s: string) => (s || '').toLowerCase().trim();
-            if (norm(finalRecommendationValue) === norm(prevSession.finalRecommendation)) {
+            if (
+              norm(finalRecommendationValue) ===
+              norm(prevSession.finalRecommendation)
+            ) {
               // Try to find next level
-              const currentLvlLabel = levels.find(l => norm(finalRecommendationValue).includes(norm(l.label)))?.label;
+              const currentLvlLabel = levels.find((l) =>
+                norm(finalRecommendationValue).includes(norm(l.label)),
+              )?.label;
               if (currentLvlLabel) {
-                const currentIdx = levels.findIndex(l => l.label === currentLvlLabel);
+                const currentIdx = levels.findIndex(
+                  (l) => l.label === currentLvlLabel,
+                );
                 if (currentIdx !== -1 && currentIdx < levels.length - 1) {
                   const nextLvl = levels[currentIdx + 1];
-                  finalRecommendationValue = `${session.formationChoisie} ${nextLvl.label}`.trim();
+                  finalRecommendationValue =
+                    `${session.formationChoisie} ${nextLvl.label}`.trim();
                   proposedParcours = [finalRecommendationValue];
                 }
               }
             }
           }
         } catch (e) {
-          console.warn('[P3] Failed to check previous session for recommendation overlap:', e.message);
+          console.warn(
+            '[P3] Failed to check previous session for recommendation overlap:',
+            e.message,
+          );
         }
       }
     }
@@ -774,9 +803,7 @@ export class SessionsService {
       0 as number,
     );
     const scoreFinal =
-      totalAnswered > 0
-        ? Math.round((totalCorrect / totalAnswered) * 100)
-        : 0;
+      totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
 
     const allAnswers = {
       ...(session.prerequisiteScore || {}),
@@ -981,10 +1008,11 @@ export class SessionsService {
       const contactRepo = this.sessionRepo.manager.getRepository(Contact);
       const contacts = await contactRepo.find();
       const conseillerLower = session.conseiller.toLowerCase().trim();
-      const match = contacts.find(c => 
-        `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) || 
-        `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
-        conseillerLower.includes(c.nom.toLowerCase())
+      const match = contacts.find(
+        (c) =>
+          `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
+          `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+          conseillerLower.includes(c.nom.toLowerCase()),
       );
       if (match && match.email) {
         commercialEmail = match.email;
@@ -1012,7 +1040,7 @@ export class SessionsService {
     const recommendationsList = recommendation
       .replace(/\|/g, '&')
       .split('&')
-      .map(r => r.trim())
+      .map((r) => r.trim())
       .filter(Boolean);
 
     if (recommendationsList.length === 0) {
@@ -1040,7 +1068,10 @@ export class SessionsService {
         complementaryAnswers: finalComplementary as Record<string, any>,
         availabilityAnswers: filteredAvailabilities as Record<string, any>,
         miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
-        positionnementAnswers: session.positionnementAnswers as Record<string, any>,
+        positionnementAnswers: session.positionnementAnswers as Record<
+          string,
+          any
+        >,
         qTextById,
         parrainNom: session.parrainNom,
         parrainPrenom: session.parrainPrenom,
@@ -1053,7 +1084,8 @@ export class SessionsService {
       });
 
       const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const pdfFilename = `Analyse_${session.prenom || ''}_${session.nom || ''}_${safeRec}_${filenameTimestamp}.pdf`.trim();
+      const pdfFilename =
+        `Analyse_${session.prenom || ''}_${session.nom || ''}_${safeRec}_${filenameTimestamp}.pdf`.trim();
 
       emailAttachments.push({ filename: pdfFilename, content: pdfBuffer });
     }
@@ -1089,8 +1121,13 @@ export class SessionsService {
 
     // Determine dynamic labeling based on sequence and steps
     let badgeText = `P${parcoursNumber}`;
-    let badgeStatus = parcoursNumber === 1 ? 'INITIAL' : (parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
-    
+    let badgeStatus =
+      parcoursNumber === 1
+        ? 'INITIAL'
+        : parcoursNumber === 3
+          ? '3ÈME PARCOURS'
+          : 'COMPLÉMENTAIRE';
+
     // Explicit overrides for clear labeling
     if (recommendationsList.length > 1) {
       // If we have multiple recommendations (standard P1 & P2 outcome), force this label
@@ -1170,7 +1207,11 @@ export class SessionsService {
         : levels.length > 0
           ? levels[0].label
           : 'Initial',
-      stopLevelOrder: finalLevel ? finalLevel.order : (levels.length > 0 ? levels[0].order : 0),
+      stopLevelOrder: finalLevel
+        ? finalLevel.order
+        : levels.length > 0
+          ? levels[0].order
+          : 0,
       scorePretest,
       emailSentAt: new Date(),
       isCompleted: true,
@@ -1183,7 +1224,8 @@ export class SessionsService {
    * Generates PDF and sends email like normal submit.
    */
   private async submitP3SkipQuiz(session: Session) {
-    const recommendation = session.finalRecommendation || session.formationChoisie || 'Parcours P3';
+    const recommendation =
+      session.finalRecommendation || session.formationChoisie || 'Parcours P3';
 
     // Retrieve all processed maps/filters just like a normal submit
     const {
@@ -1204,10 +1246,11 @@ export class SessionsService {
       const contactRepo = this.sessionRepo.manager.getRepository(Contact);
       const contacts = await contactRepo.find();
       const conseillerLower = session.conseiller.toLowerCase().trim();
-      const match = contacts.find(c =>
-        `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
-        `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
-        conseillerLower.includes(c.nom.toLowerCase())
+      const match = contacts.find(
+        (c) =>
+          `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
+          `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+          conseillerLower.includes(c.nom.toLowerCase()),
       );
       if (match && match.email) {
         commercialEmail = match.email;
@@ -1219,10 +1262,17 @@ export class SessionsService {
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
-    const filenameTimestamp = now.toISOString().replace(/T/, '_').replace(/:/g, '-').slice(0, 16);
+    const filenameTimestamp = now
+      .toISOString()
+      .replace(/T/, '_')
+      .replace(/:/g, '-')
+      .slice(0, 16);
 
     // Generate a single PDF for the P3 recommendation
     const pdfBuffer = await this.pdfService.generateSessionPdf({
@@ -1241,7 +1291,10 @@ export class SessionsService {
       complementaryAnswers: filteredComplementaryAnswers,
       availabilityAnswers: filteredAvailabilities,
       miseANiveauAnswers: filteredMiseAnswers,
-      positionnementAnswers: session.positionnementAnswers as Record<string, any>,
+      positionnementAnswers: session.positionnementAnswers as Record<
+        string,
+        any
+      >,
       qTextById,
       parrainNom: session.parrainNom,
       parrainPrenom: session.parrainPrenom,
@@ -1261,16 +1314,31 @@ export class SessionsService {
 
     const publicPath = path.join(process.cwd(), 'public');
     const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
-    const logoLikePath = path.join(publicPath, 'logo', 'Logo_Like_Formation.png');
+    const logoLikePath = path.join(
+      publicPath,
+      'logo',
+      'Logo_Like_Formation.png',
+    );
 
     if (fs.existsSync(logoAopiaPath)) {
-      emailAttachments.push({ filename: 'logo-aopia.png', path: logoAopiaPath, cid: 'logo_aopia' });
+      emailAttachments.push({
+        filename: 'logo-aopia.png',
+        path: logoAopiaPath,
+        cid: 'logo_aopia',
+      });
     }
     if (fs.existsSync(logoLikePath)) {
-      emailAttachments.push({ filename: 'logo-like.png', path: logoLikePath, cid: 'logo_like' });
+      emailAttachments.push({
+        filename: 'logo-like.png',
+        path: logoLikePath,
+        cid: 'logo_like',
+      });
     }
 
-    const autoSendEmail = await this.settingsService.getValue('AUTO_SEND_EMAIL', 'true');
+    const autoSendEmail = await this.settingsService.getValue(
+      'AUTO_SEND_EMAIL',
+      'true',
+    );
     if (autoSendEmail !== 'false') {
       await this.emailService.sendReport(
         emailTo,
@@ -1291,9 +1359,6 @@ export class SessionsService {
               ${recommendation}
             </div>
           </div>
-          <p style="background: #f0fdf4; border-left: 4px solid #22C55E; padding: 10px; font-weight: bold; color: #166534;">
-            Même formation que le parcours précédent → Suite logique du parcours attribuée (Niveau supérieur ou Option restante)
-          </p>
           <div style="margin-top: 20px; text-align: right;">
             <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
             <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
