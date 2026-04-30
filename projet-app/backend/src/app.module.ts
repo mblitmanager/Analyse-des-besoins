@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { SeedService } from './seed.service';
+// import { SeedService } from './seed.service';
 import { Formation } from './entities/formation.entity';
 import { Level } from './entities/level.entity';
 import { Question } from './entities/question.entity';
@@ -117,6 +117,6 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
     P3FilterRulesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeedService, EmailService],
+  providers: [AppService, EmailService],
 })
 export class AppModule {}
