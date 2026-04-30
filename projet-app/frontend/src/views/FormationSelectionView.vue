@@ -30,6 +30,22 @@ const p3IsUnselectedChoice = ref(false);
 const p3UnselectedChoicesList = ref([]);
 const p3SelectedRemainingChoice = ref('');
 
+const p3UnselectedChoicesListWithOrder = computed(() => {
+  if (!selectedFormation.value?.levels) return [];
+  const clean = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+  return p3UnselectedChoicesList.value.map(choice => {
+    const choiceClean = clean(choice);
+    const matchedLevel = selectedFormation.value.levels.find(l => {
+      const lClean = clean(l.label);
+      return choiceClean === lClean || choiceClean.includes(lClean) || lClean.includes(choiceClean);
+    });
+    return {
+      label: choice,
+      order: matchedLevel ? matchedLevel.order : 0
+    };
+  });
+});
+
 const formations = ref([]);
 const currentSession = ref(null);
 const p3Rules = ref([]);

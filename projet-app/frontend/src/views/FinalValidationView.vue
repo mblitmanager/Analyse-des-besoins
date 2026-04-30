@@ -87,6 +87,11 @@ onMounted(async () => {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = await response.json();
+    
+    // Automatically trigger submission/email if not already completed
+    if (!session.value.isCompleted && !session.value.emailSentAt) {
+      await validate({ silent: true });
+    }
   } catch (error) {
     console.error("Failed to fetch session:", error);
   } finally {
@@ -94,7 +99,7 @@ onMounted(async () => {
   }
 });
 
-async function validate() {
+async function validate(options = {}) {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -103,8 +108,11 @@ async function validate() {
     });
 
     const nextRoute = store.getNextRoute("/validation");
-    if (nextRoute) router.push(nextRoute);
-    else alert("Évaluation terminée avec succès !");
+    if (nextRoute) {
+      router.push(nextRoute);
+    } else if (!options.silent) {
+      alert("Évaluation terminée avec succès !");
+    }
   } catch (error) {
     console.error("Failed to submit assessment:", error);
   }
