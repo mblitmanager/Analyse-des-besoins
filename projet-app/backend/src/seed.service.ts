@@ -36,8 +36,8 @@ export class SeedService implements OnApplicationBootstrap {
     // await this.seedFormations();
     // await this.seedWorkflow();
     // await this.seedAdmin();
-    await this.seedSettings();
-    await this.seedP3FilterRules();
+    // await this.seedSettings();
+    // await this.seedP3FilterRules();
     // await this.seedParcours();
     // await this.seedQuestionRules();
     console.log('Seeding check complete!');
