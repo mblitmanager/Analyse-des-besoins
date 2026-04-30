@@ -24,6 +24,8 @@ const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 const showP3SameFormationModal = ref(false);
 const p3SameFormationLabel = ref("");
 const p3NextLevelLabel = ref("");
+const p3NextLevelLabelRaw = ref("");
+const p3NextLevelOrder = ref(0);
 const p3IsMaxLevel = ref(false);
 const p3IsSingleLevel = ref(false);
 const p3IsUnselectedChoice = ref(false);
@@ -173,12 +175,14 @@ async function selectFormation() {
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     if (prevFormation && selectedFormation.value.label === prevFormation) {
       p3SameFormationLabel.value = selectedFormation.value.label;
-      const { label: nextLabel, isMaxLevel, isSingleLevel, isUnselectedChoice, unselectedChoices } = computeNextLevel();
-      p3NextLevelLabel.value = nextLabel;
-      p3IsMaxLevel.value = isMaxLevel;
-      p3IsSingleLevel.value = isSingleLevel || false;
-      p3IsUnselectedChoice.value = isUnselectedChoice || false;
-      p3UnselectedChoicesList.value = unselectedChoices || [];
+      const computedResult = computeNextLevel();
+      p3NextLevelLabel.value = computedResult.label;
+      p3NextLevelLabelRaw.value = computedResult.nextLevelLabel;
+      p3NextLevelOrder.value = computedResult.nextLevelOrder;
+      p3IsMaxLevel.value = computedResult.isMaxLevel;
+      p3IsSingleLevel.value = computedResult.isSingleLevel || false;
+      p3IsUnselectedChoice.value = computedResult.isUnselectedChoice || false;
+      p3UnselectedChoicesList.value = computedResult.unselectedChoices || [];
       if (p3UnselectedChoicesList.value.length > 0) {
         p3SelectedRemainingChoice.value = p3UnselectedChoicesList.value[0];
       }
@@ -513,11 +517,10 @@ async function confirmP3SameFormation() {
   submitting.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const { label: recommendation, nextLevelLabel, nextLevelOrder } = computeNextLevel();
     
-    let finalRec = recommendation;
-    let finalStopLevel = nextLevelLabel;
-    let finalStopLevelOrder = nextLevelOrder;
+    let finalRec = p3NextLevelLabel.value;
+    let finalStopLevel = p3NextLevelLabelRaw.value;
+    let finalStopLevelOrder = p3NextLevelOrder.value;
     
     if (p3IsUnselectedChoice.value && p3SelectedRemainingChoice.value) {
       finalRec = p3SelectedRemainingChoice.value;
@@ -538,6 +541,7 @@ async function confirmP3SameFormation() {
     });
     // Submit (finalize) the session - backend will use pre-set values
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
+    
     // Go to home
     store.setP3Mode(false);
     router.push('/');
