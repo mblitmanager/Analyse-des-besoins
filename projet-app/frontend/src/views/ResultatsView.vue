@@ -379,6 +379,17 @@ const goNext = async () => {
     return;
   }
   const nextRoute = await store.getNextRouteWithQuestions("/resultats");
+  
+  if (!nextRoute || nextRoute === "/validation") {
+    try {
+      await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Failed to submit session from results view", error);
+    }
+  }
+  
   router.push(nextRoute || "/validation");
 };
 
@@ -408,6 +419,17 @@ const handleContinueAlert = async () => {
   }
   showHighLevelAlert.value = false;
   const nextRoute = await store.getNextRouteWithQuestions("/resultats");
+  
+  if (!nextRoute || nextRoute === "/validation") {
+    try {
+      await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Failed to submit session from results view alert continue", error);
+    }
+  }
+  
   router.push(nextRoute || "/validation");
 };
 

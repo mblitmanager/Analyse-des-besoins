@@ -1233,7 +1233,7 @@ export class SessionsService {
       conseiller: session.conseiller,
       metier: session.metier,
       situation: session.situation,
-      formationChoisie: recommendation,
+      formationChoisie: session.formationChoisie || recommendation,
       finalRecommendation: recommendation,
       scoreFinal: -1, // No quiz taken
       levelsScores: {},
@@ -1284,7 +1284,13 @@ export class SessionsService {
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
           <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
-          <p><strong>Formation P3 :</strong> ${recommendation}</p>
+          <p><strong>Formation :</strong> ${session.formationChoisie || 'P3'}</p>
+          <p><strong>Recommandation :</strong></p>
+          <div style="margin-bottom: 20px;">
+            <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">
+              ${recommendation}
+            </div>
+          </div>
           <p style="background: #f0fdf4; border-left: 4px solid #22C55E; padding: 10px; font-weight: bold; color: #166534;">
             Même formation que le parcours précédent → Suite logique du parcours attribuée (Niveau supérieur ou Option restante)
           </p>

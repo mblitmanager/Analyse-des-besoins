@@ -32,6 +32,7 @@ export class UpdateSessionDto {
   positionnementAnswers?: any;
   lastValidatedLevel?: string;
   stopLevel?: string;
+  stopLevelOrder?: number;
   finalRecommendation?: string;
   complementaryQuestions?: any;
   availabilities?: any;
