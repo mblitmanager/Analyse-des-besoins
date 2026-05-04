@@ -76,10 +76,18 @@ export class PdfService {
 
       if (data.parcoursNumber) {
         let badgeText = `P${data.parcoursNumber}`;
-        let badgeStatus = data.parcoursNumber === 1 ? 'INITIAL' : (data.parcoursNumber === 3 ? '3ÈME PARCOURS' : 'COMPLÉMENTAIRE');
-        
+        let badgeStatus =
+          data.parcoursNumber === 1
+            ? 'INITIAL'
+            : data.parcoursNumber === 3
+              ? '3ÈME PARCOURS'
+              : 'COMPLÉMENTAIRE';
+
         // Handle multi-step P1 & P2 case
-        if (data.parcoursNumber === 1 && data.finalRecommendation?.includes(' & ')) {
+        if (
+          data.parcoursNumber === 1 &&
+          data.finalRecommendation?.includes(' & ')
+        ) {
           badgeText = 'P1 & P2';
           badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
         }
@@ -106,7 +114,7 @@ export class PdfService {
         .fontSize(10)
         .fillColor(grayText)
         .text(`Date : ${dateStr}`, { align: 'center' });
-      doc.moveDown(0.8);
+      doc.moveDown(0.5);
 
       // ─── Beneficiary Info ───
       this.sectionTitle(doc, 'Informations du bénéficiaire');
@@ -137,13 +145,17 @@ export class PdfService {
         doc.moveDown(0.5);
         this.sectionTitle(doc, 'Parrainage');
         const referral = [
-          ['Parrain / Marraine', `${data.parrainPrenom || ''} ${data.parrainNom || ''}`.trim() || 'N/A'],
+          [
+            'Parrain / Marraine',
+            `${data.parrainPrenom || ''} ${data.parrainNom || ''}`.trim() ||
+              'N/A',
+          ],
           ['Email Parrain', data.parrainEmail || 'N/A'],
           ['Téléphone Parrain', data.parrainTelephone || 'N/A'],
         ];
         this.drawTable(doc, referral, darkText, grayText, lightBg);
       }
- 
+
       // ─── PRÉ-REQUIS ───
       this.renderAnswersSection(
         doc,
@@ -174,10 +186,6 @@ export class PdfService {
       const recommendations = (data.finalRecommendation || '').split(' | ');
       const formationInfo: string[][] = [
         ['Formation choisie', data.formationChoisie || 'N/A'],
-        ...recommendations.map((r, i) => [
-          i === 0 ? 'Recommandation(s)' : '',
-          r,
-        ]),
       ];
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
 
@@ -230,7 +238,7 @@ export class PdfService {
         grayText,
         lightBg,
       );
-      
+
       this.renderAnswersSection(
         doc,
         'Usage de la langue',
@@ -243,8 +251,19 @@ export class PdfService {
       );
 
       // ─── Annex: Detailed Test Answers ───
-      if (data.positionnementAnswers && Object.keys(data.positionnementAnswers).length > 0) {
-        this.renderPositionnementAnnex(doc, data.positionnementAnswers, data.qTextById, data.correctAnswersById, darkText, grayText, lightBg);
+      if (
+        data.positionnementAnswers &&
+        Object.keys(data.positionnementAnswers).length > 0
+      ) {
+        this.renderPositionnementAnnex(
+          doc,
+          data.positionnementAnswers,
+          data.qTextById,
+          data.correctAnswersById,
+          darkText,
+          grayText,
+          lightBg,
+        );
       }
 
       // ─── Footer with Logos ───
@@ -286,16 +305,16 @@ export class PdfService {
   private sectionTitle(doc: PDFKit.PDFDocument, title: string) {
     const y = doc.y;
     // Colored band (light grey/blue)
-    doc.rect(50, y, doc.page.width - 100, 20).fill('#E0F2FE'); // Light blue band
+    doc.rect(50, y, doc.page.width - 100, 18).fill('#E0F2FE'); // Light blue band
     doc
-      .fontSize(10)
+      .fontSize(9)
       .fillColor('#0369A1') // Darker blue text for contrast
       .font('Helvetica-Bold')
-      .text(title.toUpperCase(), 60, y + 5, { underline: false, align: 'left' })
+      .text(title.toUpperCase(), 60, y + 4, { underline: false, align: 'left' })
       .font('Helvetica');
-    
-    doc.y = y + 25;
-    doc.moveDown(0.2);
+
+    doc.y = y + 22;
+    doc.moveDown(0.1);
   }
 
   private drawTable(
@@ -313,7 +332,7 @@ export class PdfService {
       if (doc.y > doc.page.height - 80) {
         doc.addPage();
       }
- 
+
       const y = doc.y;
       const isHeader = hasHeader && rowIndex === 0;
 
@@ -332,14 +351,30 @@ export class PdfService {
         const isError = row[row.length - 1] === 'true' && colIndex === 1;
         doc
           .fontSize(isHeader ? 8 : 9)
-          .fillColor(isError ? '#991B1B' : (isHeader ? grayText : colIndex === 0 ? darkText : grayText));
-        
+          .fillColor(
+            isError
+              ? '#991B1B'
+              : isHeader
+                ? grayText
+                : colIndex === 0
+                  ? darkText
+                  : grayText,
+          );
+
         const baseFont = isHeader ? 'Helvetica-Bold' : 'Helvetica';
         const boldFont = 'Helvetica-Bold';
-        
-        this.renderFormattedText(doc, cell || '', cellX, y, colWidth - 10, baseFont, boldFont);
+
+        this.renderFormattedText(
+          doc,
+          cell || '',
+          cellX,
+          y,
+          colWidth - 10,
+          baseFont,
+          boldFont,
+        );
       });
- 
+
       doc.y = y + maxHeight + 6; // Compacted vertical spacing
     });
 
@@ -357,10 +392,10 @@ export class PdfService {
   ) {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     let currentY = y;
-    
+
     // We use a single text call with continued: true to handle wrapping correctly
     doc.font(baseFont);
-    
+
     parts.forEach((part, i) => {
       const isLast = i === parts.length - 1;
       if (part.startsWith('**') && part.endsWith('**')) {
@@ -398,13 +433,15 @@ export class PdfService {
       const label = qTextById?.[idNum] || `Question ${key}`;
       const questionLabel = `Q${index + 1} : ${label}`;
       let display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-      
+
       const correctAnswer = correctAnswersById?.[idNum];
       let isError = false;
       if (correctAnswer !== undefined) {
         if (Array.isArray(correctAnswer)) {
           const userVals = Array.isArray(val) ? val : [val];
-          isError = !correctAnswer.every(v => userVals.includes(v)) || userVals.length !== correctAnswer.length;
+          isError =
+            !correctAnswer.every((v) => userVals.includes(v)) ||
+            userVals.length !== correctAnswer.length;
         } else {
           isError = String(val).trim() !== String(correctAnswer).trim();
         }
@@ -433,15 +470,31 @@ export class PdfService {
       const maxHeight = Math.max(h1, h2);
 
       doc.fontSize(10).fillColor(cellColor);
-      this.renderFormattedText(doc, row[0], startX, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+      this.renderFormattedText(
+        doc,
+        row[0],
+        startX,
+        y,
+        colWidth - 10,
+        'Helvetica',
+        'Helvetica-Bold',
+      );
       doc.fillColor(valColor);
-      this.renderFormattedText(doc, row[1], startX + colWidth, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+      this.renderFormattedText(
+        doc,
+        row[1],
+        startX + colWidth,
+        y,
+        colWidth - 10,
+        'Helvetica',
+        'Helvetica-Bold',
+      );
 
       doc.y = y + maxHeight + 6; // Compacted vertical spacing
-     });
-   }
- 
-   private renderPositionnementAnnex(
+    });
+  }
+
+  private renderPositionnementAnnex(
     doc: PDFKit.PDFDocument,
     positionnementAnswers: Record<string, Record<string, any>>,
     qTextById: Record<number, string> | undefined,
@@ -453,10 +506,16 @@ export class PdfService {
     doc.addPage();
     doc.moveDown(1);
     this.sectionTitle(doc, 'ANNEXE : DÉTAIL DES RÉPONSES DU TEST');
-    
+
     Object.entries(positionnementAnswers).forEach(([level, levelAnswers]) => {
-      doc.fontSize(10).fillColor('#0D8ABC').font('Helvetica-Bold').text(level, { align: 'left' }).moveDown(0.5).font('Helvetica');
-      
+      doc
+        .fontSize(10)
+        .fillColor('#0D8ABC')
+        .font('Helvetica-Bold')
+        .text(level, { align: 'left' })
+        .moveDown(0.5)
+        .font('Helvetica');
+
       const rows = Object.entries(levelAnswers).map(([qId, val], index) => {
         const idNum = Number(qId);
         const questionText = qTextById?.[idNum] || `Question ${qId}`;
@@ -468,7 +527,9 @@ export class PdfService {
         if (correctAnswer !== undefined) {
           if (Array.isArray(correctAnswer)) {
             const userVals = Array.isArray(val) ? val : [val];
-            isError = !correctAnswer.every(v => userVals.includes(v)) || userVals.length !== correctAnswer.length;
+            isError =
+              !correctAnswer.every((v) => userVals.includes(v)) ||
+              userVals.length !== correctAnswer.length;
           } else {
             isError = String(val).trim() !== String(correctAnswer).trim();
           }
@@ -496,9 +557,25 @@ export class PdfService {
         const maxHeight = Math.max(h1, h2);
 
         doc.fontSize(10).fillColor(cellColor);
-        this.renderFormattedText(doc, row[0], startX, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+        this.renderFormattedText(
+          doc,
+          row[0],
+          startX,
+          y,
+          colWidth - 10,
+          'Helvetica',
+          'Helvetica-Bold',
+        );
         doc.fillColor(valColor);
-        this.renderFormattedText(doc, row[1], startX + colWidth, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+        this.renderFormattedText(
+          doc,
+          row[1],
+          startX + colWidth,
+          y,
+          colWidth - 10,
+          'Helvetica',
+          'Helvetica-Bold',
+        );
 
         doc.y = y + maxHeight + 6; // Compacted vertical spacing
       });

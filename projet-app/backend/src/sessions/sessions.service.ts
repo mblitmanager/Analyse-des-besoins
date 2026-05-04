@@ -174,7 +174,9 @@ export class SessionsService {
     levels: Level[];
     stopLevelOrder?: number;
     correctAnswersById: Record<number, string | string[]>;
+    p3Redirected?: boolean;
   }> {
+    let p3Redirected = false;
     // 0. Fetch all question texts and details for filtering and labeling
     // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
     const ids = new Set<number>();
@@ -264,6 +266,7 @@ export class SessionsService {
         levels: [] as Level[],
         stopLevelOrder: session.stopLevelOrder,
         correctAnswersById,
+        p3Redirected: false,
       };
     }
 
@@ -360,6 +363,7 @@ export class SessionsService {
                 ruleResultType: rule.resultType,
                 levels: [] as Level[],
                 correctAnswersById,
+                p3Redirected: false,
               };
             }
           }
@@ -382,6 +386,7 @@ export class SessionsService {
         miseTitle: 'Mise à niveau (réponses)',
         levels: [] as Level[],
         correctAnswersById,
+        p3Redirected: false,
       };
     }
 
@@ -642,6 +647,7 @@ export class SessionsService {
             session.stopLevelOrder ||
             (finalLevel ? (finalLevel as any).order : 0),
           correctAnswersById,
+          p3Redirected: false,
         };
       }
     }
@@ -668,6 +674,7 @@ export class SessionsService {
           : 'Mise à niveau (réponses)',
         levels,
         correctAnswersById,
+        p3Redirected: false,
       };
     }
 
@@ -755,7 +762,7 @@ export class SessionsService {
         finalRecommendationValue = parts[0];
         proposedParcours = [parts[0]];
       }
-
+ 
       // Logic to avoid repeating P2 in P3 for the same formation
       if (session.stagiaire?.id) {
         try {
@@ -790,6 +797,7 @@ export class SessionsService {
                   finalRecommendationValue =
                     `${session.formationChoisie} ${nextLvl.label}`.trim();
                   proposedParcours = [finalRecommendationValue];
+                  p3Redirected = true;
                 }
               }
             }
@@ -873,6 +881,7 @@ export class SessionsService {
       miseTitle,
       levels,
       correctAnswersById,
+      p3Redirected: p3Redirected || false,
     };
   }
 
