@@ -1108,6 +1108,10 @@ export class SessionsService {
         isP3Mode: session.isP3Mode,
         parcoursNumber,
         stopLevelOrder: session.stopLevelOrder,
+        correctAnswersById: correctAnswersById as Record<
+          number,
+          string | string[]
+        >,
       });
 
       const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -1257,6 +1261,7 @@ export class SessionsService {
     // Retrieve all processed maps/filters just like a normal submit
     const {
       qTextById,
+      correctAnswersById,
       filteredMiseAnswers,
       filteredPrerequis,
       filteredComplementaryAnswers,
@@ -1330,6 +1335,10 @@ export class SessionsService {
       highLevelContinue: false,
       isP3Mode: true,
       parcoursNumber: 3,
+      correctAnswersById: correctAnswersById as Record<
+        number,
+        string | string[]
+      >,
     });
 
     const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();
