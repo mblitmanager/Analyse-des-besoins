@@ -135,6 +135,10 @@ async function restoreProgressFromSession() {
 
     if (session.levelsScores && Object.keys(session.levelsScores).length > 0) {
       levelsScores.value = session.levelsScores;
+    }
+    
+    if (session.p3Redirected !== undefined) {
+      p3Redirected.value = session.p3Redirected;
     } else if (store.isP3Mode) {
       // Fresh start of P2 in P3 mode: Check if we should carry over progress
       const prevFormation = localStorage.getItem('p3_prev_formation');
@@ -698,30 +702,6 @@ async function finishTest(overrideSession = null) {
     if (levels.value && levels.value.length > 0) {
       let targetIdx = Math.min(Math.max(0, currentLevelIndex.value), levels.value.length - 1);
       
-      if (store.isP3Mode) {
-          const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
-          const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
-          const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
-          
-          while (targetIdx < levels.value.length) {
-              const currentLvl = levels.value[targetIdx];
-              const lvlClean = cleanS(currentLvl.label);
-              const isDuplicate = recs.some(r => {
-                  const rClean = cleanS(r);
-                  const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                  const vWords = lvlClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                  return vWords.some(vw => rWords.includes(vw));
-              });
-              if (!isDuplicate) break;
-              targetIdx++;
-          }
-          if (targetIdx >= levels.value.length) targetIdx = levels.value.length - 1;
-          
-          if (targetIdx > Math.min(Math.max(0, currentLevelIndex.value), levels.value.length - 1)) {
-              p3Redirected.value = true;
-          }
-      }
-      
       l1 = ensureNiveau(levels.value[targetIdx].label);
     }
     
@@ -799,7 +779,7 @@ async function finishTest(overrideSession = null) {
   }
 
   // 4. Update session
-  await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+  const res = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
     levelsScores: levelsScores.value,
     finalRecommendation: finalRecommendation.value,
     stopLevel: currentLevel.label,
@@ -807,6 +787,11 @@ async function finishTest(overrideSession = null) {
     positionnementAnswers: positionnementAnswers.value,
     parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
   });
+
+  const session = res.data;
+  if (session.p3Redirected !== undefined) {
+    p3Redirected.value = session.p3Redirected;
+  }
 
   showResults.value = true;
   submitting.value = false;
