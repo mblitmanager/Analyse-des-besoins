@@ -173,6 +173,7 @@ export class SessionsService {
     ruleResultType?: string | null;
     levels: Level[];
     stopLevelOrder?: number;
+    correctAnswersById: Record<number, string | string[]>;
   }> {
     // 0. Fetch all question texts and details for filtering and labeling
     // This ensures consistency between PositionnementView, ResultatsView, Mail, and PDF
@@ -202,8 +203,15 @@ export class SessionsService {
       : [];
 
     const qTextById: Record<number, string> = {};
+    const correctAnswersById: Record<number, string | string[]> = {};
     questions.forEach((q) => {
       qTextById[q.id] = q.text;
+      
+      if (q.responseType === 'checkbox' && q.correctResponseIndexes?.length > 0) {
+        correctAnswersById[q.id] = q.correctResponseIndexes.map(idx => q.options[idx]).filter(Boolean);
+      } else if (q.correctResponseIndex !== null && q.correctResponseIndex !== undefined) {
+        correctAnswersById[q.id] = q.options[q.correctResponseIndex];
+      }
     });
 
     // If a recommendation is already set (e.g., from a positioning test), use it directly
@@ -255,6 +263,7 @@ export class SessionsService {
         ruleResultType: null,
         levels: [] as Level[],
         stopLevelOrder: session.stopLevelOrder,
+        correctAnswersById,
       };
     }
 
@@ -350,6 +359,7 @@ export class SessionsService {
                 isQuestionRuleOverride: true, // Flag for frontend
                 ruleResultType: rule.resultType,
                 levels: [] as Level[],
+                correctAnswersById,
               };
             }
           }
@@ -371,6 +381,7 @@ export class SessionsService {
         filteredMiseAnswers: session.miseANiveauAnswers,
         miseTitle: 'Mise à niveau (réponses)',
         levels: [] as Level[],
+        correctAnswersById,
       };
     }
 
@@ -630,6 +641,7 @@ export class SessionsService {
           stopLevelOrder:
             session.stopLevelOrder ||
             (finalLevel ? (finalLevel as any).order : 0),
+          correctAnswersById,
         };
       }
     }
@@ -655,6 +667,7 @@ export class SessionsService {
           ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
           : 'Mise à niveau (réponses)',
         levels,
+        correctAnswersById,
       };
     }
 
@@ -859,6 +872,7 @@ export class SessionsService {
       filteredAvailabilities,
       miseTitle,
       levels,
+      correctAnswersById,
     };
   }
 
@@ -875,6 +889,7 @@ export class SessionsService {
       scorePretest,
       finalLevel,
       qTextById,
+      correctAnswersById,
       filteredMiseAnswers,
       filteredPrerequis,
       filteredComplementaryAnswers,
@@ -983,16 +998,19 @@ export class SessionsService {
         'Pré-requis (réponses)',
         filteredPrerequis,
         qTextById,
+        correctAnswersById,
       )}
       ${renderAnswersTable(
         'Questions complémentaires (réponses)',
         finalComplementary,
         qTextById,
+        correctAnswersById,
       )}
       ${renderAnswersTable(
         'Usage de la langue',
         filteredMiseAnswers,
         qTextById,
+        correctAnswersById,
       )}
       ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div>` : ''}
     `;
@@ -1154,7 +1172,7 @@ export class SessionsService {
             🔷 ${badgeText} - PARCOURS ${badgeStatus}
           </span>
         </div>
-        <h2 style="color: #0D8ABC; margin-bottom: 5px;">Bilan d'évaluation - Analyse des besoins</h2>
+        <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins</h2>
           <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
           
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
@@ -1347,7 +1365,7 @@ export class SessionsService {
           <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
             <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - 3ÈME PARCOURS (Même formation - Suite du parcours)</span>
           </div>
-          <h2 style="color: #0D8ABC; margin-bottom: 5px;">Analyse des besoins - P3</h2>
+          <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Analyse des besoins - P3</h2>
           <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le ${dateStr}</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
@@ -1397,6 +1415,7 @@ function renderAnswersTable(
   title: string,
   answers: any,
   qTextById: Record<number, string>,
+  correctAnswersById?: Record<number, string | string[]>,
 ): string {
   if (!answers || Object.keys(answers).length === 0) return '';
   const rows = Object.entries(answers)
@@ -1404,14 +1423,31 @@ function renderAnswersTable(
       const idNum = Number(key);
       const qText = qTextById[idNum] || `Question ${key}`;
       const displayVal = Array.isArray(val) ? val.join(', ') : String(val);
+
+      const correctAnswer = correctAnswersById?.[idNum];
+      let isError = false;
+      if (correctAnswer !== undefined) {
+        if (Array.isArray(correctAnswer)) {
+          const userVals = Array.isArray(val) ? val : [val];
+          isError =
+            !correctAnswer.every((v) => userVals.includes(v)) ||
+            userVals.length !== correctAnswer.length;
+        } else {
+          isError = String(val).trim() !== String(correctAnswer).trim();
+        }
+      }
+
+      const color = isError ? '#991B1B' : '#1f2937';
+      const marker = isError ? ' <span style="color:#991B1B;">(F)</span>' : '';
+
       return `
       <tr>
-        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%;">${safe(
+        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: ${color};">${safe(
           qText,
         )}</td>
-        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700;">${safe(
+        <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: ${color};">${safe(
           displayVal,
-        )}</td>
+        )}${marker}</td>
       </tr>`;
     })
     .join('');

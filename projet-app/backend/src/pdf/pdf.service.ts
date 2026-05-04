@@ -34,6 +34,7 @@ export class PdfService {
     isP3Mode?: boolean;
     parcoursNumber?: number;
     stopLevelOrder?: number;
+    correctAnswersById?: Record<number, string | string[]>;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
@@ -69,7 +70,7 @@ export class PdfService {
 
       // ─── Header ───
       doc
-        .fontSize(22)
+        .fontSize(18)
         .fillColor(brandBlue)
         .text('Analyse des besoins', { align: 'center' });
 
@@ -105,7 +106,7 @@ export class PdfService {
         .fontSize(10)
         .fillColor(grayText)
         .text(`Date : ${dateStr}`, { align: 'center' });
-      doc.moveDown(1.5);
+      doc.moveDown(0.8);
 
       // ─── Beneficiary Info ───
       this.sectionTitle(doc, 'Informations du bénéficiaire');
@@ -142,13 +143,14 @@ export class PdfService {
         ];
         this.drawTable(doc, referral, darkText, grayText, lightBg);
       }
-
+ 
       // ─── PRÉ-REQUIS ───
       this.renderAnswersSection(
         doc,
         'Pré-requis (réponses)',
         data.prerequisiteAnswers,
         data.qTextById,
+        data.correctAnswersById,
         darkText,
         grayText,
         lightBg,
@@ -165,7 +167,7 @@ export class PdfService {
             '⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.',
             { align: 'center' },
           );
-        doc.moveDown(0.5);
+        doc.moveDown(0.3);
       }
       this.sectionTitle(doc, 'Formation et Résultat');
 
@@ -185,7 +187,7 @@ export class PdfService {
         data.levelsScores &&
         Object.keys(data.levelsScores).length > 0
       ) {
-        doc.moveDown(0.5);
+        doc.moveDown(0.3);
         this.sectionTitle(doc, 'Scores par niveau');
         const levelRows = Object.entries(data.levelsScores).map(
           ([lvl, e]: [string, any]) => {
@@ -213,6 +215,7 @@ export class PdfService {
         'Questions complémentaires (réponses)',
         data.complementaryAnswers,
         data.qTextById,
+        data.correctAnswersById,
         darkText,
         grayText,
         lightBg,
@@ -222,6 +225,7 @@ export class PdfService {
         'Disponibilités (réponses)',
         data.availabilityAnswers,
         data.qTextById,
+        data.correctAnswersById,
         darkText,
         grayText,
         lightBg,
@@ -232,6 +236,7 @@ export class PdfService {
         'Usage de la langue',
         data.miseANiveauAnswers,
         data.qTextById,
+        data.correctAnswersById,
         darkText,
         grayText,
         lightBg,
@@ -239,7 +244,7 @@ export class PdfService {
 
       // ─── Annex: Detailed Test Answers ───
       if (data.positionnementAnswers && Object.keys(data.positionnementAnswers).length > 0) {
-        this.renderPositionnementAnnex(doc, data.positionnementAnswers, data.qTextById, darkText, grayText, lightBg);
+        this.renderPositionnementAnnex(doc, data.positionnementAnswers, data.qTextById, data.correctAnswersById, darkText, grayText, lightBg);
       }
 
       // ─── Footer with Logos ───
@@ -305,10 +310,10 @@ export class PdfService {
     const startX = 50;
 
     rows.forEach((row, rowIndex) => {
-      if (doc.y > doc.page.height - 100) {
+      if (doc.y > doc.page.height - 80) {
         doc.addPage();
       }
-
+ 
       const y = doc.y;
       const isHeader = hasHeader && rowIndex === 0;
 
@@ -317,24 +322,25 @@ export class PdfService {
       }
 
       let maxHeight = 0;
-      row.forEach((cell, colIndex) => {
+      row.forEach((cell) => {
         const h = doc.heightOfString(cell || '', { width: colWidth - 10 });
         if (h > maxHeight) maxHeight = h;
       });
 
       row.forEach((cell, colIndex) => {
         const cellX = startX + colIndex * colWidth;
+        const isError = row[row.length - 1] === 'true' && colIndex === 1;
         doc
-          .fontSize(isHeader ? 9 : 10)
-          .fillColor(isHeader ? grayText : colIndex === 0 ? darkText : grayText);
+          .fontSize(isHeader ? 8 : 9)
+          .fillColor(isError ? '#991B1B' : (isHeader ? grayText : colIndex === 0 ? darkText : grayText));
         
         const baseFont = isHeader ? 'Helvetica-Bold' : 'Helvetica';
         const boldFont = 'Helvetica-Bold';
         
         this.renderFormattedText(doc, cell || '', cellX, y, colWidth - 10, baseFont, boldFont);
       });
-
-      doc.y = y + maxHeight + 10; // Tightened vertical spacing
+ 
+      doc.y = y + maxHeight + 6; // Compacted vertical spacing
     });
 
     doc.moveDown(0.5);
@@ -377,30 +383,69 @@ export class PdfService {
     title: string,
     answers: Record<string, any> | null | undefined,
     qTextById: Record<number, string> | undefined,
+    correctAnswersById: Record<number, string | string[]> | undefined,
     darkText: string,
     grayText: string,
     lightBg: string,
   ) {
     if (!answers || Object.keys(answers).length === 0) return;
 
-    doc.moveDown(0.5);
+    doc.moveDown(0.3);
     this.sectionTitle(doc, title);
 
     const rows = Object.entries(answers).map(([key, val], index) => {
       const idNum = Number(key);
       const label = qTextById?.[idNum] || `Question ${key}`;
       const questionLabel = `Q${index + 1} : ${label}`;
-      const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-      return [questionLabel, display];
+      let display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
+      
+      const correctAnswer = correctAnswersById?.[idNum];
+      let isError = false;
+      if (correctAnswer !== undefined) {
+        if (Array.isArray(correctAnswer)) {
+          const userVals = Array.isArray(val) ? val : [val];
+          isError = !correctAnswer.every(v => userVals.includes(v)) || userVals.length !== correctAnswer.length;
+        } else {
+          isError = String(val).trim() !== String(correctAnswer).trim();
+        }
+      }
+
+      if (isError) {
+        display += ' (F)';
+      }
+
+      return [questionLabel, display, isError ? 'true' : 'false']; // Tag as error
     });
 
-    this.drawTable(doc, rows, darkText, grayText, lightBg);
-  }
+    // Modified drawTable call within renderAnswersSection
+    const colWidth = (doc.page.width - 100) / 2;
+    const startX = 50;
 
-  private renderPositionnementAnnex(
+    rows.forEach((row) => {
+      if (doc.y > doc.page.height - 100) doc.addPage();
+      const y = doc.y;
+      const isError = row[2] === 'true';
+      const cellColor = isError ? '#991B1B' : darkText;
+      const valColor = isError ? '#991B1B' : grayText;
+
+      const h1 = doc.heightOfString(row[0], { width: colWidth - 10 });
+      const h2 = doc.heightOfString(row[1], { width: colWidth - 10 });
+      const maxHeight = Math.max(h1, h2);
+
+      doc.fontSize(10).fillColor(cellColor);
+      this.renderFormattedText(doc, row[0], startX, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+      doc.fillColor(valColor);
+      this.renderFormattedText(doc, row[1], startX + colWidth, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+
+      doc.y = y + maxHeight + 6; // Compacted vertical spacing
+     });
+   }
+ 
+   private renderPositionnementAnnex(
     doc: PDFKit.PDFDocument,
     positionnementAnswers: Record<string, Record<string, any>>,
     qTextById: Record<number, string> | undefined,
+    correctAnswersById: Record<number, string | string[]> | undefined,
     darkText: string,
     grayText: string,
     lightBg: string,
@@ -416,12 +461,48 @@ export class PdfService {
         const idNum = Number(qId);
         const questionText = qTextById?.[idNum] || `Question ${qId}`;
         const questionLabel = `Q${index + 1} : ${questionText}`;
-        const display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
-        return [questionLabel, display];
+        let display = Array.isArray(val) ? val.join(', ') : String(val ?? '');
+
+        const correctAnswer = correctAnswersById?.[idNum];
+        let isError = false;
+        if (correctAnswer !== undefined) {
+          if (Array.isArray(correctAnswer)) {
+            const userVals = Array.isArray(val) ? val : [val];
+            isError = !correctAnswer.every(v => userVals.includes(v)) || userVals.length !== correctAnswer.length;
+          } else {
+            isError = String(val).trim() !== String(correctAnswer).trim();
+          }
+        }
+
+        if (isError) {
+          display += ' (F)';
+        }
+
+        return [questionLabel, display, isError ? 'true' : 'false'];
       });
 
-      this.drawTable(doc, rows, darkText, grayText, lightBg);
-      doc.moveDown(1);
+      const colWidth = (doc.page.width - 100) / 2;
+      const startX = 50;
+
+      rows.forEach((row) => {
+        if (doc.y > doc.page.height - 100) doc.addPage();
+        const y = doc.y;
+        const isError = row[2] === 'true';
+        const cellColor = isError ? '#991B1B' : darkText;
+        const valColor = isError ? '#991B1B' : grayText;
+
+        const h1 = doc.heightOfString(row[0], { width: colWidth - 10 });
+        const h2 = doc.heightOfString(row[1], { width: colWidth - 10 });
+        const maxHeight = Math.max(h1, h2);
+
+        doc.fontSize(10).fillColor(cellColor);
+        this.renderFormattedText(doc, row[0], startX, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+        doc.fillColor(valColor);
+        this.renderFormattedText(doc, row[1], startX + colWidth, y, colWidth - 10, 'Helvetica', 'Helvetica-Bold');
+
+        doc.y = y + maxHeight + 6; // Compacted vertical spacing
+      });
+      doc.moveDown(0.3);
     });
   }
 }
