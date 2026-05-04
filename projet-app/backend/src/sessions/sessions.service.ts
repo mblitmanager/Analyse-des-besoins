@@ -208,10 +208,18 @@ export class SessionsService {
     const correctAnswersById: Record<number, string | string[]> = {};
     questions.forEach((q) => {
       qTextById[q.id] = q.text;
-      
-      if (q.responseType === 'checkbox' && q.correctResponseIndexes?.length > 0) {
-        correctAnswersById[q.id] = q.correctResponseIndexes.map(idx => q.options[idx]).filter(Boolean);
-      } else if (q.correctResponseIndex !== null && q.correctResponseIndex !== undefined) {
+
+      if (
+        q.responseType === 'checkbox' &&
+        q.correctResponseIndexes?.length > 0
+      ) {
+        correctAnswersById[q.id] = q.correctResponseIndexes
+          .map((idx) => q.options[idx])
+          .filter(Boolean);
+      } else if (
+        q.correctResponseIndex !== null &&
+        q.correctResponseIndex !== undefined
+      ) {
         correctAnswersById[q.id] = q.options[q.correctResponseIndex];
       }
     });
@@ -762,7 +770,7 @@ export class SessionsService {
         finalRecommendationValue = parts[0];
         proposedParcours = [parts[0]];
       }
- 
+
       // Logic to avoid repeating P2 in P3 for the same formation
       if (session.stagiaire?.id) {
         try {
@@ -1007,19 +1015,16 @@ export class SessionsService {
         'Pré-requis (réponses)',
         filteredPrerequis,
         qTextById,
-        correctAnswersById,
       )}
       ${renderAnswersTable(
         'Questions complémentaires (réponses)',
         finalComplementary,
         qTextById,
-        correctAnswersById,
       )}
       ${renderAnswersTable(
         'Usage de la langue',
         filteredMiseAnswers,
         qTextById,
-        correctAnswersById,
       )}
       ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div>` : ''}
     `;
@@ -1456,7 +1461,7 @@ function renderAnswersTable(
       }
 
       const color = isError ? '#991B1B' : '#1f2937';
-      const marker = isError ? ' <span style="color:#991B1B;">(F)</span>' : '';
+      const marker = isError ? ' <span style="color:#991B1B;"></span>' : '';
 
       return `
       <tr>
