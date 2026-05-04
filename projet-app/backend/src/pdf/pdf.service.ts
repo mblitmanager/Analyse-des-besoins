@@ -448,7 +448,7 @@ export class PdfService {
       }
 
       if (isError) {
-        display += ' (F)';
+        display += '';
       }
 
       return [questionLabel, display, isError ? 'true' : 'false']; // Tag as error
@@ -536,7 +536,7 @@ export class PdfService {
         }
 
         if (isError) {
-          display += ' (F)';
+          display += ' ';
         }
 
         return [questionLabel, display, isError ? 'true' : 'false'];
