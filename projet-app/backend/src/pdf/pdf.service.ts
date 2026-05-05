@@ -397,18 +397,18 @@ export class PdfService {
     doc.font(baseFont);
 
     parts.forEach((part, i) => {
+      if (!part) return;
       const isLast = i === parts.length - 1;
-      if (part.startsWith('**') && part.endsWith('**')) {
-        const cleanPart = part.substring(2, part.length - 2);
-        doc.font(boldFont).text(cleanPart, x, currentY, {
-          width: width,
-          continued: !isLast,
-        });
+      const isBold = part.startsWith('**') && part.endsWith('**');
+      const cleanPart = isBold ? part.substring(2, part.length - 2) : part;
+
+      doc.font(isBold ? boldFont : baseFont);
+
+      const options = { width: width, continued: !isLast };
+      if (i === 0) {
+        doc.text(cleanPart, x, y, options);
       } else {
-        doc.font(baseFont).text(part, x, currentY, {
-          width: width,
-          continued: !isLast,
-        });
+        doc.text(cleanPart, options);
       }
     });
   }
