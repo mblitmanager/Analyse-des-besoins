@@ -512,7 +512,7 @@ export class PdfService {
         .fontSize(10)
         .fillColor('#0D8ABC')
         .font('Helvetica-Bold')
-        .text(level, { align: 'left' })
+        .text(level, 50, doc.y, { align: 'left' })
         .moveDown(0.5)
         .font('Helvetica');
 
