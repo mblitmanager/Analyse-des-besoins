@@ -1145,8 +1145,8 @@ export class SessionsService {
         conseiller: session.conseiller,
         metier: session.metier,
         situation: session.situation,
-        formationChoisie: rec, // Specific formation
-        finalRecommendation: fullRecommendation, // Use full string for the result box
+        formationChoisie: session.formationChoisie, // Original user selection
+        finalRecommendation: rec, // Specific formation for this PDF
         scoreFinal: scorePretest,
         levelsScores: session.levelsScores as Record<string, any>,
         prerequisiteAnswers: filteredPrerequis as Record<string, any>,

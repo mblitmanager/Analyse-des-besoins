@@ -58,14 +58,30 @@ export class SessionsController {
   }
 
   @Get(':id/pdf')
-  async downloadPdf(@Param('id') id: string, @Res() res: any) {
+  async downloadPdf(@Param('id') id: string, @Query('part') part: string, @Res() res: any) {
     const session = await this.sessionsService.findOne(id);
     if (!session) {
       return res.status(404).send('Session not found');
     }
 
     const processed = await this.sessionsService.getRecommendationData(session);
-    const parcoursNumber = await this.sessionsService.getParcoursNumber(session);
+    let parcoursNumber = await this.sessionsService.getParcoursNumber(session);
+
+    let recommendationsList = processed.recommendations || [];
+    if (recommendationsList.length === 0) {
+      recommendationsList = [session.formationChoisie || 'Analyse'];
+    }
+
+    let rec = recommendationsList.join(' & ');
+    if (part !== undefined) {
+      const partIndex = parseInt(part, 10);
+      if (!isNaN(partIndex) && partIndex >= 0 && partIndex < recommendationsList.length) {
+        rec = recommendationsList[partIndex];
+        if (recommendationsList.length > 1) {
+          parcoursNumber += partIndex;
+        }
+      }
+    }
 
     const pdfBuffer = await this.pdfService.generateSessionPdf({
       civilite: session.civilite,
@@ -76,7 +92,7 @@ export class SessionsController {
       metier: session.metier,
       situation: session.situation,
       formationChoisie: session.formationChoisie,
-      finalRecommendation: (processed.recommendations || []).join(' & '),
+      finalRecommendation: rec,
       scoreFinal: processed.scorePretest,
       levelsScores: session.levelsScores as any,
       prerequisiteAnswers: processed.filteredPrerequis,

@@ -301,21 +301,59 @@ async function exportToExcel() {
 
 async function downloadPdf(session) {
   try {
-    const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
-      responseType: 'blob'
-    });
-    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
-    const link = document.createElement('a');
-    link.href = url;
-    const dateStr = new Date().toISOString().split('T')[0];
-    const pSuffix = session.isP3Mode ? '_P3' : '';
-    const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
-    const filename = `Analyse_des_besoins_${session.prenom || ''}_${session.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    let recommendationsList = [];
+    try {
+      const pRes = await axios.get(`${apiBaseUrl}/sessions/${session.id}/processed`);
+      recommendationsList = pRes.data.recommendations || [];
+    } catch (e) {
+      console.warn("Could not fetch processed data for PDF splitting");
+    }
+
+    if (recommendationsList.length > 1) {
+      toast.info("Génération de l'archive ZIP en cours...");
+      const zip = new JSZip();
+      
+      for (let i = 0; i < recommendationsList.length; i++) {
+        const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf?part=${i}`, {
+          responseType: 'blob'
+        });
+        const dateStr = new Date().toISOString().split('T')[0];
+        const pNum = (session.parcoursNumber || 1) + i;
+        const pSuffix = session.isP3Mode ? '_P3' : `_P${pNum}`;
+        const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
+        const filename = `Analyse_des_besoins_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+        
+        zip.file(filename, res.data);
+      }
+      
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(content);
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      const zipName = `Analyse_des_besoins_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}_P1_P2_${dateStr}.zip`;
+      link.setAttribute('download', zipName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } else {
+      const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      const pSuffix = session.isP3Mode ? '_P3' : `_P${session.parcoursNumber || 1}`;
+      const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
+      const filename = `Analyse_des_besoins_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }
   } catch (err) {
     console.error(err);
     toast.error("Erreur lors du téléchargement du PDF.");
@@ -345,23 +383,34 @@ async function exportSelectedToPdf() {
         const session = sessions.value.find(s => s.id === id);
         if (session) {
           try {
-            const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
-              responseType: 'blob'
-            });
-            
-            // Get filename from response header or generate it
-            const contentDisposition = res.headers['content-disposition'];
-            let filename = '';
-            if (contentDisposition && contentDisposition.includes('filename=')) {
-              filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
-            } else {
+            let recommendationsList = [];
+            try {
+              const pRes = await axios.get(`${apiBaseUrl}/sessions/${session.id}/processed`);
+              recommendationsList = pRes.data.recommendations || [];
+            } catch (e) {}
+
+            const fetchAndZipPart = async (partIndex) => {
+              const urlPart = partIndex !== undefined ? `?part=${partIndex}` : '';
+              const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf${urlPart}`, {
+                responseType: 'blob'
+              });
+              
               const dateStr = new Date().toISOString().split('T')[0];
-              const pSuffix = session.isP3Mode ? '_P3' : `_P${session.parcoursNumber || 1}`;
+              const pNum = (session.parcoursNumber || 1) + (partIndex || 0);
+              const pSuffix = session.isP3Mode ? '_P3' : `_P${pNum}`;
               const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
-              filename = `Analyse_${session.prenom || ''}_${session.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+              const filename = `Analyse_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+              
+              folder.file(filename, res.data);
+            };
+
+            if (recommendationsList.length > 1) {
+              for (let i = 0; i < recommendationsList.length; i++) {
+                await fetchAndZipPart(i);
+              }
+            } else {
+              await fetchAndZipPart();
             }
-            
-            folder.file(filename, res.data);
           } catch (err) {
             console.error(`Failed to fetch PDF for session ${id}:`, err);
           } finally {
