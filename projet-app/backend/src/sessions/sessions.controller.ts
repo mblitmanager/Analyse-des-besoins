@@ -12,8 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
 import { FormationsService } from '../formations/formations.service';
 import { PdfService } from '../pdf/pdf.service';
-import type { Response } from 'express';
-import { Res } from '@nestjs/common';
+import { Res, Query } from '@nestjs/common';
 
 export class CreateSessionDto {
   brand: string;
@@ -59,7 +58,7 @@ export class SessionsController {
   }
 
   @Get(':id/pdf')
-  async downloadPdf(@Param('id') id: string, @Res() res: Response) {
+  async downloadPdf(@Param('id') id: string, @Res() res: any) {
     const session = await this.sessionsService.findOne(id);
     if (!session) {
       return res.status(404).send('Session not found');
@@ -77,7 +76,7 @@ export class SessionsController {
       metier: session.metier,
       situation: session.situation,
       formationChoisie: session.formationChoisie,
-      finalRecommendation: processed.recommendation,
+      finalRecommendation: (processed.recommendations || []).join(' & '),
       scoreFinal: processed.scorePretest,
       levelsScores: session.levelsScores as any,
       prerequisiteAnswers: processed.filteredPrerequis,
@@ -88,11 +87,15 @@ export class SessionsController {
       highLevelContinue: session.highLevelContinue,
       isP3Mode: session.isP3Mode,
       parcoursNumber,
+      correctAnswersById: processed.correctAnswersById,
+      positionnementAnswers: session.positionnementAnswers,
     });
+
+    const filename = this.sessionsService.generatePdfFilename(session, session.formationChoisie || 'Analyse', undefined, parcoursNumber);
 
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="Analyse_des_besoins_${session.prenom}_${session.nom}.pdf"`,
+      'Content-Disposition': `attachment; filename="${filename}"`,
       'Content-Length': pdfBuffer.length,
     });
 

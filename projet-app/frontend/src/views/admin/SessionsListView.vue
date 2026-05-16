@@ -3,6 +3,8 @@ import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
 import ExcelJS from "exceljs";
+import JSZip from 'jszip';
+import { useToastStore } from "../../stores/toast";
 
 const sessions = ref([]);
 const loading = ref(true);
@@ -18,6 +20,12 @@ const questionsIndex = ref({});
 const selectedSessionIds = ref(new Set());
 const processedData = ref(null);
 const loadingProcessed = ref(false);
+
+const isExportingPdf = ref(false);
+const exportProgressCount = ref(0);
+const exportProgressTotal = ref(0);
+
+const toast = useToastStore();
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -111,9 +119,10 @@ async function deleteSelectedSessions() {
     );
     selectedSessionIds.value.clear();
     await fetchSessions();
+    toast.success("Sessions supprimées avec succès.");
   } catch (error) {
     console.error("Failed to delete selected sessions:", error);
-    alert("Erreur lors de la suppression groupée.");
+    toast.error("Erreur lors de la suppression groupée.");
   }
 }
 
@@ -173,9 +182,10 @@ async function saveSessionEdits() {
       selectedSession.value = updated;
       editableSession.value = JSON.parse(JSON.stringify(updated));
     }
+    toast.success("Modifications enregistrées !");
   } catch (error) {
     console.error("Failed to save session edits:", error);
-    alert("Erreur lors de la sauvegarde de la session.");
+    toast.error("Erreur lors de la sauvegarde de la session.");
   } finally {
     savingSession.value = false;
   }
@@ -192,9 +202,10 @@ async function deleteSession(session) {
   try {
     await axios.delete(`${apiBaseUrl}/sessions/${session.id}`);
     await fetchSessions();
+    toast.success("Session supprimée avec succès.");
   } catch (error) {
     console.error("Failed to delete session:", error);
-    alert("Erreur lors de la suppression de la session.");
+    toast.error("Erreur lors de la suppression de la session.");
   }
 }
 
@@ -230,26 +241,10 @@ async function exportToExcel() {
 
   const headers = [...baseHeaders, ...questionHeaders];
 
-  const rows = allSessionsProcessed.map((s) => {
-    const baseRow = [
-      s.id,
-      `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
-      s.stagiaire?.email || s.email || "",
-      s.telephone || "",
-      s.conseiller || "",
-      s.parrainNom || "",
-      s.parrainPrenom || "",
-      s.parrainEmail || "",
-      s.parrainTelephone || "",
-      s.brand || "",
-      s.formationChoisie || "",
-      new Date(s.createdAt).toLocaleString(),
-      s.isCompleted ? "Terminé" : "En cours",
-      s.processed ? s.processed.scorePretest : (s.scorePretest || 0),
-      s.lastValidatedLevel || "",
-      s.stopLevel || "",
-      s.processed ? s.processed.recommendation : (s.finalRecommendation || ""),
-    ];
+  const rows = [];
+  allSessionsProcessed.forEach((s) => {
+    const recommendationStr = s.processed ? s.processed.recommendation : (s.finalRecommendation || "");
+    const parts = recommendationStr ? recommendationStr.split(/\s*&\s*/).map(p => p.trim()).filter(Boolean) : [""];
 
     const questionRow = qIdsArray.map(id => {
       let ans = "";
@@ -263,7 +258,28 @@ async function exportToExcel() {
       return Array.isArray(ans) ? ans.join(", ") : ans;
     });
 
-    return [...baseRow, ...questionRow];
+    parts.forEach((part) => {
+      const baseRow = [
+        s.id,
+        `${s.prenom || s.stagiaire?.prenom || ""} ${s.nom || s.stagiaire?.nom || ""}`,
+        s.stagiaire?.email || s.email || "",
+        s.telephone || "",
+        s.conseiller || "",
+        s.parrainNom || "",
+        s.parrainPrenom || "",
+        s.parrainEmail || "",
+        s.parrainTelephone || "",
+        s.brand || "",
+        s.formationChoisie || "",
+        new Date(s.createdAt).toLocaleString(),
+        s.isCompleted ? "Terminé" : "En cours",
+        s.processed ? s.processed.scorePretest : (s.scorePretest || 0),
+        s.lastValidatedLevel || "",
+        s.stopLevel || "",
+        part,
+      ];
+      rows.push([...baseRow, ...questionRow]);
+    });
   });
 
   const workbook = new ExcelJS.Workbook();
@@ -291,16 +307,93 @@ async function downloadPdf(session) {
     const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `Analyse_des_besoins_${session.prenom}_${session.nom}.pdf`);
+    const dateStr = new Date().toISOString().split('T')[0];
+    const pSuffix = session.isP3Mode ? '_P3' : '';
+    const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
+    const filename = `Analyse_des_besoins_${session.prenom || ''}_${session.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Failed to download PDF:", error);
-    alert("Erreur lors du téléchargement du PDF.");
+  } catch (err) {
+    console.error(err);
+    toast.error("Erreur lors du téléchargement du PDF.");
   }
 }
+
+async function exportSelectedToPdf() {
+  if (selectedSessionIds.value.size === 0) return;
+  
+  const ids = Array.from(selectedSessionIds.value);
+  const confirmMsg = `Générer un dossier ZIP contenant les ${ids.length} PDFs sélectionnés ?\n\nNote: Les sessions P1 et P2 seront incluses séparément.`;
+  if (!confirm(confirmMsg)) return;
+
+  isExportingPdf.value = true;
+  exportProgressCount.value = 0;
+  exportProgressTotal.value = ids.length;
+
+  const zip = new JSZip();
+  const folder = zip.folder(`export_sessions_${new Date().toISOString().split('T')[0]}`);
+  
+  try {
+    // Process in small batches or concurrently with limit to avoid overloading the server
+    const batchSize = 5;
+    for (let i = 0; i < ids.length; i += batchSize) {
+      const batch = ids.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (id) => {
+        const session = sessions.value.find(s => s.id === id);
+        if (session) {
+          try {
+            const res = await axios.get(`${apiBaseUrl}/sessions/${session.id}/pdf`, {
+              responseType: 'blob'
+            });
+            
+            // Get filename from response header or generate it
+            const contentDisposition = res.headers['content-disposition'];
+            let filename = '';
+            if (contentDisposition && contentDisposition.includes('filename=')) {
+              filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+            } else {
+              const dateStr = new Date().toISOString().split('T')[0];
+              const pSuffix = session.isP3Mode ? '_P3' : `_P${session.parcoursNumber || 1}`;
+              const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
+              filename = `Analyse_${session.prenom || ''}_${session.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+            }
+            
+            folder.file(filename, res.data);
+          } catch (err) {
+            console.error(`Failed to fetch PDF for session ${id}:`, err);
+          } finally {
+            exportProgressCount.value++;
+          }
+        } else {
+          exportProgressCount.value++;
+        }
+      }));
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = window.URL.createObjectURL(content);
+    const link = document.createElement('a');
+    link.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `export_sessions_${dateStr}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    selectedSessionIds.value.clear();
+    toast.success(`Export de ${ids.length} rapports terminé !`);
+  } catch (error) {
+    console.error("Failed to generate ZIP:", error);
+    toast.error("Erreur lors de la génération du dossier ZIP.");
+  } finally {
+    isExportingPdf.value = false;
+  }
+}
+
 
 function exportSessionDetails(session) {
   const payload = {
@@ -379,18 +472,26 @@ function toggleExpandedLevel(level) {
       <div class="flex items-center gap-3">
         <button
           @click="exportToExcel"
-          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+          class="px-5 py-2.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2"
         >
           <span class="material-icons-outlined text-sm">file_download</span>
-          Exporter Excel
+          Excel
+        </button>
+        <button 
+          v-if="selectedSessionIds.size > 0"
+          @click="exportSelectedToPdf"
+          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+        >
+          <span class="material-icons-outlined text-sm">picture_as_pdf</span>
+          Exporter PDF ({{ selectedSessionIds.size }})
         </button>
         <button 
           v-if="selectedSessionIds.size > 0"
           @click="deleteSelectedSessions"
-          class="px-5 py-2.5 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center gap-2 shadow-xl shadow-rose-500/10"
+          class="px-5 py-2.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center gap-2 shadow-sm"
         >
           <span class="material-icons-outlined text-sm">delete_sweep</span>
-          Supprimer ({{ selectedSessionIds.size }})
+          Supprimer
         </button>
       </div>
     </div>
@@ -454,6 +555,7 @@ function toggleExpandedLevel(level) {
               </th>
               <th class="px-4 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Candidat</th>
               <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Formation & Marque</th>
+              <th class="px-4 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Parcours</th>
               <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Dernière Activité</th>
               <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Referral</th>
               <th class="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
@@ -504,6 +606,18 @@ function toggleExpandedLevel(level) {
                        {{ session.brand || 'PLATFORME' }}
                     </span>
                   </div>
+                </td>
+                <td class="px-4 py-5 text-center">
+                  <span 
+                    class="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border"
+                    :style="{ 
+                      backgroundColor: (session.parcoursNumber === 2 ? '#ecfdf5' : (session.isP3Mode || session.parcoursNumber === 3) ? '#fefce8' : '#eff6ff'),
+                      color: (session.parcoursNumber === 2 ? '#059669' : (session.isP3Mode || session.parcoursNumber === 3) ? '#b45309' : '#305364'),
+                      borderColor: (session.parcoursNumber === 2 ? '#10b98120' : (session.isP3Mode || session.parcoursNumber === 3) ? '#ebb87240' : '#30536420')
+                    }"
+                  >
+                    P{{ session.isP3Mode ? '3' : (session.parcoursNumber || '1') }}
+                  </span>
                 </td>
                 <td class="px-8 py-5 whitespace-nowrap">
                   <div class="flex flex-col">
@@ -612,6 +726,13 @@ function toggleExpandedLevel(level) {
             </div>
           </div>
           <div class="flex items-center gap-4">
+             <button
+              @click.stop="downloadPdf(editableSession)"
+              class="w-12 h-12 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all shadow-sm"
+              title="Télécharger le PDF"
+            >
+              <span class="material-icons-outlined">picture_as_pdf</span>
+            </button>
              <button
               @click="saveSessionEdits"
               :disabled="savingSession"
@@ -853,10 +974,41 @@ function toggleExpandedLevel(level) {
                  <span class="material-icons-outlined text-lg">picture_as_pdf</span>
                </button>
             </div>
-          </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Export Progress Overlay -->
+    <Transition name="fade">
+      <div v-if="isExportingPdf" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md">
+        <div class="bg-white rounded-[32px] p-10 max-w-sm w-full shadow-2xl space-y-8 animate-scale-in border border-slate-100">
+          <div class="flex flex-col items-center text-center space-y-4">
+            <div class="w-20 h-20 rounded-3xl bg-slate-900 flex items-center justify-center text-white shadow-xl shadow-slate-900/20">
+              <span class="material-icons-outlined text-4xl animate-bounce">inventory_2</span>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-xl font-black text-slate-900">Préparation de l'export</h3>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Génération du dossier ZIP en cours...</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest px-1">
+              <span class="text-slate-400">Progression</span>
+              <span class="text-slate-900">{{ exportProgressCount }} / {{ exportProgressTotal }}</span>
+            </div>
+            <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                class="h-full bg-slate-900 transition-all duration-300 ease-out"
+                :style="{ width: `${(exportProgressCount / exportProgressTotal) * 100}%` }"
+              ></div>
+            </div>
+            <p class="text-center text-[9px] font-bold text-slate-400 italic">Merci de ne pas fermer cette fenêtre</p>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 

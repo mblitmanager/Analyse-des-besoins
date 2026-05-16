@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
+import { useToastStore } from "../../stores/toast";
 
 const rules = ref([]);
 const formationsList = ref([]);
@@ -60,6 +61,8 @@ const f2Manual = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('admin_token')}` });
+
+const toast = useToastStore();
 
 
 const categories = computed(() => {
@@ -226,10 +229,11 @@ async function saveRule() {
     }
     showForm.value = false;
     editingRule.value = null;
+    toast.success("Règle enregistrée !");
     await fetchRules();
   } catch (error) {
     console.error("Failed to save rule:", error);
-    alert("Erreur lors de la sauvegarde.");
+    toast.error("Erreur lors de la sauvegarde.");
   }
 }
 
@@ -237,10 +241,11 @@ async function deleteRule(rule) {
   if (!confirm(`Supprimer cette règle de parcours ?`)) return;
   try {
     await axios.delete(`${apiBaseUrl}/parcours/${rule.id}`, { headers: getAuthHeaders() });
+    toast.success("Règle supprimée.");
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
-    alert("Erreur lors de la suppression.");
+    toast.error("Erreur lors de la suppression.");
   }
 }
 
@@ -249,9 +254,10 @@ async function toggleRuleActive(rule) {
     const newState = !(rule.isActive !== false);
     await axios.patch(`${apiBaseUrl}/parcours/${rule.id}`, { isActive: newState }, { headers: getAuthHeaders() });
     rule.isActive = newState;
+    toast.success(newState ? "Règle activée" : "Règle désactivée");
   } catch (error) {
     console.error("Failed to toggle rule:", error);
-    alert("Erreur lors de la mise à jour.");
+    toast.error("Erreur lors de la mise à jour.");
   }
 }
 
@@ -281,9 +287,10 @@ async function saveFormationSettings() {
     
     await axios.patch(`${apiBaseUrl}/formations/${activeFormationId.value}`, payload, { headers: getAuthHeaders() });
     await fetchFormations();
-    alert("Paramètres enregistrés.");
+    toast.success("Paramètres enregistrés.");
   } catch (error) {
     console.error("Failed to save formation settings:", error);
+    toast.error("Erreur lors de l'enregistrement des paramètres.");
   }
 }
 

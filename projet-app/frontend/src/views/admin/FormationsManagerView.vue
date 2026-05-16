@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import axios from "axios";
+import { useToastStore } from "../../stores/toast";
+
+const toast = useToastStore();
 
 const formations = ref([]);
 const loading = ref(true);
@@ -447,9 +450,10 @@ async function saveFormation() {
       await axios.post(`${apiBaseUrl}/formations`, payload);
     }
     showModal.value = false;
+    toast.success("Formation enregistrée !");
     await fetchFormations();
   } catch (error) {
-    alert("Erreur lors de l'enregistrement. Vérifiez que le slug est unique.");
+    toast.error("Erreur lors de l'enregistrement. Vérifiez que le slug est unique.");
     console.error(error);
   }
 }
@@ -458,9 +462,10 @@ async function deleteFormation(formation) {
   if (!confirm(`Supprimer définitivement ${formation.label} ?`)) return;
   try {
     await axios.delete(`${apiBaseUrl}/formations/${formation.id}`);
+    toast.success("Formation supprimée.");
     await fetchFormations();
   } catch (error) {
-    alert("Erreur lors de la suppression");
+    toast.error("Erreur lors de la suppression");
     console.error(error);
   }
 }

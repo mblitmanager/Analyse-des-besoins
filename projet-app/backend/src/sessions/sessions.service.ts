@@ -584,13 +584,64 @@ export class SessionsService {
         const f1 = matchedRule.formation1 || '';
         const f2 = matchedRule.formation2 || '';
         let proposedParcours = f1 === f2 || !f2 ? [f1] : [f1, f2];
-        let finalRecommendationValue = proposedParcours.join(' & ');
-        // P3 mode: present multiple options as a CHOICE (OU) instead of sequential (&)
-        // e.g. "ICDL - Google Docs OU ICDL - Google Sheets" = pick ONE
+        
+        // Singular field for DB/PDF should only contain ONE step for clean P1/P2/P3 separation.
+        // The frontend will use the plural 'recommendations' array to detect and queue P2.
+        let finalRecommendationValue = proposedParcours.length > 0 ? proposedParcours[0] : '';
+
+        // P3 mode: handle choice logic if needed (though P3 should ideally be 1 step)
         if (session.isP3Mode && proposedParcours.length > 1) {
           finalRecommendationValue = proposedParcours.join(' OU ');
-        } else if (session.isP3Mode && proposedParcours.length === 1) {
-          finalRecommendationValue = proposedParcours[0];
+        }
+
+        // ── P3 DUPLICATE AVOIDANCE (matched rule path) ──
+        // If in P3 mode, check that the proposed recommendation is not identical
+        // to what the user already received in a previous parcours (P1 or P2).
+        // If it is, bump to the next level.
+        if (session.isP3Mode && session.stagiaire?.id) {
+          try {
+            const allUserSessions = await this.sessionRepo.find({
+              where: { stagiaire: { id: session.stagiaire.id } },
+              order: { createdAt: 'DESC' },
+              take: 10,
+            });
+
+            const norm = (s: string) => (s || '').toLowerCase().trim();
+            const currentRec = norm(finalRecommendationValue);
+
+            // Check against ALL previous sessions (not just the immediately preceding one)
+            const isDuplicate = allUserSessions.some(
+              (prev) =>
+                prev.id !== session.id &&
+                prev.finalRecommendation &&
+                norm(prev.finalRecommendation).includes(currentRec),
+            );
+
+            if (isDuplicate && levels.length > 0) {
+              // Find which level the current recommendation corresponds to
+              const currentLvlLabel = levels.find((l) =>
+                currentRec.includes(norm(l.label)),
+              )?.label;
+
+              if (currentLvlLabel) {
+                const currentIdx = levels.findIndex(
+                  (l) => l.label === currentLvlLabel,
+                );
+                if (currentIdx !== -1 && currentIdx < levels.length - 1) {
+                  const nextLvl = levels[currentIdx + 1];
+                  finalRecommendationValue =
+                    `${session.formationChoisie} ${nextLvl.label}`.trim();
+                  proposedParcours = [finalRecommendationValue];
+                  p3Redirected = true;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn(
+              '[P3] Failed to check previous sessions for duplicate in matched rule path:',
+              e.message,
+            );
+          }
         }
 
         const levelsEntries: any[] = session.levelsScores
@@ -761,7 +812,9 @@ export class SessionsService {
       }
     }
 
-    let finalRecommendationValue = proposedParcours.join(' & ');
+    // Singular field for DB/PDF should only contain ONE step for clean P1/P2/P3 separation.
+    // The frontend will use the plural 'recommendations' array to detect and queue P2.
+    let finalRecommendationValue = proposedParcours.length > 0 ? proposedParcours[0] : '';
 
     // Enforce ONE formation exactly for P3 mode, regardless of DB rules or fallbacks!
     if (session.isP3Mode) {
@@ -1062,11 +1115,7 @@ export class SessionsService {
       hour: '2-digit',
       minute: '2-digit',
     });
-    const filenameTimestamp = now
-      .toISOString()
-      .replace(/T/, '_')
-      .replace(/:/g, '-')
-      .slice(0, 16);
+    const filenameTimestamp = now.toISOString().slice(0, 10);
 
     const emailAttachments: any[] = [];
     const recommendationsList = recommendation
@@ -1079,10 +1128,14 @@ export class SessionsService {
       recommendationsList.push(session.formationChoisie || 'Parcours');
     }
 
+    const fullRecommendation = recommendationsList.join(' & ');
+
     // Generate PDF attachment for EACH formation
-    const parcoursNumber = await this.getParcoursNumber(session);
+    const baseParcoursNumber = await this.getParcoursNumber(session);
     for (let i = 0; i < recommendationsList.length; i++) {
       const rec = recommendationsList[i];
+      const currentParcoursNumber = recommendationsList.length > 1 ? baseParcoursNumber + i : baseParcoursNumber;
+      
       const pdfBuffer = await this.pdfService.generateSessionPdf({
         civilite: session.civilite,
         prenom: session.prenom,
@@ -1093,7 +1146,7 @@ export class SessionsService {
         metier: session.metier,
         situation: session.situation,
         formationChoisie: rec, // Specific formation
-        finalRecommendation: recommendation, // Full recommendation string for labeling logic
+        finalRecommendation: fullRecommendation, // Use full string for the result box
         scoreFinal: scorePretest,
         levelsScores: session.levelsScores as Record<string, any>,
         prerequisiteAnswers: filteredPrerequis as Record<string, any>,
@@ -1111,7 +1164,7 @@ export class SessionsService {
         parrainTelephone: session.parrainTelephone,
         highLevelContinue: session.highLevelContinue,
         isP3Mode: session.isP3Mode,
-        parcoursNumber,
+        parcoursNumber: currentParcoursNumber,
         stopLevelOrder: session.stopLevelOrder,
         correctAnswersById: correctAnswersById as Record<
           number,
@@ -1119,9 +1172,7 @@ export class SessionsService {
         >,
       });
 
-      const safeRec = rec.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const pdfFilename =
-        `Analyse_${session.prenom || ''}_${session.nom || ''}_${safeRec}_${filenameTimestamp}.pdf`.trim();
+      const pdfFilename = this.generatePdfFilename(session, rec, filenameTimestamp, currentParcoursNumber);
 
       emailAttachments.push({ filename: pdfFilename, content: pdfBuffer });
     }
@@ -1156,11 +1207,11 @@ export class SessionsService {
     );
 
     // Determine dynamic labeling based on sequence and steps
-    let badgeText = `P${parcoursNumber}`;
+    let badgeText = `P${baseParcoursNumber}`;
     let badgeStatus =
-      parcoursNumber === 1
+      baseParcoursNumber === 1
         ? 'INITIAL'
-        : parcoursNumber === 3
+        : baseParcoursNumber === 3
           ? '3ÈME PARCOURS'
           : 'COMPLÉMENTAIRE';
 
@@ -1169,7 +1220,7 @@ export class SessionsService {
       // If we have multiple recommendations (standard P1 & P2 outcome), force this label
       badgeText = 'P1 & P2';
       badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
-    } else if (session.isP3Mode || parcoursNumber >= 3) {
+    } else if (session.isP3Mode || baseParcoursNumber >= 3) {
       // If we are in P3 mode or reached the 3rd session, force P3
       badgeText = 'P3';
       badgeStatus = '3ÈME PARCOURS';
@@ -1205,13 +1256,7 @@ export class SessionsService {
           <p><strong>Formation :</strong> ${session.formationChoisie}</p>
           <p><strong>Recommandations :</strong></p>
           <div style="margin-bottom: 20px;">
-            ${recommendation
-              .split(' | ')
-              .map(
-                (r) =>
-                  `<div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${r}</div>`,
-              )
-              .join('')}
+            <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
           </div>
           
           <div style="margin-top: 30px;">
@@ -1305,11 +1350,7 @@ export class SessionsService {
       hour: '2-digit',
       minute: '2-digit',
     });
-    const filenameTimestamp = now
-      .toISOString()
-      .replace(/T/, '_')
-      .replace(/:/g, '-')
-      .slice(0, 16);
+    const filenameTimestamp = now.toISOString().slice(0, 10);
 
     // Generate a single PDF for the P3 recommendation
     const pdfBuffer = await this.pdfService.generateSessionPdf({
@@ -1347,7 +1388,7 @@ export class SessionsService {
     });
 
     const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    const pdfFilename = `Analyse_${session.prenom || ''}_${session.nom || ''}_P3_${safeRec}_${filenameTimestamp}.pdf`;
+    const pdfFilename = `Analyse_des_besoins_${session.prenom || ''}_${session.nom || ''}_P3_${safeRec}_${filenameTimestamp}.pdf`;
 
     const emailAttachments: any[] = [
       { filename: pdfFilename, content: pdfBuffer },
@@ -1421,6 +1462,20 @@ export class SessionsService {
       emailSentAt: new Date(),
       isCompleted: true,
     });
+  }
+
+  /**
+   * Generates a standard PDF filename for a session
+   */
+  public generatePdfFilename(session: Session, formation: string, timestamp?: string, parcoursNumber?: number): string {
+    const safeRec = (formation || 'Analyse')
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase()
+      .substring(0, 30);
+    const dateStr = timestamp || new Date().toISOString().split('T')[0];
+    const pNumber = parcoursNumber || 1;
+    const pSuffix = `_P${pNumber}`;
+    return `Analyse_des_besoins_${session.prenom || ''}_${session.nom || ''}${pSuffix}_${safeRec}_${dateStr}.pdf`.trim();
   }
 }
 
@@ -1605,5 +1660,6 @@ function isQuestionVisible(
     return false;
   }
 
-  return true;
+  return true; // Default visibility
 }
+

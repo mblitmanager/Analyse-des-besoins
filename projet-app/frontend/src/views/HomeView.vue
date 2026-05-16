@@ -5,9 +5,11 @@ import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const form = ref({
   civilite: "M.",
@@ -88,7 +90,7 @@ onMounted(async () => {
 async function startTest() {
   // conseiller is optional, only check the required fields
   if (!form.value.nom || !form.value.prenom || !form.value.telephone) {
-    alert("Veuillez remplir tous les champs obligatoires.");
+    toast.error("Veuillez remplir tous les champs obligatoires.");
     return;
   }
 
@@ -96,6 +98,7 @@ async function startTest() {
   try {
     // Reset P3 mode for new sessions
     store.setP3Mode(false);
+    ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices', 'p3_prev_formation_slug'].forEach(k => localStorage.removeItem(k));
     
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -117,9 +120,9 @@ async function startTest() {
     } else {
       throw new Error("Session ID missing from response");
     }
-  } catch (error) {
+    } catch (error) {
     console.error("Failed to create session:", error);
-    alert("Erreur lors de l’initialisation de la session.");
+    toast.error("Erreur lors de l’initialisation de la session.");
   } finally {
     loading.value = false;
   }
@@ -135,15 +138,13 @@ async function testDbConnection() {
     const response = await fetch(`${apiBaseUrl}/health/db`);
     const data = await response.json();
     if (data.status === "ok") {
-      alert("✅ " + data.message);
+      toast.success(data.message);
     } else {
-      alert("❌ " + data.message + (data.error ? ": " + data.error : ""));
+      toast.error(data.message + (data.error ? ": " + data.error : ""));
     }
   } catch (error) {
     console.error("Health check failed:", error);
-    alert(
-      "❌ Erreur lors du test de connexion. Vérifiez que le backend est lancé.",
-    );
+    toast.error("Erreur lors du test de connexion. Vérifiez que le backend est lancé.");
   } finally {
     testingDb.value = false;
   }
@@ -259,7 +260,7 @@ async function testDbConnection() {
             </div>
 
             <div class="pt-4">
-              <button type="submit" :disabled="loading" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg text-sm font-black uppercase tracking-widest text-[#428496] bg-[#ebb973] hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+              <button type="submit" :disabled="loading" class="w-full flex justify-center py-4 px-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-[#ebb872]/20 hover:brightness-105 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer border-none">
                 <span>Démarrer le parcours</span>
                 <span class="material-icons-outlined ml-2 text-[20px]">arrow_forward</span>
               </button>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import axios from "axios";
+import { useToastStore } from "../../stores/toast";
 
 const users = ref([]);
 const loading = ref(true);
@@ -11,6 +11,7 @@ const page = ref(1);
 const pageSize = ref(10);
 const newUser = ref({ email: "", password: "" });
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const toast = useToastStore();
 
 const uniqueRoles = computed(() => {
   const set = new Set();
@@ -61,9 +62,10 @@ async function createUser() {
     await axios.post(`${apiBaseUrl}/admin/users`, newUser.value);
     showAddModal.value = false;
     newUser.value = { email: "", password: "" };
+    toast.success("Administrateur créé !");
     fetchUsers();
   } catch (error) {
-    alert("Erreur lors de la création.");
+    toast.error("Erreur lors de la création.");
   }
 }
 
@@ -71,9 +73,10 @@ async function deleteUser(id) {
   if (!confirm("Supprimer définitivement cet accès administrateur ?")) return;
   try {
     await axios.delete(`${apiBaseUrl}/admin/users/${id}`);
+    toast.success("Accès supprimé.");
     fetchUsers();
   } catch (error) {
-    alert("Erreur lors de la suppression.");
+    toast.error("Erreur lors de la suppression.");
   }
 }
 

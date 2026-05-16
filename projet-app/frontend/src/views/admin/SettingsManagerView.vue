@@ -2,8 +2,10 @@
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { useAppStore } from "../../stores/app";
+import { useToastStore } from "../../stores/toast";
 
 const appStore = useAppStore();
+const toast = useToastStore();
 const settings = ref([]);
 const loading = ref(true);
 const saving = ref(false);
@@ -115,8 +117,9 @@ async function saveSetting(key, value) {
     );
     // Keep runtime workflow/settings logic in sync after admin update.
     appStore.invalidateSetting(key);
+    toast.success("Paramètre mis à jour");
   } catch (error) {
-    alert("Erreur lors de l'enregistrement");
+    toast.error("Erreur lors de l'enregistrement");
   } finally {
     saving.value = false;
   }
@@ -132,10 +135,10 @@ async function saveWorkflowOrder() {
     }));
     await axios.put(`${apiBaseUrl}/workflow/order`, payload, { headers: { Authorization: `Bearer ${token}` } });
     await appStore.fetchWorkflow(); 
-    alert("Configuration du workflow enregistrée !");
+    toast.success("Configuration du workflow enregistrée !");
   } catch (error) {
     console.error("Erreur workflow", error);
-    alert("Erreur lors de la mise à jour.");
+    toast.error("Erreur lors de la mise à jour.");
   } finally {
     savingWorkflow.value = false;
   }
@@ -143,7 +146,7 @@ async function saveWorkflowOrder() {
 
 async function createWorkflowStep() {
   if (!newStep.value.label || !newStep.value.route) {
-    alert('Informations manquantes');
+    toast.error('Informations manquantes');
     return;
   }
   try {
@@ -198,16 +201,16 @@ function moveStep(index, direction) {
 onMounted(fetchSettings);
 
 async function sendTestEmail() {
-  if (!testEmailForm.value.to) return alert("Veuillez saisir une adresse email");
+  if (!testEmailForm.value.to) return toast.error("Veuillez saisir une adresse email");
   sendingEmail.value = true;
   try {
     const token = localStorage.getItem("admin_token");
     await axios.post(`${apiBaseUrl}/send-email`, testEmailForm.value, { headers: { Authorization: `Bearer ${token}` } });
-    alert("Email envoyé avec succès !");
+    toast.success("Email envoyé avec succès !");
     showTestEmailModal.value = false;
   } catch(error) {
     console.error("Erreur d'envoi:", error);
-    alert("Erreur lors de l'envoi de l'email : " + (error.response?.data?.message || error.message));
+    toast.error("Erreur lors de l'envoi de l'email : " + (error.response?.data?.message || error.message));
   } finally {
     sendingEmail.value = false;
   }

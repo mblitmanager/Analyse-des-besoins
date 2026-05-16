@@ -8,10 +8,12 @@ import { filterConditionalQuestions, clearHiddenResponses } from '../utils/condi
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const router = useRouter();
 const route = useRoute();
 const store = useAppStore();
+const toast = useToastStore();
 
 const sessionId = localStorage.getItem("session_id");
 const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -95,7 +97,7 @@ async function submitResponses() {
   });
   
   if (unanswered) {
-    alert("Veuillez répondre à toutes les questions affichées.");
+    toast.error("Veuillez répondre à toutes les questions affichées.");
     return;
   }
 
@@ -119,7 +121,7 @@ async function submitResponses() {
     router.push(nextRoute || "/resultats");
   } catch (error) {
     console.error("Failed to submit:", error);
-    alert("Erreur lors de la validation.");
+    toast.error("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
@@ -154,7 +156,7 @@ async function goBack() {
             </div>
             <h2 class="text-2xl font-black text-blue-900 mb-2">Aucune question</h2>
             <p class="text-gray-500 font-medium mb-8">Il n'y a pas de questions configurées pour cette étape.</p>
-            <button @click="submitResponses" class="w-full py-4 bg-brand-primary text-[#428496] font-black uppercase tracking-widest leading-none rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
+            <button @click="submitResponses" class="w-full py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest leading-none rounded-2xl shadow-lg hover:brightness-105 transition-all active:scale-95 cursor-pointer">
                 Continuer
             </button>
          </div>
@@ -228,7 +230,7 @@ async function goBack() {
           <button
             @click="submitResponses()"
             :disabled="submitting"
-            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Enregistrement...' : 'Continuer' }}</span>
