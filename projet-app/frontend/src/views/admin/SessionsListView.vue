@@ -360,11 +360,8 @@ async function downloadPdf(session) {
   }
 }
 
-async function exportSelectedToPdf() {
-  if (selectedSessionIds.value.size === 0) return;
-  
-  const ids = Array.from(selectedSessionIds.value);
-  const confirmMsg = `Générer un dossier ZIP contenant les ${ids.length} PDFs sélectionnés ?\n\nNote: Les sessions P1 et P2 seront incluses séparément.`;
+async function _exportPdfs(ids, labelMsg) {
+  const confirmMsg = `Générer un dossier ZIP contenant les ${ids.length} PDFs ${labelMsg} ?\n\nNote: Les sessions P1 et P2 seront incluses séparément.`;
   if (!confirm(confirmMsg)) return;
 
   isExportingPdf.value = true;
@@ -375,7 +372,6 @@ async function exportSelectedToPdf() {
   const folder = zip.folder(`export_sessions_${new Date().toISOString().split('T')[0]}`);
   
   try {
-    // Process in small batches or concurrently with limit to avoid overloading the server
     const batchSize = 5;
     for (let i = 0; i < ids.length; i += batchSize) {
       const batch = ids.slice(i, i + batchSize);
@@ -399,14 +395,14 @@ async function exportSelectedToPdf() {
               const pNum = (session.parcoursNumber || 1) + (partIndex || 0);
               const pSuffix = session.isP3Mode ? '_P3' : `_P${pNum}`;
               const formation = (session.formationChoisie || 'Analyse').replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
-              const filename = `Analyse_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
+              const filename = `Analyse_des_besoins_${session.prenom || session.stagiaire?.prenom || ''}_${session.nom || session.stagiaire?.nom || ''}${pSuffix}_${formation}_${dateStr}.pdf`;
               
               folder.file(filename, res.data);
             };
 
             if (recommendationsList.length > 1) {
-              for (let i = 0; i < recommendationsList.length; i++) {
-                await fetchAndZipPart(i);
+              for (let j = 0; j < recommendationsList.length; j++) {
+                await fetchAndZipPart(j);
               }
             } else {
               await fetchAndZipPart();
@@ -441,6 +437,18 @@ async function exportSelectedToPdf() {
   } finally {
     isExportingPdf.value = false;
   }
+}
+
+async function exportSelectedToPdf() {
+  if (selectedSessionIds.value.size === 0) return;
+  const ids = Array.from(selectedSessionIds.value);
+  await _exportPdfs(ids, "sélectionnés");
+}
+
+async function exportAllToPdf() {
+  if (filteredSessions.value.length === 0) return;
+  const ids = filteredSessions.value.map(s => s.id);
+  await _exportPdfs(ids, "filtrés");
 }
 
 
@@ -533,6 +541,14 @@ function toggleExpandedLevel(level) {
         >
           <span class="material-icons-outlined text-sm">picture_as_pdf</span>
           Exporter PDF ({{ selectedSessionIds.size }})
+        </button>
+        <button 
+          v-else-if="filteredSessions.length > 0"
+          @click="exportAllToPdf"
+          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+        >
+          <span class="material-icons-outlined text-sm">picture_as_pdf</span>
+          Tout en PDF ({{ filteredSessions.length }})
         </button>
         <button 
           v-if="selectedSessionIds.size > 0"
