@@ -59,6 +59,9 @@ export class PdfService {
       const darkText = '#1f2937';
       const grayText = '#6b7280';
       const lightBg = '#f8fafc';
+      const p1Color = '#305364'; // Slate Blue
+      const p2Color = '#059669'; // Emerald
+      const p3Color = '#b45309'; // Dark Golden
 
       const publicPath = path.join(process.cwd(), 'public');
       const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
@@ -68,45 +71,54 @@ export class PdfService {
         'Logo_Like_Formation.png',
       );
 
-      // ─── Header ───
+      // ─── Header with Logos ───
+      try {
+        let logoX = 50;
+        if (fs.existsSync(logoAopiaPath)) {
+          doc.image(logoAopiaPath, logoX, 40, { height: 20 });
+          logoX += 80;
+        }
+        if (fs.existsSync(logoLikePath)) {
+          // Separator line
+          if (logoX > 50) {
+            doc
+              .strokeColor('#e5e7eb')
+              .lineWidth(1)
+              .moveTo(logoX - 10, 42)
+              .lineTo(logoX - 10, 58)
+              .stroke();
+          }
+          doc.image(logoLikePath, logoX, 40, { height: 20 });
+        }
+      } catch (e) {
+        console.warn('Header logos failed:', e.message);
+      }
+
       doc
         .fontSize(18)
         .fillColor(brandBlue)
-        .text('Analyse des besoins', { align: 'center' });
+        .font('Helvetica-Bold')
+        .text('Analyse des besoins', { align: 'right' });
+      doc.font('Helvetica');
 
-      if (data.parcoursNumber) {
-        let badgeText = `P${data.parcoursNumber}`;
+      if (data.parcoursNumber || data.isP3Mode) {
+        const pNum = data.parcoursNumber || (data.isP3Mode ? 3 : 1);
+        let badgeText = `P${pNum}`;
         let badgeStatus =
-          data.parcoursNumber === 1
+          pNum === 1
             ? 'INITIAL'
-            : data.parcoursNumber === 3
+            : pNum === 3
               ? '3ÈME PARCOURS'
               : 'COMPLÉMENTAIRE';
 
-        // Handle multi-step P1 & P2 case
-        if (
-          data.parcoursNumber === 1 &&
-          data.finalRecommendation?.includes(' & ')
-        ) {
-          badgeText = 'P1 & P2';
-          badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
-        }
-
-        const isInitial = data.parcoursNumber === 1;
-        const badgeColor = isInitial ? '#047857' : '#4338CA';
+        const badgeColor =
+          pNum === 1 ? p1Color : pNum === 2 ? p2Color : p3Color;
 
         doc
-          .fontSize(12)
+          .fontSize(10)
           .fillColor(badgeColor)
           .font('Helvetica-Bold')
-          .text(`${badgeText} - PARCOURS ${badgeStatus}`, { align: 'center' });
-        doc.font('Helvetica'); // Reset
-      } else if (data.isP3Mode) {
-        doc
-          .fontSize(12)
-          .fillColor('#4338CA')
-          .font('Helvetica-Bold')
-          .text('P3 - PARCOURS COMPLÉMENTAIRE', { align: 'center' });
+          .text(`${badgeText} - PARCOURS ${badgeStatus}`, { align: 'right' });
         doc.font('Helvetica'); // Reset
       }
 
@@ -183,11 +195,36 @@ export class PdfService {
       }
       this.sectionTitle(doc, 'Formation et Résultat');
 
-      const recommendations = (data.finalRecommendation || '').split(' | ');
       const formationInfo: string[][] = [
-        ['Formation choisie', data.formationChoisie || 'N/A'],
+        ['Formation demandée', data.formationChoisie || 'N/A'],
+        ['Parcours préconisé', data.finalRecommendation || 'Analyse en cours'],
       ];
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
+
+      // Add a highlighted recommendation box
+      if (data.finalRecommendation) {
+        doc.moveDown(0.2);
+        const boxWidth = doc.page.width - 100;
+        const boxY = doc.y;
+        doc.rect(50, boxY, boxWidth, 30).fill('#F0FDF4'); // Light emerald bg
+        doc.rect(50, boxY, 4, 30).fill('#22C55E'); // Emerald left border
+
+        doc
+          .fontSize(10)
+          .fillColor('#166534')
+          .font('Helvetica-Bold')
+          .text(data.finalRecommendation, 65, boxY + 10, {
+            width: boxWidth - 30,
+          });
+        doc.font('Helvetica');
+        doc.y = boxY + 40;
+      }
+
+      const checkSectionBreak = (h: number = 100) => {
+        if (doc.y > doc.page.height - h) {
+          doc.addPage();
+        }
+      };
 
       // ─── Level Scores ───
       if (
@@ -196,6 +233,7 @@ export class PdfService {
         Object.keys(data.levelsScores).length > 0
       ) {
         doc.moveDown(0.3);
+        checkSectionBreak(120);
         this.sectionTitle(doc, 'Scores par niveau');
         const levelRows = Object.entries(data.levelsScores).map(
           ([lvl, e]: [string, any]) => {
@@ -218,6 +256,7 @@ export class PdfService {
       }
 
       // ─── Answers Sections ───
+      checkSectionBreak(80);
       this.renderAnswersSection(
         doc,
         'Questions complémentaires (réponses)',
@@ -228,6 +267,7 @@ export class PdfService {
         grayText,
         lightBg,
       );
+      checkSectionBreak(80);
       this.renderAnswersSection(
         doc,
         'Disponibilités (réponses)',
@@ -239,6 +279,7 @@ export class PdfService {
         lightBg,
       );
 
+      checkSectionBreak(80);
       this.renderAnswersSection(
         doc,
         'Usage de la langue',
@@ -284,20 +325,6 @@ export class PdfService {
         console.warn('Could not add logos to PDF:', e.message);
       }
 
-      doc.moveDown(3);
-      doc
-        .fontSize(8)
-        .fillColor(grayText)
-        .text(
-          'Document généré automatiquement par NS Conseil - Analyse des besoins',
-          doc.page.width / 2 - 200,
-          footerY + 35,
-          {
-            align: 'center',
-            width: 400,
-          },
-        );
-
       doc.end();
     });
   }
@@ -329,7 +356,7 @@ export class PdfService {
     const startX = 50;
 
     rows.forEach((row, rowIndex) => {
-      if (doc.y > doc.page.height - 80) {
+      if (doc.y > doc.page.height - 70) {
         doc.addPage();
       }
 
@@ -390,14 +417,16 @@ export class PdfService {
     baseFont: string,
     boldFont: string,
   ) {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    let currentY = y;
+    const parts = text.split(/(\*\*.*?\*\*)/g).filter(Boolean);
+    
+    if (parts.length === 0) {
+      doc.text(text, x, y, { width: width });
+      return;
+    }
 
-    // We use a single text call with continued: true to handle wrapping correctly
     doc.font(baseFont);
 
     parts.forEach((part, i) => {
-      if (!part) return;
       const isLast = i === parts.length - 1;
       const isBold = part.startsWith('**') && part.endsWith('**');
       const cleanPart = isBold ? part.substring(2, part.length - 2) : part;
@@ -459,7 +488,7 @@ export class PdfService {
     const startX = 50;
 
     rows.forEach((row) => {
-      if (doc.y > doc.page.height - 100) doc.addPage();
+      if (doc.y > doc.page.height - 70) doc.addPage();
       const y = doc.y;
       const isError = row[2] === 'true';
       const cellColor = isError ? '#991B1B' : darkText;
@@ -503,8 +532,16 @@ export class PdfService {
     grayText: string,
     lightBg: string,
   ) {
-    doc.addPage();
-    doc.moveDown(1);
+    const hasAnyAnswer = Object.values(positionnementAnswers).some(
+      (lvl) => Object.keys(lvl || {}).length > 0,
+    );
+    if (!hasAnyAnswer) return;
+
+    if (doc.y > doc.page.height - 120) {
+      doc.addPage();
+    } else {
+      doc.moveDown(1);
+    }
     this.sectionTitle(doc, 'ANNEXE : DÉTAIL DES RÉPONSES DU TEST');
 
     Object.entries(positionnementAnswers).forEach(([level, levelAnswers]) => {
@@ -546,7 +583,7 @@ export class PdfService {
       const startX = 50;
 
       rows.forEach((row) => {
-        if (doc.y > doc.page.height - 100) doc.addPage();
+        if (doc.y > doc.page.height - 70) doc.addPage();
         const y = doc.y;
         const isError = row[2] === 'true';
         const cellColor = isError ? '#991B1B' : darkText;
@@ -579,7 +616,6 @@ export class PdfService {
 
         doc.y = y + maxHeight + 6; // Compacted vertical spacing
       });
-      doc.moveDown(0.3);
     });
   }
 }
