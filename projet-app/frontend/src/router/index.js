@@ -80,11 +80,6 @@ const router = createRouter({
       component: () => import('../views/admin/LoginView.vue')
     },
     {
-      path: '/admin/signup',
-      name: 'admin-signup',
-      component: () => import('../views/admin/SignupView.vue')
-    },
-    {
       path: '/admin',
       component: () => import('../views/admin/AdminLayout.vue'), // I will create this
       meta: { requiresAuth: true },

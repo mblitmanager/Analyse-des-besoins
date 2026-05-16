@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 import { formatBoldText } from "../../utils/formatText";
+import { useToastStore } from "../../stores/toast";
 
 const questions = ref([]);
 const loading = ref(true);
@@ -39,6 +40,8 @@ const savingOrder = ref(false);
 const searchTerm = ref("");
 const page = ref(1);
 
+const toast = useToastStore();
+
 // Duplication state
 const showDuplicateModal = ref(false);
 const duplicateIds = ref([]);
@@ -69,11 +72,11 @@ async function confirmDuplicate() {
     });
     showDuplicateModal.value = false;
     selectedIds.value.clear();
-    alert(`${res.data.count} question(s) dupliquée(s) avec succès`);
+    toast.success(`${res.data.count} question(s) dupliquée(s) avec succès`);
     await fetchQuestions();
   } catch (error) {
     console.error("Duplicate failed:", error);
-    alert("Erreur lors de la duplication");
+    toast.error("Erreur lors de la duplication");
   } finally {
     duplicating.value = false;
   }
@@ -217,7 +220,7 @@ function openEditModal(q) {
 async function saveQuestion() {
   try {
     if (form.value.type === 'positionnement' && !form.value.levelId) {
-      alert("Pour une question de positionnement, le champ 'Niveau' est obligatoire.");
+      toast.error("Pour une question de positionnement, le champ 'Niveau' est obligatoire.");
       return;
     }
     const payload = {
@@ -258,9 +261,10 @@ async function saveQuestion() {
     }
 
     showModal.value = false;
+    toast.success("Question enregistrée !");
     await fetchQuestions();
   } catch (error) {
-    alert("Erreur lors de l'enregistrement");
+    toast.error("Erreur lors de l'enregistrement");
     console.error(error);
   }
 }
@@ -293,8 +297,9 @@ async function deleteQuestion(id) {
     const idx = questions.value.findIndex((q) => q.id === id);
     if (idx !== -1) questions.value.splice(idx, 1);
     selectedIds.value.delete(id);
+    toast.success("Question supprimée.");
   } catch (error) {
-    alert("Erreur lors de la suppression");
+    toast.error("Erreur lors de la suppression");
     console.error(error);
   }
 }
@@ -312,9 +317,10 @@ async function bulkToggleStatus(isActive) {
       if (selectedIds.value.has(q.id)) q.isActive = isActive;
     });
     selectedIds.value.clear();
+    toast.success("Mise à jour en lot terminée.");
   } catch (error) {
     console.error("Bulk toggle failed:", error);
-    alert("Erreur lors de la mise à jour en lot");
+    toast.error("Erreur lors de la mise à jour en lot");
   }
 }
 
@@ -329,9 +335,10 @@ async function bulkDelete() {
     
     questions.value = questions.value.filter(q => !selectedIds.value.has(q.id));
     selectedIds.value.clear();
+    toast.success("Suppression en lot terminée.");
   } catch (error) {
     console.error("Bulk delete failed:", error);
-    alert("Erreur lors de la suppression en lot");
+    toast.error("Erreur lors de la suppression en lot");
   }
 }
 
@@ -409,10 +416,10 @@ async function saveOrder(questionsList) {
       const idxAll = questions.value.findIndex((x) => x.id === q.id);
       if (idxAll !== -1) questions.value[idxAll].order = idx + 1;
     });
-    alert("Ordre mis à jour");
+    toast.success("Ordre mis à jour");
   } catch (error) {
     console.error("Failed to save order", error);
-    alert("Erreur lors de la sauvegarde de l'ordre");
+    toast.error("Erreur lors de la sauvegarde de l'ordre");
   } finally {
     savingOrder.value = false;
   }

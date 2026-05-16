@@ -8,9 +8,11 @@ import html2canvas from "html2canvas";
 import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 const sessionId = localStorage.getItem("session_id");
 
 const session = ref(null);
@@ -144,6 +146,25 @@ function getLevelInfo(label) {
   const lowerLabel = label.toLowerCase();
   for (const [key, info] of Object.entries(levelMapping)) {
     if (lowerLabel.includes(key)) return info;
+  }
+  return null;
+}
+
+const formationDescriptions = {
+  "gimp": "Logiciel de retouche photo gratuit et puissant, idéal pour préparer vos textures et visuels.",
+  "sketchup": "Outil de modélisation 3D intuitif pour concevoir vos projets d'architecture et de design.",
+  "excel": "Tableur incontournable pour la gestion de données et le calcul.",
+  "word": "Traitement de texte standard pour la rédaction de documents.",
+  "powerpoint": "Outil de présentation pour vos supports visuels.",
+  "canva": "Outil de design graphique en ligne simplifié.",
+  "photoshop": "Référence mondiale de la retouche d'image professionnelle."
+};
+
+function getFormationDescription(label) {
+  if (!label) return null;
+  const lowerLabel = label.toLowerCase();
+  for (const [key, desc] of Object.entries(formationDescriptions)) {
+    if (lowerLabel.includes(key)) return desc;
   }
   return null;
 }
@@ -349,7 +370,10 @@ const isSelectionComplete = computed(() => {
 
 const confirmAndGoNext = async () => {
   if (isSelectionComplete.value) {
-    const finalRec = parcoursSteps.value.map((_, idx) => selectedChoices.value[idx]).join(' & ');
+    const allSelected = parcoursSteps.value.map((_, idx) => selectedChoices.value[idx]);
+    
+    const finalRec = allSelected.join(' & ');
+    localStorage.removeItem('pending_sequential_parcours');
     
     // SAVE UNSELECTED CHOICES for P3
     const unselectedChoices = [];
@@ -591,7 +615,7 @@ const downloadPDF = async () => {
       generateSimplePdf();
     } catch (fallbackError) {
       console.error("Fallback PDF generation failed:", fallbackError);
-      alert("Erreur lors de la génération du PDF.");
+      toast.error("Erreur lors de la génération du PDF.");
     }
   } finally {
     downloadingPDF.value = false;
@@ -821,13 +845,18 @@ const downloadPDF = async () => {
                   <!-- Formation Cards -->
                   <div class="flex flex-wrap items-center gap-3">
                     <template v-for="(choice, ci) in choices" :key="choice">
-                      <div class="px-5 py-3 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
-                        <div class="w-8 h-8 bg-brand-primary/10 text-brand-primary rounded-lg flex items-center justify-center group-hover:bg-brand-primary group-hover:text-black transition-colors">
-                          <span class="material-icons-outlined text-sm">school</span>
+                      <div class="flex flex-col gap-1">
+                        <div class="px-5 py-3 bg-white border border-slate-100 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                          <div class="w-8 h-8 bg-blue-50 text-[#3b82f6] rounded-lg flex items-center justify-center group-hover:bg-[#3b82f6] group-hover:text-white transition-colors">
+                            <span class="material-icons-outlined text-sm">school</span>
+                          </div>
+                          <span class="font-bold text-slate-800 tracking-tight">{{ choice }}</span>
                         </div>
-                        <span class="font-bold text-slate-800 tracking-tight">{{ choice }}</span>
+                        <p v-if="getFormationDescription(choice)" class="text-[10px] text-gray-400 italic max-w-[250px] pl-2">
+                          {{ getFormationDescription(choice) }}
+                        </p>
                       </div>
-                      <span v-if="ci < choices.length - 1" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ou</span>
+                      <span v-if="ci < choices.length - 1" class="text-[10px] font-black text-slate-400 uppercase tracking-widest self-center">ou</span>
                     </template>
                   </div>
                 </div>
@@ -904,7 +933,7 @@ const downloadPDF = async () => {
                 v-if="!isBlocked"
                 :disabled="!isSelectionComplete"
                 @click="confirmAndGoNext"
-                class="px-12 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                class="px-12 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
               >
                 <span>Valider ce parcours et continuer</span>
                 <span class="material-icons-outlined text-lg">arrow_forward</span>

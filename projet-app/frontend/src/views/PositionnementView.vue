@@ -9,6 +9,7 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from "../components/HighLevelAlertModal.vue";
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 // Display helper: strips the letter prefix (e.g. "A1 - Revoir les bases" => "Revoir les bases")
 function displayLevel(label) {
@@ -19,6 +20,7 @@ function displayLevel(label) {
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 
 const currentLevelIndex = ref(0);
 const levels = ref([]); // loaded dynamically from API
@@ -281,9 +283,7 @@ async function loadLevelQuestions() {
           router.push(nextRoute || "/resultats");
           return;
         } else {
-          alert(
-            "Aucune question de positionnement pour cette formation. Vous pouvez continuer.",
-          );
+          toast.info("Aucune question de positionnement pour cette formation. Vous pouvez continuer.");
         }
       } else {
         // We reached an empty level AFTER doing some levels.
@@ -297,7 +297,7 @@ async function loadLevelQuestions() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error) {
     console.error("Failed to load level questions:", error);
-    alert("Erreur lors du chargement des questions.");
+    toast.error("Erreur lors du chargement des questions.");
   } finally {
     loading.value = false;
   }
@@ -489,7 +489,7 @@ async function nextStep() {
     }
   } catch (error) {
     console.error("Failed to advance test:", error);
-    alert("Erreur lors de la validation.");
+    toast.error("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
@@ -675,6 +675,20 @@ async function finishTest(overrideSession = null) {
             if (isProposed(f1) && f2) {
                 finalRecommendation.value = f2;
                 p3Redirected.value = true;
+            } else if (isProposed(f1) && !f2) {
+                // f1 is a duplicate but no f2 alternative exists in the rule.
+                // Try to bump to the next level for this formation.
+                const sortedLvls = [...(levels.value || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
+                const currentLvlClean = cleanS(f1);
+                const matchedIdx = sortedLvls.findIndex(l => currentLvlClean.includes(cleanS(l.label)));
+                if (matchedIdx !== -1 && matchedIdx < sortedLvls.length - 1) {
+                    const nextLvl = sortedLvls[matchedIdx + 1];
+                    finalRecommendation.value = `${formationLabel} ${nextLvl.label}`.trim();
+                    p3Redirected.value = true;
+                } else {
+                    // Already at max level or can't determine — keep f1 as fallback
+                    finalRecommendation.value = f1;
+                }
             } else {
                 finalRecommendation.value = f1;
             }
@@ -835,7 +849,7 @@ async function saveAndExit() {
     router.push("/");
   } catch (error) {
     console.error("Failed to save progress:", error);
-    alert("Erreur lors de la sauvegarde.");
+    toast.error("Erreur lors de la sauvegarde.");
   } finally {
     submitting.value = false;
   }
@@ -1298,7 +1312,7 @@ async function saveAndExit() {
                   v-if="currentQuestionIndex < filteredQuestions.length - 1"
                   @click="currentQuestionIndex++"
                   :disabled="!currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                  class="px-8 py-4 bg-brand-primary hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-8 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
                 >
                   <span>Question Suivante</span>
                   <span class="material-icons-outlined text-lg">arrow_forward</span>
@@ -1308,7 +1322,7 @@ async function saveAndExit() {
                   v-else
                   @click="nextStep"
                   :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
-                  class="px-10 py-4 bg-brand-primary hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-10 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
                   <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
@@ -1326,7 +1340,7 @@ async function saveAndExit() {
                       return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
                     })
                   "
-                  class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+                  class="px-10 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer" : "Suivant" }}</span>
                   <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
@@ -1376,7 +1390,7 @@ async function saveAndExit() {
 
         <button
           @click="continueWithWarning"
-          class="flex-1 px-6 py-3 bg-[#ebb973] hover:brightness-95 text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 transition-all active:scale-95"
+          class="flex-1 px-6 py-3 bg-[#ebb973] text-[#428496] font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
         >
           Continuer quand même
         </button>
@@ -1451,9 +1465,9 @@ async function saveAndExit() {
 }
 
 .option-card--selected {
-  border-color: var(--brand-primary, #ebb973);
-  background: rgba(235, 185, 115, 0.05);
-  box-shadow: 0 4px 12px rgba(235, 185, 115, 0.1);
+  border-color: var(--brand-primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
 .option-card__label {
@@ -1465,7 +1479,7 @@ async function saveAndExit() {
 }
 
 .option-card--selected .option-card__label {
-  color: var(--brand-primary, #ebb973);
+  color: var(--brand-primary, #3b82f6);
 }
 
 .option-card__radio {
@@ -1481,8 +1495,8 @@ async function saveAndExit() {
 }
 
 .option-card__radio--selected {
-  border-color: var(--brand-primary, #ebb973);
-  background: var(--brand-primary, #ebb973);
+  border-color: var(--brand-primary, #3b82f6);
+  background: var(--brand-primary, #3b82f6);
 }
 
 .option-card__radio-dot {

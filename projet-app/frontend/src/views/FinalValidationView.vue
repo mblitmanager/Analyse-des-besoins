@@ -3,9 +3,11 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 const sessionId = localStorage.getItem("session_id");
 const session = ref(null);
 const loading = ref(true);
@@ -111,7 +113,7 @@ async function validate(options = {}) {
     if (nextRoute) {
       router.push(nextRoute);
     } else if (!options.silent) {
-      alert("Évaluation terminée avec succès !");
+      toast.success("Évaluation terminée avec succès !");
     }
   } catch (error) {
     console.error("Failed to submit assessment:", error);
@@ -130,6 +132,7 @@ function goHomeClick() {
 function confirmGoHome() {
   showP3Modal.value = false;
   store.setP3Mode(false);
+  localStorage.removeItem("session_id");
   router.push("/");
 }
 
@@ -143,7 +146,16 @@ function startP3() {
     localStorage.setItem("p3_prev_formation", session.value.formationChoisie);
   }
   if (recommendedLabel.value) {
-    localStorage.setItem("p3_prev_recommendations", recommendedLabel.value);
+    const existing = localStorage.getItem("p3_prev_recommendations") || "";
+    let newRecs = existing;
+    if (existing) {
+       if (!existing.includes(recommendedLabel.value)) {
+          newRecs = `${existing} & ${recommendedLabel.value}`;
+       }
+    } else {
+       newRecs = recommendedLabel.value;
+    }
+    localStorage.setItem("p3_prev_recommendations", newRecs);
   }
   if (session.value?.stopLevel || session.value?.lastValidatedLevel) {
     localStorage.setItem("p3_prev_stop_level", session.value.stopLevel || session.value.lastValidatedLevel);
@@ -162,6 +174,7 @@ function confirmStartP3() {
   showP3Modal.value = false;
   startP3();
 }
+
 </script>
 
 <template>
@@ -171,24 +184,24 @@ function confirmStartP3() {
         v-if="!loading && session"
         class="bg-white rounded-3xl shadow-xl p-10 border border-white"
       >
-        <div
-          class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500"
-        >
-          <span class="material-icons-outlined text-4xl">verified</span>
-        </div>
-
-        <h1
-          class="text-3xl font-black heading-primary mb-2 text-center italic uppercase tracking-tight"
-        >
-          Validation Finale
-        </h1>
         <!-- Progress Bar -->
         <WorkflowProgressBar customPath="/validation" />
-        <p
-          class="text-gray-400 text-center mb-10 font-bold uppercase tracking-widest text-xs"
-        >
-          Récapitulatif de votre demande
-        </p>
+
+        <div class="relative">
+          <div class="absolute -top-12 -left-12 w-32 h-32 bg-green-400/10 rounded-full blur-3xl animate-pulse"></div>
+          <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+
+          <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-xl shadow-green-500/30 transform hover:rotate-12 transition-transform duration-500">
+            <span class="material-icons-outlined text-5xl">task_alt</span>
+          </div>
+
+          <h1 class="text-4xl md:text-5xl font-black text-[#0d1b3e] mb-2 text-center tracking-tight">
+            Félicitations !
+          </h1>
+          <p class="text-gray-500 text-center mb-10 font-bold uppercase tracking-[0.2em] text-[10px]">
+            Votre parcours est maintenant validé
+          </p>
+        </div>
 
         <div class="space-y-6 mb-10">
           <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
@@ -197,22 +210,14 @@ function confirmStartP3() {
             >
               Informations
             </h3>
-            <div class="space-y-2">
-              <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-500 font-bold"
-                  >Bénéficiaire</span
-                >
-                <span class="text-sm font-black heading-primary"
-                  >{{ session.prenom }} {{ session.nom }}</span
-                >
+            <div class="space-y-4">
+              <div class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white">
+                <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Bénéficiaire</span>
+                <span class="text-sm font-black text-[#0d1b3e]">{{ session.prenom }} {{ session.nom }}</span>
               </div>
-              <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-500 font-bold"
-                  >Formation visée</span
-                >
-                <span class="text-sm font-black text-brand-primary">{{
-                  session.formationChoisie
-                }}</span>
+              <div class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white">
+                <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Formation visée</span>
+                <span class="text-sm font-black text-blue-600">{{ session.formationChoisie }}</span>
               </div>
               <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabelParts.length">
                 <span class="text-xs text-gray-500 font-bold"
@@ -369,14 +374,43 @@ function confirmStartP3() {
           </div> 
         </section> -->
 
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col gap-4">
+          <!-- P3 Transition Card -->
+          <div v-if="!store.isP3Mode && isP3Enabled" class="bg-[#428597] rounded-4xl p-10 text-center space-y-8 shadow-2xl shadow-blue-600/20 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
+            
+            <div class="relative z-10">
+              <h3 class="text-2xl font-black text-white mb-2">Envie de continuer ?</h3>
+              <p class="text-blue-100 text-sm font-medium mb-8 max-w-sm mx-auto leading-relaxed">
+                Vous avez la possibilité de réaliser une troisième formation pour enrichir encore davantage votre profil.
+              </p>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <button @click="confirmGoHome" class="flex-1 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all cursor-pointer">
+                  Non, c'est tout pour moi
+                </button>
+                <button @click="confirmStartP3" class="flex-1 py-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all cursor-pointer transform hover:scale-105">
+                  Oui, avec plaisir !
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else-if="store.isP3Mode" class="text-center bg-gray-50 rounded-2xl p-6 border border-gray-100 mt-4">
+            <span class="material-icons-outlined text-green-500 text-3xl mb-2">check_circle</span>
+            <p class="text-gray-500 font-bold uppercase tracking-widest text-xs">
+              Vous pouvez maintenant fermer cette page.
+            </p>
+          </div>
           <button
-            @click="goHomeClick"
-            class="flex-1 py-5 bg-[#ebb973] text-brand-primary rounded-2xl font-black uppercase tracking-widest text-sm border border-gray-100 hover:bg-[#ebb973]/80 transition-all flex items-center justify-center gap-3"
+            v-else
+            @click="confirmGoHome"
+            class="w-full py-5 bg-[#3b82f6] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 shadow-xl shadow-blue-500/10 transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
-            <span>Accueil</span>
+            <span>Retour à l'accueil</span>
             <span class="material-icons-outlined">home</span>
           </button>
+
         </div>
       </div>
 

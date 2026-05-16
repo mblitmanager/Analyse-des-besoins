@@ -8,9 +8,11 @@ import { filterConditionalQuestions, clearHiddenResponses } from "../utils/condi
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 const sessionId = localStorage.getItem("session_id");
 
 const loading = ref(true);
@@ -99,13 +101,13 @@ const proposalMessage = ref("");
 async function submitPrerequis(force = false) {
   const isForced = force === true;
   if (!metier.value || !situation.value.length) {
-    alert("Veuillez renseigner votre métier et au moins une situation.");
+    toast.error("Veuillez renseigner votre métier et au moins une situation.");
     return;
   }
 
   const unanswered = questions.value.some(q => !responses.value[q.id]);
   if (unanswered) {
-    alert("Veuillez répondre à toutes les questions.");
+    toast.error("Veuillez répondre à toutes les questions.");
     return;
   }
 
@@ -149,7 +151,7 @@ async function submitPrerequis(force = false) {
     router.push("/formations");
   } catch (error) {
     console.error("Failed to submit:", error);
-    alert("Erreur lors de la validation.");
+    toast.error("Erreur lors de la validation.");
   } finally {
     submitting.value = false;
   }
@@ -208,7 +210,7 @@ const recommendedFormations = computed(() => {
             </div>
             
             <div class="flex flex-col space-y-3">
-              <button @click="acceptProposal" class="w-full py-4 bg-[#ebb973] text-[#428496] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:shadow-brand-primary/20 transition-all active:scale-95">
+              <button @click="acceptProposal" class="w-full py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest rounded-2xl shadow-lg hover:brightness-105 transition-all active:scale-95 cursor-pointer">
                 Accepter et voir mon bilan
               </button>
               <button @click="refuseProposal" class="w-full py-4 text-gray-500 font-bold text-sm hover:text-blue-900 transition-colors">
@@ -241,21 +243,24 @@ const recommendedFormations = computed(() => {
             </div>
 
             <div>
-              <label class="Wizi-label font-black text-[10px] uppercase tracking-widest text-gray-400 mb-4 block">Votre situation actuelle</label>
-              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <label class="Wizi-label font-black text-[10px] uppercase tracking-widest text-blue-500 mb-6 block">Votre situation actuelle</label>
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div v-for="sit in ['Salarié', 'Indépendant', 'Demandeur d’emploi', 'Reconversion']" :key="sit"
-                     class="formation-card"
-                     :class="situation.includes(sit) ? 'formation-card--selected' : 'formation-card--default'">
-                  <label class="flex items-center w-full cursor-pointer justify-between">
+                     class="formation-card group relative overflow-hidden transition-all duration-300"
+                     :class="situation.includes(sit) ? 'formation-card--selected' : 'formation-card--default bg-gray-50/50 hover:bg-white'">
+                  <label class="flex items-center w-full cursor-pointer justify-between p-1">
                     <input type="checkbox" class="sr-only" :value="sit" v-model="situation" />
                     <div class="flex items-center gap-4">
-                       <div :class="situation.includes(sit) ? 'bg-brand-primary/10 text-brand-primary' : 'bg-white text-gray-400'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm border border-gray-100">
-                          <span class="material-icons-outlined text-xl">person_outline</span>
+                       <div :class="situation.includes(sit) ? 'bg-blue-500 text-white' : 'bg-white text-gray-400 border-gray-100'" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border group-hover:scale-110">
+                          <span class="material-icons-outlined text-2xl">
+                            {{ sit === 'Salarié' ? 'work' : sit === 'Indépendant' ? 'storefront' : sit === 'Demandeur d’emploi' ? 'search' : 'psychology' }}
+                          </span>
                        </div>
-                       <span class="formation-card__label">{{ sit }}</span>
+                       <span class="text-base font-black text-[#0d1b3e]">{{ sit }}</span>
                     </div>
-                    <div class="formation-card__radio" :class="situation.includes(sit) ? 'formation-card__radio--selected' : 'formation-card__radio--default'">
-                      <span v-if="situation.includes(sit)" class="material-icons-outlined text-brand-primary text-xl">check</span>
+                    <div class="w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center" 
+                         :class="situation.includes(sit) ? 'border-blue-500 bg-blue-500' : 'border-gray-200'">
+                      <span v-if="situation.includes(sit)" class="material-icons-outlined text-white text-base">check</span>
                     </div>
                   </label>
                 </div>
@@ -264,21 +269,24 @@ const recommendedFormations = computed(() => {
           </div>
         </div>
 
-        <div v-for="group in groups" :key="group.title" class="bg-white rounded-l shadow-xl overflow-hidden border border-white mb-8">
-          <div class="bg-[#ebb973] p-8 text-white">
-            <div class="flex items-center">
-              <span class="material-icons-outlined mr-3 text-l">{{ group.icon }}</span>
-              <h2 class="text-l font-black uppercase tracking-tight">{{ group.title }}</h2>
+        <div v-for="group in groups" :key="group.title" class="bg-white rounded-3xl shadow-2xl shadow-blue-500/5 overflow-hidden border border-white mb-10 group">
+          <div class="bg-gray p-8 text-blue relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+            <div class="flex items-center gap-4 relative z-10">
+              <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <span class="material-icons-outlined text-2xl text-blue-500">{{ group.icon }}</span>
+              </div>
+              <h2 class="text-xl font-black uppercase tracking-tight">{{ group.title }}</h2>
             </div>
           </div>
 
           <div class="p-8 space-y-12">
             <div v-for="(q, idx) in group.questions" :key="q.id" v-show="isQuestionVisible(q)" class="space-y-6">
-              <div class="flex items-start">
-                <span class="shrink-0 w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center text-brand-primary font-black mr-4 border border-brand-primary/20">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 font-black border border-blue-100 shadow-sm">
                   {{ idx + 1 }}
-                </span>
-                <p class="text-lg font-bold text-blue-900 mt-1">{{ q.text }}</p>
+                </div>
+                <p class="text-xl font-black text-[#0d1b3e]">{{ q.text }}</p>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 ml-0 sm:ml-14">
@@ -306,7 +314,7 @@ const recommendedFormations = computed(() => {
           <button
             @click="submitPrerequis()"
             :disabled="submitting"
-            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-12 py-5 bg-[#ebb872] text-[#305364] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Validation...' : 'Valider mon profil' }}</span>
@@ -322,8 +330,8 @@ const recommendedFormations = computed(() => {
 
 <style scoped>
 :root {
-  --brand-primary: #ebb973;
-  --title-color: #315264;
+  --brand-primary: #3b82f6;
+  --title-color: #1e3a8a;
 }
 
 .font-outfit {
@@ -362,9 +370,9 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card--selected {
-  border-color: #ebb973; 
-  background: rgba(235, 185, 115, 0.05); 
-  box-shadow: 0 10px 25px rgba(235, 185, 115, 0.1);
+  border-color: #3b82f6; 
+  background: rgba(59, 130, 246, 0.05); 
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
 }
 
 .formation-card__label {
@@ -377,7 +385,7 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card--selected .formation-card__label {
-  color: #ebb973; 
+  color: #3b82f6; 
 }
 
 .formation-card__radio {
@@ -393,7 +401,7 @@ const recommendedFormations = computed(() => {
 }
 
 .formation-card__radio--selected {
-  border-color: #ebb973;
+  border-color: #3b82f6;
   background: white;
 }
 
@@ -427,9 +435,9 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card--selected {
-  border-color: var(--brand-primary, #ebb973);
-  background: rgba(235, 185, 115, 0.05);
-  box-shadow: 0 4px 12px rgba(235, 185, 115, 0.1);
+  border-color: var(--brand-primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
 .option-card__label {
@@ -441,7 +449,7 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card--selected .option-card__label {
-  color: var(--brand-primary, #ebb973);
+  color: var(--brand-primary, #3b82f6);
 }
 
 .option-card__radio {
@@ -457,8 +465,8 @@ const recommendedFormations = computed(() => {
 }
 
 .option-card__radio--selected {
-  border-color: var(--brand-primary, #ebb973);
-  background: var(--brand-primary, #ebb973);
+  border-color: var(--brand-primary, #3b82f6);
+  background: var(--brand-primary, #3b82f6);
 }
 
 .option-card__radio-dot {

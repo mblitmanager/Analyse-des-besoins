@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useToastStore } from "../../stores/toast";
 
 const contacts = ref([]);
 const loading = ref(true);
@@ -17,6 +18,8 @@ const form = ref({
 });
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+const toast = useToastStore();
 
 
 async function fetchContacts() {
@@ -69,9 +72,10 @@ async function saveContact() {
       await axios.post(`${apiBaseUrl}/contacts`, form.value);
     }
     showModal.value = false;
+    toast.success("Profil enregistré !");
     await fetchContacts();
   } catch (error) {
-    alert("Erreur lors de l'enregistrement");
+    toast.error("Erreur lors de l'enregistrement");
   }
 }
 
@@ -79,9 +83,10 @@ async function deleteContact(id) {
   if (!confirm("Supprimer ce conseiller ?")) return;
   try {
     await axios.delete(`${apiBaseUrl}/contacts/${id}`);
+    toast.success("Conseiller supprimé.");
     await fetchContacts();
   } catch (error) {
-    alert("Erreur lors de la suppression");
+    toast.error("Erreur lors de la suppression");
   }
 }
 

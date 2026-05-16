@@ -38,7 +38,7 @@ const navItems = [
     <div
       v-if="isSidebarOpen"
       @click="isSidebarOpen = false"
-      class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+      class="fixed inset-0 bg-white/40 backdrop-blur-sm z-40 lg:hidden"
     ></div>
 
     <!-- Sidebar -->
@@ -52,7 +52,7 @@ const navItems = [
           <div class="w-8 h-8 rounded-xl bg-brand-primary/20 flex items-center justify-center">
             <AppLogo class="w-5 h-5" />
           </div>
-          <span class="text-white font-black text-sm tracking-wide">WiziLearn</span>
+          <!-- <span class="text-white font-black text-sm tracking-wide">WiziLearn</span> -->
         </div>
         <button @click="isSidebarOpen = false" class="lg:hidden text-white/40 hover:text-white transition-colors">
           <span class="material-icons-outlined text-sm">close</span>

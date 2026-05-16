@@ -6,6 +6,7 @@ import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 // Ref attaché à la bannière inline
 const inlineBannerRef = ref(null);
@@ -15,6 +16,7 @@ let observer = null;
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 const sessionId = localStorage.getItem("session_id");
 
 const loading = ref(true);
@@ -166,7 +168,7 @@ async function selectFormation() {
   if (!selectedFormation.value) return;
   // For bureautique formations require a suite choice
   if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique' && !selectedSuite.value) {
-    alert('Veuillez choisir : Google Workspace ou Microsoft Office');
+    toast.error('Veuillez choisir : Google Workspace ou Microsoft Office');
     return;
   }
 
@@ -202,6 +204,7 @@ async function doSelectFormation() {
     const payload = {
       formationChoisie: selectedFormation.value.label,
       isP3Mode: store.isP3Mode,
+      parcoursNumber: store.isP3Mode ? 3 : 1,
     };
     if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique') {
       payload.bureautiqueSuite = selectedSuite.value;
@@ -229,7 +232,7 @@ async function doSelectFormation() {
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);
-    alert("Erreur lors de la sélection de la formation.");
+    toast.error("Erreur lors de la sélection de la formation.");
   } finally {
     submitting.value = false;
   }
@@ -294,71 +297,62 @@ function computeNextLevel() {
   const prevStopLevel = localStorage.getItem('p3_prev_stop_level') || '';
   const prevLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
 
-  // Priority 1: match by numeric order (most reliable — stored by startP3)
+  // Priority 1: match by numeric order (stored by startP3)
   if (prevLevelOrder > 0) {
     prevIdx = sortedLevels.findIndex(l => (l.order || 0) === prevLevelOrder);
   }
 
   // Priority 2: match by stop level text across ALL previous propositions
-  if (prevIdx === -1) {
-    const allHistory = (prevRecs + ' & ' + prevStopLevel);
-    const historyCode = extractLevelCode(allHistory);
-    if (prevRecs) {
-      const recs = prevRecs.split('&').map(r => r.trim());
-      const formClean = clean(formation.label);
-      
-      let highestFoundIdx = -1;
-      for (const rec of recs) {
-        const recClean = clean(rec);
-        if (recClean.includes(formClean) || formClean.includes(recClean.replace(/tosa|icdl/gi, '').trim())) {
-          const foundIdx = sortedLevels.findIndex(l => {
-            const lvlClean = clean(l.label);
-            return recClean === lvlClean || recClean.includes(lvlClean) || lvlClean.includes(recClean);
-          });
-          if (foundIdx > highestFoundIdx) {
-            highestFoundIdx = foundIdx;
-          }
+  // We ALWAYS check text history to see if it contains a HIGHER level than Priority 1
+  const allHistory = (prevRecs + ' & ' + prevStopLevel);
+  const historyCode = extractLevelCode(allHistory);
+  if (prevRecs) {
+    const recs = prevRecs.split('&').map(r => r.trim());
+    const formClean = clean(formation.label);
+    
+    let highestFoundIdx = -1;
+    for (const rec of recs) {
+      const recClean = clean(rec);
+      // Check if this recommendation belongs to the current formation
+      if (recClean.includes(formClean) || formClean.includes(recClean.replace(/tosa|icdl/gi, '').trim())) {
+        const foundIdx = sortedLevels.findIndex(l => {
+          const lvlClean = clean(l.label);
+          return recClean === lvlClean || recClean.includes(lvlClean) || lvlClean.includes(recClean);
+        });
+        if (foundIdx > highestFoundIdx) {
+          highestFoundIdx = foundIdx;
         }
       }
-      if (highestFoundIdx !== -1) {
-        prevIdx = highestFoundIdx;
-      }
     }
-
-    // Fallback to stop level if not found in recommendations array
-    if (prevIdx === -1) {
-      const prevStopLevel2 = localStorage.getItem('p3_prev_stop_level') || '';
-      const prevRecs2 = localStorage.getItem('p3_prev_recommendations') || '';
-      
-      const findInText = (text) => {
-        if (!text) return -1;
-        const tClean = clean(text);
-        return sortedLevels.findIndex(l => {
-          const lClean = clean(l.label);
-          return tClean === lClean || tClean.includes(lClean) || lClean.includes(tClean);
-        });
-      };
-
-      prevIdx = findInText(prevStopLevel2);
-      if (prevIdx === -1) {
-          const parts = prevRecs2.split(/\s*&\s*|\s*\|\s*/);
-          for (const part of parts) {
-              const idx = findInText(part);
-              if (idx > prevIdx) prevIdx = idx;
-          }
-      }
-      
-      if (prevIdx === -1 && historyCode) {
-          prevIdx = sortedLevels.findIndex(l => {
-              const lCode = extractLevelCode(l.label);
-              return lCode && lCode === historyCode;
-          });
-      }
+    // Only override if we found a HIGHER index in the text history
+    if (highestFoundIdx > prevIdx) {
+      prevIdx = highestFoundIdx;
     }
   }
 
-  // The next level is simply prevIdx + 1 (no skipping needed — prevLevelOrder already
-  // points to the HIGHEST level from the previous parcours)
+  // Fallback to stop level text matching
+  const prevStopLevel2 = localStorage.getItem('p3_prev_stop_level') || '';
+  const findInText = (text) => {
+    if (!text) return -1;
+    const tClean = clean(text);
+    return sortedLevels.findIndex(l => {
+      const lClean = clean(l.label);
+      return tClean === lClean || tClean.includes(lClean) || lClean.includes(tClean);
+    });
+  };
+
+  const stopIdx = findInText(prevStopLevel2);
+  if (stopIdx > prevIdx) prevIdx = stopIdx;
+
+  if (prevIdx === -1 && historyCode) {
+      const codeIdx = sortedLevels.findIndex(l => {
+          const lCode = extractLevelCode(l.label);
+          return lCode && lCode === historyCode;
+      });
+      if (codeIdx > prevIdx) prevIdx = codeIdx;
+  }
+
+  // The next level is simply prevIdx + 1
   const nextIdx = prevIdx + 1;
 
   const isMaxLevel = nextIdx >= sortedLevels.length;
@@ -448,14 +442,16 @@ async function confirmP3SameFormation() {
       stopLevelOrder: finalStopLevelOrder,
     });
     // Submit (finalize) the session - backend will use pre-set values
-    await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, { method: 'POST' });
+    // Submit (finalize) the session - backend will use pre-set values
+    await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
     
-    // Go to home
+    // Go to home and clear session to allow new ones
     store.setP3Mode(false);
+    localStorage.removeItem("session_id");
     router.push('/');
   } catch (error) {
     console.error('Failed to confirm P3 same formation:', error);
-    alert('Erreur lors de la validation du P3.');
+    toast.error('Erreur lors de la validation du P3.');
   } finally {
     submitting.value = false;
   }
@@ -507,15 +503,30 @@ const groupedFormations = computed(() => {
 
 // Section styles configuration with accent colors
 const sectionStyles = {
-  bureautique: { color: '#a4c2f4', bg: '#a4c2f415', accent: '#3b82f6', accentBg: '#eff6ff' },
-  langues :{
-  color: '#FFA500',       // texte orange
-  bg: '#FFA50015',        // fond très clair orange (15% opacity)
-  accent: '#FF7F50',      // accent plus vif (corail/orange)
-  accentBg: '#FFF5E5',    // fond accent clair
-},
-  creation: { color: '#d9ebd3', bg: '#d9ebd315', accent: '#16a34a', accentBg: '#f0fdf4' },
-  internet: { color: '#ebd1dc', bg: '#ebd1dc15', accent: '#9333ea', accentBg: '#faf5ff' }
+  bureautique: { 
+    color: '#3b82f6', 
+    bg: '#eff6ff', 
+    accent: '#2563eb', 
+    accentBg: '#f8faff' 
+  },
+  langues: {
+    color: '#f59e0b', 
+    bg: '#fffbeb', 
+    accent: '#d97706', 
+    accentBg: '#fffdf5' 
+  },
+  creation: { 
+    color: '#10b981', 
+    bg: '#ecfdf5', 
+    accent: '#059669', 
+    accentBg: '#f9fffb' 
+  },
+  internet: { 
+    color: '#8b5cf6', 
+    bg: '#f5f3ff', 
+    accent: '#7c3aed', 
+    accentBg: '#faf9ff' 
+  }
 };
 
 // Helper to get accent color for a given formation
@@ -731,32 +742,45 @@ function isSectionActive(section) {
         <!-- Progress Bar -->
         <WorkflowProgressBar customPath="/formations" />
       
-        <div class="text-center">
-          <h1 class="text-3xl md:text-4xl font-extrabold heading-primary mb-3">
+        <div class="text-center relative">
+          <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl -z-10"></div>
+          <h1 class="text-4xl md:text-5xl font-black text-[#0d1b3e] mb-4 tracking-tight">
             {{ store.isP3Mode ? 'Choisissez votre 3ème formation' : 'Quelle formation souhaitez-vous suivre ?' }}
           </h1>
-          <p class="text-gray-400 text-base md:text-lg">
+          <p class="text-gray-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
             {{ store.isP3Mode ? 'Sélectionnez un parcours complémentaire (1 seul parcours)' : 'Faites votre choix ci-dessous :' }}
           </p>
         </div>
 
         <!-- P3 Banner: Previous Parcours -->
-        <div v-if="store.isP3Mode && p3PrevRecommendations.length > 0" class="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-5 border border-indigo-100">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-              <span class="material-icons-outlined text-indigo-500 text-xl">history_edu</span>
+        <div v-if="store.isP3Mode && p3PrevRecommendations.length > 0" 
+             class="mt-10 bg-white/60 backdrop-blur-md rounded-3xl p-8 border border-white shadow-2xl shadow-blue-500/5 relative overflow-hidden group">
+          <!-- Decorative elements -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700"></div>
+          
+          <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
+            <div class="w-16 h-16 bg-blue-500 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
+              <span class="material-icons-outlined text-3xl">history_edu</span>
             </div>
-            <div>
-              <p class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-2">Vos parcours précédents</p>
-              <div class="space-y-1.5">
-                <div v-for="(rec, idx) in p3PrevRecommendations" :key="idx" class="flex items-center gap-2">
-                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-black text-white" :class="idx === 0 ? 'bg-blue-400' : 'bg-green-400'">
+            
+            <div class="flex-1 text-center md:text-left">
+              <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-4">Récapitulatif de vos parcours</p>
+              
+              <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                <div v-for="(rec, idx) in p3PrevRecommendations" :key="idx" 
+                     class="bg-white px-5 py-3 rounded-2xl border border-gray-50 shadow-sm flex items-center gap-3 hover:translate-y-[-2px] transition-transform">
+                  <span class="flex items-center justify-center w-6 h-6 rounded-lg text-[10px] font-black text-white" 
+                        :style="{ backgroundColor: idx === 0 ? '#305364' : '#ebb872' }">
                     P{{ idx + 1 }}
                   </span>
-                  <span class="text-sm font-bold text-gray-700">{{ rec }}</span>
+                  <span class="text-sm font-black text-[#0d1b3e]">{{ rec }}</span>
                 </div>
               </div>
-              <p class="text-xs text-gray-400 mt-2 italic">Un 3ème parcours vous est proposé ci-dessous.</p>
+              
+              <div class="mt-6 flex items-center justify-center md:justify-start gap-2 text-gray-400">
+                <span class="material-icons-outlined text-sm">info</span>
+                <p class="text-xs font-bold italic">Sélectionnez votre 3ème parcours parmi les formations ci-dessous.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -769,16 +793,12 @@ function isSectionActive(section) {
       <div v-else class="bg-white rounded-4xl p-6 md:p-12 shadow-xl border border-white">
         <div class="space-y-12">
           <div v-for="section in sections" :key="section.key" class="space-y-6">
-            <h3 
-              class="inline-block px-4 py-1 rounded-lg text-xs font-black uppercase tracking-widest border"
-              :style="{ 
-                backgroundColor: section.style?.bg || '#eff6ff', 
-                color: '#1f2937',
-                borderColor: section.style?.color || '#3b82f6'
-              }"
-            >
-              {{ section.title }}
-            </h3>
+            <div class="flex items-center gap-4 mb-8">
+              <div class="h-8 w-1.5 rounded-full" :style="{ backgroundColor: section.style?.color || '#3b82f6' }"></div>
+              <h3 class="text-xl font-black text-[#0d1b3e] uppercase tracking-tight">
+                {{ section.title }}
+              </h3>
+            </div>
 
             <!-- Subsections (Bureautique) -->
             <div v-if="section.subSections" class="space-y-10 pl-4">
@@ -896,7 +916,7 @@ function isSectionActive(section) {
           <button
             @click="selectFormation"
             :disabled="submitting || !selectedFormation || selectedFormation.isIAGroup"
-            class="px-10 py-4 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0"
+            class="px-10 py-4 bg-[#ebb872] hover:brightness-105 text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span>{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
@@ -928,8 +948,8 @@ function isSectionActive(section) {
           <button
             @click="selectFormation"
             :disabled="submitting"
-            class="px-8 py-3.5 font-black uppercase tracking-widest text-xs rounded-xl shadow-2xl transform hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-40 shrink-0"
-            :style="{ backgroundColor: selectedAccent.accent, color: 'white', boxShadow: `0 12px 24px -6px ${selectedAccent.accent}60` }"
+            class="px-8 py-3.5 font-black uppercase tracking-widest text-xs rounded-xl shadow-2xl transform hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-3 disabled:opacity-40 shrink-0 cursor-pointer"
+            style="background-color: #ebb872; color: #305364; boxShadow: 0 12px 24px -6px #ebb87260"
           >
             <span v-if="submitting" class="material-icons-outlined animate-spin text-lg">sync</span>
             <span class="hidden sm:inline">{{ submitting ? 'Chargement...' : 'Continuer' }}</span>
@@ -947,18 +967,18 @@ function isSectionActive(section) {
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
         
         <div class="relative z-10">
-          <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner', p3IsMaxLevel ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500']">
+          <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner', p3IsMaxLevel ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500']">
             <span class="material-icons-outlined text-3xl">{{ p3IsMaxLevel ? 'block' : 'trending_up' }}</span>
           </div>
           
-          <h2 class="text-xl font-black text-center text-[#0D1B3E] mb-3">{{ p3IsSingleLevel ? 'Formation à parcours unique' : 'Même formation' }}</h2>
+          <h2 class="text-xl font-black text-center text-[#305364] mb-3 uppercase tracking-tight">{{ p3IsSingleLevel ? 'Formation à parcours unique' : 'Même formation' }}</h2>
           <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
-            Vous avez choisi <strong class="text-[#0D8ABC]">{{ p3SameFormationLabel }}</strong><span v-if="!p3IsSingleLevel">, la même formation que votre parcours précédent</span>.
+            Vous avez choisi <strong class="text-[#305364]">{{ p3SameFormationLabel }}</strong><span v-if="!p3IsSingleLevel">, la même formation que votre parcours précédent</span>.
           </p>
           
           <template v-if="p3IsSingleLevel">
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center mb-4">
-              <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Parcours unique disponible</p>
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center mb-4">
+              <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">Parcours unique disponible</p>
               <p class="text-lg font-black text-amber-700">{{ p3NextLevelLabel }}</p>
             </div>
             <p class="text-amber-600 font-medium text-sm text-center mb-6">
@@ -967,43 +987,47 @@ function isSectionActive(section) {
           </template>
 
           <template v-else-if="!p3IsMaxLevel">
-            <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center mb-4">
-              <p class="text-xs font-bold text-green-600 uppercase tracking-wider mb-2">
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-center mb-4">
+              <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3">
                 {{ p3IsUnselectedChoice ? 'Option restante attribuée' : 'Parcours attribué automatiquement' }}
               </p>
               
               <!-- Selection mode if multiple unselected choices -->
               <div v-if="p3IsUnselectedChoice && p3UnselectedChoicesList.length > 1" class="flex flex-col gap-2 mt-2">
-                <p class="text-sm text-green-800 font-medium mb-1">Veuillez choisir votre prochaine spécialité :</p>
+                <p class="text-xs text-blue-800 font-bold mb-2">Veuillez choisir votre prochaine spécialité :</p>
                 <label 
                   v-for="choice in p3UnselectedChoicesList" 
                   :key="choice"
-                  class="flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all bg-white"
-                  :class="p3SelectedRemainingChoice === choice ? 'border-green-500 shadow-md' : 'border-transparent hover:border-green-300 shadow-sm'"
+                  class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all bg-white"
+                  :class="p3SelectedRemainingChoice === choice ? 'border-[#ebb872] shadow-md' : 'border-slate-100 hover:border-blue-200 shadow-sm'"
                 >
-                  <span class="font-black text-green-900 text-sm">{{ choice }}</span>
+                  <span class="font-black text-[#305364] text-sm">{{ choice }}</span>
+                  <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all" 
+                       :class="p3SelectedRemainingChoice === choice ? 'border-[#ebb872] bg-[#ebb872]' : 'border-slate-200'">
+                    <span v-if="p3SelectedRemainingChoice === choice" class="material-icons-outlined text-[12px] text-[#305364] font-black">check</span>
+                  </div>
                   <input 
                     type="radio" 
                     :value="choice" 
                     v-model="p3SelectedRemainingChoice"
-                    class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500"
+                    class="hidden"
                   />
                 </label>
               </div>
               
               <!-- Simple text mode (single choice or standard next level) -->
-              <p v-else class="text-lg font-black text-green-700">
+              <p v-else class="text-xl font-black text-[#305364]">
                 {{ p3IsUnselectedChoice ? p3SelectedRemainingChoice : p3NextLevelLabel }}
               </p>
             </div>
-            <p class="text-gray-500 text-sm text-center mb-6">
+            <p class="text-gray-400 font-bold italic text-[11px] text-center mb-6">
               Aucun test supplémentaire n'est nécessaire.
             </p>
           </template>
           
           <template v-else>
-            <div class="bg-red-50 border border-red-200 rounded-xl p-3 text-center mb-4">
-              <p class="text-xs font-bold text-red-600 uppercase tracking-wider mb-1">Niveau Maximum Atteint</p>
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-center mb-4">
+              <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Niveau Maximum Atteint</p>
               <p class="text-lg font-black text-red-700">{{ p3NextLevelLabel }}</p>
             </div>
             <p class="text-red-500 font-medium text-sm text-center mb-6">
@@ -1012,12 +1036,12 @@ function isSectionActive(section) {
           </template>
           
           <div class="flex flex-col sm:flex-row gap-3">
-            <button @click="showP3SameFormationModal = false" :class="['flex-1 py-3 px-4 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all', (p3IsMaxLevel || p3IsSingleLevel) ? 'bg-[#0D1B3E] text-white hover:bg-gray-800' : 'bg-gray-100 text-gray-600 hover:bg-gray-200']">
+            <button @click="showP3SameFormationModal = false" :class="['flex-1 py-4 px-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all', (p3IsMaxLevel || p3IsSingleLevel) ? 'bg-[#305364] text-white hover:brightness-110' : 'bg-slate-100 text-slate-500 hover:bg-slate-200']">
               {{ (p3IsMaxLevel || p3IsSingleLevel) ? 'Changer de formation' : 'Annuler' }}
             </button>
-            <button v-if="!p3IsMaxLevel && !p3IsSingleLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30 disabled:opacity-50">
+            <button v-if="!p3IsMaxLevel && !p3IsSingleLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-4 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-[#ebb872]/20 disabled:opacity-50 cursor-pointer">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
-              Confirmer
+              Valider mon parcours P3
             </button>
           </div>
         </div>
@@ -1105,22 +1129,21 @@ function isSectionActive(section) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1.25rem 1.5rem;
-  min-height: 5rem;
-  background: #f1f5f9;
+  gap: 1rem;
+  padding: 1.5rem;
+  min-height: 5.5rem;
+  background: white;
   border: 1px solid #f1f5f9;
-  border-radius: 1.5rem;
+  border-radius: 2rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .formation-card:hover {
-  background: #e2e8f0;
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border-color: #e2e8f0;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
 }
 
 .formation-card:active {
@@ -1146,7 +1169,7 @@ function isSectionActive(section) {
 }
 
 .formation-card--selected .formation-card__label {
-  color: #60a5fa; /* blue-400 */
+  color: #3b82f6; /* blue-600 */
 }
 
 .formation-card__radio {
@@ -1167,12 +1190,12 @@ function isSectionActive(section) {
 }
 
 .formation-card--selected .formation-card__radio--selected {
-  border-color: #60a5fa; /* blue-400 */
+  border-color: #3b82f6; /* blue-600 */
   background: white;
 }
 
 .formation-card--selected .formation-card__radio-dot {
-  background: #60a5fa; /* blue-400 */
+  background: #3b82f6; /* blue-600 */
 }
 
 .formation-card__radio-dot {

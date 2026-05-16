@@ -82,6 +82,12 @@ export class Session {
   @Column({ default: false })
   p3SkipQuiz: boolean;
 
+  @Column({ type: 'int', default: 1 })
+  parcoursNumber: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  bureautiqueSuite: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

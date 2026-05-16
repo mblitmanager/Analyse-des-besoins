@@ -1,5 +1,6 @@
 <script setup>
 import { useAppStore } from './stores/app'
+import ToastNotification from './components/ToastNotification.vue'
 
 const store = useAppStore()
 </script>
@@ -7,6 +8,7 @@ const store = useAppStore()
 <template>
   <div id="app" :data-brand="store.brand" class="bg-gray-50 min-h-screen font-sans">
     <router-view />
+    <ToastNotification />
   </div>
 </template>
 

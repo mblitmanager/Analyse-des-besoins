@@ -9,9 +9,11 @@ import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import QuestionGroup from '../components/QuestionGroup.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import { useToastStore } from "../stores/toast";
 
 const store = useAppStore();
 const router = useRouter();
+const toast = useToastStore();
 const sessionId = localStorage.getItem("session_id");
 
 const questions = ref([]);
@@ -134,7 +136,7 @@ onMounted(async () => {
         return;
       } else {
         unanswered.value = false;
-        alert("Aucune question de mise à niveau pour votre formation, vous pouvez continuer.");
+        toast.info("Aucune question de mise à niveau pour votre formation, vous pouvez continuer.");
       }
     }
 
@@ -175,7 +177,7 @@ async function nextStep() {
     return ans === null || ans === "" || ans === undefined;
   });
   if (unanswered.value) {
-    alert("Veuillez répondre à toutes les questions avant de continuer.");
+    toast.error("Veuillez répondre à toutes les questions avant de continuer.");
     return;
   }
 

@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { useToastStore } from "../../stores/toast";
+
+const toast = useToastStore();
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('admin_token')}` });
@@ -111,9 +114,10 @@ async function saveRule() {
     }
     await fetchRules();
     showModal.value = false;
+    toast.success("Règle enregistrée !");
   } catch (error) {
     console.error("Failed to save rule:", error);
-    alert("Erreur lors de l'enregistrement.");
+    toast.error("Erreur lors de l'enregistrement.");
   }
 }
 
@@ -121,9 +125,11 @@ async function deleteRule(id) {
   if (!confirm("Supprimer cette règle ?")) return;
   try {
     await axios.delete(`${apiBaseUrl}/question-rules/${id}`, { headers: getAuthHeaders() });
+    toast.success("Règle supprimée.");
     await fetchRules();
   } catch (error) {
     console.error("Failed to delete rule:", error);
+    toast.error("Erreur lors de la suppression.");
   }
 }
 

@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import { useToastStore } from "../../stores/toast";
+
+const toast = useToastStore();
 
 const rules = ref([]);
 const loading = ref(true);
@@ -31,7 +34,7 @@ async function fetchRules() {
     rules.value = res.data;
   } catch (err) {
     console.error("Failed to fetch P3 rules:", err);
-    alert("Erreur lors du chargement des règles P3");
+    toast.error("Erreur lors du chargement des règles P3");
   } finally {
     loading.value = false;
   }
@@ -206,6 +209,7 @@ async function saveRule() {
     }
 
     closeModal();
+    toast.success(editingRule.value ? "Règle mise à jour !" : "Règle créée !");
     await fetchRules();
   } catch (err) {
     console.error("Save failed:", err);
@@ -225,10 +229,11 @@ async function deleteRule(id) {
     const token = localStorage.getItem("admin_token");
     const headers = { Authorization: `Bearer ${token}` };
     await axios.delete(`${apiBaseUrl}/p3-filter-rules/${id}`, { headers });
+    toast.success("Règle supprimée.");
     await fetchRules();
   } catch (err) {
     console.error("Delete failed", err);
-    alert("Erreur lors de la suppression");
+    toast.error("Erreur lors de la suppression");
   }
 }
 
