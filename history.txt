@@ -1,0 +1,1000 @@
+ 1003  ls
+ 1004  tail ecosystem.config.js 
+ 1005  cat > ecosystem.config.js <<EOL
+ 1006  module.exports = {
+ 1007    apps: [
+ 1008      {
+ 1009        name: "aopia-backend",
+ 1010        script: "dist/main.js",
+ 1011        env_production: {
+ 1012          NODE_ENV: "production",
+ 1013          PORT: 3001
+ 1014        }
+ 1015      }
+ 1016    ]
+ 1017  };
+ 1018  EOL
+ 1019  pm2 start ecosystem.config.js --env production
+ 1020  pm2 save
+ 1021  pm2 status
+ 1022  cd /var/www/analyse/projet-app/frontend
+ 1023  npm install
+ 1024  npm run build    # ou build:prod
+ 1025  pm2 start npm --name "aopia-frontend" -- run start
+ 1026  pm2 save
+ 1027  pm2 status
+ 1028  pm2 stop all
+ 1029  pm2 delete all
+ 1030  cd /var/www/analyse/projet-app/backend
+ 1031  pm2 start ecosystem.config.js --env production
+ 1032  pm2 save
+ 1033  pm2 status
+ 1034  cd /var/www/analyse/projet-app/frontend
+ 1035  npm install
+ 1036  npm run build
+ 1037  git pulll
+ 1038  git pull
+ 1039  hsitory
+ 1040  history
+ 1041  git pull
+ 1042  git reset --hard
+ 1043  git pull
+ 1044  cd /var/www/analyse/projet-app/backend
+ 1045  ls
+ 1046  rm -rf dist/
+ 1047  npm install
+ 1048  # Compiler le backend
+ 1049  npm run build
+ 1050  # Vérifier que main.js existe
+ 1051  ls dist/main.js
+ 1052  pm2 restart all
+ 1053  cd /var/www/analyse/projet-app/frontend
+ 1054  rm -RF dist/*
+ 1055  rm -Rf dist/*
+ 1056  npm install
+ 1057  npm run build
+ 1058  git pull
+ 1059  history | grep sql
+ 1060  docker exec -it postgres15 psql -U postgres -c "DROP DATABASE IF EXISTS wizzylearn;"
+ 1061  docker exec -it postgres15 psql -U postgres -c "CREATE DATABASE wizzylearn;"
+ 1062  cd ../bdd/
+ 1063  docker exec -i postgres15 psql -U postgres -d wizzylearn < wizzy-28022026-1624.sql 
+ 1064  git reset --hard b09eeea
+ 1065  cd /var/www/analyse/projet-app/backend
+ 1066  rm -rf dist/*
+ 1067  npm install
+ 1068  # Compiler le backend
+ 1069  npm run build
+ 1070  pm2 restart all
+ 1071  history
+ 1072  cd /var/www/analyse/projet-app/frontend
+ 1073  rm -Rf dist/*
+ 1074  npm run build
+ 1075  git reset --hard
+ 1076  git pull
+ 1077  cd /var/www/analyse/projet-app/backend
+ 1078  # Installer les dépendances
+ 1079  npm install
+ 1080  # Compiler le backend
+ 1081  npm run build
+ 1082  # Vérifier que main.js existe
+ 1083  ls dist/main.js
+ 1084  ls -la
+ 1085  nano ecosystem.config.js 
+ 1086  pm2 stop all
+ 1087  pm2 start ecosystem.config.js --env production
+ 1088  pm2 save
+ 1089  pm2 status
+ 1090  cd /var/www/analyse/projet-app/frontend
+ 1091  ls
+ 1092  rm -Rf dist/*
+ 1093  ls -la
+ 1094  npm install
+ 1095  npm run build
+ 1096  git pull
+ 1097  cd /var/www/analyse/projet-app/backend
+ 1098  rm -rf dist/*
+ 1099  npm install
+ 1100  # Compiler le backend
+ 1101  npm run build
+ 1102  pm2 restart all
+ 1103  pm2 stop all
+ 1104  pm2 start ecosystem.config.js --env production
+ 1105  pm2 save
+ 1106  pm2 status
+ 1107  history |grep log
+ 1108  pm2 logs aopia-backend -f
+ 1109  cd /var/www/analyse/projet-app/backend
+ 1110  # Installer les dépendances
+ 1111  npm install
+ 1112  # Compiler le backend
+ 1113  npm run build
+ 1114  # Vérifier que main.js existe
+ 1115  ls dist/main.js
+ 1116  npm run build
+ 1117  ls dist/main.js
+ 1118  ls
+ 1119  npm build
+ 1120  npm run build
+ 1121  ls dist/main.js
+ 1122  ls -lla
+ 1123  cd dist/
+ 1124  ls
+ 1125  nano tsconfig.build.json
+ 1126  git pull
+ 1127  git reset --hard
+ 1128  git pull
+ 1129  cd ..
+ 1130  rm -rf dist/
+ 1131  ls
+ 1132  cd /var/www/analyse/projet-app/backend
+ 1133  npm install      # au lieu de npm ci
+ 1134  npm run build
+ 1135  ls dist/
+ 1136  pm2 restart
+ 1137  pm2 restart all
+ 1138  cd ..
+ 1139  cd frontend
+ 1140  ls
+ 1141  rm -rf dist/*
+ 1142  npm run build
+ 1143  history | grep docker
+ 1144  docker exec -it postgres15 psql -U postgres -d wizzylearn
+ 1145  hsitory
+ 1146  history
+ 1147  pm2 restart all
+ 1148  cd /var/www/analyse/projet-app/b
+ 1149  cd /var/www/analyse/projet-app/backend/
+ 1150  git pull
+ 1151  history
+ 1152  pm2 restart all
+ 1153  rm -Rf dist/*
+ 1154  npm install
+ 1155  npm run build
+ 1156  pm2 restart all
+ 1157  git reset --hard
+ 1158  git pull
+ 1159  ls
+ 1160  npm install
+ 1161  npm run build
+ 1162  pm2 restart all
+ 1163  cd /var/www/analyse/projet-app/frontend
+ 1164  ls
+ 1165  npm install
+ 1166  rm -Rf dist/
+ 1167  npm install
+ 1168  npm run build
+ 1169  history | grep www
+ 1170  sudo chown -R www-data:www-data /var/www/analyse/projet-app/frontend/dist
+ 1171  history
+ 1172  docker exec -it postgres15 psql -U postgres
+ 1173  docker exec -it postgres15 psql -U postgres -d wizzylearn
+ 1174  history
+ 1175  docker exec -it postgres15 psql -U postgres -d wizzylearn
+ 1176  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn > wizzylearn_backup.sql
+ 1177  ls
+ 1178  scp ubuntu@51.75.251.135:/home/ubuntu/wizzylearn_backup.sql C:\aa;
+ 1179  scp ubuntu@51.75.251.135:/home/ubuntu/wizzylearn_backup.sql C:\sp
+ 1180  cd /var/www/analyse/projet-app/b
+ 1181  cd /var/www/analyse/projet-app/backend/
+ 1182  git pull
+ 1183  history
+ 1184  git reset --hard
+ 1185  git pull
+ 1186  git branch
+ 1187  rm -Rf dist/*
+ 1188  history
+ 1189  npm install
+ 1190  npm run build
+ 1191  pm2 restart all
+ 1192  cd /var/www/analyse/projet-app/frontend
+ 1193  rm -Rf dist/*
+ 1194  npm install
+ 1195  npm run build
+ 1196  history
+ 1197  cd /var/www/analyse/projet-app/backend/
+ 1198  pm2 restart all
+ 1199  pm2 log
+ 1200  cd /home/ubuntu/
+ 1201  history
+ 1202  cd /var/www/analyse/projet-app/
+ 1203  git pull
+ 1204  git reset --hard
+ 1205  git pull
+ 1206  cd /var/www/analyse/projet-app/frontend
+ 1207  rm -Rf dist/*
+ 1208  npm install
+ 1209  npm run build
+ 1210  cd /var/www/analyse/projet-app/backend/
+ 1211  rm -Rf dist/*
+ 1212  npm install
+ 1213  npm run build
+ 1214  pm2 restart all
+ 1215  pm2 log
+ 1216  pm2 stop all
+ 1217  pm2 aopia-backend restart
+ 1218  pm2 aopia-backend start
+ 1219  cd /var/www/analyse/projet-app/backend
+ 1220  rm -rf dist
+ 1221  rm tsconfig.build.tsbuildinfo
+ 1222  npm run build
+ 1223  pm2 delete all
+ 1224  pm2 start ecosystem.config.js
+ 1225  pm2 save
+ 1226  pm2 status
+ 1227  npx nest build --debug
+ 1228  npx tsc -p tsconfig.build.json
+ 1229  history
+ 1230  docker exec -it postgres15 psql -U postgres -d wizzylearn
+ 1231  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn --data-only -t questions -t levels -t formations -t settings > backup_quiz_data.sql
+ 1232  cd /home/ubuntu/
+ 1233  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn --data-only -t questions -t levels -t formations
+ 1234  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn > backup_quiz_data.sql
+ 1235  historu
+ 1236  history
+ 1237  cd /var/www/analyse/projet-app/backend/
+ 1238  rm -Rf dist/*
+ 1239  npm install
+ 1240  npm run build
+ 1241  pm2 restart all
+ 1242  git rest --hard
+ 1243  git reset --hard
+ 1244  git pull
+ 1245  cd ../bdd/
+ 1246  history | grep .sql
+ 1247  docker exec -it postgres15 psql -U postgres -c "DROP DATABASE IF EXISTS wizzylearn;"
+ 1248  docker exec -it postgres15 psql -U postgres -c "CREATE DATABASE wizzylearn;"
+ 1249  docker exec -i postgres15 psql -U postgres -d wizzylearn < wizzy-05032026-2300.sql
+ 1250  docker exec -it postgres15 psql -U postgres -c "DROP DATABASE IF EXISTS wizzylearn;"
+ 1251  docker exec -it postgres15 psql -U postgres -c "CREATE DATABASE wizzylearn;"
+ 1252  docker exec -i postgres15 psql -U postgres -d wizzylearn < wizzy-05032026-2300.sql 
+ 1253  git pill
+ 1254  git pull
+ 1255  docker exec -it postgres15 psql -U postgres -c "DROP DATABASE IF EXISTS wizzylearn;"
+ 1256  docker exec -it postgres15 psql -U postgres -c "CREATE DATABASE wizzylearn;"
+ 1257  docker exec -i postgres15 psql -U postgres -d wizzylearn < wizzy-05032026-2300-fixed.sql 
+ 1258  cd ../backend/
+ 1259  rm -Rf dist/*
+ 1260  npm install
+ 1261  npm run build
+ 1262  pm2 restart all
+ 1263  cd ../frontend/
+ 1264  rm -Rf dist/*
+ 1265  npm install
+ 1266  npm run build
+ 1267  history
+ 1268  docker ps
+ 1269  docker exec -it postgres15 bash
+ 1270  nano /var/lib/postgresql/data/pg_hba.conf
+ 1271  docker exec -it postgres15 bash
+ 1272  docker cp postgres15:/var/lib/postgresql/data/pg_hba.conf /root/pg_hba.conf
+ 1273  nano /root/pg_hba.conf
+ 1274  docker cp /root/pg_hba.conf postgres15:/var/lib/postgresql/data/pg_hba.conf
+ 1275  docker restart postgres15
+ 1276  history | grep .sql
+ 1277  cd ..
+ 1278  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn > wizzylearn_backup.sql
+ 1279  cd /home/ubuntu/
+ 1280  docker exec -t postgres15 pg_dump -U postgres -d wizzylearn > wizzylearn_backup.sql
+ 1281  ls
+ 1282  cd /var/www/analyse/
+ 1283  git branch
+ 1284  git status
+ 1285  clear
+ 1286  git log -1
+ 1287  cd /var/www/analyse/
+ 1288  cd projet-app/backend/
+ 1289  docker exec -it postgres15 psql -U postgres -d wizzylearn2
+ 1290  git reset --hard
+ 1291  cd ..
+ 1292  rm -Rf analyse/
+ 1293  git clone https://github.com/mblitmanager/Analyse-des-besoins.git ./analyse
+ 1294  cd analyse/projet-app/backend/
+ 1295  npm install
+ 1296  npm run build
+ 1297  pm2 start ecosystem.config.js --env production
+ 1298  pm2 save
+ 1299  pm2 status
+ 1300  pm2 aopia-backend log -50
+ 1301  pm2 aopia-backend -log 50
+ 1302  pm2 log 50
+ 1303  pm2 log
+ 1304  pm2 lodocker exec -it postgres15 psql -U postgres -c "DROP DATABASE wizzylearn2;"
+ 1305  docker exec -it postgres15 psql -U postgres -c "DROP DATABASE wizzylearn2;"
+ 1306  docker exec -it postgres15 psql -U postgres -c "CREATE DATABASE wizzylearn2;"
+ 1307  cd ..
+ 1308  cd bdd/
+ 1309  ls
+ 1310  nano wizzy-08.sql
+ 1311  docker exec -i postgres15 psql -U postgres -d wizzylearn2 < wizzy-08.sql 
+ 1312  docker exec -it postgres15 psql -U postgres -c "drop DATABASE wizzylearn2;"
+ 1313  docker exec -t postgres15 pg_dumpall -U postgres > /var/www/analyse/postgres_backup.sql
+ 1314  ls -lh /var/www/analyse/postgres_backup.sql
+ 1315  docker exec -t postgres15 pg_dump -U postgres wizzylearn > /var/www/analyse/wizzylearn.sql
+ 1316  docker ps
+ 1317  docker stop postgres15
+ 1318  docker rm postgres15
+ 1319  docker volume ls
+ 1320  docker run -d --name postgres17 -e POSTGRES_PASSWORD=root -p 5432:5432 -v postgres_data:/var/lib/postgresql/data postgres:17
+ 1321  docker exec -it postgres17 psql -U postgres
+ 1322  psql -h localhost -U postgres -p 5432
+ 1323  docker run -d --name postgres17 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=root -e POSTGRES_DB=wizzylearn -p 5432:5432 -v postgres_data:/var/lib/postgresql/data postgres:17
+ 1324  docker stop postgres17
+ 1325  docker rm postgres17
+ 1326  docker run -d --name postgres17 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=root -e POSTGRES_DB=wizzylearn -p 5432:5432 -v postgres_data:/var/lib/postgresql/data postgres:17
+ 1327  ls
+ 1328  cat wizzy-08.sql | docker exec -i postgres17 psql -U postgres -d wizzylearn
+ 1329  docker exec -it postgres17 psql -U postgres
+ 1330  docker exec -i postgres17 psql -U postgres -d wizzylearn < wizzy-08.sql
+ 1331  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1332  cd /var/www/analyse/projet-app/backend
+ 1333  npm install      # au lieu de npm ci
+ 1334  npm run build
+ 1335  pm2 start ecosystem.config.js --env production
+ 1336  pm2 save
+ 1337  pm2 status
+ 1338  pm2 erase
+ 1339  pm2 delete all
+ 1340  pm2 start ecosystem.config.js
+ 1341  pm2 save
+ 1342  lsof -i :3001
+ 1343  lsof -i :3000
+ 1344  lsof -i :30
+ 1345  pm2 logs aopia-backend
+ 1346  nano .env
+ 1347  rm -Rf dist/*
+ 1348  pm2 delete all
+ 1349  npm run build
+ 1350  pm2 start ecosystem.config.js
+ 1351  pm2 logs
+ 1352  git reset --hard 
+ 1353  git pull
+ 1354  nano .Env
+ 1355  nano .env
+ 1356  npm install
+ 1357  npm run build
+ 1358  pm2 start ecosystem.config.js
+ 1359  pm2 logs
+ 1360  history
+ 1361  crontab -e
+ 1362  nano /root/check_api.sh 
+ 1363  git pull
+ 1364  git reset --hard
+ 1365  git reset --hard origin/main
+ 1366  git pull
+ 1367  pm2 list
+ 1368  pm2 remove all
+ 1369  pm2 delete all
+ 1370  cd /var/www/analyse/projet-app/backend
+ 1371  npm ci
+ 1372  npm run build
+ 1373  # restart pm2 app
+ 1374  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1375  pm2 save
+ 1376  # local direct to backend
+ 1377  curl -i http://127.0.0.1:3001/api/health
+ 1378  # via Apache
+ 1379  curl -i https://nsconseil.mbl-service.com/api/health
+ 1380  history | gre p log
+ 1381  history | grep log
+ 1382  pm2 aopia-backend -log 50
+ 1383  pm2 logs aopia-backend
+ 1384  hisotry
+ 1385  history
+ 1386  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1387  pm2 restart all
+ 1388  pm2 logs aopia-backend
+ 1389  nano /root/check_api.sh 
+ 1390  pm2 restart all
+ 1391  pm2 logs aopia-backend
+ 1392  git reser --hard
+ 1393  git reset --hard
+ 1394  git pull
+ 1395  cd ../bdd
+ 1396  docker exec -it postgres17 psql -U postgres
+ 1397  ls
+ 1398  pwd
+ 1399  docker exec -it postgres17 psql -U postgres -c "UPDATE pg_database SET datallowconn = false WHERE datname = 'wizzylearn';"
+ 1400  docker exec -it postgres17 psql -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'wizzylearn';"
+ 1401  docker exec -it postgres17 psql -U postgres -c "DROP DATABASE IF EXISTS wizzylearn;"
+ 1402  docker exec -it postgres17 psql -U postgres -c "CREATE DATABASE wizzylearn;"
+ 1403  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn /var/www/analyse/projet-app/bdd/wizi-learn-090320261157.backup --clean --no-owner
+ 1404  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn wizi-learn-090320261157.backup --clean --no-owner
+ 1405  ls
+ 1406  cat /var/www/analyse/projet-app/bdd/wizi-learn-090320261157.backup | docker exec -i postgres17 pg_restore -U postgres -d wizzylearn --clean --no-owner
+ 1407  cd /var/www/analyse/projet-app/backend/
+ 1408  pm2 restart all
+ 1409  history
+ 1410  pm2 remove all
+ 1411  pm2 delete all
+ 1412  npm ci
+ 1413  npm install
+ 1414  npm ci
+ 1415  npm run build
+ 1416  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1417  pm2 save
+ 1418  lsof -i :300
+ 1419  # local direct to backend
+ 1420  curl -i http://127.0.0.1:3001/api/health
+ 1421  # via Apache
+ 1422  curl -i https://nsconseil.mbl-service.com/api/health
+ 1423  pm2 logs aopia-backend
+ 1424  nano .env
+ 1425  npm ci
+ 1426  npm run build
+ 1427  pm2 restart all
+ 1428  pm2 logs aopia-backend
+ 1429  sudo systemd-resolve --flush-caches
+ 1430  sudo /etc/init.d/nscd restart
+ 1431  https://api-nsconseil.solara-seaview.com/api/formations?activeOnly=true
+ 1432  # local direct to backend
+ 1433  curl -i http://127.0.0.1:3001/api/health
+ 1434  # via Apache
+ 1435  curl -i https://nsconseil.mbl-service.com/api/health
+ 1436  ping 8.8.8.8
+ 1437  dig @8.8.8.8 api-nsconseil.solara-seaview.com
+ 1438  cd ../frontend/
+ 1439  ls
+ 1440  npm install
+ 1441  nano .env
+ 1442  npm run build
+ 1443  ls -la
+ 1444  history | grep chmod
+ 1445  history | grep chown
+ 1446  sudo chown -R www-data:www-data /var/www/analyse/projet-app/frontend/dist
+ 1447  curl -i https://nsconseil.mbl-service.com/api/health
+ 1448  curl -i https://http://api.solara-seaview.com/api/health
+ 1449  curl -i https://api.solara-seaview.com/api/health
+ 1450  nslookup api.solara-seaview.com
+ 1451  nslookup api-nsconseil.solara-seaview.com
+ 1452  rm -rf dist/*
+ 1453  nano .env
+ 1454  npm run build
+ 1455  PSQL
+ 1456  psql
+ 1457  psql -U postgres -d wizzylearn
+ 1458  history
+ 1459  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1460  hisdocker exec -it postgres17 psql -U postgres
+ 1461  docker exec -it postgres17 psql -U postgres
+ 1462  docker cp /var/www/analyse/projet-app/bdd/wizi-learn-090320261157.backup postgres17:/tmp/
+ 1463  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn --clean --no-owner /tmp/wizi-learn-090320261157.backup
+ 1464  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1465  git pull
+ 1466  cd ../bdd/
+ 1467  history
+ 1468  docker exec -it postgres17 psql -U postgres
+ 1469  docker cp /var/www/analyse/projet-app/bdd/wizzylearn-090320261227.backup postgres17:/tmp/
+ 1470  docker exec -it postgres17 pg_restore -l /tmp/wizzylearn-090320261227.backup
+ 1471  -- depuis psql ou pgAdmin
+ 1472  DROP DATABASE IF EXISTS wizzylearn;
+ 1473  CREATE DATABASE wizzylearn;
+ 1474  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn --clean --no-owner /tmp/wizzylearn-090320261227.backup
+ 1475  docker cp /var/www/analyse/projet-app/bdd/wizzylearn-090320261227.backup postgres17:/tmp/
+ 1476  docker exec -it postgres17 psql -U postgres
+ 1477  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn --clean --no-owner /tmp/wizzylearn-090320261227.backup
+ 1478  history
+ 1479  docker exec -it postgres17 psql -U postgres
+ 1480  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn /tmp/wizzylearn-090320261227.backup
+ 1481  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1482  git pull
+ 1483  cd ../frontend/
+ 1484  rm -Rf dist/*
+ 1485  npm run build
+ 1486  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1487  exit
+ 1488  pm2 status
+ 1489  history
+ 1490  pm2 logs aopia-backend
+ 1491  docker ps
+ 1492  docker start postgres17
+ 1493  docker update --restart unless-stopped postgres17
+ 1494  docker inspect postgres17 | grep RestartPolicy -A 3
+ 1495  docker update --restart unless-stopped postgres17docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1496  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1497  ss -lntp | grep 5432
+ 1498  pm2 startup
+ 1499  pm2 save
+ 1500  pm2 restart all
+ 1501  pm2 logs aopia-backend
+ 1502  docker exec -it postgres17 psql -U postgres
+ 1503  docker ps
+ 1504  ufw allow 5432
+ 1505  cat /var/lib/postgresql/data/postgresql.conf | grep listen_addresses
+ 1506  ufw status
+ 1507  docker exec -it postgres17 bash
+ 1508  docker exec -it postgres17 psql -U postgres
+ 1509  docker exec postgres17 pg_ctl reload
+ 1510  docker exec -it postgres17 bash
+ 1511  cd /var/www/analyse/
+ 1512  cd projet-app/backend/
+ 1513  rm -rf dist/*
+ 1514  npm install
+ 1515  history | grep pg_dump
+ 1516  cd /home/ubuntu/
+ 1517  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v -f /var/lib/postgresql/data/wizi-learn-090320261157.backup
+ 1518  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v -f ./wizi-learn-090320261157.backup
+ 1519  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-090320261157.backup
+ 1520  cd /var/www/analyse/
+ 1521  git pull
+ 1522  git reset --hard
+ 1523  cd projet-app/backend/
+ 1524  rm -rf dist/*
+ 1525  npm install
+ 1526  npm run build
+ 1527  pm2 restart all
+ 1528  cd ../frontend/
+ 1529  rm -rf dist/*
+ 1530  npm install
+ 1531  npm run build
+ 1532  pm2 logs aopia-backend
+ 1533  cd /var/www/analyse/projet-app/backend/
+ 1534  nano .env
+ 1535  npm run build
+ 1536  pm2 restart all
+ 1537  git pull
+ 1538  git reset --hard
+ 1539  rm -rf dist/*
+ 1540  npm install
+ 1541  npm run build
+ 1542  pm2 restart all
+ 1543  cd ../frontend/
+ 1544  rm -rf dist/*
+ 1545  npm install
+ 1546  npm run build
+ 1547  nano .env
+ 1548  git pull
+ 1549  git reset --hard
+ 1550  git pull
+ 1551  rm -rf dist/*
+ 1552  npm install
+ 1553  npm run build
+ 1554  history
+ 1555  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1556  cd /var/www/html/
+ 1557  pm2 restart all
+ 1558  cd /var/www/analyse/projet-app/backend/
+ 1559  nano .Env
+ 1560  nano .env
+ 1561  ..
+ 1562  cd ../frontend/
+ 1563  nano .env
+ 1564  rm -rf dist/*
+ 1565  npm run build
+ 1566  pm2 logs aopia-backend
+ 1567  nano /root/check_api.sh 
+ 1568  bash /root/check_api.sh 
+ 1569  chmod +x /root/check_api.sh
+ 1570  crontab -e
+ 1571  cd /var/mail/root
+ 1572  nano /var/mail/root
+ 1573  sudo apt install mailutils -y
+ 1574  ALERT_EMAIL="mblitmanager@gmail.com"  # <-- remplace par une adresse valide
+ 1575  echo "Test" | mail -s "Test mail" mblitmanager@gmail.com
+ 1576  bash /root/check_api.sh 
+ 1577  nano /var/mail/root
+ 1578  pm2 logs aopia-backend
+ 1579  crontab -e
+ 1580  history
+ 1581  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-12032026-0833.backup
+ 1582  cd /var/www/analyse/
+ 1583  git pull
+ 1584  cd projet-app/backend/
+ 1585  rm -rf dist/*
+ 1586  npm install
+ 1587  npm run build
+ 1588  pm2 restart all
+ 1589  cd ../frontend/
+ 1590  rm -rf dist/*
+ 1591  npm install
+ 1592  npm run build
+ 1593  history
+ 1594  docker exec -it postgres17 psql -U postgres -d wizzylearn
+ 1595  clear
+ 1596  docker exec -t postgres17 pg_dump -U postgres -d wizzylearn --data-only -t sessions -t questions > backup_sessions_questions_data.sql
+ 1597  history
+ 1598  clear
+ 1599  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-12032026-1233.backup
+ 1600  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-14032026-1513.backup
+ 1601  cd /var/www/analyse/
+ 1602  cd projet-app/bdd/
+ 1603  ls
+ 1604  git pull
+ 1605  history | grep restore
+ 1606  hsitory
+ 1607  history
+ 1608  ls
+ 1609  git pull
+ 1610  git reset --hard
+ 1611  git pull
+ 1612  docker cp /var/www/analyse/projet-app/bdd/wizzylearn-140320261522.backup postgres17:/tmp
+ 1613  docker exec -it postgres17 psql -U postgres
+ 1614  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn /tmp/wizzylearn-140320261522.backup 
+ 1615  cd backup_sessions_questions_data.sql 
+ 1616  cd ../backend/
+ 1617  rm -rf ./dist/*
+ 1618  npm install
+ 1619  npm run build
+ 1620  pm2 restart
+ 1621  pm2 restart all
+ 1622  pm2 stop all
+ 1623  history | grep pm2
+ 1624  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1625  pm2 logs aopia-backend
+ 1626  cd ../frontend/
+ 1627  rm -rf dist/*
+ 1628  npm install
+ 1629  npm run build
+ 1630  history
+ 1631  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-23032026-1722.backup
+ 1632  cd /var/www/analyse/
+ 1633  git pull
+ 1634  git reset --hard
+ 1635  git pull
+ 1636  history
+ 1637  cd projet-app/bdd/
+ 1638  docker cp wizzylearn-23032026-1724.backup postgres17:/tmp
+ 1639  docker exec -it postgres17 psql -U postgres
+ 1640  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn /tmp/wizzylearn-23032026-1724.backup
+ 1641  docker exec -it postgres17 psql -U postgres
+ 1642  docker exec -i postgres17 pg_restore -U postgres -d wizzylearn /tmp/wizzylearn-23032026-1724.backup
+ 1643  hisotry
+ 1644  history
+ 1645  cd ../backend/
+ 1646  rm -Rf dist/*
+ 1647  npm install
+ 1648  npm run build
+ 1649  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1650  cd ../frontend
+ 1651  rm -Rf dist/*
+ 1652  npm install
+ 1653  npm run build
+ 1654  cd /var/www/analyse/
+ 1655  cd projet-app/backend/
+ 1656  git pull
+ 1657  cd ../frontend/
+ 1658  rm -Rf dist/*
+ 1659  npm build
+ 1660  npm run build
+ 1661  cd /var/www/analyse/
+ 1662  cd projet-app/frontend/
+ 1663  git pull
+ 1664  rm -rf dist/*
+ 1665  npm install
+ 1666  npm run build
+ 1667  git pull
+ 1668  rm -rf dist/*
+ 1669  npm run build
+ 1670  git pull
+ 1671  rm -rf dist/*
+ 1672  npm run build
+ 1673  git pull
+ 1674  rm -rf dist/*
+ 1675  git pull
+ 1676  npm run build
+ 1677  clear
+ 1678  cd /var/www/analyse/
+ 1679  cd projet-app/backend/
+ 1680  nano .env
+ 1681  HISTORY
+ 1682  history
+ 1683  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1684  nano .env
+ 1685  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1686  nano .env
+ 1687  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1688  history
+ 1689  docker exec -i postgres17 pg_dump -U postgres -d wizzylearn -F c -b -v > ./wizi-learn-170420260936.backup
+ 1690  history
+ 1691  cd /var/www/analyse/
+ 1692  cd projet-app/backend/
+ 1693  git pull
+ 1694  rm -rf dist/*
+ 1695  npm run build
+ 1696  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1697  cd ../frontend/
+ 1698  rm -Rf dist/*
+ 1699  npm build
+ 1700  npm run build
+ 1701  clear
+ 1702  history
+ 1703  pm2 logs aopia-backend
+ 1704  cd ..
+ 1705  cd backend/
+ 1706  history
+ 1707  rm -rf dist/*
+ 1708  npm install
+ 1709  npm audit fix --force
+ 1710  npm run build
+ 1711  history
+ 1712  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1713  clear
+ 1714  pm2 logs aopa-backend
+ 1715  pm2 logs aopia-backend
+ 1716  clear
+ 1717  git pull
+ 1718  git reset --hard origin/main
+ 1719  history
+ 1720  clear
+ 1721  history
+ 1722  cd /var/www/analyse
+ 1723  cd projet-app/backend
+ 1724  git pull
+ 1725  git reset --hard
+ 1726  git pull
+ 1727  clear
+ 1728  history
+ 1729  rm -rf dist/*
+ 1730  npm run build
+ 1731  npm install
+ 1732  npm install --force
+ 1733  npm audit fix --force
+ 1734  history
+ 1735  npm run build
+ 1736  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1737  cd ../frontend/
+ 1738  rm -Rf dist/*
+ 1739  npm build
+ 1740  npm run build
+ 1741  clear
+ 1742  history
+ 1743  cd /var/www/analyse
+ 1744  cd projet-app/backend
+ 1745  git pull
+ 1746  git reset --hard 
+ 1747  git pull
+ 1748  clear
+ 1749  history
+ 1750  rm -rf dist/*
+ 1751  npm install
+ 1752  npm run build
+ 1753  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1754  cd ../frontend
+ 1755  rm -Rf dist/*
+ 1756  npm build
+ 1757  npm  run build
+ 1758  rm -Rf dist/*
+ 1759  npm install
+ 1760  npm  run build
+ 1761  cd ../backend/
+ 1762  clear
+ 1763  hisotry
+ 1764  history
+ 1765  rm -Rf dist/*
+ 1766  npm  run build
+ 1767  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1768  pm2 restart all
+ 1769  nano .env
+ 1770  history | grep log
+ 1771  pm2 logs aopia-backend
+ 1772  rm -Rf dist/*
+ 1773  npm install
+ 1774  npm run build
+ 1775  history
+ 1776  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1777  pm2 logs aopia-backend
+ 1778  pm2 status
+ 1779  curl http://localhost:3001
+ 1780  pm2 flush
+ 1781  pm2 restart aopia-backend
+ 1782  pm2 status
+ 1783  npm run build && pm2 restart aopia-backend --update-env
+ 1784  pm2 status
+ 1785  pm2 logs aopia-backend --lines 100
+ 1786  clear
+ 1787  ls -lah dist/
+ 1788  ls -lah dist/main.js
+ 1789  pm2 delete aopia-backend
+ 1790  cat ecosystem.config.js
+ 1791  find . -name main.js | grep dist
+ 1792  clear
+ 1793  ls -lah
+ 1794  ls -lah src/
+ 1795  find src -name "*.ts" | head -20
+ 1796  find . -name main.ts
+ 1797  cat nest-cli.json
+ 1798  rm -rf dist
+ 1799  rm -f tsconfig.build.tsbuildinfo
+ 1800  npm run build
+ 1801  ls -lah dist
+ 1802  find dist -name main.js
+ 1803  pm2 start ecosystem.config.js
+ 1804  ls -lla
+ 1805  clear
+ 1806  curl -I https://api-nsconseil.solara-seaview.com/api/workflow
+ 1807  curl https://api-nsconseil.solara-seaview.com/api/workflow
+ 1808  curl -I https://api-nsconseil.solara-seaview.com/api/settings/ENABLE_REFERRAL
+ 1809  curl https://api-nsconseil.solara-seaview.com/api/settings/ENABLE_REFERRAL
+ 1810  curl -I https://api-nsconseil.solara-seaview.com/api/contacts
+ 1811  curl -X POST https://api-nsconseil.solara-seaview.com/api/sessions
+ 1812  clear
+ 1813  history
+ 1814  reboot now
+ 1815  cd /var/www/analyse/
+ 1816  cd projet-app/back
+ 1817  cd projet-app/backend/
+ 1818  git pull
+ 1819  git reset --hard
+ 1820  git pull
+ 1821  history
+ 1822  rm -rf dist/*
+ 1823  npm install
+ 1824  npm  run build
+ 1825  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1826  rm -rf dist
+ 1827  rm -f tsconfig.build.tsbuildinfo
+ 1828  npm run build
+ 1829  find dist -name main.js
+ 1830  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1831  cd ../frontend/
+ 1832  history
+ 1833  rm -Rf dist/*
+ 1834  npm install
+ 1835  npm run build
+ 1836  history
+ 1837  cd /var/www/analyse
+ 1838  cd projet-app/backend/
+ 1839  cd /var/www/analyse/projet-app/backend/
+ 1840  clear
+ 1841  git reset --hard origin/main
+ 1842  git pull
+ 1843  clear
+ 1844  history
+ 1845  rm -rf dist/*
+ 1846  npm install
+ 1847  npm  run build
+ 1848  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1849  pm2 logs aopia-backend
+ 1850  ls src/seed.service.ts
+ 1851  git reset --hard origin/main
+ 1852  git pull
+ 1853  clear
+ 1854  history
+ 1855  rm -rf dist/*
+ 1856  npm install
+ 1857  npm run build
+ 1858  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1859  pm2 logs aopia-backend
+ 1860  pm2 stop aopia-backend
+ 1861  rm -rf dist
+ 1862  npm run build
+ 1863  pm2 restart aopia-backend
+ 1864  history
+ 1865  pm2 logs aopia-backend
+ 1866  cd /var/www/analyse/projet-app/backend
+ 1867  pm2 stop aopia-backend
+ 1868  rm -rf dist
+ 1869  npm run build
+ 1870  pm2 restart aopia-backend
+ 1871  pm2 logs aopia-backend
+ 1872  cd ..
+ 1873  cd backend/
+ 1874  ls
+ 1875  ls -la
+ 1876  npm run build
+ 1877  ls dis
+ 1878  ls dist
+ 1879  ls
+ 1880  ls -la
+ 1881  git reset --hard origin/main
+ 1882  git pull
+ 1883  npm install
+ 1884  npm run build
+ 1885  history
+ 1886  pm2 restart aopia-backend --update-env
+ 1887  pm2 logs aopia-backend
+ 1888  nano .env
+ 1889  clear
+ 1890  pw
+ 1891  pwd
+ 1892  cd /var/www/analyse/
+ 1893  cd projet-app/backend/
+ 1894  git pull
+ 1895  git reset --hard
+ 1896  git pull
+ 1897  npm install
+ 1898  npm audit fix --force
+ 1899  history
+ 1900  rm -rf dist/*
+ 1901  npm  run build
+ 1902  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1903  cd ../frontend/
+ 1904  rm -Rf dist/*
+ 1905  npm install
+ 1906  npm run build
+ 1907  history
+ 1908  pm2 logs aopia-backend
+ 1909  ls /var/www/analyse/projet-app/backend/src/seed.service.ts
+ 1910  cd /var/www/analyse/projet-app/backend
+ 1911  rm -rf dist
+ 1912  npm run build
+ 1913  ls
+ 1914  cd src/
+ 1915  ls
+ 1916  pm2 restart aopia-backend
+ 1917  clear
+ 1918  cd ..
+ 1919  ls
+ 1920  grep -r "seed.service" /var/www/analyse/projet-app/backend/src
+ 1921  nano /var/www/analyse/projet-app/backend/src/app.module.ts
+ 1922  git pull
+ 1923  git reset --hard
+ 1924  git pull
+ 1925  histoy
+ 1926  history
+ 1927  rm -rf dist/*
+ 1928  npm install
+ 1929  npm audit fix --force
+ 1930  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1931  clear
+ 1932  history
+ 1933  npm run build
+ 1934  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1935  pm2 logs aopia-backend
+ 1936  clear
+ 1937  ls
+ 1938  ls -lla
+ 1939  git reset --hard origin/main
+ 1940  git pull
+ 1941  ls -la
+ 1942  clear
+ 1943  history
+ 1944  pm2 status
+ 1945  rm -rf dist/*
+ 1946  npm install
+ 1947  npm audit fix --force
+ 1948  history
+ 1949  rm -rf dist/*
+ 1950  npm run build
+ 1951  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1952  pm2 aopia-backend status
+ 1953  pm2 status aopia-backend
+ 1954  pm2 logs aopia-backend -50
+ 1955  pm2 logs  50 aopia-backend
+ 1956  pm2 logs aopia-backend
+ 1957  :clear
+ 1958  clear
+ 1959  history >> history.txt
+ 1960  cd backend/
+ 1961  pm2 logs aopia-backend --lines 100
+ 1962  sudo pm2 status
+ 1963  cd frontend/
+ 1964  ls
+ 1965  rm -rf dist/*
+ 1966  npm install
+ 1967  npm run build
+ 1968  git pull
+ 1969  git reset --hard origin/main
+ 1970  git pull
+ 1971  cd backend/
+ 1972  npm install
+ 1973  npm run build
+ 1974  rm -Rf dist/*
+ 1975  npm run build
+ 1976  history > history.txt
+ 1977  rm -f history.txt 
+ 1978  history > history.txt
+ 1979  pm2 restart aopia-backend --update-env || pm2 start /var/www/analyse/projet-app/backend/ecosystem.config.js --env production
+ 1980  curl -i http://127.0.0.1:3001/api/health
+ 1981  # pm2 + écoute
+ 1982  pm2 status aopia-backend
+ 1983  pm2 logs aopia-backend --lines 200
+ 1984  ss -ltnp | egrep ':3001|:3000' || true
+ 1985  # docker Postgres status & logs (ajustez le nom du conteneur si différent)
+ 1986  docker ps --filter name=postgres -a
+ 1987  docker logs postgres17 --tail 200
+ 1988  # afficher pg_hba.conf dans le conteneur
+ 1989  docker exec -it postgres17 cat /var/lib/postgresql/data/pg_hba.conf
+ 1990  # (si vous voulez que je modifie pg_hba.conf pour autoriser 172.17.0.0/16)
+ 1991  # -> sauvegarder, ajouter la règle et recharger Postgres
+ 1992  docker exec -it postgres17 bash -lc "cp /var/lib/postgresql/data/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf.bak && echo 'host all all 172.17.0.0/16 md5' >> /var/lib/postgresql/data/pg_hba.conf && pg_ctl reload -D /var/lib/postgresql/data || true"
+ 1993  # ou redémarrer le conteneur
+ 1994  docker restart postgres17
+ 1995  cd frontend/
+ 1996  cat ~/.ssh/id_ed25519.pub
+ 1997  tail ~/.ssh/id_ed25519.pub
+ 1998  exit
+ 1999  git reet --hard
+ 2000  git reset --hard origin/main
+ 2001  git pull
+ 2002  history > history.txt
