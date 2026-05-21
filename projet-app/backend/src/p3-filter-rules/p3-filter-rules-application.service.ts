@@ -93,7 +93,7 @@ export class P3FilterRulesApplicationService {
 
     // Check level condition (if specified)
     if (rule.maxLevelOrder !== null && rule.maxLevelOrder !== undefined) {
-      const levelNumber = this.extractLevelNumber(session.lastValidatedLevel);
+      const levelNumber = this.getLevelNumber(session);
       if (levelNumber === null) {
         // If we can't parse the level, don't apply this rule
         return false;
@@ -105,6 +105,47 @@ export class P3FilterRulesApplicationService {
     }
 
     return true;
+  }
+
+  private getLevelOrderFromLabel(label: string | null | undefined): number | null {
+    if (!label) {
+      return null;
+    }
+    const lvl = label.toLowerCase();
+    if (lvl.includes('initial')) return 1;
+    if (lvl.includes('basique')) return 2;
+    if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
+    if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
+    if (lvl.includes('expert')) return 5;
+    return null;
+  }
+
+  private getLevelNumber(session: Session): number | null {
+    if (session.stopLevelOrder !== null && session.stopLevelOrder !== undefined && session.stopLevelOrder > 0) {
+      return session.stopLevelOrder;
+    }
+
+    const stopLevelOrderFromLabel = this.getLevelOrderFromLabel(session.stopLevel);
+    if (stopLevelOrderFromLabel !== null) {
+      return stopLevelOrderFromLabel;
+    }
+
+    const lastValLevelOrderFromLabel = this.getLevelOrderFromLabel(session.lastValidatedLevel);
+    if (lastValLevelOrderFromLabel !== null) {
+      return lastValLevelOrderFromLabel;
+    }
+
+    const stopLevelNum = this.extractLevelNumber(session.stopLevel);
+    if (stopLevelNum !== null) {
+      return stopLevelNum;
+    }
+
+    const lastValLevelNum = this.extractLevelNumber(session.lastValidatedLevel);
+    if (lastValLevelNum !== null) {
+      return lastValLevelNum;
+    }
+
+    return null;
   }
 
   /**
