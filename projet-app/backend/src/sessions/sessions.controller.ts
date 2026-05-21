@@ -147,6 +147,12 @@ export class SessionsController {
     return this.sessionsService.submit(id);
   }
 
+  @Post(':id/resend')
+  @UseGuards(JwtAuthGuard)
+  resendEmail(@Param('id') id: string) {
+    return this.sessionsService.resendEmail(id);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {

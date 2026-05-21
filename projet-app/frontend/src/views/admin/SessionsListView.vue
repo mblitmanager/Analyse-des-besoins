@@ -20,6 +20,7 @@ const questionsIndex = ref({});
 const selectedSessionIds = ref(new Set());
 const processedData = ref(null);
 const loadingProcessed = ref(false);
+const resendingSessionId = ref(null);
 
 const isExportingPdf = ref(false);
 const exportProgressCount = ref(0);
@@ -473,6 +474,29 @@ function exportSessionDetails(session) {
   document.body.removeChild(link);
 }
 
+async function resendEmail(session) {
+  const nom = `${session.prenom || session.stagiaire?.prenom || ''} ${session.nom || session.stagiaire?.nom || ''}`;
+  if (!confirm(`Confirmer le renvoi de l'e-mail de bilan pour ${nom.trim()} au conseiller commercial ?`)) return;
+
+  resendingSessionId.value = session.id;
+  try {
+    const res = await axios.post(`${apiBaseUrl}/sessions/${session.id}/resend`);
+    if (res.data?.emailSentAt) {
+      session.emailSentAt = res.data.emailSentAt;
+      if (editableSession.value && editableSession.value.id === session.id) {
+        editableSession.value.emailSentAt = res.data.emailSentAt;
+      }
+    }
+    toast.success("E-mail de bilan renvoyé avec succès.");
+  } catch (error) {
+    console.error("Failed to resend email:", error);
+    const msg = error?.response?.data?.message || "Erreur lors du renvoi de l'e-mail.";
+    toast.error(msg);
+  } finally {
+    resendingSessionId.value = null;
+  }
+}
+
 onMounted(async () => {
   await Promise.all([fetchSessions(), fetchQuestionsIndex()]);
 });
@@ -707,6 +731,16 @@ function toggleExpandedLevel(level) {
                 <td class="px-8 py-5">
                   <div class="flex gap-2 justify-end">
                     <button
+                      v-if="session.isCompleted"
+                      @click.stop="resendEmail(session)"
+                      :disabled="resendingSessionId === session.id"
+                      class="w-9 h-9 rounded-xl border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-100 transition-all flex items-center justify-center shadow-sm disabled:opacity-50 disabled:cursor-wait"
+                      :title="resendingSessionId === session.id ? 'Envoi en cours...' : 'Renvoyer l\'e-mail'"
+                    >
+                      <span v-if="resendingSessionId === session.id" class="material-icons-outlined text-lg animate-spin">sync</span>
+                      <span v-else class="material-icons-outlined text-lg">mail</span>
+                    </button>
+                    <button
                       @click.stop="downloadPdf(session)"
                       class="w-9 h-9 rounded-xl border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 transition-all flex items-center justify-center shadow-sm"
                     >
@@ -791,6 +825,16 @@ function toggleExpandedLevel(level) {
             </div>
           </div>
           <div class="flex items-center gap-4">
+             <button
+              v-if="editableSession.isCompleted"
+              @click.stop="resendEmail(editableSession)"
+              :disabled="resendingSessionId === editableSession.id"
+              class="w-12 h-12 flex items-center justify-center rounded-2xl bg-blue-50 text-blue-500 hover:bg-blue-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-wait"
+              :title="resendingSessionId === editableSession.id ? 'Envoi en cours...' : 'Renvoyer l\'e-mail au commercial'"
+            >
+              <span v-if="resendingSessionId === editableSession.id" class="material-icons-outlined animate-spin">sync</span>
+              <span v-else class="material-icons-outlined">mail</span>
+            </button>
              <button
               @click.stop="downloadPdf(editableSession)"
               class="w-12 h-12 flex items-center justify-center rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all shadow-sm"

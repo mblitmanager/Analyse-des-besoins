@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, ILike } from 'typeorm';
 import { Session } from '../entities/session.entity';
@@ -1463,6 +1463,480 @@ export class SessionsService {
       isCompleted: true,
     });
   }
+
+  async resendEmail(id: string) {
+    const session = await this.findOne(id);
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+    if (!session.isCompleted) {
+      throw new BadRequestException('Session non complétée');
+    }
+
+    if (session.p3SkipQuiz && session.finalRecommendation) {
+      return this.resendP3SkipQuizEmail(session);
+    }
+
+    const {
+      recommendation,
+      scorePretest,
+      finalLevel,
+      qTextById,
+      correctAnswersById,
+      filteredMiseAnswers,
+      filteredPrerequis,
+      filteredComplementaryAnswers,
+      filteredAvailabilities,
+      miseTitle,
+      levels,
+    } = await this.getRecommendationData(session);
+
+    const levelsTable = session.levelsScores
+      ? `
+        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+          <thead style="background:#f8fafc;">
+            <tr>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th>
+              <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.entries(session.levelsScores)
+              .map(([lvl, e]: any) => {
+                const ok = e?.validated ? 'Oui' : 'Non';
+                const score = `${Number(e?.score) || 0}/${Number(e?.total) || 0}`;
+                const displayLvl = lvl.toLowerCase().includes('niveau')
+                  ? lvl
+                  : `Niveau ${lvl}`;
+                return `<tr>
+                  <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">${safe(
+                    displayLvl,
+                  )}</td>
+                  <td style="padding:10px;border-top:1px solid #eee;">${safe(
+                    score,
+                  )}</td>
+                  <td style="padding:10px;border-top:1px solid #eee;">${safe(
+                    ok,
+                  )}</td>
+                </tr>`;
+              })
+              .join('')}
+          </tbody>
+        </table>
+      `
+      : '';
+
+    // Filter complementary questions to exclude those already in Mise à niveau
+    const miseKeys = new Set(
+      Object.keys(filteredMiseAnswers || {}).map(String),
+    );
+    const finalComplementary = Object.fromEntries(
+      Object.entries(filteredComplementaryAnswers || {}).filter(
+        ([key]) => !miseKeys.has(String(key)),
+      ),
+    );
+
+    const extraContent = `
+      <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3>
+      <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+        <tbody>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.conseiller,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            session.metier,
+          )}</td></tr>
+          <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">${safe(
+            Array.isArray(session.situation)
+              ? session.situation.join(', ')
+              : session.situation,
+          )}</td></tr>
+        </tbody>
+      </table>
+
+      ${
+        session.parrainNom ||
+        session.parrainPrenom ||
+        session.parrainEmail ||
+        session.parrainTelephone
+          ? `
+        <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Parrainage</h3>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;">
+          <tbody>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Parrain / Marraine</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(`${session.parrainPrenom || ''} ${session.parrainNom || ''}`.trim() || 'N/A')}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email Parrain</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(session.parrainEmail)}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone Parrain</td>
+              <td style="padding:10px;border-top:1px solid #eee;">${safe(session.parrainTelephone)}</td>
+            </tr>
+          </tbody>
+        </table>
+      `
+          : ''
+      }
+
+      ${levelsTable}
+
+      ${renderAnswersTable(
+        'Pré-requis (réponses)',
+        filteredPrerequis,
+        qTextById,
+      )}
+      ${renderAnswersTable(
+        'Questions complémentaires (réponses)',
+        finalComplementary,
+        qTextById,
+      )}
+      ${renderAnswersTable(
+        'Usage de la langue',
+        filteredMiseAnswers,
+        qTextById,
+      )}
+      ${session.highLevelContinue ? `<div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div>` : ''}
+    `;
+
+    const adminEmail = await this.settingsService.getValue(
+      'ADMIN_EMAIL',
+      'contact@wizi-learn.com',
+    );
+
+    let commercialEmail: string | null = null;
+    if (session.conseiller) {
+      const contactRepo = this.sessionRepo.manager.getRepository(Contact);
+      const contacts = await contactRepo.find();
+      const conseillerLower = session.conseiller.toLowerCase().trim();
+      const match = contacts.find(
+        (c) =>
+          `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
+          `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+          conseillerLower.includes(c.nom.toLowerCase()),
+      );
+      if (match && match.email) {
+        commercialEmail = match.email;
+      }
+    }
+
+    const emailTo = commercialEmail || adminEmail;
+    const emailCc = undefined;
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const filenameTimestamp = now.toISOString().slice(0, 10);
+
+    const emailAttachments: any[] = [];
+    const recommendationsList = (session.finalRecommendation || recommendation)
+      .replace(/\|/g, '&')
+      .split('&')
+      .map((r) => r.trim())
+      .filter(Boolean);
+
+    if (recommendationsList.length === 0) {
+      recommendationsList.push(session.formationChoisie || 'Parcours');
+    }
+
+    const fullRecommendation = recommendationsList.join(' & ');
+
+    const baseParcoursNumber = await this.getParcoursNumber(session);
+    for (let i = 0; i < recommendationsList.length; i++) {
+      const rec = recommendationsList[i];
+      const currentParcoursNumber = recommendationsList.length > 1 ? baseParcoursNumber + i : baseParcoursNumber;
+
+      const pdfBuffer = await this.pdfService.generateSessionPdf({
+        civilite: session.civilite,
+        prenom: session.prenom,
+        nom: session.nom,
+        email: session.stagiaire?.email,
+        telephone: session.telephone,
+        conseiller: session.conseiller,
+        metier: session.metier,
+        situation: session.situation,
+        formationChoisie: session.formationChoisie,
+        finalRecommendation: rec,
+        scoreFinal: session.scorePretest !== null ? session.scorePretest : scorePretest,
+        levelsScores: session.levelsScores as Record<string, any>,
+        prerequisiteAnswers: filteredPrerequis as Record<string, any>,
+        complementaryAnswers: finalComplementary as Record<string, any>,
+        availabilityAnswers: filteredAvailabilities as Record<string, any>,
+        miseANiveauAnswers: filteredMiseAnswers as Record<string, any>,
+        positionnementAnswers: session.positionnementAnswers as Record<
+          string,
+          any
+        >,
+        qTextById,
+        parrainNom: session.parrainNom,
+        parrainPrenom: session.parrainPrenom,
+        parrainEmail: session.parrainEmail,
+        parrainTelephone: session.parrainTelephone,
+        highLevelContinue: session.highLevelContinue,
+        isP3Mode: session.isP3Mode,
+        parcoursNumber: currentParcoursNumber,
+        stopLevelOrder: session.stopLevelOrder,
+        correctAnswersById: correctAnswersById as Record<
+          number,
+          string | string[]
+        >,
+      });
+
+      const pdfFilename = this.generatePdfFilename(session, rec, filenameTimestamp, currentParcoursNumber);
+      emailAttachments.push({ filename: pdfFilename, content: pdfBuffer });
+    }
+
+    const publicPath = path.join(process.cwd(), 'public');
+    const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
+    const logoLikePath = path.join(
+      publicPath,
+      'logo',
+      'Logo_Like_Formation.png',
+    );
+
+    if (fs.existsSync(logoAopiaPath)) {
+      emailAttachments.push({
+        filename: 'logo-aopia.png',
+        path: logoAopiaPath,
+        cid: 'logo_aopia',
+      });
+    }
+    if (fs.existsSync(logoLikePath)) {
+      emailAttachments.push({
+        filename: 'logo-like.png',
+        path: logoLikePath,
+        cid: 'logo_like',
+      });
+    }
+
+    let badgeText = `P${baseParcoursNumber}`;
+    let badgeStatus =
+      baseParcoursNumber === 1
+        ? 'INITIAL'
+        : baseParcoursNumber === 3
+          ? '3ÈME PARCOURS'
+          : 'COMPLÉMENTAIRE';
+
+    if (recommendationsList.length > 1) {
+      badgeText = 'P1 & P2';
+      badgeStatus = 'INITIAL & COMPLÉMENTAIRE';
+    } else if (session.isP3Mode || baseParcoursNumber >= 3) {
+      badgeText = 'P3';
+      badgeStatus = '3ÈME PARCOURS';
+    }
+
+    const isInitial = badgeText.includes('P1');
+    const badgeBg = isInitial ? '#ecfdf5' : '#EEF2FF';
+    const badgeBorder = isInitial ? '#6ee7b7' : '#C7D2FE';
+    const badgeColor = isInitial ? '#047857' : '#4338CA';
+
+    const mailResult = await this.emailService.sendReport(
+      emailTo,
+      `Analyse des besoins (Renvoyé) - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+      `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+      <div style="background-color: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+        <span style="color: ${badgeColor}; font-weight: bold; font-size: 14px;">
+          🔷 ${badgeText} - PARCOURS ${badgeStatus} (Rapport Renvoyé)
+        </span>
+      </div>
+      <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins (Renvoyé)</h2>
+        <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le ${dateStr}</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        
+        <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
+        <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
+        ${
+          session.parrainNom || session.parrainPrenom
+            ? `<p><strong>Parrain / Marraine :</strong> ${session.parrainPrenom || ''} ${session.parrainNom || ''}</p>`
+            : ''
+        }
+        <p><strong>Formation :</strong> ${session.formationChoisie}</p>
+        <p><strong>Recommandations :</strong></p>
+        <div style="margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+          ${extraContent}
+        </div>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
+          <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
+        </div>
+
+        <p style="font-size: 11px; color: #999; margin-top: 40px;">
+          Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
+        </p>
+      </div>`,
+      emailAttachments,
+      emailCc,
+    );
+
+    const emailSentAt = new Date();
+    await this.sessionRepo.update(id, { emailSentAt });
+
+    return { success: mailResult.success, emailSentAt };
+  }
+
+  private async resendP3SkipQuizEmail(session: Session) {
+    const recommendation =
+      session.finalRecommendation || session.formationChoisie || 'Parcours P3';
+
+    const {
+      qTextById,
+      correctAnswersById,
+      filteredMiseAnswers,
+      filteredPrerequis,
+      filteredComplementaryAnswers,
+      filteredAvailabilities,
+    } = await this.getRecommendationData(session);
+
+    const adminEmail = await this.settingsService.getValue(
+      'ADMIN_EMAIL',
+      'contact@wizi-learn.com',
+    );
+
+    let commercialEmail: string | null = null;
+    if (session.conseiller) {
+      const contactRepo = this.sessionRepo.manager.getRepository(Contact);
+      const contacts = await contactRepo.find();
+      const conseillerLower = session.conseiller.toLowerCase().trim();
+      const match = contacts.find(
+        (c) =>
+          `${c.prenom} ${c.nom}`.toLowerCase().includes(conseillerLower) ||
+          `${c.nom} ${c.prenom}`.toLowerCase().includes(conseillerLower) ||
+          conseillerLower.includes(c.nom.toLowerCase()),
+      );
+      if (match && match.email) {
+        commercialEmail = match.email;
+      }
+    }
+
+    const emailTo = commercialEmail || adminEmail;
+    const emailCc = undefined;
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const filenameTimestamp = now.toISOString().slice(0, 10);
+
+    const pdfBuffer = await this.pdfService.generateSessionPdf({
+      civilite: session.civilite,
+      prenom: session.prenom,
+      nom: session.nom,
+      telephone: session.telephone,
+      conseiller: session.conseiller,
+      metier: session.metier,
+      situation: session.situation,
+      formationChoisie: session.formationChoisie || recommendation,
+      finalRecommendation: recommendation,
+      scoreFinal: -1,
+      levelsScores: {},
+      prerequisiteAnswers: filteredPrerequis,
+      complementaryAnswers: filteredComplementaryAnswers,
+      availabilityAnswers: filteredAvailabilities,
+      miseANiveauAnswers: filteredMiseAnswers,
+      positionnementAnswers: session.positionnementAnswers as Record<
+        string,
+        any
+      >,
+      qTextById,
+      parrainNom: session.parrainNom,
+      parrainPrenom: session.parrainPrenom,
+      parrainEmail: session.parrainEmail,
+      parrainTelephone: session.parrainTelephone,
+      highLevelContinue: false,
+      isP3Mode: true,
+      parcoursNumber: 3,
+      correctAnswersById: correctAnswersById as Record<
+        number,
+        string | string[]
+      >,
+    });
+
+    const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const pdfFilename = `Analyse_des_besoins_${session.prenom || ''}_${session.nom || ''}_P3_${safeRec}_${filenameTimestamp}.pdf`;
+
+    const emailAttachments: any[] = [
+      { filename: pdfFilename, content: pdfBuffer },
+    ];
+
+    const publicPath = path.join(process.cwd(), 'public');
+    const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
+    const logoLikePath = path.join(
+      publicPath,
+      'logo',
+      'Logo_Like_Formation.png',
+    );
+
+    if (fs.existsSync(logoAopiaPath)) {
+      emailAttachments.push({
+        filename: 'logo-aopia.png',
+        path: logoAopiaPath,
+        cid: 'logo_aopia',
+      });
+    }
+    if (fs.existsSync(logoLikePath)) {
+      emailAttachments.push({
+        filename: 'logo-like.png',
+        path: logoLikePath,
+        cid: 'logo_like',
+      });
+    }
+
+    const mailResult = await this.emailService.sendReport(
+      emailTo,
+      `Analyse des besoins (Renvoyé) - P3 ${session.prenom} ${session.nom} - ${recommendation}`,
+      `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
+        <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
+          <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - 3ÈME PARCOURS (Même formation - Suite du parcours - Renvoyé)</span>
+        </div>
+        <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Analyse des besoins - P3 (Renvoyé)</h2>
+        <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le ${dateStr}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p><strong>Bénéficiaire :</strong> ${session.civilite || ''} ${session.prenom} ${session.nom}</p>
+        <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
+        <p><strong>Formation :</strong> ${session.formationChoisie || 'P3'}</p>
+        <p><strong>Recommandation :</strong></p>
+        <div style="margin-bottom: 20px;">
+          <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">
+            ${recommendation}
+          </div>
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+          <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
+          <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
+        </div>
+        <p style="font-size: 11px; color: #999; margin-top: 40px;">
+          Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA.
+        </p>
+      </div>`,
+      emailAttachments,
+      emailCc,
+    );
+
+    const emailSentAt = new Date();
+    await this.sessionRepo.update(session.id, { emailSentAt });
+
+    return { success: mailResult.success, emailSentAt };
+  }
+
 
   /**
    * Generates a standard PDF filename for a session
