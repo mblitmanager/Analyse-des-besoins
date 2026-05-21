@@ -194,6 +194,68 @@ describe('P3 filter rules application to sessions (e2e)', () => {
       expect(res.body.length).toBeGreaterThanOrEqual(3);
     });
 
+    it('P3 rules should not apply when level label corresponds to order exceeding maxLevelOrder', async () => {
+      // Create a session with text level "Expert" (order 5 > 2)
+      const sessionRes = await request(app.getHttpServer())
+        .post(`${api}/sessions`)
+        .send({
+          brand: 'aopia',
+          civilite: 'Mme',
+          nom: 'ExpertText',
+          prenom: 'Isabelle',
+          telephone: '06 11 22 33 44',
+          formationChoisie: 'bureautique',
+          lastValidatedLevel: 'Expert',
+          isP3Mode: true,
+        })
+        .expect(HttpStatus.CREATED);
+
+      const highLevelSessionId = sessionRes.body.id;
+
+      // Get available formations
+      const res = await request(app.getHttpServer())
+        .get(`${api}/sessions/${highLevelSessionId}/available-formations-with-p3`)
+        .expect(HttpStatus.OK);
+
+      // Should include formations beyond the ALLOW_ONLY targets
+      expect(Array.isArray(res.body)).toBe(true);
+      expect(res.body.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('P3 rules should apply when level label corresponds to order <= maxLevelOrder', async () => {
+      // Create a session with text level "Basique" (order 2 <= 2)
+      const sessionRes = await request(app.getHttpServer())
+        .post(`${api}/sessions`)
+        .send({
+          brand: 'aopia',
+          civilite: 'Mme',
+          nom: 'BasiqueText',
+          prenom: 'Isabelle',
+          telephone: '06 11 22 33 44',
+          formationChoisie: 'bureautique',
+          lastValidatedLevel: 'Basique',
+          isP3Mode: true,
+        })
+        .expect(HttpStatus.CREATED);
+
+      const lowLevelSessionId = sessionRes.body.id;
+
+      // Get available formations
+      const res = await request(app.getHttpServer())
+        .get(`${api}/sessions/${lowLevelSessionId}/available-formations-with-p3`)
+        .expect(HttpStatus.OK);
+
+      expect(Array.isArray(res.body)).toBe(true);
+      const allowedSlugs = [
+        'microsoft-word',
+        'microsoft-excel',
+        'google-workspace',
+      ];
+      for (const formation of res.body) {
+        expect(allowedSlugs).toContain(formation.slug);
+      }
+    });
+
     it('multiple P3 rules should chain correctly', async () => {
       // Create a second rule that further restricts
       const rule2Res = await request(app.getHttpServer())

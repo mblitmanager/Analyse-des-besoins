@@ -40,7 +40,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "./build_artifacts/frontend_dist.tar.gz,./build_artifacts/backend_dist.tar.gz,./build_artifacts/package.json,./build_artifacts/package-lock.json"
@@ -50,7 +50,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
@@ -97,6 +97,5 @@ jobs:
 
 # Required secrets:
 # - VPS_HOST
-# - VPS_USER
-# - SSH_PRIVATE_KEY (private key for VPS_USER)
+# - SSH_PRIVATE_KEY (private key for root)
 # - SSH_PORT (optional, default 22)

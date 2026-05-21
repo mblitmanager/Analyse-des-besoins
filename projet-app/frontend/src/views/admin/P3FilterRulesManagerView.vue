@@ -251,6 +251,17 @@ async function toggleActive(rule) {
     console.error("Toggle failed", err);
   }
 }
+
+function getLevelLabel(order) {
+  const mapping = {
+    1: "Initial",
+    2: "Basique",
+    3: "Opérationnel",
+    4: "Avancé",
+    5: "Expert"
+  };
+  return mapping[order] || `Niveau ${order}`;
+}
 </script>
 
 <template>
@@ -302,7 +313,7 @@ async function toggleActive(rule) {
                <span v-if="rule.sourceCategory">Cat="<span class="font-bold">{{rule.sourceCategory}}</span>"</span>
                <span v-if="rule.sourceCategory && rule.sourceSlugs?.length"> OU </span>
                <span v-if="rule.sourceSlugs?.length">Slugs IN [<span class="font-bold">{{rule.sourceSlugs.join(', ')}}</span>]</span>
-               <span v-if="rule.maxLevelOrder"> AVEC Niveau &le; <span class="font-bold">{{rule.maxLevelOrder}}</span></span>
+               <span v-if="rule.maxLevelOrder"> AVEC Niveau &le; <span class="font-bold">{{ getLevelLabel(rule.maxLevelOrder) }} ({{ rule.maxLevelOrder }})</span></span>
              </p>
           </div>
 
@@ -374,9 +385,16 @@ async function toggleActive(rule) {
               </div>
             </div>
             <div class="col-span-2">
-              <label class="text-xs font-bold text-slate-500">Seuil Ordre Niveau Max (optionnel)</label>
-              <input type="number" v-model="form.maxLevelOrder" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" placeholder="ex: 2" />
-              <p class="text-[10px] text-slate-400 mt-1">Si renseigné, la règle ne s'applique que si le niveau est <= à cette valeur (ex: 2 = Initial/Basique).</p>
+              <label class="text-xs font-bold text-slate-500">Seuil de niveau maximum (optionnel)</label>
+              <select v-model="form.maxLevelOrder" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg">
+                <option :value="null">-- Pas de restriction (Tous les niveaux) --</option>
+                <option :value="1">Niveau &le; 1 (Initial)</option>
+                <option :value="2">Niveau &le; 2 (Basique)</option>
+                <option :value="3">Niveau &le; 3 (Opérationnel)</option>
+                <option :value="4">Niveau &le; 4 (Avancé)</option>
+                <option :value="5">Niveau &le; 5 (Expert)</option>
+              </select>
+              <p class="text-[10px] text-slate-400 mt-1">La règle ne s'appliquera que si le niveau final atteint ou validé par le candidat est inférieur ou égal au niveau sélectionné.</p>
             </div>
           </div>
 
