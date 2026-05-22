@@ -41,6 +41,7 @@ const prerequisiteAnswers = ref({}); // Réponses aux questions prérequis (éta
 const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour résoudre texte → index
 const showResults = ref(false);
 const finalRecommendation = ref("");
+const parcoursRuleMessage = ref("");
 const p3Redirected = ref(false);
 const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
@@ -702,6 +703,8 @@ async function finishTest(overrideSession = null) {
         usedParcoursRule = true;
         // Track if the winning rule had a prerequisite condition
         parcoursRuleHadPrereqCondition.value = !!matchedRule.requirePrerequisiteFailure;
+        // Store the explanation message for display
+        parcoursRuleMessage.value = matchedRule.explanationMessage || "";
       }
     }
   } catch (error) {
@@ -965,10 +968,23 @@ async function saveAndExit() {
 
           <button
             @click="finishStep"
-            class="w-full md:w-auto px-16 py-6 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl"
+            class="w-full md:w-auto px-16 py-6 bg-[#ebb973] hover:brightness-95 text-[#428496] font-black rounded-3xl shadow-2xl shadow-brand-primary/30 transform hover:-translate-y-1 active:scale-95 transition-all text-xl cursor-pointer"
           >
             Continuer
           </button>
+        </div>
+
+        <!-- Message explicatif du parcours recommandé -->
+        <div v-if="parcoursRuleMessage" class="mt-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 flex items-start gap-4 text-left shadow-sm">
+            <div class="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="material-icons-outlined text-amber-600">info</span>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Pourquoi ce parcours ?</p>
+              <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
+            </div>
+          </div>
         </div>
       </div>
 

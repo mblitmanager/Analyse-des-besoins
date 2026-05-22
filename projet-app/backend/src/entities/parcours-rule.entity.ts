@@ -54,4 +54,7 @@ export class ParcoursRule {
 
   @Column({ type: 'varchar', length: 10, default: 'OR' })
   prerequisiteLogic: 'AND' | 'OR';
+
+  @Column({ type: 'text', nullable: true })
+  explanationMessage: string;
 }
