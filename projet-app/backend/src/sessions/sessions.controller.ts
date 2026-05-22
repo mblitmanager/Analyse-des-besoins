@@ -8,6 +8,7 @@ import {
   UseGuards,
   Delete,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
 import { FormationsService } from '../formations/formations.service';
@@ -45,6 +46,7 @@ export class UpdateSessionDto {
   emailSentAt?: Date;
 }
 
+@ApiTags('sessions')
 @Controller('sessions')
 export class SessionsController {
   constructor(
