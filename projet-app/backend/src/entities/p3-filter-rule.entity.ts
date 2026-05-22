@@ -31,4 +31,7 @@ export class P3FilterRule {
 
   @Column({ default: 0 })
   order: number;
+
+  @Column({ type: 'varchar', length: 10, default: 'lte' })
+  levelOperator: string; // 'lte' | 'gte'
 }

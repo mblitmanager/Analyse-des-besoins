@@ -919,7 +919,19 @@ async function saveAndExit() {
               </div>
             </div>
           </div>
-
+        
+        <!-- Message explicatif du parcours recommandé -->
+        <div v-if="parcoursRuleMessage" class="mt-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 flex items-start gap-4 text-left shadow-sm">
+            <div class="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
+              <span class="material-icons-outlined text-amber-600">info</span>
+            </div>
+            <div>
+              
+              <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
+            </div>
+          </div>
+        </div>
           <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
             <!-- Parse steps (& separator) then alternatives (/ or OU) -->
             <template v-if="finalRecommendation">
@@ -974,18 +986,6 @@ async function saveAndExit() {
           </button>
         </div>
 
-        <!-- Message explicatif du parcours recommandé -->
-        <div v-if="parcoursRuleMessage" class="mt-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 flex items-start gap-4 text-left shadow-sm">
-            <div class="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
-              <span class="material-icons-outlined text-amber-600">info</span>
-            </div>
-            <div>
-              <p class="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Pourquoi ce parcours ?</p>
-              <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Section Questions -->

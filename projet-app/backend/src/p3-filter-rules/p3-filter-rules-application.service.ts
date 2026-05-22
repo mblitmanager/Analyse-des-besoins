@@ -98,9 +98,17 @@ export class P3FilterRulesApplicationService {
         // If we can't parse the level, don't apply this rule
         return false;
       }
-      if (levelNumber > rule.maxLevelOrder) {
-        // Candidate's level is higher than rule threshold
-        return false;
+      const operator = rule.levelOperator || 'lte';
+      if (operator === 'gte') {
+        if (levelNumber < rule.maxLevelOrder) {
+          // Candidate's level is lower than rule threshold
+          return false;
+        }
+      } else {
+        if (levelNumber > rule.maxLevelOrder) {
+          // Candidate's level is higher than rule threshold
+          return false;
+        }
       }
     }
 

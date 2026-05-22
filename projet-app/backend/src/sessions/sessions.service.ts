@@ -118,7 +118,9 @@ export class SessionsService {
         if (!session.finalRecommendation) {
           session.finalRecommendation = data.recommendation;
           session.scorePretest = data.scoreFinal ?? data.scorePretest ?? 0;
+          session.explanationMessage = data.explanationMessage || null;
         }
+        (session as any).explanationMessage = session.explanationMessage || data.explanationMessage;
       } catch (e) {
         console.error('Failed to include recommendations array:', e);
       }
@@ -139,6 +141,7 @@ export class SessionsService {
       resetData.positionnementAnswers = {};
       resetData.finalRecommendation = null;
       resetData.scorePretest = null;
+      resetData.explanationMessage = null;
     }
 
     await this.sessionRepo.update(id, data);
@@ -175,6 +178,7 @@ export class SessionsService {
     stopLevelOrder?: number;
     correctAnswersById: Record<number, string | string[]>;
     p3Redirected?: boolean;
+    explanationMessage?: string | null;
   }> {
     let p3Redirected = false;
     // 0. Fetch all question texts and details for filtering and labeling
@@ -275,6 +279,7 @@ export class SessionsService {
         stopLevelOrder: session.stopLevelOrder,
         correctAnswersById,
         p3Redirected: false,
+        explanationMessage: session.explanationMessage,
       };
     }
 
@@ -707,6 +712,7 @@ export class SessionsService {
             (finalLevel ? (finalLevel as any).order : 0),
           correctAnswersById,
           p3Redirected: false,
+          explanationMessage: matchedRule.explanationMessage,
         };
       }
     }

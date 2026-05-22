@@ -19,6 +19,7 @@ const form = ref({
   sourceCategory: "",
   sourceSlugs: [],
   maxLevelOrder: null,
+  levelOperator: "lte",
   filterMode: "EXCLUDE",
   targetSlugs: [],
   targetCategories: [],
@@ -149,6 +150,7 @@ function buildPayload() {
     sourceCategory: form.value.sourceCategory?.trim().toLowerCase() || null,
     sourceSlugs: normalizeList(form.value.sourceSlugs),
     maxLevelOrder: maxLevel,
+    levelOperator: form.value.levelOperator || "lte",
     filterMode: form.value.filterMode === "ALLOW_ONLY" ? "ALLOW_ONLY" : "EXCLUDE",
     targetSlugs: normalizeList(form.value.targetSlugs),
     targetCategories: normalizeList(form.value.targetCategories),
@@ -166,6 +168,7 @@ function openModal(rule = null) {
       sourceSlugs: rule.sourceSlugs || [],
       targetSlugs: rule.targetSlugs || [],
       targetCategories: rule.targetCategories || [],
+      levelOperator: rule.levelOperator || "lte",
     };
   } else {
     editingRule.value = null;
@@ -174,6 +177,7 @@ function openModal(rule = null) {
       sourceCategory: "",
       sourceSlugs: [],
       maxLevelOrder: null,
+      levelOperator: "lte",
       filterMode: "EXCLUDE",
       targetSlugs: [],
       targetCategories: [],
@@ -313,7 +317,7 @@ function getLevelLabel(order) {
                <span v-if="rule.sourceCategory">Cat="<span class="font-bold">{{rule.sourceCategory}}</span>"</span>
                <span v-if="rule.sourceCategory && rule.sourceSlugs?.length"> OU </span>
                <span v-if="rule.sourceSlugs?.length">Slugs IN [<span class="font-bold">{{rule.sourceSlugs.join(', ')}}</span>]</span>
-               <span v-if="rule.maxLevelOrder"> AVEC Niveau &le; <span class="font-bold">{{ getLevelLabel(rule.maxLevelOrder) }} ({{ rule.maxLevelOrder }})</span></span>
+               <span v-if="rule.maxLevelOrder"> AVEC Niveau {{ rule.levelOperator === 'gte' ? '≥' : '≤' }} <span class="font-bold">{{ getLevelLabel(rule.maxLevelOrder) }} ({{ rule.maxLevelOrder }})</span></span>
              </p>
           </div>
 
@@ -384,17 +388,29 @@ function getLevelLabel(order) {
                 </button>
               </div>
             </div>
-            <div class="col-span-2">
-              <label class="text-xs font-bold text-slate-500">Seuil de niveau maximum (optionnel)</label>
-              <select v-model="form.maxLevelOrder" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg">
-                <option :value="null">-- Pas de restriction (Tous les niveaux) --</option>
-                <option :value="1">Niveau &le; 1 (Initial)</option>
-                <option :value="2">Niveau &le; 2 (Basique)</option>
-                <option :value="3">Niveau &le; 3 (Opérationnel)</option>
-                <option :value="4">Niveau &le; 4 (Avancé)</option>
-                <option :value="5">Niveau &le; 5 (Expert)</option>
-              </select>
-              <p class="text-[10px] text-slate-400 mt-1">La règle ne s'appliquera que si le niveau final atteint ou validé par le candidat est inférieur ou égal au niveau sélectionné.</p>
+            <div class="col-span-2 grid grid-cols-3 gap-4">
+              <div>
+                <label class="text-xs font-bold text-slate-500">Opérateur de niveau</label>
+                <select v-model="form.levelOperator" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg" :disabled="form.maxLevelOrder === null">
+                  <option value="lte">Inférieur ou égal (≤)</option>
+                  <option value="gte">Supérieur ou égal (≥)</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label class="text-xs font-bold text-slate-500">Seuil de niveau (optionnel)</label>
+                <select v-model="form.maxLevelOrder" class="w-full px-4 py-2 mt-1 border border-slate-200 rounded-lg">
+                  <option :value="null">-- Pas de restriction (Tous les niveaux) --</option>
+                  <option :value="1">1 (Initial)</option>
+                  <option :value="2">2 (Basique)</option>
+                  <option :value="3">3 (Opérationnel)</option>
+                  <option :value="4">4 (Avancé)</option>
+                  <option :value="5">5 (Expert)</option>
+                </select>
+              </div>
+              <p class="col-span-3 text-[10px] text-slate-400">
+                La règle ne s'appliquera que si le niveau final atteint ou validé par le candidat est 
+                {{ form.levelOperator === 'gte' ? 'supérieur ou égal' : 'inférieur ou égal' }} au niveau sélectionné.
+              </p>
             </div>
           </div>
 
