@@ -84,11 +84,14 @@ export class P3FilterRulesService {
       throw new BadRequestException('order doit être un nombre >= 0.');
     }
 
+    const levelOperator = data.levelOperator || 'lte';
+
     return {
       name: String(data.name).trim(),
       sourceCategory,
       sourceSlugs,
       maxLevelOrder,
+      levelOperator,
       filterMode,
       targetSlugs,
       targetCategories,

@@ -115,6 +115,9 @@ export class Session {
   @Column({ type: 'varchar', nullable: true })
   parrainTelephone: string | null;
 
+  @Column({ type: 'text', nullable: true })
+  explanationMessage: string | null;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }

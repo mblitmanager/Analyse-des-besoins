@@ -874,6 +874,17 @@ const downloadPDF = async () => {
                 </p>
               </div>
 
+              <!-- Pourquoi ce parcours -->
+              <div v-if="session?.explanationMessage" class="mt-4 flex items-start gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-200/30">
+                <span class="material-icons-outlined text-amber-600 text-lg mt-0.5">psychology</span>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-amber-900 uppercase tracking-widest">Pourquoi ce parcours ?</h4>
+                  <p class="text-slate-600 text-sm leading-relaxed">
+                    {{ session.explanationMessage }}
+                  </p>
+                </div>
+              </div>
+
             </div>
           </div>
 

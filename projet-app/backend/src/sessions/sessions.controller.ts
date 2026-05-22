@@ -33,6 +33,7 @@ export class UpdateSessionDto {
   stopLevel?: string;
   stopLevelOrder?: number;
   finalRecommendation?: string;
+  explanationMessage?: string;
   complementaryQuestions?: any;
   availabilities?: any;
   ignoreQuestionRules?: boolean;
