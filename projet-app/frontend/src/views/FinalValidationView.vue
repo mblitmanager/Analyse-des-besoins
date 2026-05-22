@@ -386,7 +386,7 @@ function confirmStartP3() {
                 Vous avez la possibilité de réaliser une troisième formation pour enrichir encore davantage votre profil.
               </p>
               <div class="flex flex-col sm:flex-row gap-4">
-                <button @click="confirmGoHome" class="flex-1 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all cursor-pointer">
+                <button @click="confirmGoHome" class="flex-1 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all cursor-pointer transform hover:scale-105">
                   Non, c'est tout pour moi
                 </button>
                 <button @click="confirmStartP3" class="flex-1 py-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all cursor-pointer transform hover:scale-105">

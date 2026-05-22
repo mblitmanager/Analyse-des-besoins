@@ -45,6 +45,7 @@ const newRule = ref({
   certification: "",
   prerequisiteConditions: [],
   prerequisiteLogic: "OR",
+  explanationMessage: "",
 });
 
 // Dynamic helpers for form building
@@ -127,6 +128,7 @@ function openNewForm() {
     certification: "",
     prerequisiteConditions: [],
     prerequisiteLogic: "OR",
+    explanationMessage: "",
   };
   conditionOperator.value = "=";
   f1Formation.value = "";
@@ -148,7 +150,8 @@ async function openEditForm(rule) {
     requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure,
     certification: rule.certification || "",
     prerequisiteConditions: rule.prerequisiteConditions || [],
-    prerequisiteLogic: rule.prerequisiteLogic || "OR"
+    prerequisiteLogic: rule.prerequisiteLogic || "OR",
+    explanationMessage: rule.explanationMessage || "",
   };
   
   if (rule.formation) {
@@ -681,6 +684,20 @@ onMounted(async () => {
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Certification délivrée</label>
                 <input v-model="newRule.certification" placeholder="ex: RS5432 - TOEIC Listening & Reading" class="w-full px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2">
+                <span class="material-icons-outlined text-[14px] text-amber-500">info</span>
+                Message explicatif (optionnel)
+              </label>
+              <textarea
+                v-model="newRule.explanationMessage"
+                rows="4"
+                placeholder="Ex: Vous avez validé le niveau Basique. Ce parcours vous permettra de consolider vos acquis et d'atteindre le niveau Opérationnel..."
+                class="w-full px-5 py-3 bg-amber-50 border-2 border-amber-100 rounded-xl font-medium text-xs outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 leading-relaxed resize-none text-slate-700"
+              ></textarea>
+              <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-1">Affiché à la fin du test de positionnement et sur la page de résultats pour expliquer ce parcours recommandé.</p>
             </div>
           </div>
         </div>
