@@ -29,6 +29,8 @@ import { QuestionRule } from './entities/question-rule.entity';
 import { QuestionRulesModule } from './question-rules/question-rules.module';
 import { P3FilterRule } from './entities/p3-filter-rule.entity';
 import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
+import { EmailTemplate } from './entities/email-template.entity';
+import { EmailTemplatesModule } from './email-templates/email-templates.module';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
               ParcoursRule,
               QuestionRule,
               P3FilterRule,
+              EmailTemplate,
             ],
             synchronize: true,
           };
@@ -83,6 +86,7 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
             ParcoursRule,
             QuestionRule,
             P3FilterRule,
+            EmailTemplate,
           ],
           synchronize: true,
         };
@@ -102,6 +106,7 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
       ParcoursRule,
       QuestionRule,
       P3FilterRule,
+      EmailTemplate,
     ]),
     FormationsModule,
     QuestionsModule,
@@ -115,6 +120,7 @@ import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
     ParcoursModule,
     QuestionRulesModule,
     P3FilterRulesModule,
+    EmailTemplatesModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

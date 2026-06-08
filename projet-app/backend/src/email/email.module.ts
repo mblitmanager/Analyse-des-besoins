@@ -21,7 +21,7 @@ import { SettingsModule } from '../settings/settings.module';
           },
         },
         defaults: {
-          from: `"Wizi Learn" <${configService.get<string>('MAIL_USERNAME')}>`,
+          from: `"Analyses des besoins" <${configService.get<string>('MAIL_USERNAME')}>`,
         },
       }),
       inject: [ConfigService],
