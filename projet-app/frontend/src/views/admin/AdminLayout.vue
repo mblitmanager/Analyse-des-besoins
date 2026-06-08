@@ -28,6 +28,7 @@ const navItems = [
   { label: "Règles P3", icon: "filter_alt", route: "/admin/p3-rules" },
   { label: "P3 Override", icon: "swap_horiz", route: "/admin/p3-override" },
   { label: "Templates Email", icon: "drafts", route: "/admin/email-templates" },
+  { label: "Config. Email", icon: "mail_outline", route: "/admin/mail-config" },
   { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
   { label: "Administrateurs", icon: "group", route: "/admin/users" },
   { label: "Paramètres", icon: "settings", route: "/admin/settings" },
