@@ -34,6 +34,12 @@ const p3IsUnselectedChoice = ref(false);
 const p3UnselectedChoicesList = ref([]);
 const p3SelectedRemainingChoice = ref('');
 
+// ── P3 OVERRIDE: Admin-configurable forced formations ──
+const p3OverrideEnabled = ref(false);
+const p3OverrideFormations = ref([]); // Array of {label, slug?} objects
+const showP3OverrideModal = ref(false);
+const p3OverrideSelectedChoice = ref('');
+
 const p3UnselectedChoicesListWithOrder = computed(() => {
   if (!selectedFormation.value?.levels) return [];
   const clean = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
@@ -125,6 +131,79 @@ async function fetchP3Rules() {
   }
 }
 
+/**
+ * P3 Override: checks if admin has configured forced formation choices for P3.
+ * If P3_OVERRIDE_ENABLED = 'true' and P3_OVERRIDE_FORMATIONS is a valid JSON array,
+ * shows a modal with those choices instead of the normal formation selection grid.
+ */
+async function fetchP3Override() {
+  if (!store.isP3Mode) return;
+  try {
+    const enabled = await store.fetchSetting('P3_OVERRIDE_ENABLED');
+    if (enabled !== 'true') return;
+    
+    const formationsJson = await store.fetchSetting('P3_OVERRIDE_FORMATIONS');
+    if (!formationsJson) return;
+    
+    let parsed;
+    try {
+      parsed = JSON.parse(formationsJson);
+    } catch (e) {
+      console.warn('[P3 Override] Invalid JSON in P3_OVERRIDE_FORMATIONS:', formationsJson);
+      return;
+    }
+    
+    if (!Array.isArray(parsed) || parsed.length < 2) return;
+    
+    p3OverrideEnabled.value = true;
+    p3OverrideFormations.value = parsed;
+    p3OverrideSelectedChoice.value = parsed[0];
+    showP3OverrideModal.value = true;
+  } catch (e) {
+    console.warn('[P3 Override] Error fetching override settings:', e);
+  }
+}
+
+async function confirmP3Override() {
+  if (!p3OverrideSelectedChoice.value) return;
+  showP3OverrideModal.value = false;
+  submitting.value = true;
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    
+    // Determine formation label from the choice (could be a full label like "TOSA Excel Basique")
+    const chosenLabel = p3OverrideSelectedChoice.value;
+    
+    // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+      formationChoisie: chosenLabel,
+      isP3Mode: true,
+      p3SkipQuiz: true,
+      finalRecommendation: chosenLabel,
+      stopLevel: chosenLabel,
+    });
+    
+    // Submit (finalize) the session
+    await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
+    
+    // Clear P3 state and go home
+    store.setP3Mode(false);
+    localStorage.removeItem("session_id");
+    router.push('/');
+  } catch (error) {
+    console.error('Failed to confirm P3 override:', error);
+    toast.error('Erreur lors de la validation du P3.');
+  } finally {
+    submitting.value = false;
+  }
+}
+
+function skipP3Override() {
+  // User wants to proceed with normal formation selection instead
+  showP3OverrideModal.value = false;
+  p3OverrideEnabled.value = false;
+}
+
 onMounted(() => {
   if (!sessionId) {
     router.push("/");
@@ -145,6 +224,7 @@ onMounted(() => {
 
   fetchFormations();
   fetchP3Rules();
+  fetchP3Override();
 
   // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
   observer = new IntersectionObserver(
@@ -1042,6 +1122,60 @@ function isSectionActive(section) {
             <button v-if="!p3IsMaxLevel && !p3IsSingleLevel" @click="confirmP3SameFormation" :disabled="submitting" class="flex-1 py-4 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl shadow-[#ebb872]/20 disabled:opacity-50 cursor-pointer">
               <span v-if="submitting" class="material-icons-outlined animate-spin text-sm mr-1">sync</span>
               Valider mon parcours P3
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3 Override Modal (Admin-configured forced choices) -->
+    <div v-if="showP3OverrideModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        
+        <div class="relative z-10">
+          <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-500 shadow-inner">
+            <span class="material-icons-outlined text-3xl">auto_awesome</span>
+          </div>
+          
+          <h2 class="text-2xl font-black text-center text-[#0D1B3E] mb-2">3ème Parcours</h2>
+          <p class="text-gray-500 font-medium text-center mb-8 leading-relaxed text-sm">
+            Choisissez la formation que vous souhaitez réaliser pour compléter votre parcours :
+          </p>
+          
+          <div class="space-y-3 mb-8">
+            <label 
+              v-for="(choice, idx) in p3OverrideFormations" 
+              :key="idx"
+              class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
+              :class="p3OverrideSelectedChoice === choice ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+            >
+              <input 
+                type="radio" 
+                :value="choice" 
+                v-model="p3OverrideSelectedChoice"
+                class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
+              />
+              <div class="flex-1">
+                <span class="text-sm font-black text-slate-900">{{ choice }}</span>
+              </div>
+              <div v-if="p3OverrideSelectedChoice === choice" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                <span class="material-icons-outlined text-white text-sm">check</span>
+              </div>
+            </label>
+          </div>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button @click="skipP3Override" class="flex-1 py-4 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
+              Choisir manuellement
+            </button>
+            <button 
+              @click="confirmP3Override" 
+              :disabled="!p3OverrideSelectedChoice || submitting"
+              class="flex-1 py-4 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50"
+            >
+              {{ submitting ? 'Validation...' : 'Valider ce choix' }}
             </button>
           </div>
         </div>
