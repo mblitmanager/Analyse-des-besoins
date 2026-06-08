@@ -31,6 +31,7 @@ import { P3FilterRule } from './entities/p3-filter-rule.entity';
 import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
 import { EmailTemplate } from './entities/email-template.entity';
 import { EmailTemplatesModule } from './email-templates/email-templates.module';
+import { MailConfigModule } from './mail-config/mail-config.module';
 
 @Module({
   imports: [
@@ -121,6 +122,7 @@ import { EmailTemplatesModule } from './email-templates/email-templates.module';
     QuestionRulesModule,
     P3FilterRulesModule,
     EmailTemplatesModule,
+    MailConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],
