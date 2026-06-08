@@ -135,6 +135,11 @@ const router = createRouter({
           component: () => import('../views/admin/P3FilterRulesManagerView.vue')
         },
         {
+          path: 'p3-override',
+          name: 'admin-p3-override',
+          component: () => import('../views/admin/P3OverrideConfigView.vue')
+        },
+        {
           path: 'email-templates',
           name: 'admin-email-templates',
           component: () => import('../views/admin/EmailTemplatesManagerView.vue')
