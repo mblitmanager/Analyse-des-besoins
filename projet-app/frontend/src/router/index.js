@@ -135,6 +135,11 @@ const router = createRouter({
           component: () => import('../views/admin/P3FilterRulesManagerView.vue')
         },
         {
+          path: 'email-templates',
+          name: 'admin-email-templates',
+          component: () => import('../views/admin/EmailTemplatesManagerView.vue')
+        },
+        {
           path: 'test-validation',
           name: 'admin-test-validation',
           component: () => import('../views/admin/TestValidationView.vue')

@@ -1,0 +1,3894 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - heading "Découvrez Pappers IA, votre assistant entraîné sur les données Pappers" [level=3] [ref=e5]
+        - generic [ref=e6]: Interrogez en langage naturel nos bases de données entreprise, justice, immobilier et politique. La fiabilité des données Pappers, la puissance de l’IA.
+        - generic [ref=e7]:
+          - link "En savoir plus " [ref=e8] [cursor=pointer]:
+            - /url: https://www.pappers.fr/pappers-ia?utm_source=pe&utm_medium=bandeau-page-entreprise&utm_campaign=ia
+            - text: En savoir plus
+            - generic [ref=e9]: 
+          - link "Découvir les meilleurs cas d’usage " [ref=e10] [cursor=pointer]:
+            - /url: https://www.pappers.fr/pappers-ia-cas-usage?utm_source=pe&utm_medium=bandeau-page-entreprise&utm_campaign=ia
+            - text: Découvir les meilleurs cas d’usage
+            - generic [ref=e11]: 
+      - img "Pappers IA" [ref=e12]
+      - button "" [ref=e14] [cursor=pointer]:
+        - generic [ref=e16]: 
+    - banner [ref=e17]:
+      - generic [ref=e18]:
+        - link [ref=e19] [cursor=pointer]:
+          - /url: /
+          - img [ref=e20]
+        - generic [ref=e28]:
+          - img "Recherche" [ref=e29]
+          - searchbox "Entreprise, N° SIREN, Dirigeant, Mot-clé..." [ref=e30]
+        - list [ref=e32]:
+          - listitem [ref=e33]:
+            - link "Nos offres " [ref=e34] [cursor=pointer]:
+              - /url: /fonctionnalites
+              - text: Nos offres
+              - generic [ref=e35]: 
+            - text:                                                                                  
+          - listitem [ref=e36]:
+            - generic [ref=e37] [cursor=pointer]:
+              - text: Nos sites
+              - generic [ref=e38]: 
+            - text:     
+          - listitem [ref=e39]:
+            - link "Connexion" [ref=e40] [cursor=pointer]:
+              - /url: /connexion?redirect=https://www.pappers.fr/entreprise/seolis-492041066
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: "Mise à jour RCS : le 03/06/2026"
+          - generic [ref=e46]: "Mise à jour RNE : le 03/06/2026"
+          - generic [ref=e47]: "Mise à jour INSEE : le 03/06/2026"
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "SEOLIS" [level=1] [ref=e50]
+            - generic [ref=e51]:
+              - text: 492 041 066 ·
+              - generic [ref=e53]:
+                - text: Active
+                - generic [ref=e54]: 
+          - generic [ref=e55]:
+            - table [ref=e57]:
+              - rowgroup [ref=e58]:
+                - 'row "Adresse : 336 AVENUE DE PARIS, 79000 NIORT " [ref=e59]':
+                  - rowheader "Adresse :" [ref=e60]
+                  - cell "336 AVENUE DE PARIS, 79000 NIORT " [ref=e61]:
+                    - text: 336 AVENUE DE PARIS, 79000 NIORT
+                    - generic [ref=e62] [cursor=pointer]: 
+                - 'row "Activité : Commerce d''électricité" [ref=e63]':
+                  - rowheader "Activité :" [ref=e64]
+                  - cell "Commerce d'électricité" [ref=e65]
+                - 'row "Effectif : Entre 100 et 199 salariés (donnée 2023)" [ref=e66]':
+                  - rowheader "Effectif :" [ref=e67]
+                  - cell "Entre 100 et 199 salariés (donnée 2023)" [ref=e68]
+                - 'row "Création : 11/09/2006" [ref=e69]':
+                  - rowheader "Création :" [ref=e70]
+                  - cell "11/09/2006" [ref=e71]
+                - 'row "Dirigeant : Pilpay Yannick" [ref=e72]':
+                  - rowheader "Dirigeant :" [ref=e73]
+                  - cell "Pilpay Yannick" [ref=e74]:
+                    - link "Pilpay Yannick" [ref=e75] [cursor=pointer]:
+                      - /url: /dirigeant/yannick_pilpay_1974-06
+            - generic [ref=e76]:
+              - link " Suivre cette entreprise" [ref=e78] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e79]: 
+                - generic [ref=e80]: Suivre cette entreprise
+              - link " Voir les statuts" [ref=e81] [cursor=pointer]:
+                - /url: seolis-492041066/documents/SEOLIS - Copie%20des%20statuts%20mis%20%C3%A0%20jour 09-01-2026.pdf
+                - generic [ref=e82]: 
+                - paragraph [ref=e83]: Voir les statuts
+              - link " Voir les comptes" [ref=e84] [cursor=pointer]:
+                - /url: seolis-492041066/comptes/SEOLIS - Comptes sociaux 2024 28-07-2025.pdf
+                - generic [ref=e85]: 
+                - paragraph [ref=e86]: Voir les comptes
+              - button " Solvabilité" [ref=e87] [cursor=pointer]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]: 
+                  - paragraph [ref=e90]: Solvabilité
+      - generic [ref=e91]:
+        - button "" [ref=e93] [cursor=pointer]:
+          - generic [ref=e94]: 
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - heading "Informations juridiques de SEOLIS" [level=2] [ref=e98]
+              - link [ref=e100] [cursor=pointer]:
+                - /url: "#"
+                - img [ref=e102]
+            - generic [ref=e110]:
+              - table [ref=e111]:
+                - rowgroup [ref=e112]:
+                  - 'row "SIREN : 492 041 066 " [ref=e113]':
+                    - rowheader "SIREN :" [ref=e114]
+                    - cell "492 041 066 " [ref=e115]:
+                      - text: 492 041 066
+                      - generic [ref=e116] [cursor=pointer]: 
+                  - 'row "SIRET (siège) : 492 041 066 00027 " [ref=e117]':
+                    - rowheader "SIRET (siège) :" [ref=e118]
+                    - cell "492 041 066 00027 " [ref=e119]:
+                      - text: 492 041 066 00027
+                      - generic [ref=e120] [cursor=pointer]: 
+                  - 'row "Numéro LEI : 969500GLHK0Q3PVVD315 " [ref=e121]':
+                    - rowheader "Numéro LEI :" [ref=e122]
+                    - cell "969500GLHK0Q3PVVD315 " [ref=e123]:
+                      - text: 969500GLHK0Q3PVVD315
+                      - generic [ref=e124] [cursor=pointer]: 
+                  - 'row "Forme juridique : SA d''économie mixte à directoire" [ref=e125]':
+                    - rowheader "Forme juridique :" [ref=e126]
+                    - cell "SA d'économie mixte à directoire" [ref=e127]
+                  - 'row "Numéro de TVA : FR05492041066  " [ref=e128]':
+                    - rowheader "Numéro de TVA :" [ref=e129]
+                    - cell "FR05492041066  " [ref=e130]:
+                      - generic [ref=e131]:
+                        - text: FR05492041066
+                        - link "" [ref=e132] [cursor=pointer]:
+                          - /url: https://ec.europa.eu/taxation_customs/vies/?locale=fr
+                          - generic [ref=e133]: 
+                        - generic [ref=e134] [cursor=pointer]: 
+                  - 'row "Inscription au RCS : INSCRIT  (au greffe de NIORT , le 02/10/2006 )" [ref=e135]':
+                    - rowheader "Inscription au RCS :" [ref=e136]
+                    - cell "INSCRIT  (au greffe de NIORT , le 02/10/2006 )" [ref=e137]:
+                      - generic [ref=e138]:
+                        - text: INSCRIT
+                        - generic [ref=e139]: 
+                      - text: (au greffe de NIORT , le 02/10/2006 )
+                  - row "Voir 1 observation du greffe" [ref=e140]:
+                    - rowheader [ref=e141]
+                    - cell "Voir 1 observation du greffe" [ref=e142]:
+                      - generic [ref=e144] [cursor=pointer]: Voir 1 observation du greffe
+                  - 'row "Inscription au RNE : INSCRIT  (le 02/10/2006)" [ref=e145]':
+                    - rowheader "Inscription au RNE :" [ref=e146]
+                    - cell "INSCRIT  (le 02/10/2006)" [ref=e147]:
+                      - generic [ref=e148]:
+                        - text: INSCRIT
+                        - generic [ref=e149]: 
+                      - text: (le 02/10/2006)
+                  - 'row "Numéro RCS : 492 041 066 R.C.S. Niort " [ref=e150]':
+                    - rowheader "Numéro RCS :" [ref=e151]
+                    - cell "492 041 066 R.C.S. Niort " [ref=e152]:
+                      - text: 492 041 066 R.C.S. Niort
+                      - generic [ref=e153] [cursor=pointer]: 
+                  - 'row "Capital social : 72 116 000,00 €" [ref=e154]':
+                    - rowheader "Capital social :" [ref=e155]
+                    - cell "72 116 000,00 €" [ref=e156]
+              - generic [ref=e157]:
+                - button " Avis situation SIRENE " [ref=e160] [cursor=pointer]:
+                  - generic [ref=e161]: 
+                  - paragraph [ref=e162]: Avis situation SIRENE
+                  - generic [ref=e163]: 
+                - link " Extrait INPI" [ref=e164] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/companies?format=pdf&ids=[%22492041066%22]
+                  - generic [ref=e165]: 
+                  - paragraph [ref=e166]: Extrait INPI
+                - link " Extrait Pappers" [ref=e168] [cursor=pointer]:
+                  - /url: seolis-492041066/SEOLIS - Extrait d'immatriculation.pdf
+                  - generic [ref=e169]: 
+                  - paragraph [ref=e170]: Extrait Pappers
+          - generic [ref=e171]:
+            - heading "Activité de SEOLIS" [level=2] [ref=e173]
+            - table [ref=e175]:
+              - rowgroup [ref=e176]:
+                - 'row "Activité principale déclarée : Gestion technique et commerciale de l''acheminement et de la fourniture d''électricité et de gaz, gestion des réseaux hertziens et câbles..." [ref=e177]':
+                  - rowheader "Activité principale déclarée :" [ref=e178]
+                  - cell "Gestion technique et commerciale de l'acheminement et de la fourniture d'électricité et de gaz, gestion des réseaux hertziens et câbles..." [ref=e179]:
+                    - generic [ref=e180]: Gestion technique et commerciale de l'acheminement et de la fourniture d'électricité et de gaz, gestion des réseaux hertziens et câbles...
+                - 'row "Code NAF ou APE : 35.14Z  (Commerce d''électricité)" [ref=e181]':
+                  - rowheader "Code NAF ou APE :" [ref=e182]
+                  - cell "35.14Z  (Commerce d'électricité)" [ref=e183]:
+                    - generic [ref=e184]:
+                      - text: 35.14Z
+                      - generic [ref=e185] [cursor=pointer]: 
+                      - text: (Commerce d'électricité)
+                - 'row "Domaine d’activité : Production et distribution d''électricité, de gaz, de vapeur et d''air conditionné" [ref=e186]':
+                  - rowheader "Domaine d’activité :" [ref=e187]
+                  - cell "Production et distribution d'électricité, de gaz, de vapeur et d'air conditionné" [ref=e188]
+                - 'row "Formes d''exercice : Commerciale, Gestion de biens" [ref=e189]':
+                  - rowheader "Formes d'exercice :" [ref=e190]
+                  - cell "Commerciale, Gestion de biens" [ref=e191]
+                - 'row "Convention collective : Statut des industries électriques et gazières - IDCC 5001" [ref=e192]':
+                  - rowheader "Convention collective :" [ref=e193]
+                  - cell "Statut des industries électriques et gazières - IDCC 5001" [ref=e194]:
+                    - link "Statut des industries électriques et gazières - IDCC 5001" [ref=e196] [cursor=pointer]:
+                      - /url: https://www.pappers.fr/conventions-collectives/industries-electriques-et-gazieres
+                - 'row "Date de clôture d''exercice comptable : 31/12/2026" [ref=e197]':
+                  - rowheader "Date de clôture d'exercice comptable :" [ref=e198]
+                  - cell "31/12/2026" [ref=e199]
+                - 'row "Inscriptions à l''ORIAS, sous le numéro 15006360  : Mandataire d''Intermédiaire en Assurance (MIA) sans maniement de fonds : INSCRIT  depuis le 28/08/2020" [ref=e200]':
+                  - rowheader "Inscriptions à l'ORIAS, sous le numéro 15006360  :" [ref=e201]:
+                    - text: Inscriptions à l'ORIAS, sous le numéro 15006360
+                    - generic [ref=e202] [cursor=pointer]: 
+                    - text: ":"
+                  - 'cell "Mandataire d''Intermédiaire en Assurance (MIA) sans maniement de fonds : INSCRIT  depuis le 28/08/2020" [ref=e203]':
+                    - list [ref=e204]:
+                      - listitem [ref=e206]:
+                        - text: "Mandataire d'Intermédiaire en Assurance (MIA) sans maniement de fonds :"
+                        - text: INSCRIT
+                        - generic [ref=e207]: 
+                        - text: depuis le 28/08/2020
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - heading "Domiciliez votre entreprise dès 14,90 € ht/mois." [level=2] [ref=e211]
+              - link "Domicilier mon entreprise" [ref=e212] [cursor=pointer]:
+                - /url: https://www.lestricolores.fr/?utm_source=pappers
+            - img "Image Les Tricolores" [ref=e214]
+            - generic [ref=e215]:
+              - generic [ref=e216]: Publicité
+              - generic [ref=e217] [cursor=pointer]:
+                - text: Devenir partenaire de Pappers
+                - generic [ref=e218]: 
+          - generic [ref=e220]:
+            - generic [ref=e221]:
+              - generic [ref=e222]:
+                - heading "Etablissements de l'entreprise SEOLIS" [level=2] [ref=e224]
+                - list [ref=e226]:
+                  - listitem [ref=e227]:
+                    - generic [ref=e228]:
+                      - generic [ref=e229]:
+                        - generic [ref=e230]: 
+                        - generic [ref=e231]:
+                          - text: Siège et établissement principal
+                          - paragraph [ref=e232]:
+                            - text: En activité
+                            - generic [ref=e233]: 
+                      - generic [ref=e234]:
+                        - text: 492 041 066 00027
+                        - generic [ref=e235] [cursor=pointer]: 
+                        - link "" [ref=e236] [cursor=pointer]:
+                          - /url: https://api-avis-situation-sirene.insee.fr/identification/pdf/49204106600027
+                          - generic [ref=e237]: 
+                    - generic [ref=e238]:
+                      - generic [ref=e239]:
+                        - text: "Adresse : 336 AVENUE DE PARIS 79000 NIORT"
+                        - generic [ref=e240] [cursor=pointer]: 
+                      - link "Voir sur la carte" [ref=e242] [cursor=pointer]:
+                        - /url: "#coords-49204106600027"
+                      - generic [ref=e243]: "Date de création : 20/09/2010"
+                  - listitem [ref=e244]:
+                    - generic [ref=e245]:
+                      - generic [ref=e246]:
+                        - generic [ref=e247]: 
+                        - generic [ref=e248]:
+                          - text: Établissement secondaire
+                          - paragraph [ref=e249]:
+                            - text: Fermé
+                            - generic [ref=e250]: 
+                      - generic [ref=e251]:
+                        - text: 492 041 066 00019
+                        - generic [ref=e252] [cursor=pointer]: 
+                        - link "" [ref=e253] [cursor=pointer]:
+                          - /url: https://api-avis-situation-sirene.insee.fr/identification/pdf/49204106600019
+                          - generic [ref=e254]: 
+                    - generic [ref=e255]:
+                      - generic [ref=e256]:
+                        - text: "Adresse : 14 GRANDE RUE NOTRE-DAME 79000 NIORT"
+                        - generic [ref=e257] [cursor=pointer]: 
+                      - link "Voir sur la carte" [ref=e259] [cursor=pointer]:
+                        - /url: "#coords-49204106600019"
+                      - generic [ref=e260]: "Date de création : 11/09/2006"
+                      - generic [ref=e261]:
+                        - text: "Date de clôture : 20/09/2010 et transféré vers"
+                        - link "un autre établissement" [ref=e262] [cursor=pointer]:
+                          - /url: "#siret-49204106600027"
+              - text:       
+            - generic [ref=e263]:
+              - generic [ref=e265]: Etablissements (2)
+              - generic [ref=e267] [cursor=pointer]: Carte
+          - generic [ref=e268]:
+            - heading "Finances de SEOLIS" [level=2] [ref=e270]
+            - generic [ref=e272]:
+              - generic [ref=e277]:
+                - generic [ref=e278]: Chiffre d'affaires
+                - generic [ref=e279]: Résultat net
+                - generic [ref=e280]: Effectif
+              - generic [ref=e281]:
+                - table [ref=e285]:
+                  - rowgroup [ref=e286]:
+                    - row "Performance 2024 2023 2022 2021" [ref=e287]:
+                      - columnheader "Performance" [ref=e288]
+                      - columnheader "2024" [ref=e289]
+                      - columnheader "2023" [ref=e290]
+                      - columnheader "2022" [ref=e291]
+                      - columnheader "2021" [ref=e292]
+                    - row "Chiffre d'affaires (€) 259M 285M 365M 241M" [ref=e293]:
+                      - rowheader "Chiffre d'affaires (€)" [ref=e294]
+                      - cell "259M" [ref=e295]
+                      - cell "285M" [ref=e296]
+                      - cell "365M" [ref=e297]
+                      - cell "241M" [ref=e298]
+                    - row "Marge brute (€) 37,9M 34,8M 29,6M 28,7M" [ref=e299]:
+                      - rowheader "Marge brute (€)" [ref=e300]
+                      - cell "37,9M" [ref=e301]
+                      - cell "34,8M" [ref=e302]
+                      - cell "29,6M" [ref=e303]
+                      - cell "28,7M" [ref=e304]
+                    - row "EBITDA - EBE (€) 4,7M 2,82M 1,54M 2,72M" [ref=e305]:
+                      - rowheader "EBITDA - EBE (€)" [ref=e306]
+                      - cell "4,7M" [ref=e307]
+                      - cell "2,82M" [ref=e308]
+                      - cell "1,54M" [ref=e309]
+                      - cell "2,72M" [ref=e310]
+                    - row "Résultat d'exploitation (€) 5,23M 1,63M 862K 965K" [ref=e311]:
+                      - rowheader "Résultat d'exploitation (€)" [ref=e312]
+                      - cell "5,23M" [ref=e313]
+                      - cell "1,63M" [ref=e314]
+                      - cell "862K" [ref=e315]
+                      - cell "965K" [ref=e316]
+                    - row "Résultat net (€) 8,96M 7,58M 3,8M 24,8M" [ref=e317]:
+                      - rowheader "Résultat net (€)" [ref=e318]
+                      - cell "8,96M" [ref=e319]
+                      - cell "7,58M" [ref=e320]
+                      - cell "3,8M" [ref=e321]
+                      - cell "24,8M" [ref=e322]
+                    - row "Croissance 2024 2023 2022 2021" [ref=e323]:
+                      - columnheader "Croissance" [ref=e324]
+                      - columnheader "2024" [ref=e325]
+                      - columnheader "2023" [ref=e326]
+                      - columnheader "2022" [ref=e327]
+                      - columnheader "2021" [ref=e328]
+                    - row "Taux de croissance du CA (%) -8,9 -22 51,6 44" [ref=e329]:
+                      - rowheader "Taux de croissance du CA (%)" [ref=e330]
+                      - cell "-8,9" [ref=e331]
+                      - cell "-22" [ref=e332]
+                      - cell "51,6" [ref=e333]
+                      - cell "44" [ref=e334]
+                    - row "Taux de marge brute (%) 14,6 12,2 8,1 11,9" [ref=e335]:
+                      - rowheader "Taux de marge brute (%)" [ref=e336]
+                      - cell "14,6" [ref=e337]
+                      - cell "12,2" [ref=e338]
+                      - cell "8,1" [ref=e339]
+                      - cell "11,9" [ref=e340]
+                    - row "Taux de marge d'EBITDA (%) 1,8 1 0,4 1,1" [ref=e341]:
+                      - rowheader "Taux de marge d'EBITDA (%)" [ref=e342]
+                      - cell "1,8" [ref=e343]
+                      - cell "1" [ref=e344]
+                      - cell "0,4" [ref=e345]
+                      - cell "1,1" [ref=e346]
+                    - row "Taux de marge opérationnelle (%) 2 0,6 0,2 0,4" [ref=e347]:
+                      - rowheader "Taux de marge opérationnelle (%)" [ref=e348]
+                      - cell "2" [ref=e349]
+                      - cell "0,6" [ref=e350]
+                      - cell "0,2" [ref=e351]
+                      - cell "0,4" [ref=e352]
+                    - row "Gestion BFR 2024 2023 2022 2021" [ref=e353]:
+                      - columnheader "Gestion BFR" [ref=e354]
+                      - columnheader "2024" [ref=e355]
+                      - columnheader "2023" [ref=e356]
+                      - columnheader "2022" [ref=e357]
+                      - columnheader "2021" [ref=e358]
+                    - row "BFR (€) 127M 138M -163M 7,37M" [ref=e359]:
+                      - rowheader "BFR (€)" [ref=e360]
+                      - cell "127M" [ref=e361]
+                      - cell "138M" [ref=e362]
+                      - cell "-163M" [ref=e363]
+                      - cell "7,37M" [ref=e364]
+                    - row "BFR exploitation (€) -7,79M 13,8M -689K 6,53M" [ref=e365]:
+                      - rowheader "BFR exploitation (€)" [ref=e366]
+                      - cell "-7,79M" [ref=e367]
+                      - cell "13,8M" [ref=e368]
+                      - cell "-689K" [ref=e369]
+                      - cell "6,53M" [ref=e370]
+                    - row "BFR hors exploitation (€) 134M 125M -163M 847K" [ref=e371]:
+                      - rowheader "BFR hors exploitation (€)" [ref=e372]
+                      - cell "134M" [ref=e373]
+                      - cell "125M" [ref=e374]
+                      - cell "-163M" [ref=e375]
+                      - cell "847K" [ref=e376]
+                    - row "BFR (j de CA) 178 177 -163 11,2" [ref=e377]:
+                      - rowheader "BFR (j de CA)" [ref=e378]
+                      - cell "178" [ref=e379]
+                      - cell "177" [ref=e380]
+                      - cell "-163" [ref=e381]
+                      - cell "11,2" [ref=e382]
+                    - row "BFR exploitation (j de CA) -11 17,6 -0,7 9,9" [ref=e383]:
+                      - rowheader "BFR exploitation (j de CA)" [ref=e384]
+                      - cell "-11" [ref=e385]
+                      - cell "17,6" [ref=e386]
+                      - cell "-0,7" [ref=e387]
+                      - cell "9,9" [ref=e388]
+                    - row "BFR hors exploitation (j de CA) 189 160 -163 1,3" [ref=e389]:
+                      - rowheader "BFR hors exploitation (j de CA)" [ref=e390]
+                      - cell "189" [ref=e391]
+                      - cell "160" [ref=e392]
+                      - cell "-163" [ref=e393]
+                      - cell "1,3" [ref=e394]
+                    - row "Délai de paiement clients (j) 142 143 87,7 130" [ref=e395]:
+                      - rowheader "Délai de paiement clients (j)" [ref=e396]
+                      - cell "142" [ref=e397]
+                      - cell "143" [ref=e398]
+                      - cell "87,7" [ref=e399]
+                      - cell "130" [ref=e400]
+                    - row "Délai de paiement fournisseurs (j) 110 96,4 66,5 95,1" [ref=e401]:
+                      - rowheader "Délai de paiement fournisseurs (j)" [ref=e402]
+                      - cell "110" [ref=e403]
+                      - cell "96,4" [ref=e404]
+                      - cell "66,5" [ref=e405]
+                      - cell "95,1" [ref=e406]
+                    - row "Ratio des stocks / CA (j) 11,5 12,9 9,3 10,5" [ref=e407]:
+                      - rowheader "Ratio des stocks / CA (j)" [ref=e408]
+                      - cell "11,5" [ref=e409]
+                      - cell "12,9" [ref=e410]
+                      - cell "9,3" [ref=e411]
+                      - cell "10,5" [ref=e412]
+                    - row "Autonomie financière 2024 2023 2022 2021" [ref=e413]:
+                      - columnheader "Autonomie financière" [ref=e414]
+                      - columnheader "2024" [ref=e415]
+                      - columnheader "2023" [ref=e416]
+                      - columnheader "2022" [ref=e417]
+                      - columnheader "2021" [ref=e418]
+                    - row "Capacité d'autofinancement (€) 13,5M 12,4M 7,02M 28,1M" [ref=e419]:
+                      - rowheader "Capacité d'autofinancement (€)" [ref=e420]
+                      - cell "13,5M" [ref=e421]
+                      - cell "12,4M" [ref=e422]
+                      - cell "7,02M" [ref=e423]
+                      - cell "28,1M" [ref=e424]
+                    - row "Capacité d'autofinancement / CA (%) 5,2 4,4 1,9 11,7" [ref=e425]:
+                      - rowheader "Capacité d'autofinancement / CA (%)" [ref=e426]
+                      - cell "5,2" [ref=e427]
+                      - cell "4,4" [ref=e428]
+                      - cell "1,9" [ref=e429]
+                      - cell "11,7" [ref=e430]
+                    - row "Fonds de roulement net global (€) 188M 166M 109M 97,4M" [ref=e431]:
+                      - rowheader "Fonds de roulement net global (€)" [ref=e432]
+                      - cell "188M" [ref=e433]
+                      - cell "166M" [ref=e434]
+                      - cell "109M" [ref=e435]
+                      - cell "97,4M" [ref=e436]
+                    - row "Couverture du BFR 1,5 1,2 -0,7 13,2" [ref=e437]:
+                      - rowheader "Couverture du BFR" [ref=e438]
+                      - cell "1,5" [ref=e439]
+                      - cell "1,2" [ref=e440]
+                      - cell "-0,7" [ref=e441]
+                      - cell "13,2" [ref=e442]
+                    - row "Trésorerie (€) 61,1M 27,9M 272M 90,1M" [ref=e443]:
+                      - rowheader "Trésorerie (€)" [ref=e444]
+                      - cell "61,1M" [ref=e445]
+                      - cell "27,9M" [ref=e446]
+                      - cell "272M" [ref=e447]
+                      - cell "90,1M" [ref=e448]
+                    - row "Dettes financières (€) 110M 104M 39,4M 26,4M" [ref=e449]:
+                      - rowheader "Dettes financières (€)" [ref=e450]
+                      - cell "110M" [ref=e451]
+                      - cell "104M" [ref=e452]
+                      - cell "39,4M" [ref=e453]
+                      - cell "26,4M" [ref=e454]
+                    - row "Capacité de remboursement 3,6 6,1 -33,2 -2,3" [ref=e455]:
+                      - rowheader "Capacité de remboursement" [ref=e456]
+                      - cell "3,6" [ref=e457]
+                      - cell "6,1" [ref=e458]
+                      - cell "-33,2" [ref=e459]
+                      - cell "-2,3" [ref=e460]
+                    - row "Ratio d'endettement (Gearing) 0,3 0,5 -1,6 -0,4" [ref=e461]:
+                      - rowheader "Ratio d'endettement (Gearing)" [ref=e462]
+                      - cell "0,3" [ref=e463]
+                      - cell "0,5" [ref=e464]
+                      - cell "-1,6" [ref=e465]
+                      - cell "-0,4" [ref=e466]
+                    - row "Autonomie financière (%) 38,1 37,4 29 42,6" [ref=e467]:
+                      - rowheader "Autonomie financière (%)" [ref=e468]
+                      - cell "38,1" [ref=e469]
+                      - cell "37,4" [ref=e470]
+                      - cell "29" [ref=e471]
+                      - cell "42,6" [ref=e472]
+                    - row "Taux de levier (DFN/EBITDA) 10,5 27 -151 -23,4" [ref=e473]:
+                      - rowheader "Taux de levier (DFN/EBITDA)" [ref=e474]
+                      - cell "10,5" [ref=e475]
+                      - cell "27" [ref=e476]
+                      - cell "-151" [ref=e477]
+                      - cell "-23,4" [ref=e478]
+                    - row "Solvabilité 2024 2023 2022 2021" [ref=e479]:
+                      - columnheader "Solvabilité" [ref=e480]
+                      - columnheader "2024" [ref=e481]
+                      - columnheader "2023" [ref=e482]
+                      - columnheader "2022" [ref=e483]
+                      - columnheader "2021" [ref=e484]
+                    - row "État des dettes à 1 an au plus (€) 183M 187M 289M" [ref=e485]:
+                      - rowheader "État des dettes à 1 an au plus (€)" [ref=e486]
+                      - cell "183M" [ref=e487]
+                      - cell "187M" [ref=e488]
+                      - cell "289M" [ref=e489]
+                      - cell [ref=e490]
+                    - row "Liquidité générale 1,8 1,7 1,5" [ref=e491]:
+                      - rowheader "Liquidité générale" [ref=e492]
+                      - cell "1,8" [ref=e493]
+                      - cell "1,7" [ref=e494]
+                      - cell "1,5" [ref=e495]
+                      - cell [ref=e496]
+                    - row "Couverture des dettes 2,2 1,5 -0,4 -1,4" [ref=e497]:
+                      - rowheader "Couverture des dettes" [ref=e498]
+                      - cell "2,2" [ref=e499]
+                      - cell "1,5" [ref=e500]
+                      - cell "-0,4" [ref=e501]
+                      - cell "-1,4" [ref=e502]
+                    - row "Fonds propres (€) 166M 156M 149M 145M" [ref=e503]:
+                      - rowheader "Fonds propres (€)" [ref=e504]
+                      - cell "166M" [ref=e505]
+                      - cell "156M" [ref=e506]
+                      - cell "149M" [ref=e507]
+                      - cell "145M" [ref=e508]
+                    - row "Rentabilité 2024 2023 2022 2021" [ref=e509]:
+                      - columnheader "Rentabilité" [ref=e510]
+                      - columnheader "2024" [ref=e511]
+                      - columnheader "2023" [ref=e512]
+                      - columnheader "2022" [ref=e513]
+                      - columnheader "2021" [ref=e514]
+                    - row "Marge nette (%) 3,5 2,7 1 10,3" [ref=e515]:
+                      - rowheader "Marge nette (%)" [ref=e516]
+                      - cell "3,5" [ref=e517]
+                      - cell "2,7" [ref=e518]
+                      - cell "1" [ref=e519]
+                      - cell "10,3" [ref=e520]
+                    - row "Rentabilité sur fonds propres (%) 5,4 4,9 2,6 17,1" [ref=e521]:
+                      - rowheader "Rentabilité sur fonds propres (%)" [ref=e522]
+                      - cell "5,4" [ref=e523]
+                      - cell "4,9" [ref=e524]
+                      - cell "2,6" [ref=e525]
+                      - cell "17,1" [ref=e526]
+                    - row "Rentabilité économique (%) 2,1 1,8 0,7 7,3" [ref=e527]:
+                      - rowheader "Rentabilité économique (%)" [ref=e528]
+                      - cell "2,1" [ref=e529]
+                      - cell "1,8" [ref=e530]
+                      - cell "0,7" [ref=e531]
+                      - cell "7,3" [ref=e532]
+                    - row "Valeur ajoutée (€) 22,4M 19,8M 16,9M 18,2M" [ref=e533]:
+                      - rowheader "Valeur ajoutée (€)" [ref=e534]
+                      - cell "22,4M" [ref=e535]
+                      - cell "19,8M" [ref=e536]
+                      - cell "16,9M" [ref=e537]
+                      - cell "18,2M" [ref=e538]
+                    - row "Valeur ajoutée / CA (%) 8,6 7 4,6 7,5" [ref=e539]:
+                      - rowheader "Valeur ajoutée / CA (%)" [ref=e540]
+                      - cell "8,6" [ref=e541]
+                      - cell "7" [ref=e542]
+                      - cell "4,6" [ref=e543]
+                      - cell "7,5" [ref=e544]
+                    - row "Structure d'activité 2024 2023 2022 2021" [ref=e545]:
+                      - columnheader "Structure d'activité" [ref=e546]
+                      - columnheader "2024" [ref=e547]
+                      - columnheader "2023" [ref=e548]
+                      - columnheader "2022" [ref=e549]
+                      - columnheader "2021" [ref=e550]
+                    - row "Effectif 176" [ref=e551]:
+                      - columnheader "Effectif" [ref=e552]
+                      - cell [ref=e553]
+                      - cell [ref=e554]
+                      - cell [ref=e555]
+                      - cell "176" [ref=e556]
+                    - row "Salaires et charges sociales (€) 16,3M 15,7M 13,9M 14,1M" [ref=e557]:
+                      - rowheader "Salaires et charges sociales (€)" [ref=e558]
+                      - cell "16,3M" [ref=e559]
+                      - cell "15,7M" [ref=e560]
+                      - cell "13,9M" [ref=e561]
+                      - cell "14,1M" [ref=e562]
+                    - row "Salaires / CA (%) 6,3 5,5 3,8 5,9" [ref=e563]:
+                      - rowheader "Salaires / CA (%)" [ref=e564]
+                      - cell "6,3" [ref=e565]
+                      - cell "5,5" [ref=e566]
+                      - cell "3,8" [ref=e567]
+                      - cell "5,9" [ref=e568]
+                    - row "Impôts et taxes (€) 1,15M 1,09M 1,3M 1,03M" [ref=e569]:
+                      - rowheader "Impôts et taxes (€)" [ref=e570]
+                      - cell "1,15M" [ref=e571]
+                      - cell "1,09M" [ref=e572]
+                      - cell "1,3M" [ref=e573]
+                      - cell "1,03M" [ref=e574]
+                    - row "Chiffre d'affaires à l'export (€) 0 0 0" [ref=e575]:
+                      - rowheader "Chiffre d'affaires à l'export (€)" [ref=e576]
+                      - cell "0" [ref=e577]
+                      - cell "0" [ref=e578]
+                      - cell "0" [ref=e579]
+                      - cell [ref=e580]
+                - generic [ref=e581]:
+                  - generic [ref=e583]: Comptes sociaux
+                  - generic [ref=e585] [cursor=pointer]: Comptes consolidés
+          - generic [ref=e587]:
+            - generic [ref=e588]:
+              - generic [ref=e589]:
+                - heading "Dirigeants et représentants de SEOLIS" [level=2] [ref=e591]
+                - list [ref=e592]:
+                  - generic [ref=e593]:
+                    - listitem [ref=e594]:
+                      - generic [ref=e595]:
+                        - link "SOLAES AUDIT - RICHEMONT CAPERAA AUDIT" [ref=e597] [cursor=pointer]:
+                          - /url: solaes-audit-richemont-caperaa-audit-481805240
+                        - generic [ref=e598]: Commissaire aux comptes titulaire
+                        - generic [ref=e600]:
+                          - text: "SIREN :"
+                          - link "481805240" [ref=e601] [cursor=pointer]:
+                            - /url: solaes-audit-richemont-caperaa-audit-481805240
+                      - generic [ref=e602]:
+                        - generic [ref=e603]: Depuis le 17/10/2025
+                        - link " Suivre" [ref=e605] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e606]: 
+                          - generic [ref=e607]: Suivre
+                    - listitem [ref=e608]:
+                      - generic [ref=e609]:
+                        - link "MOREAU Aude (Clisson) i" [ref=e611] [cursor=pointer]:
+                          - /url: /dirigeant/aude_clisson_1970-06
+                          - text: MOREAU Aude
+                          - generic [ref=e612]:
+                            - text: (Clisson)
+                            - generic [ref=e613]: i
+                        - generic [ref=e614]: Membre du directoire
+                        - generic [ref=e615]: 55 ans - 06/1970
+                      - generic [ref=e616]:
+                        - generic [ref=e617]: Depuis le 05/03/2025
+                        - link " Suivre" [ref=e619] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e620]: 
+                          - generic [ref=e621]: Suivre
+                    - listitem [ref=e622]:
+                      - generic [ref=e623]:
+                        - link "Herbelin Laurent" [ref=e625] [cursor=pointer]:
+                          - /url: /dirigeant/laurent_herbelin_1972-02
+                        - generic [ref=e626]: Commissaire aux comptes suppléant
+                        - generic [ref=e627]: 54 ans - 02/1972
+                      - generic [ref=e628]:
+                        - generic [ref=e629]: Depuis le 03/03/2025
+                        - link " Suivre" [ref=e631] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e632]: 
+                          - generic [ref=e633]: Suivre
+                    - listitem [ref=e634]:
+                      - generic [ref=e635]:
+                        - link "Pilpay Yannick" [ref=e637] [cursor=pointer]:
+                          - /url: /dirigeant/yannick_pilpay_1974-06
+                        - generic [ref=e638]: Président du directoire, Membre du directoire
+                        - generic [ref=e639]: 51 ans - 06/1974
+                      - generic [ref=e640]:
+                        - generic [ref=e641]: Depuis le 24/12/2024
+                        - link " Suivre" [ref=e643] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e644]: 
+                          - generic [ref=e645]: Suivre
+                    - listitem [ref=e646]:
+                      - generic [ref=e647]:
+                        - link "Guindet Sebastien" [ref=e649] [cursor=pointer]:
+                          - /url: /dirigeant/sebastien_guindet_1978-01
+                        - generic [ref=e650]: Directeur général, Membre du directoire
+                        - generic [ref=e651]: 48 ans - 01/1978
+                      - generic [ref=e652]:
+                        - generic [ref=e653]: Depuis le 01/01/2024
+                        - link " Suivre" [ref=e655] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e656]: 
+                          - generic [ref=e657]: Suivre
+                    - listitem [ref=e658]:
+                      - generic [ref=e659]:
+                        - link "Ragot Nicolas" [ref=e661] [cursor=pointer]:
+                          - /url: /dirigeant/nicolas_ragot_1984-02
+                        - generic [ref=e662]: Membre du conseil de surveillance
+                        - generic [ref=e663]: 42 ans - 02/1984
+                        - generic [ref=e664]: 1 alerte detectée
+                      - generic [ref=e665]:
+                        - generic [ref=e666]: Depuis le 31/10/2023
+                        - link " Suivre" [ref=e668] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e669]: 
+                          - generic [ref=e670]: Suivre
+                    - listitem [ref=e671]:
+                      - generic [ref=e672]:
+                        - link "Beaudic Jean-Michel" [ref=e674] [cursor=pointer]:
+                          - /url: /dirigeant/jean-michel_beaudic_1951-09
+                        - generic [ref=e675]: Membre du conseil de surveillance
+                        - generic [ref=e676]: 74 ans - 09/1951
+                        - generic [ref=e677]: 1 alerte detectée
+                      - generic [ref=e678]:
+                        - generic [ref=e679]: Depuis le 30/06/2023
+                        - link " Suivre" [ref=e681] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e682]: 
+                          - generic [ref=e683]: Suivre
+                    - listitem [ref=e684]:
+                      - generic [ref=e685]:
+                        - link "Brouard Dominique" [ref=e687] [cursor=pointer]:
+                          - /url: /dirigeant/dominique_brouard_1955-06
+                        - generic [ref=e688]: Membre du conseil de surveillance
+                        - generic [ref=e689]: 71 ans - 06/1955
+                      - generic [ref=e690]:
+                        - generic [ref=e691]: Depuis le 16/06/2021
+                        - link " Suivre" [ref=e693] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e694]: 
+                          - generic [ref=e695]: Suivre
+                    - listitem [ref=e696]:
+                      - generic [ref=e697]:
+                        - link "Guilloteau Regis" [ref=e699] [cursor=pointer]:
+                          - /url: /dirigeant/regis_guilloteau_1960-06
+                        - generic [ref=e700]: Membre du conseil de surveillance
+                        - generic [ref=e701]: 65 ans - 06/1960
+                      - generic [ref=e702]:
+                        - generic [ref=e703]: Depuis le 16/06/2021
+                        - link " Suivre" [ref=e705] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e706]: 
+                          - generic [ref=e707]: Suivre
+                    - listitem [ref=e708]:
+                      - generic [ref=e709]:
+                        - link "Motard Roland" [ref=e711] [cursor=pointer]:
+                          - /url: /dirigeant/roland_motard_1948-12
+                        - generic [ref=e712]: Président du conseil de surveillance, Membre du conseil de surveillance
+                        - generic [ref=e713]: 77 ans - 12/1948
+                      - generic [ref=e714]:
+                        - generic [ref=e715]: Depuis le 03/06/2021
+                        - link " Suivre" [ref=e717] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e718]: 
+                          - generic [ref=e719]: Suivre
+                    - listitem [ref=e720]:
+                      - generic [ref=e721]:
+                        - link "3D ENERGIES" [ref=e723] [cursor=pointer]:
+                          - /url: 3d-energies-751401142
+                        - generic [ref=e724]: Membre du conseil de surveillance
+                        - generic [ref=e726]:
+                          - text: "SIREN :"
+                          - link "751401142" [ref=e727] [cursor=pointer]:
+                            - /url: 3d-energies-751401142
+                      - generic [ref=e728]:
+                        - generic [ref=e729]: Depuis le 03/06/2021
+                        - link " Suivre" [ref=e731] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e732]: 
+                          - generic [ref=e733]: Suivre
+                    - listitem [ref=e734]:
+                      - generic [ref=e735]:
+                        - link "Jollit Daniel" [ref=e737] [cursor=pointer]:
+                          - /url: /dirigeant/daniel_jollit_1963-12
+                        - generic [ref=e738]: Vice-Président, Membre du conseil de surveillance
+                        - generic [ref=e739]: 62 ans - 12/1963
+                        - generic [ref=e740]: 1 alerte detectée
+                      - generic [ref=e741]:
+                        - generic [ref=e742]: Depuis le 03/06/2021
+                        - link " Suivre" [ref=e744] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e745]: 
+                          - generic [ref=e746]: Suivre
+                    - listitem [ref=e747]:
+                      - generic [ref=e748]:
+                        - link "Mouiller Philippe" [ref=e750] [cursor=pointer]:
+                          - /url: /dirigeant/philippe_mouiller_1969-09
+                        - generic [ref=e751]: Membre du conseil de surveillance
+                        - generic [ref=e752]: 56 ans - 09/1969
+                        - generic [ref=e753]: 1 alerte detectée
+                      - generic [ref=e754]:
+                        - generic [ref=e755]: Depuis le 03/06/2021
+                        - link " Suivre" [ref=e757] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e758]: 
+                          - generic [ref=e759]: Suivre
+                    - listitem [ref=e760]:
+                      - generic [ref=e761]:
+                        - link "Drouin Thierry" [ref=e763] [cursor=pointer]:
+                          - /url: /dirigeant/thierry_drouin_1967-06
+                        - generic [ref=e764]: Membre du directoire
+                        - generic [ref=e765]: 58 ans - 06/1967
+                      - generic [ref=e766]:
+                        - generic [ref=e767]: Depuis le 15/03/2021
+                        - link " Suivre" [ref=e769] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e770]: 
+                          - generic [ref=e771]: Suivre
+                    - listitem [ref=e772]:
+                      - generic [ref=e773]:
+                        - link "GROUPE Y AUDIT" [ref=e775] [cursor=pointer]:
+                          - /url: groupe-y-audit-377530563
+                        - generic [ref=e776]: Commissaire aux comptes titulaire
+                        - generic [ref=e778]:
+                          - text: "SIREN :"
+                          - link "377530563" [ref=e779] [cursor=pointer]:
+                            - /url: groupe-y-audit-377530563
+                      - generic [ref=e780]:
+                        - generic [ref=e781]: Depuis le 07/12/2015
+                        - link " Suivre" [ref=e783] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e784]: 
+                          - generic [ref=e785]: Suivre
+                  - generic [ref=e788]: Anciens dirigeants
+                  - generic [ref=e789]:
+                    - listitem [ref=e790]:
+                      - generic [ref=e791]:
+                        - link "Verlet Damien" [ref=e793] [cursor=pointer]:
+                          - /url: /dirigeant/damien_verlet_1960-07
+                        - generic [ref=e794]: Ancien commissaire aux comptes titulaire
+                        - generic [ref=e795]: 65 ans - 07/1960
+                      - generic [ref=e796]:
+                        - generic [ref=e797]: Du 07/12/2015 au 25/09/2025
+                        - link " Suivre" [ref=e799] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e800]: 
+                          - generic [ref=e801]: Suivre
+                    - listitem [ref=e802]:
+                      - generic [ref=e803]:
+                        - link "Verger Gerard" [ref=e805] [cursor=pointer]:
+                          - /url: /dirigeant/gerard_verger_1957-07
+                        - generic [ref=e806]: Ancien membre du directoire
+                        - generic [ref=e807]: 68 ans - 07/1957
+                      - generic [ref=e808]:
+                        - generic [ref=e809]: Du 10/06/2021 au 03/03/2025
+                        - link " Suivre" [ref=e811] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e812]: 
+                          - generic [ref=e813]: Suivre
+                    - listitem [ref=e814]:
+                      - generic [ref=e815]:
+                        - link "Froidure Pierre" [ref=e817] [cursor=pointer]:
+                          - /url: /dirigeant/pierre_froidure_1972-05
+                        - generic [ref=e818]: Ancien commissaire aux comptes suppléant
+                        - generic [ref=e819]: 54 ans - 05/1972
+                      - generic [ref=e820]:
+                        - generic [ref=e821]: Du 16/08/2018 au 24/12/2024
+                        - link " Suivre" [ref=e823] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e824]: 
+                          - generic [ref=e825]: Suivre
+                    - listitem [ref=e826]:
+                      - generic [ref=e827]:
+                        - link "Sitou Akhobi" [ref=e829] [cursor=pointer]:
+                          - /url: /dirigeant/akhobi_sitou_1958-01
+                        - generic [ref=e830]: Ancien président du directoire, Membre du directoire
+                        - generic [ref=e831]: 68 ans - 01/1958
+                      - generic [ref=e832]:
+                        - generic [ref=e833]: Du 22/11/2021 au 12/08/2024
+                        - link " Suivre" [ref=e835] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e836]: 
+                          - generic [ref=e837]: Suivre
+                    - listitem [ref=e838]:
+                      - generic [ref=e839]:
+                        - link "Cousinard Catherine" [ref=e841] [cursor=pointer]:
+                          - /url: /dirigeant/catherine_cousinard_1974-11
+                        - generic [ref=e842]: Ancien directeur général
+                        - generic [ref=e843]: 51 ans - 11/1974
+                      - generic [ref=e844]:
+                        - generic [ref=e845]: Du 22/11/2021 au 13/01/2024
+                        - link " Suivre" [ref=e847] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e848]: 
+                          - generic [ref=e849]: Suivre
+                    - listitem [ref=e850]:
+                      - generic [ref=e851]:
+                        - link "Binet Frederique" [ref=e853] [cursor=pointer]:
+                          - /url: /dirigeant/frederique_binet_1954-04
+                        - generic [ref=e854]: Ancien autre
+                        - generic [ref=e855]: 72 ans - 04/1954
+                      - generic [ref=e856]:
+                        - generic [ref=e857]: Du 03/06/2021 au 13/01/2024
+                        - link " Suivre" [ref=e859] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e860]: 
+                          - generic [ref=e861]: Suivre
+                    - listitem [ref=e862]:
+                      - generic [ref=e863]:
+                        - link "Pailley Michel" [ref=e865] [cursor=pointer]:
+                          - /url: /dirigeant/michel_pailley_1968-07
+                        - generic [ref=e866]: Ancien autre
+                        - generic [ref=e867]: 57 ans - 07/1968
+                      - generic [ref=e868]:
+                        - generic [ref=e869]: Du 03/06/2021 au 13/01/2024
+                        - link " Suivre" [ref=e871] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e872]: 
+                          - generic [ref=e873]: Suivre
+                    - listitem [ref=e874]:
+                      - generic [ref=e875]:
+                        - link "GROUPE Y AUDIT" [ref=e877] [cursor=pointer]:
+                          - /url: "#"
+                        - generic [ref=e878]: Ancien commissaire aux comptes titulaire
+                      - generic [ref=e880]: Du 07/12/2015 au 13/01/2024
+                    - listitem [ref=e881]:
+                      - generic [ref=e882]:
+                        - link "RICHEMONT CAPERAA AUDIT" [ref=e884] [cursor=pointer]:
+                          - /url: "#"
+                        - generic [ref=e885]: Ancien commissaire aux comptes suppléant
+                      - generic [ref=e887]: Du 07/12/2015 au 13/01/2024
+                    - listitem [ref=e888]:
+                      - generic [ref=e889]:
+                        - link "DUTRUC Philippe" [ref=e891] [cursor=pointer]:
+                          - /url: /dirigeant/philippe_dutruc_1954-01
+                        - generic [ref=e892]: Ancien président du directoire
+                        - generic [ref=e894]:
+                          - text: 01/1954 - 01/2025
+                          - generic [ref=e896]: 
+                      - generic [ref=e898]: Du 07/12/2015 au 22/11/2021
+                    - listitem [ref=e899]:
+                      - generic [ref=e900]:
+                        - link "BROSSARD Jacques" [ref=e902] [cursor=pointer]:
+                          - /url: /dirigeant/jacques_brossard_1941-12
+                        - generic [ref=e903]: Ancien président du conseil de surveillance
+                        - generic [ref=e904]: 84 ans - 12/1941
+                        - generic [ref=e905]: 1 alerte detectée
+                      - generic [ref=e906]:
+                        - generic [ref=e907]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e909] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e910]: 
+                          - generic [ref=e911]: Suivre
+                    - listitem [ref=e912]:
+                      - generic [ref=e913]:
+                        - link "EPRINCHARD Michel" [ref=e915] [cursor=pointer]:
+                          - /url: /dirigeant/michel_eprinchard_1945-05
+                        - generic [ref=e916]: Ancien membre du conseil de surveillance
+                        - generic [ref=e917]: 81 ans - 05/1945
+                        - generic [ref=e918]: 1 alerte detectée
+                      - generic [ref=e919]:
+                        - generic [ref=e920]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e922] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e923]: 
+                          - generic [ref=e924]: Suivre
+                    - listitem [ref=e925]:
+                      - generic [ref=e926]:
+                        - link "SILLON Jean" [ref=e928] [cursor=pointer]:
+                          - /url: /dirigeant/jean_sillon_1950-11
+                        - generic [ref=e929]: Ancien membre du conseil de surveillance
+                        - generic [ref=e930]: 75 ans - 11/1950
+                      - generic [ref=e931]:
+                        - generic [ref=e932]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e934] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e935]: 
+                          - generic [ref=e936]: Suivre
+                    - listitem [ref=e937]:
+                      - generic [ref=e938]:
+                        - link "OLIVIER Pascal" [ref=e940] [cursor=pointer]:
+                          - /url: /dirigeant/pascal_olivier_1965-03
+                        - generic [ref=e941]: Ancien membre du conseil de surveillance
+                        - generic [ref=e942]: 61 ans - 03/1965
+                        - generic [ref=e943]: 1 alerte detectée
+                      - generic [ref=e944]:
+                        - generic [ref=e945]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e947] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e948]: 
+                          - generic [ref=e949]: Suivre
+                    - listitem [ref=e950]:
+                      - generic [ref=e951]:
+                        - link "GABILLY Alain" [ref=e953] [cursor=pointer]:
+                          - /url: /dirigeant/alain_gabilly_1958-04
+                        - generic [ref=e954]: Ancien membre du conseil de surveillance
+                        - generic [ref=e956]:
+                          - text: 04/1958 - 07/2022
+                          - generic [ref=e958]: 
+                      - generic [ref=e960]: Du 07/12/2015 au 03/06/2021
+                    - listitem [ref=e961]:
+                      - generic [ref=e962]:
+                        - link "HERAULT Francette" [ref=e964] [cursor=pointer]:
+                          - /url: /dirigeant/francette_herault_1952-02
+                        - generic [ref=e965]: Ancien membre du conseil de surveillance
+                        - generic [ref=e966]: 74 ans - 02/1952
+                      - generic [ref=e967]:
+                        - generic [ref=e968]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e970] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e971]: 
+                          - generic [ref=e972]: Suivre
+                    - listitem [ref=e973]:
+                      - generic [ref=e974]:
+                        - link "LAVAULT Claude" [ref=e976] [cursor=pointer]:
+                          - /url: /dirigeant/claude_lavault_1947-06
+                        - generic [ref=e977]: Ancien autre, Membre du conseil de surveillance
+                        - generic [ref=e978]: 78 ans - 06/1947
+                      - generic [ref=e979]:
+                        - generic [ref=e980]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e982] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e983]: 
+                          - generic [ref=e984]: Suivre
+                    - listitem [ref=e985]:
+                      - generic [ref=e986]:
+                        - link "DAILLERE Fanny" [ref=e988] [cursor=pointer]:
+                          - /url: /dirigeant/fanny_daillere_1986-11
+                        - generic [ref=e989]: Ancien membre du conseil de surveillance
+                        - generic [ref=e990]: 39 ans - 11/1986
+                      - generic [ref=e991]:
+                        - generic [ref=e992]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e994] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e995]: 
+                          - generic [ref=e996]: Suivre
+                    - listitem [ref=e997]:
+                      - generic [ref=e998]:
+                        - link "GUIGNARD Bernard" [ref=e1000] [cursor=pointer]:
+                          - /url: /dirigeant/bernard_guignard_1952-07
+                        - generic [ref=e1001]: Ancien membre du conseil de surveillance
+                        - generic [ref=e1002]: 73 ans - 07/1952
+                      - generic [ref=e1003]:
+                        - generic [ref=e1004]: Du 07/12/2015 au 03/06/2021
+                        - link " Suivre" [ref=e1006] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e1007]: 
+                          - generic [ref=e1008]: Suivre
+                    - listitem [ref=e1009]:
+                      - generic [ref=e1010]:
+                        - link "CHARPY Nicolas" [ref=e1012] [cursor=pointer]:
+                          - /url: /dirigeant/nicolas_charpy_1966-11
+                        - generic [ref=e1013]: Ancien membre du directoire
+                        - generic [ref=e1014]: 59 ans - 11/1966
+                      - generic [ref=e1015]:
+                        - generic [ref=e1016]: Du 24/01/2018 au 05/07/2019
+                        - link " Suivre" [ref=e1018] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e1019]: 
+                          - generic [ref=e1020]: Suivre
+                    - listitem [ref=e1021]:
+                      - generic [ref=e1022]:
+                        - link "PEROT Alain" [ref=e1024] [cursor=pointer]:
+                          - /url: /dirigeant/alain_perot_1958-12
+                        - generic [ref=e1025]: Ancien commissaire aux comptes suppléant
+                        - generic [ref=e1026]: 67 ans - 12/1958
+                      - generic [ref=e1027]:
+                        - generic [ref=e1028]: Du 07/12/2015 au 16/08/2018
+                        - link " Suivre" [ref=e1030] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e1031]: 
+                          - generic [ref=e1032]: Suivre
+                    - listitem [ref=e1033]:
+                      - generic [ref=e1034]:
+                        - link "ANDRE Michel" [ref=e1036] [cursor=pointer]:
+                          - /url: /dirigeant/michel_andre_1947-04
+                        - generic [ref=e1037]: Ancien membre du directoire
+                        - generic [ref=e1038]: 79 ans - 04/1947
+                      - generic [ref=e1039]:
+                        - generic [ref=e1040]: Du 07/12/2015 au 24/01/2018
+                        - link " Suivre" [ref=e1042] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e1043]: 
+                          - generic [ref=e1044]: Suivre
+                    - listitem [ref=e1045]:
+                      - generic [ref=e1046]:
+                        - link "LETOURNEUR Jean" [ref=e1048] [cursor=pointer]:
+                          - /url: /dirigeant/jean_letourneur_1946-03
+                        - generic [ref=e1049]: Ancien membre du conseil de surveillance
+                        - generic [ref=e1050]: 80 ans - 03/1946
+                      - generic [ref=e1051]:
+                        - generic [ref=e1052]: Du 07/12/2015 au 16/10/2017
+                        - link " Suivre" [ref=e1054] [cursor=pointer]:
+                          - /url: "#"
+                          - generic [ref=e1055]: 
+                          - generic [ref=e1056]: Suivre
+                    - listitem [ref=e1057]:
+                      - generic [ref=e1058]:
+                        - link "RIMBOD Jean" [ref=e1060] [cursor=pointer]:
+                          - /url: /dirigeant/jean_rimbod_1949-02
+                        - generic [ref=e1061]: Ancien membre du conseil de surveillance, Associé unique
+                        - generic [ref=e1062]: 77 ans - 02/1949
+                      - link " Suivre" [ref=e1065] [cursor=pointer]:
+                        - /url: "#"
+                        - generic [ref=e1066]: 
+                        - generic [ref=e1067]: Suivre
+              - text:      
+            - generic [ref=e1068]:
+              - generic [ref=e1070]: Dirigeants et représentants (39)
+              - generic [ref=e1072] [cursor=pointer]: Entreprises dirigées (6)
+          - generic [ref=e1073]:
+            - heading "Actionnaires et bénéficiaires effectifs de SEOLIS" [level=2] [ref=e1075]
+            - generic [ref=e1077]:
+              - generic [ref=e1078]:
+                - generic [ref=e1079]: 
+                - generic [ref=e1080]: Accès restreint aux données des bénéficiaires effectifs
+              - paragraph [ref=e1081]:
+                - text: Les données liées aux bénéficiaires effectifs (identité des actionnaires, parts, droits de vote, etc.) sont
+                - link "réservées aux personnes habilitées " [ref=e1082] [cursor=pointer]:
+                  - /url: /acces-beneficiaires-effectifs
+                  - text: réservées aux personnes habilitées
+                  - generic [ref=e1083]: 
+                - text: .
+              - link "Faire une demande d'accès " [ref=e1084] [cursor=pointer]:
+                - /url: /acces-beneficiaires-effectifs
+                - text: Faire une demande d'accès
+                - generic [ref=e1085]: 
+          - generic [ref=e1086]:
+            - generic [ref=e1087]:
+              - heading "Documents juridiques de SEOLIS" [level=2] [ref=e1088]
+              - generic [ref=e1091] [cursor=pointer]: 
+            - generic [ref=e1092]:
+              - button "Filtrer par type de document " [ref=e1094] [cursor=pointer]:
+                - text: Filtrer par type de document
+                - generic [ref=e1095]: 
+              - list [ref=e1097]:
+                - listitem [ref=e1098]:
+                  - generic [ref=e1099]:
+                    - list [ref=e1100]:
+                      - listitem [ref=e1101]:
+                        - text: PV ayant décidé et constaté la modification enregistrée, certifié conforme par le représentant légal
+                        - list
+                    - generic [ref=e1102]: 09/01/2026
+                  - link "Télécharger le document" [ref=e1105] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1106]: 
+                - listitem [ref=e1107]:
+                  - generic [ref=e1108]:
+                    - list [ref=e1109]:
+                      - listitem [ref=e1110]:
+                        - text: Copie des statuts mis à jour
+                        - list
+                    - generic [ref=e1111]: 09/01/2026
+                  - link "Télécharger le document" [ref=e1114] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1115]: 
+                - listitem [ref=e1116]:
+                  - generic [ref=e1117]:
+                    - list [ref=e1118]:
+                      - listitem [ref=e1119]:
+                        - text: PV ayant décidé et constaté la modification enregistrée, certifié conforme par le représentant légal
+                        - list
+                    - generic [ref=e1120]: 12/09/2025
+                  - link "Télécharger le document" [ref=e1123] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1124]: 
+                - listitem [ref=e1125]:
+                  - generic [ref=e1126]:
+                    - list [ref=e1127]:
+                      - listitem [ref=e1128]:
+                        - text: Copie des actes de nomination des membres des organes de gestion, d'administration, de direction, de surveillance et de contrôle de la société
+                        - list
+                    - generic [ref=e1129]: 05/03/2025
+                  - link "Télécharger le document" [ref=e1132] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1133]: 
+                - listitem [ref=e1134]:
+                  - generic [ref=e1135]:
+                    - list [ref=e1136]:
+                      - listitem [ref=e1137]:
+                        - text: PV ayant décidé et constaté la modification enregistrée, certifié conforme par le représentant légal
+                        - list
+                    - generic [ref=e1138]: 03/03/2025
+                  - link "Télécharger le document" [ref=e1141] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1142]: 
+                - listitem [ref=e1143]:
+                  - generic [ref=e1144]:
+                    - list [ref=e1145]:
+                      - listitem [ref=e1146]:
+                        - text: Copie des actes de nomination des membres des organes de gestion, d'administration, de direction, de surveillance et de contrôle de la société
+                        - list
+                    - generic [ref=e1147]: 24/12/2024
+                  - link "Télécharger le document" [ref=e1150] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1151]: 
+                - listitem [ref=e1152]:
+                  - generic [ref=e1153]:
+                    - list [ref=e1154]:
+                      - listitem [ref=e1155]:
+                        - text: Document inconnu
+                        - list
+                    - generic [ref=e1156]: 08/03/2024
+                  - link "Télécharger le document" [ref=e1159] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1160]: 
+                - listitem [ref=e1161]:
+                  - generic [ref=e1162]:
+                    - list [ref=e1163]:
+                      - listitem [ref=e1164]:
+                        - text: Document inconnu
+                        - list
+                    - generic [ref=e1165]: 08/03/2024
+                  - link "Télécharger le document" [ref=e1168] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1169]: 
+                - listitem [ref=e1170]:
+                  - generic [ref=e1171]:
+                    - list [ref=e1172]:
+                      - listitem [ref=e1173]:
+                        - text: Document inconnu
+                        - list
+                    - generic [ref=e1174]: 08/03/2024
+                  - link "Télécharger le document" [ref=e1177] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1178]: 
+                - listitem [ref=e1179]:
+                  - generic [ref=e1180]:
+                    - list [ref=e1181]:
+                      - listitem [ref=e1182]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1183]:
+                          - listitem [ref=e1184]: Changement de directeur général
+                          - listitem [ref=e1185]: Changement de président du directoire
+                          - listitem [ref=e1186]: Changement(s) de membre(s) du directoire
+                          - listitem [ref=e1187]: Changement de président du directoire
+                          - listitem [ref=e1188]: Changement(s) de membre(s) du directoire
+                          - listitem [ref=e1189]: Changement de directeur général
+                    - generic [ref=e1190]: 22/11/2021
+                  - link "Télécharger le document" [ref=e1193] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1194]: 
+                - listitem [ref=e1195]:
+                  - generic [ref=e1196]:
+                    - list [ref=e1197]:
+                      - listitem [ref=e1198]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1199]:
+                          - listitem [ref=e1200]: Nomination(s) de membre(s) du directoire
+                          - listitem [ref=e1201]: Nomination(s) de membre(s) du directoire
+                    - generic [ref=e1202]: 10/06/2021
+                  - link "Télécharger le document" [ref=e1205] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1206]: 
+                - listitem [ref=e1207]:
+                  - generic [ref=e1208]:
+                    - list [ref=e1209]:
+                      - listitem [ref=e1210]:
+                        - text: Extrait de procès-verbal d'assemblée générale
+                        - list [ref=e1211]:
+                          - listitem [ref=e1212]: Changement(s) de membre(s) du conseil de surveillance
+                      - listitem [ref=e1213]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1214]:
+                          - listitem [ref=e1215]: Changement de président du conseil de surveillance
+                          - listitem [ref=e1216]: Changement de vice-président du conseil de surveillance
+                      - listitem [ref=e1217]:
+                        - text: Extrait de procès-verbal du directoire
+                        - list [ref=e1218]:
+                          - listitem [ref=e1219]: Nomination de représentant permanent
+                    - generic [ref=e1220]: 03/06/2021
+                  - link "Télécharger le document" [ref=e1223] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1224]: 
+                - listitem [ref=e1225]:
+                  - generic [ref=e1226]:
+                    - list [ref=e1227]:
+                      - listitem [ref=e1228]:
+                        - text: Extrait de procès-verbal d'assemblée générale
+                        - list [ref=e1229]:
+                          - listitem [ref=e1230]: Modification(s) statutaire(s)
+                      - listitem [ref=e1231]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1232]: 10/03/2021
+                  - link "Télécharger le document" [ref=e1235] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1236]: 
+                - listitem [ref=e1237]:
+                  - generic [ref=e1238]:
+                    - list [ref=e1239]:
+                      - listitem [ref=e1240]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1241]:
+                          - listitem [ref=e1242]: à compter du 01/07/2019
+                          - listitem [ref=e1243]: Démission(s) de membre(s) du directoire
+                    - generic [ref=e1244]: 05/07/2019
+                  - link "Télécharger le document" [ref=e1247] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1248]: 
+                - listitem [ref=e1249]:
+                  - generic [ref=e1250]:
+                    - list [ref=e1251]:
+                      - listitem [ref=e1252]:
+                        - text: Procès-verbal d'assemblée générale ordinaire
+                        - list [ref=e1253]:
+                          - listitem [ref=e1254]: Démission de commissaire aux comptes suppléant
+                    - generic [ref=e1255]: 16/08/2018
+                  - link "Télécharger le document" [ref=e1258] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1259]: 
+                - listitem [ref=e1260]:
+                  - generic [ref=e1261]:
+                    - list [ref=e1262]:
+                      - listitem [ref=e1263]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1264]:
+                          - listitem [ref=e1265]: Changement(s) de membre(s) du directoire
+                    - generic [ref=e1266]: 24/01/2018
+                  - link "Télécharger le document" [ref=e1269] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1270]: 
+                - listitem [ref=e1271]:
+                  - generic [ref=e1272]:
+                    - list [ref=e1273]:
+                      - listitem [ref=e1274]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1275]:
+                          - listitem [ref=e1276]: Changement(s) de membre(s) du conseil de surveillance
+                    - generic [ref=e1277]: 16/10/2017
+                  - link "Télécharger le document" [ref=e1280] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1281]: 
+                - listitem [ref=e1282]:
+                  - generic [ref=e1283]:
+                    - list [ref=e1284]:
+                      - listitem [ref=e1285]:
+                        - text: Déclaration de conformité
+                        - list
+                      - listitem [ref=e1286]:
+                        - text: Extrait de procès-verbal d'assemblée générale mixte
+                        - list [ref=e1287]:
+                          - listitem [ref=e1288]: Apport partiel d'actif
+                    - generic [ref=e1289]: 26/07/2017
+                  - link "Télécharger le document" [ref=e1292] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1293]: 
+                - listitem [ref=e1294]:
+                  - generic [ref=e1295]:
+                    - list [ref=e1296]:
+                      - listitem [ref=e1297]:
+                        - text: Acte sous seing privé
+                        - list [ref=e1298]:
+                          - listitem [ref=e1299]: CONVETION D'APPORT PLACE SOUS LE REGIME JURIDIQUE DES SCISSIONS PAR SEOLIS A GEREDIS DEUX SEVRES
+                    - generic [ref=e1300]: 12/05/2017
+                  - link "Télécharger le document" [ref=e1303] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1304]: 
+                - listitem [ref=e1305]:
+                  - generic [ref=e1306]:
+                    - list [ref=e1307]:
+                      - listitem [ref=e1308]:
+                        - text: Extrait de procès-verbal du conseil de surveillance
+                        - list [ref=e1309]:
+                          - listitem [ref=e1310]: Nomination(s) de membre(s)
+                    - generic [ref=e1311]: 30/11/2015
+                  - link "Télécharger le document" [ref=e1314] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1315]: 
+                - listitem [ref=e1316]:
+                  - generic [ref=e1317]:
+                    - list [ref=e1318]:
+                      - listitem [ref=e1319]:
+                        - text: Procès-verbal d'assemblée générale ordinaire
+                        - list [ref=e1320]:
+                          - listitem [ref=e1321]: Démission(s) de membre(s) du conseil de surveillance
+                    - generic [ref=e1322]: 20/07/2015
+                  - link "Télécharger le document" [ref=e1325] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1326]: 
+                - listitem [ref=e1327]:
+                  - generic [ref=e1328]:
+                    - list [ref=e1329]:
+                      - listitem [ref=e1330]:
+                        - text: Procès-verbal d'assemblée
+                        - list [ref=e1331]:
+                          - listitem [ref=e1332]: Démission de vice-président du conseil de surveillance
+                          - listitem [ref=e1333]: Changement(s) de membre(s) du conseil de surveillance
+                    - generic [ref=e1334]: 21/07/2014
+                  - link "Télécharger le document" [ref=e1337] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1338]: 
+                - listitem [ref=e1339]:
+                  - generic [ref=e1340]:
+                    - list [ref=e1341]:
+                      - listitem [ref=e1342]:
+                        - text: Procès-verbal d'assemblée
+                        - list [ref=e1343]:
+                          - listitem [ref=e1344]: A COMPTER DU 01/12/2013
+                    - generic [ref=e1345]: 26/12/2013
+                  - link "Télécharger le document" [ref=e1348] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1349]: 
+                - listitem [ref=e1350]:
+                  - generic [ref=e1351]:
+                    - list [ref=e1352]:
+                      - listitem [ref=e1353]:
+                        - text: Procès-verbal d'assemblée générale ordinaire
+                        - list [ref=e1354]:
+                          - listitem [ref=e1355]: Renouvellement de mandat de commissaire aux comptes titulaire
+                          - listitem [ref=e1356]: Changement de commissaire aux comptes suppléant
+                          - listitem [ref=e1357]: Changement(s) de membre(s) du conseil de surveillance
+                    - generic [ref=e1358]: 18/07/2012
+                  - link "Télécharger le document" [ref=e1361] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1362]: 
+                - listitem [ref=e1363]:
+                  - generic [ref=e1364]:
+                    - list [ref=e1365]:
+                      - listitem [ref=e1366]:
+                        - text: Procès-verbal du conseil de surveillance
+                        - list [ref=e1367]:
+                          - listitem [ref=e1368]: Démission(s) de membre(s) du conseil de surveillance
+                    - generic [ref=e1369]: 23/12/2011
+                  - link "Télécharger le document" [ref=e1372] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1373]: 
+                - listitem [ref=e1374]:
+                  - generic [ref=e1375]:
+                    - list [ref=e1376]:
+                      - listitem [ref=e1377]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1378]:
+                          - listitem [ref=e1379]: Transfert du siège social
+                      - listitem [ref=e1380]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1381]: 08/09/2010
+                  - link "Télécharger le document" [ref=e1384] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1385]: 
+                - listitem [ref=e1386]:
+                  - generic [ref=e1387]:
+                    - list [ref=e1388]:
+                      - listitem [ref=e1389]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1390]:
+                          - listitem [ref=e1391]: Transfert du siège social
+                      - listitem [ref=e1392]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1393]: 08/09/2010
+                  - link "Télécharger le document" [ref=e1396] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1397]: 
+                - listitem [ref=e1398]:
+                  - generic [ref=e1399]:
+                    - list [ref=e1400]:
+                      - listitem [ref=e1401]:
+                        - text: Procès-verbal du directoire
+                        - list [ref=e1402]:
+                          - listitem [ref=e1403]: "- Démission membre du directoire à compter du 1er janvier 2010"
+                    - generic [ref=e1404]: 05/02/2010
+                  - link "Télécharger le document" [ref=e1407] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1408]: 
+                - listitem [ref=e1409]:
+                  - generic [ref=e1410]:
+                    - list [ref=e1411]:
+                      - listitem [ref=e1412]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1413]:
+                          - listitem [ref=e1414]: Modification(s) statutaire(s)
+                      - listitem [ref=e1415]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1416]: 02/07/2009
+                  - link "Télécharger le document" [ref=e1419] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1420]: 
+                - listitem [ref=e1421]:
+                  - generic [ref=e1422]:
+                    - list [ref=e1423]:
+                      - listitem [ref=e1424]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1425]:
+                          - listitem [ref=e1426]: Modification(s) statutaire(s)
+                      - listitem [ref=e1427]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1428]: 02/07/2009
+                  - link "Télécharger le document" [ref=e1431] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1432]: 
+                - listitem [ref=e1433]:
+                  - generic [ref=e1434]:
+                    - list [ref=e1435]:
+                      - listitem [ref=e1436]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1437]:
+                          - listitem [ref=e1438]: Modification(s) statutaire(s)
+                      - listitem [ref=e1439]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1440]: 02/07/2009
+                  - link "Télécharger le document" [ref=e1443] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1444]: 
+                - listitem [ref=e1445]:
+                  - generic [ref=e1446]:
+                    - list [ref=e1447]:
+                      - listitem [ref=e1448]:
+                        - text: Procès-verbal du conseil de surveillance
+                        - list [ref=e1449]:
+                          - listitem [ref=e1450]: "- Démission de membres du directoire"
+                    - generic [ref=e1451]: 12/05/2009
+                  - link "Télécharger le document" [ref=e1454] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1455]: 
+                - listitem [ref=e1456]:
+                  - generic [ref=e1457]:
+                    - list [ref=e1458]:
+                      - listitem [ref=e1459]:
+                        - text: Déclaration de conformité
+                        - list
+                      - listitem [ref=e1460]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1461]:
+                          - listitem [ref=e1462]: Changement de la dénomination sociale
+                          - listitem [ref=e1463]: APPROBATION DU PROJET D APPORT SCISSION CONSENTI PAR LA SEOLIS A LA SOCIETE GEREDIS DEUX SEVRES DE SES ACTIVITES DE GESTION DE RESEAUX DE DISTRIBUTION D ELECTRICITE
+                          - listitem [ref=e1464]: Changement relatif à la date de clôture de l'exercice social
+                      - listitem [ref=e1465]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1466]: 21/11/2008
+                  - link "Télécharger le document" [ref=e1469] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1470]: 
+                - listitem [ref=e1471]:
+                  - generic [ref=e1472]:
+                    - list [ref=e1473]:
+                      - listitem [ref=e1474]:
+                        - text: Projet d'apport partiel d'actif
+                        - list [ref=e1475]:
+                          - listitem [ref=e1476]: CONVENTION D'APPORT PLACE SOUS LE REGIME JURIDIQUE DES SCISSIONS PAR SOREGIES DEUX SEVRES A GEREDIS DEUX SEVRES
+                    - generic [ref=e1477]: 25/09/2008
+                  - link "Télécharger le document" [ref=e1480] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1481]: 
+                - listitem [ref=e1482]:
+                  - generic [ref=e1483]:
+                    - list [ref=e1484]:
+                      - listitem [ref=e1485]:
+                        - text: Procès-verbal d'assemblée générale
+                        - list [ref=e1486]:
+                          - listitem [ref=e1487]: Nomination(s) de membre(s)
+                          - listitem [ref=e1488]: Changement relatif à la date de clôture de l'exercice social
+                      - listitem [ref=e1489]:
+                        - text: Procès-verbal du conseil de surveillance
+                        - list [ref=e1490]:
+                          - listitem [ref=e1491]: Nomination de vice-président du conseil de surveillance
+                          - listitem [ref=e1492]: Nomination(s) de membre(s) du directoire
+                      - listitem [ref=e1493]:
+                        - text: Statuts mis à jour
+                        - list
+                    - generic [ref=e1494]: 11/07/2008
+                  - link "Télécharger le document" [ref=e1497] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1498]: 
+                - listitem [ref=e1499]:
+                  - generic [ref=e1500]:
+                    - list [ref=e1501]:
+                      - listitem [ref=e1502]:
+                        - text: Procès-verbal d'assemblée générale extraordinaire
+                        - list [ref=e1503]:
+                          - listitem [ref=e1504]: Augmentation du capital social
+                      - listitem [ref=e1505]:
+                        - text: Rapport du commissaire aux apports
+                        - list
+                      - listitem [ref=e1506]:
+                        - text: Rapport du commissaire aux comptes
+                        - list [ref=e1507]:
+                          - listitem [ref=e1508]: sur l'augmentation de capital avec suppression du droit préférentiel de souscription
+                      - listitem [ref=e1509]:
+                        - text: Statuts mis à jour
+                        - list
+                      - listitem [ref=e1510]:
+                        - text: Traité
+                        - list [ref=e1511]:
+                          - listitem [ref=e1512]: d'apport en nature du SIEDS
+                    - generic [ref=e1513]: 30/01/2008
+                  - link "Télécharger le document" [ref=e1516] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1517]: 
+                - listitem [ref=e1518]:
+                  - generic [ref=e1519]:
+                    - list [ref=e1520]:
+                      - listitem [ref=e1521]:
+                        - text: Procès-verbal du conseil de surveillance
+                        - list [ref=e1522]:
+                          - listitem [ref=e1523]: Nomination de directeur général
+                          - listitem [ref=e1524]: Nomination(s) de membre(s) du directoire
+                    - generic [ref=e1525]: 10/07/2007
+                  - link "Télécharger le document" [ref=e1528] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1529]: 
+                - listitem [ref=e1530]:
+                  - generic [ref=e1531]:
+                    - list [ref=e1532]:
+                      - listitem [ref=e1533]:
+                        - text: Procès-verbal du conseil d'administration
+                        - list [ref=e1534]:
+                          - listitem [ref=e1535]: NOMINATION VICE PRESIDENT DIRECTOIRE
+                          - listitem [ref=e1536]: Nomination de président du conseil de surveillance
+                          - listitem [ref=e1537]: Nomination(s) de membre(s) du directoire
+                      - listitem [ref=e1538]:
+                        - text: Statuts constitutifs
+                        - list
+                    - generic [ref=e1539]: 02/10/2006
+                  - link "Télécharger le document" [ref=e1542] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1543]: 
+            - generic [ref=e1544] [cursor=pointer]:
+              - text: Rechercher dans les documents
+              - generic [ref=e1545]: 
+            - link "Ouverture de registre Ouvrez et tenez vos registres dématérialisés sur Pappers Services" [ref=e1547] [cursor=pointer]:
+              - /url: https://services.pappers.fr/registres-dematerialises?utm_source=pappers&utm_medium=bloc-document&utm_campaign=registres-dematerialises
+              - img "Ouverture de registre" [ref=e1548]
+              - text: Ouvrez et tenez vos registres dématérialisés sur Pappers Services
+          - generic [ref=e1549]:
+            - generic [ref=e1550]:
+              - heading "Comptes annuels de SEOLIS" [level=2] [ref=e1551]
+              - generic [ref=e1554] [cursor=pointer]: 
+            - list [ref=e1556]:
+              - listitem [ref=e1557]:
+                - generic [ref=e1558]:
+                  - strong [ref=e1559]: Comptes sociaux 2024
+                  - generic [ref=e1560]: 28/07/2025
+                - generic [ref=e1561]:
+                  - link "Télécharger le document" [ref=e1563] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1564]: 
+                  - link "Télécharger le document" [ref=e1566] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1567]: 
+              - listitem [ref=e1568]:
+                - generic [ref=e1569]:
+                  - strong [ref=e1570]: Comptes consolidés 2024
+                  - generic [ref=e1571]: 28/07/2025
+                - generic [ref=e1572]:
+                  - link "Télécharger le document" [ref=e1574] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1575]: 
+                  - link "Télécharger le document" [ref=e1577] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1578]: 
+              - listitem [ref=e1579]:
+                - generic [ref=e1580]:
+                  - strong [ref=e1581]: Comptes sociaux 2023
+                  - generic [ref=e1582]: 11/07/2024
+                - generic [ref=e1583]:
+                  - link "Télécharger le document" [ref=e1585] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1586]: 
+                  - link "Télécharger le document" [ref=e1588] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1589]: 
+              - listitem [ref=e1590]:
+                - generic [ref=e1591]:
+                  - strong [ref=e1592]: Comptes consolidés 2023
+                  - generic [ref=e1593]: 11/07/2024
+                - generic [ref=e1594]:
+                  - link "Télécharger le document" [ref=e1596] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1597]: 
+                  - link "Télécharger le document" [ref=e1599] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1600]: 
+              - listitem [ref=e1601]:
+                - generic [ref=e1602]:
+                  - strong [ref=e1603]: Comptes sociaux 2022
+                  - generic [ref=e1604]: 18/09/2023
+                - generic [ref=e1605]:
+                  - link "Télécharger le document" [ref=e1607] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1608]: 
+                  - link "Télécharger le document" [ref=e1610] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1611]: 
+              - listitem [ref=e1612]:
+                - generic [ref=e1613]:
+                  - strong [ref=e1614]: Comptes consolidés 2022
+                  - generic [ref=e1615]: 18/09/2023
+                - generic [ref=e1616]:
+                  - link "Télécharger le document" [ref=e1618] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1619]: 
+                  - link "Télécharger le document" [ref=e1621] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1622]: 
+              - listitem [ref=e1623]:
+                - generic [ref=e1624]:
+                  - strong [ref=e1625]: Comptes sociaux 2021
+                  - generic [ref=e1626]: 01/08/2022
+                - generic [ref=e1627]:
+                  - link "Télécharger le document" [ref=e1629] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1630]: 
+                  - link "Télécharger le document" [ref=e1632] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1633]: 
+              - listitem [ref=e1634]:
+                - generic [ref=e1635]:
+                  - strong [ref=e1636]: Comptes consolidés 2021
+                  - generic [ref=e1637]: 01/08/2022
+                - generic [ref=e1638]:
+                  - link "Télécharger le document" [ref=e1640] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1641]: 
+                  - link "Télécharger le document" [ref=e1643] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1644]: 
+              - listitem [ref=e1645]:
+                - generic [ref=e1646]:
+                  - strong [ref=e1647]: Comptes sociaux 2020
+                  - generic [ref=e1648]: 19/10/2021
+                - generic [ref=e1649]:
+                  - link "Télécharger le document" [ref=e1651] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1652]: 
+                  - link "Télécharger le document" [ref=e1654] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1655]: 
+              - listitem [ref=e1656]:
+                - generic [ref=e1657]:
+                  - strong [ref=e1658]: Comptes consolidés 2020
+                  - generic [ref=e1659]: 19/10/2021
+                - generic [ref=e1660]:
+                  - link "Télécharger le document" [ref=e1662] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1663]: 
+                  - link "Télécharger le document" [ref=e1665] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1666]: 
+              - listitem [ref=e1667]:
+                - generic [ref=e1668]:
+                  - strong [ref=e1669]: Comptes sociaux 2019
+                  - generic [ref=e1670]: 20/08/2020
+                - generic [ref=e1671]:
+                  - link "Télécharger le document" [ref=e1673] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1674]: 
+                  - link "Télécharger le document" [ref=e1676] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1677]: 
+              - listitem [ref=e1678]:
+                - generic [ref=e1679]:
+                  - strong [ref=e1680]: Comptes consolidés 2019
+                  - generic [ref=e1681]: 20/08/2020
+                - generic [ref=e1682]:
+                  - link "Télécharger le document" [ref=e1684] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1685]: 
+                  - link "Télécharger le document" [ref=e1687] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1688]: 
+              - listitem [ref=e1689]:
+                - generic [ref=e1690]:
+                  - strong [ref=e1691]: Comptes sociaux 2018
+                  - generic [ref=e1692]: 09/07/2019
+                - generic [ref=e1693]:
+                  - link "Télécharger le document" [ref=e1695] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1696]: 
+                  - link "Télécharger le document" [ref=e1698] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1699]: 
+              - listitem [ref=e1700]:
+                - generic [ref=e1701]:
+                  - strong [ref=e1702]: Comptes consolidés 2018
+                  - generic [ref=e1703]: 09/07/2019
+                - generic [ref=e1704]:
+                  - link "Télécharger le document" [ref=e1706] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1707]: 
+                  - link "Télécharger le document" [ref=e1709] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1710]: 
+              - listitem [ref=e1711]:
+                - generic [ref=e1712]:
+                  - strong [ref=e1713]: Comptes sociaux 2017
+                  - generic [ref=e1714]: 16/08/2018
+                - generic [ref=e1715]:
+                  - link "Télécharger le document" [ref=e1717] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1718]: 
+                  - link "Télécharger le document" [ref=e1720] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1721]: 
+              - listitem [ref=e1722]:
+                - generic [ref=e1723]:
+                  - strong [ref=e1724]: Comptes consolidés 2017
+                  - generic [ref=e1725]: 16/08/2018
+                - generic [ref=e1726]:
+                  - link "Télécharger le document" [ref=e1728] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1729]: 
+                  - link "Télécharger le document" [ref=e1731] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1732]: 
+              - listitem [ref=e1733]:
+                - generic [ref=e1734]:
+                  - strong [ref=e1735]: Comptes sociaux 2016
+                  - generic [ref=e1736]: 25/07/2017
+                - generic [ref=e1737]:
+                  - link "Télécharger le document" [ref=e1739] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1740]: 
+                  - link "Télécharger le document" [ref=e1742] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1743]: 
+              - listitem [ref=e1744]:
+                - generic [ref=e1745]:
+                  - strong [ref=e1746]: Comptes consolidés 2016
+                  - generic [ref=e1747]: 25/07/2017
+                - generic [ref=e1748]:
+                  - generic [ref=e1751]: 
+                  - link "Télécharger le document" [ref=e1753] [cursor=pointer]:
+                    - /url: "#_"
+                    - generic [ref=e1754]: 
+          - generic [ref=e1756]:
+            - generic [ref=e1757]:
+              - generic [ref=e1758]:
+                - heading "Conformité de SEOLIS" [level=2] [ref=e1760]
+                - generic [ref=e1762]:
+                  - generic [ref=e1764]: 0 procédure collective
+                  - generic [ref=e1765]:
+                    - generic [ref=e1766]:
+                      - generic [ref=e1767]: 
+                      - text: 4 contentieux
+                    - generic [ref=e1768]:
+                      - generic [ref=e1769]: En savoir plus
+                      - generic [ref=e1770]: 
+                  - generic [ref=e1772]: 0 sanction
+                - link "Tester la conformité de son entreprise " [ref=e1774] [cursor=pointer]:
+                  - /url: https://services.pappers.fr/conformite
+                  - text: Tester la conformité de son entreprise
+                  - generic [ref=e1775]: 
+                - generic [ref=e1776]:
+                  - link "Les alertes complètes sont disponibles via notre offre Pappers Pro. Découvrez toutes les fonctionnalités de la plateforme " [ref=e1777] [cursor=pointer]:
+                    - /url: https://www.pappers.fr/pappers-pro
+                    - text: Les alertes complètes sont disponibles via notre offre Pappers Pro.
+                    - text: Découvrez toutes les fonctionnalités de la plateforme
+                    - generic [ref=e1778]: 
+                  - img "Logo Pappers Pro" [ref=e1779]
+              - text:      
+            - generic [ref=e1780]:
+              - generic [ref=e1782]: Résumé
+              - generic [ref=e1784] [cursor=pointer]: Alertes
+              - generic [ref=e1786] [cursor=pointer]: Procédures collectives
+              - generic [ref=e1788] [cursor=pointer]: Contentieux
+          - generic [ref=e1792]:
+            - heading "Annonces BODACC de SEOLIS" [level=2] [ref=e1794]
+            - generic [ref=e1795]:
+              - button "Filtrer par type d'annonce " [ref=e1797] [cursor=pointer]:
+                - text: Filtrer par type d'annonce
+                - generic [ref=e1798]: 
+              - list [ref=e1800]:
+                - listitem [ref=e1801]:
+                  - generic [ref=e1802]:
+                    - generic [ref=e1803]:
+                      - generic [ref=e1804]: MODIFICATION
+                      - generic [ref=e1805]: 23/10/2025
+                    - generic [ref=e1806]: RCS de Niort
+                  - generic [ref=e1807]:
+                    - generic [ref=e1808]: "Dénomination : SEOLIS"
+                    - generic [ref=e1809]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1810]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1811]: "Administration : Directeur général, Membre du directoire : GUINDET Sébastien, Joël ; Président du directoire, Membre du directoire : PILPAY Yannick, Michel ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du directoire : MOREAU Aude, Marie, Sonia ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : SOLAES AUDIT - RICHEMONT CAPERAA AUDIT ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : HERBELIN Laurent"
+                  - link "Bodacc B n°20250204, annonce n°2089 " [ref=e1812] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20250204/2089
+                    - text: Bodacc B n°20250204, annonce n°2089
+                    - generic [ref=e1813]: 
+                - listitem [ref=e1814]:
+                  - generic [ref=e1815]:
+                    - generic [ref=e1816]:
+                      - generic [ref=e1817]: DÉPÔT DES COMPTES
+                      - generic [ref=e1818]: 13/08/2025
+                    - generic [ref=e1819]: RCS de Niort
+                  - generic [ref=e1820]:
+                    - generic [ref=e1821]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e1822]: "Date de clôture : 31/12/2024"
+                    - generic [ref=e1823]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20250154, annonce n°6448 " [ref=e1824] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20250154/6448
+                    - text: Bodacc C n°20250154, annonce n°6448
+                    - generic [ref=e1825]: 
+                - listitem [ref=e1826]:
+                  - generic [ref=e1827]:
+                    - generic [ref=e1828]:
+                      - generic [ref=e1829]: DÉPÔT DES COMPTES
+                      - generic [ref=e1830]: 13/08/2025
+                    - generic [ref=e1831]: RCS de Niort
+                  - generic [ref=e1832]:
+                    - generic [ref=e1833]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e1834]: "Date de clôture : 31/12/2024"
+                    - generic [ref=e1835]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20250154, annonce n°6447 " [ref=e1836] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20250154/6447
+                    - text: Bodacc C n°20250154, annonce n°6447
+                    - generic [ref=e1837]: 
+                - listitem [ref=e1838]:
+                  - generic [ref=e1839]:
+                    - generic [ref=e1840]:
+                      - generic [ref=e1841]: MODIFICATION
+                      - generic [ref=e1842]: 12/03/2025
+                    - generic [ref=e1843]: RCS de Niort
+                  - generic [ref=e1844]:
+                    - generic [ref=e1845]: "Dénomination : SEOLIS"
+                    - generic [ref=e1846]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1847]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1848]: "Administration : Directeur général, Membre du directoire : GUINDET Sébastien, Joël ; Président du directoire, Membre du directoire : PILPAY Yannick, Michel ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du directoire : MOREAU Aude, Marie, Sonia ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT ; Commissaire aux comptes suppléant : HERBELIN Laurent"
+                  - link "Bodacc B n°20250050, annonce n°4094 " [ref=e1849] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20250050/4094
+                    - text: Bodacc B n°20250050, annonce n°4094
+                    - generic [ref=e1850]: 
+                - listitem [ref=e1851]:
+                  - generic [ref=e1852]:
+                    - generic [ref=e1853]:
+                      - generic [ref=e1854]: MODIFICATION
+                      - generic [ref=e1855]: 12/03/2025
+                    - generic [ref=e1856]: RCS de Niort
+                  - generic [ref=e1857]:
+                    - generic [ref=e1858]: "Dénomination : SEOLIS"
+                    - generic [ref=e1859]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1860]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1861]: "Administration : Directeur général, Membre du directoire : GUINDET Sébastien, Joël ; Président du directoire, Membre du directoire : PILPAY Yannick, Michel ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT ; Commissaire aux comptes suppléant : HERBELIN Laurent"
+                  - link "Bodacc B n°20250050, annonce n°4093 " [ref=e1862] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20250050/4093
+                    - text: Bodacc B n°20250050, annonce n°4093
+                    - generic [ref=e1863]: 
+                - listitem [ref=e1864]:
+                  - generic [ref=e1865]:
+                    - generic [ref=e1866]:
+                      - generic [ref=e1867]: MODIFICATION
+                      - generic [ref=e1868]: 02/01/2025
+                    - generic [ref=e1869]: RCS de Niort
+                  - generic [ref=e1870]:
+                    - generic [ref=e1871]: "Dénomination : SEOLIS"
+                    - generic [ref=e1872]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1873]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1874]: "Administration : Directeur général, Membre du directoire : GUINDET Sébastien, Joël ; Président du directoire, Membre du directoire : PILPAY Yannick, Michel ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20250001, annonce n°2268 " [ref=e1875] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20250001/2268
+                    - text: Bodacc B n°20250001, annonce n°2268
+                    - generic [ref=e1876]: 
+                - listitem [ref=e1877]:
+                  - generic [ref=e1878]:
+                    - generic [ref=e1879]:
+                      - generic [ref=e1880]: DÉPÔT DES COMPTES
+                      - generic [ref=e1881]: 18/09/2024
+                    - generic [ref=e1882]: RCS de Niort
+                  - generic [ref=e1883]:
+                    - generic [ref=e1884]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e1885]: "Date de clôture : 31/12/2023"
+                    - generic [ref=e1886]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20240181, annonce n°4868 " [ref=e1887] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20240181/4868
+                    - text: Bodacc C n°20240181, annonce n°4868
+                    - generic [ref=e1888]: 
+                - listitem [ref=e1889]:
+                  - generic [ref=e1890]:
+                    - generic [ref=e1891]:
+                      - generic [ref=e1892]: DÉPÔT DES COMPTES
+                      - generic [ref=e1893]: 18/09/2024
+                    - generic [ref=e1894]: RCS de Niort
+                  - generic [ref=e1895]:
+                    - generic [ref=e1896]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e1897]: "Date de clôture : 31/12/2023"
+                    - generic [ref=e1898]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20240181, annonce n°4867 " [ref=e1899] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20240181/4867
+                    - text: Bodacc C n°20240181, annonce n°4867
+                    - generic [ref=e1900]: 
+                - listitem [ref=e1901]:
+                  - generic [ref=e1902]:
+                    - generic [ref=e1903]:
+                      - generic [ref=e1904]: MODIFICATION
+                      - generic [ref=e1905]: 13/03/2024
+                    - generic [ref=e1906]: RCS de Niort
+                  - generic [ref=e1907]:
+                    - generic [ref=e1908]: "Dénomination : SEOLIS"
+                    - generic [ref=e1909]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1910]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1911]: "Administration : Directeur général, Membre du directoire : GUINDET Sébastien, Joël ; Président du directoire, Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Membre du directoire : PILPAY Yannick, Michel ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20240051, annonce n°2637 " [ref=e1912] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20240051/2637
+                    - text: Bodacc B n°20240051, annonce n°2637
+                    - generic [ref=e1913]: 
+                - listitem [ref=e1914]:
+                  - generic [ref=e1915]:
+                    - generic [ref=e1916]:
+                      - generic [ref=e1917]: MODIFICATION
+                      - generic [ref=e1918]: 13/03/2024
+                    - generic [ref=e1919]: RCS de Niort
+                  - generic [ref=e1920]:
+                    - generic [ref=e1921]: "Dénomination : SEOLIS"
+                    - generic [ref=e1922]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1923]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1924]: "Administration : Président du directoire, Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Membre du directoire : PILPAY Yannick, Michel ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : RAGOT Nicolas, Marcel ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20240051, annonce n°2636 " [ref=e1925] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20240051/2636
+                    - text: Bodacc B n°20240051, annonce n°2636
+                    - generic [ref=e1926]: 
+                - listitem [ref=e1927]:
+                  - generic [ref=e1928]:
+                    - generic [ref=e1929]:
+                      - generic [ref=e1930]: MODIFICATION
+                      - generic [ref=e1931]: 13/03/2024
+                    - generic [ref=e1932]: RCS de Niort
+                  - generic [ref=e1933]:
+                    - generic [ref=e1934]: "Dénomination : SEOLIS"
+                    - generic [ref=e1935]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1936]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1937]: "Administration : Directeur général, Membre du directoire : COUSINARD Catherine ; Président du directoire, Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Membre du directoire : PILPAY Yannick, Michel ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : BEAUDIC Jean-Michel, Antonin, Marie ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : BINET Frédérique renée Louise ; Membre du conseil : 3D ENERGIES ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20240051, annonce n°2635 " [ref=e1938] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20240051/2635
+                    - text: Bodacc B n°20240051, annonce n°2635
+                    - generic [ref=e1939]: 
+                - listitem [ref=e1940]:
+                  - generic [ref=e1941]:
+                    - generic [ref=e1942]:
+                      - generic [ref=e1943]: DÉPÔT DES COMPTES
+                      - generic [ref=e1944]: 05/10/2023
+                    - generic [ref=e1945]: RCS de Niort
+                  - generic [ref=e1946]:
+                    - generic [ref=e1947]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e1948]: "Date de clôture : 31/12/2022"
+                    - generic [ref=e1949]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20230192, annonce n°14543 " [ref=e1950] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20230192/14543
+                    - text: Bodacc C n°20230192, annonce n°14543
+                    - generic [ref=e1951]: 
+                - listitem [ref=e1952]:
+                  - generic [ref=e1953]:
+                    - generic [ref=e1954]:
+                      - generic [ref=e1955]: DÉPÔT DES COMPTES
+                      - generic [ref=e1956]: 05/10/2023
+                    - generic [ref=e1957]: RCS de Niort
+                  - generic [ref=e1958]:
+                    - generic [ref=e1959]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e1960]: "Date de clôture : 31/12/2022"
+                    - generic [ref=e1961]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20230192, annonce n°14542 " [ref=e1962] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20230192/14542
+                    - text: Bodacc C n°20230192, annonce n°14542
+                    - generic [ref=e1963]: 
+                - listitem [ref=e1964]:
+                  - generic [ref=e1965]:
+                    - generic [ref=e1966]:
+                      - generic [ref=e1967]: DÉPÔT DES COMPTES
+                      - generic [ref=e1968]: 10/08/2022
+                    - generic [ref=e1969]: RCS de Niort
+                  - generic [ref=e1970]:
+                    - generic [ref=e1971]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e1972]: "Date de clôture : 31/12/2021"
+                    - generic [ref=e1973]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20220154, annonce n°5917 " [ref=e1974] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20220154/5917
+                    - text: Bodacc C n°20220154, annonce n°5917
+                    - generic [ref=e1975]: 
+                - listitem [ref=e1976]:
+                  - generic [ref=e1977]:
+                    - generic [ref=e1978]:
+                      - generic [ref=e1979]: DÉPÔT DES COMPTES
+                      - generic [ref=e1980]: 10/08/2022
+                    - generic [ref=e1981]: RCS de Niort
+                  - generic [ref=e1982]:
+                    - generic [ref=e1983]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e1984]: "Date de clôture : 31/12/2021"
+                    - generic [ref=e1985]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20220154, annonce n°5916 " [ref=e1986] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20220154/5916
+                    - text: Bodacc C n°20220154, annonce n°5916
+                    - generic [ref=e1987]: 
+                - listitem [ref=e1988]:
+                  - generic [ref=e1989]:
+                    - generic [ref=e1990]:
+                      - generic [ref=e1991]: MODIFICATION
+                      - generic [ref=e1992]: 01/12/2021
+                    - generic [ref=e1993]: RCS de Niort
+                  - generic [ref=e1994]:
+                    - generic [ref=e1995]: "Dénomination : SEOLIS"
+                    - generic [ref=e1996]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e1997]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e1998]: "Administration : Directeur général, Membre du directoire : COUSINARD Catherine ; Président du directoire, Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : BINET Frédérique renée Louise ; Membre du conseil : PAILLEY Michel René ; Membre du conseil : 3D ENERGIESBEAUDIC Jean-Michel Antonin Marie ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20210233, annonce n°2633 " [ref=e1999] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20210233/2633
+                    - text: Bodacc B n°20210233, annonce n°2633
+                    - generic [ref=e2000]: 
+                - listitem [ref=e2001]:
+                  - generic [ref=e2002]:
+                    - generic [ref=e2003]:
+                      - generic [ref=e2004]: DÉPÔT DES COMPTES
+                      - generic [ref=e2005]: 27/10/2021
+                    - generic [ref=e2006]: RCS de Niort
+                  - generic [ref=e2007]:
+                    - generic [ref=e2008]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2009]: "Date de clôture : 31/12/2020"
+                    - generic [ref=e2010]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20210210, annonce n°5167 " [ref=e2011] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20210210/5167
+                    - text: Bodacc C n°20210210, annonce n°5167
+                    - generic [ref=e2012]: 
+                - listitem [ref=e2013]:
+                  - generic [ref=e2014]:
+                    - generic [ref=e2015]:
+                      - generic [ref=e2016]: DÉPÔT DES COMPTES
+                      - generic [ref=e2017]: 27/10/2021
+                    - generic [ref=e2018]: RCS de Niort
+                  - generic [ref=e2019]:
+                    - generic [ref=e2020]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2021]: "Date de clôture : 31/12/2020"
+                    - generic [ref=e2022]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20210210, annonce n°5166 " [ref=e2023] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20210210/5166
+                    - text: Bodacc C n°20210210, annonce n°5166
+                    - generic [ref=e2024]: 
+                - listitem [ref=e2025]:
+                  - generic [ref=e2026]:
+                    - generic [ref=e2027]:
+                      - generic [ref=e2028]: MODIFICATION
+                      - generic [ref=e2029]: 16/06/2021
+                    - generic [ref=e2030]: RCS de Niort
+                  - generic [ref=e2031]:
+                    - generic [ref=e2032]: "Dénomination : SEOLIS"
+                    - generic [ref=e2033]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e2034]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e2035]: "Administration : Directeur général, Membre du directoire : SITOU Akhobi Ayinla ; Président du directoire : DUTRUC Philippe Louis François ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Membre du directoire : DROUIN Thierry ; Membre du directoire : VERGER Gérard ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : BINET Frédérique renée Louise ; Membre du conseil : PAILLEY Michel René ; Membre du conseil : 3D ENERGIESBEAUDIC Jean-Michel Antonin Marie ; Membre du conseil : GUILLOTEAU Régis René Simon ; Membre du conseil : BROUARD Dominique René ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20210121, annonce n°1913 " [ref=e2036] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20210121/1913
+                    - text: Bodacc B n°20210121, annonce n°1913
+                    - generic [ref=e2037]: 
+                - listitem [ref=e2038]:
+                  - generic [ref=e2039]:
+                    - generic [ref=e2040]:
+                      - generic [ref=e2041]: MODIFICATION
+                      - generic [ref=e2042]: 11/06/2021
+                    - generic [ref=e2043]: RCS de Niort
+                  - generic [ref=e2044]:
+                    - generic [ref=e2045]: "Dénomination : SEOLIS"
+                    - generic [ref=e2046]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e2047]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e2048]: "Administration : Directeur général, Membre du directoire : SITOU Akhobi Ayinla ; Président du directoire : DUTRUC Philippe Louis François ; Président du conseil de surveillance, Membre du conseil : MOTARD Roland ; Vice-président du conseil de surveillance, Membre du conseil : JOLLIT Daniel Claude Gérard ; Membre du conseil : MOUILLER Philippe ; Membre du conseil : BINET Frédérique renée Louise ; Membre du conseil : PAILLEY Michel René ; Membre du conseil : 3D ENERGIESBEAUDIC Jean-Michel Antonin Marie ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20210113, annonce n°3457 " [ref=e2049] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20210113/3457
+                    - text: Bodacc B n°20210113, annonce n°3457
+                    - generic [ref=e2050]: 
+                - listitem [ref=e2051]:
+                  - generic [ref=e2052]:
+                    - generic [ref=e2053]:
+                      - generic [ref=e2054]: DÉPÔT DES COMPTES
+                      - generic [ref=e2055]: 06/09/2020
+                    - generic [ref=e2056]: RCS de Niort
+                  - generic [ref=e2057]:
+                    - generic [ref=e2058]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2059]: "Date de clôture : 31/12/2019"
+                    - generic [ref=e2060]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20200173, annonce n°3073 " [ref=e2061] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20200173/3073
+                    - text: Bodacc C n°20200173, annonce n°3073
+                    - generic [ref=e2062]: 
+                - listitem [ref=e2063]:
+                  - generic [ref=e2064]:
+                    - generic [ref=e2065]:
+                      - generic [ref=e2066]: DÉPÔT DES COMPTES
+                      - generic [ref=e2067]: 06/09/2020
+                    - generic [ref=e2068]: RCS de Niort
+                  - generic [ref=e2069]:
+                    - generic [ref=e2070]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2071]: "Date de clôture : 31/12/2019"
+                    - generic [ref=e2072]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20200173, annonce n°3072 " [ref=e2073] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20200173/3072
+                    - text: Bodacc C n°20200173, annonce n°3072
+                    - generic [ref=e2074]: 
+                - listitem [ref=e2075]:
+                  - generic [ref=e2076]:
+                    - generic [ref=e2077]:
+                      - generic [ref=e2078]: DÉPÔT DES COMPTES
+                      - generic [ref=e2079]: 02/08/2019
+                    - generic [ref=e2080]: RCS de Niort
+                  - generic [ref=e2081]:
+                    - generic [ref=e2082]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2083]: "Date de clôture : 31/12/2018"
+                    - generic [ref=e2084]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20190148, annonce n°7729 " [ref=e2085] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20190148/7729
+                    - text: Bodacc C n°20190148, annonce n°7729
+                    - generic [ref=e2086]: 
+                - listitem [ref=e2087]:
+                  - generic [ref=e2088]:
+                    - generic [ref=e2089]:
+                      - generic [ref=e2090]: DÉPÔT DES COMPTES
+                      - generic [ref=e2091]: 02/08/2019
+                    - generic [ref=e2092]: RCS de Niort
+                  - generic [ref=e2093]:
+                    - generic [ref=e2094]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2095]: "Date de clôture : 31/12/2018"
+                    - generic [ref=e2096]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20190148, annonce n°7728 " [ref=e2097] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20190148/7728
+                    - text: Bodacc C n°20190148, annonce n°7728
+                    - generic [ref=e2098]: 
+                - listitem [ref=e2099]:
+                  - generic [ref=e2100]:
+                    - generic [ref=e2101]:
+                      - generic [ref=e2102]: MODIFICATION
+                      - generic [ref=e2103]: 21/07/2019
+                    - generic [ref=e2104]: RCS de Niort
+                  - generic [ref=e2105]:
+                    - generic [ref=e2106]: "Dénomination : SEOLIS"
+                    - generic [ref=e2107]: "Adresse : 336 Avenue de Paris 79000 Niort"
+                    - generic [ref=e2108]: "Description : Modification survenue sur l'administration."
+                    - generic [ref=e2109]: "Administration : Directeur général : SITOU Akhobi Ayinla ; Président du directoire : DUTRUC Philippe Louis François ; Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance : BROSSARD Jacques ; Membre du conseil de surveillance : SILLON Jean-Claude ; Membre du conseil de surveillance : GUIGNARD Bernard ; Membre du conseil de surveillance : DAILLERE Fanny ; Membre du conseil de surveillance : MOTARD Roland ; Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie ; Membre du conseil de surveillance : HERAULT Francette ; Membre du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : MOUILLER Philippe ; Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre ; Membre du conseil de surveillance : OLIVIER Pascal ; Vice-président du conseil de surveillance : LAVAULT Claude ; Actionnaire unique : RIMBOD Jean-Louis ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes suppléant : FROIDURE Pierre ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20190139, annonce n°2837 " [ref=e2110] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20190139/2837
+                    - text: Bodacc B n°20190139, annonce n°2837
+                    - generic [ref=e2111]: 
+                - listitem [ref=e2112]:
+                  - generic [ref=e2113]:
+                    - generic [ref=e2114]:
+                      - generic [ref=e2115]: DÉPÔT DES COMPTES
+                      - generic [ref=e2116]: 11/09/2018
+                    - generic [ref=e2117]: RCS de Niort
+                  - generic [ref=e2118]:
+                    - generic [ref=e2119]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2120]: "Date de clôture : 31/12/2017"
+                    - generic [ref=e2121]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20180167, annonce n°9720 " [ref=e2122] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20180167/9720
+                    - text: Bodacc C n°20180167, annonce n°9720
+                    - generic [ref=e2123]: 
+                - listitem [ref=e2124]:
+                  - generic [ref=e2125]:
+                    - generic [ref=e2126]:
+                      - generic [ref=e2127]: DÉPÔT DES COMPTES
+                      - generic [ref=e2128]: 11/09/2018
+                    - generic [ref=e2129]: RCS de Niort
+                  - generic [ref=e2130]:
+                    - generic [ref=e2131]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2132]: "Date de clôture : 31/12/2017"
+                    - generic [ref=e2133]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20180167, annonce n°9719 " [ref=e2134] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20180167/9719
+                    - text: Bodacc C n°20180167, annonce n°9719
+                    - generic [ref=e2135]: 
+                - listitem [ref=e2136]:
+                  - generic [ref=e2137]:
+                    - generic [ref=e2138]:
+                      - generic [ref=e2139]: MODIFICATION
+                      - generic [ref=e2140]: 19/08/2018
+                    - generic [ref=e2141]: RCS de Niort
+                  - generic [ref=e2142]:
+                    - generic [ref=e2143]: "Dénomination : SEOLIS"
+                    - generic [ref=e2144]: "Description : Modification de représentant."
+                    - generic [ref=e2145]: "Administration : Président du directoire : DUTRUC Philippe Louis François ; Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance : BROSSARD Jacques ; Vice-président du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : MOTARD Roland ; Membre du conseil de surveillance : SILLON Jean-Claude ; Membre du conseil de surveillance : GUIGNARD Bernard ; Directeur général : SITOU Akhobi Ayinla ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 ; Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 ; Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 ; Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014 ; Actionnaire unique : RIMBOD Jean-Louis modification le 07 Décembre 2015 ; Membre du conseil de surveillance : MOUILLER Philippe en fonction le 16 Octobre 2017 ; Membre du directoire : CHARPY Nicolas en fonction le 24 Janvier 2018 ; Commissaire aux comptes suppléant : FROIDURE Pierre en fonction le 16 Août 2018"
+                  - link "Bodacc B n°20180156, annonce n°1712 " [ref=e2146] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20180156/1712
+                    - text: Bodacc B n°20180156, annonce n°1712
+                    - generic [ref=e2147]: 
+                - listitem [ref=e2148]:
+                  - generic [ref=e2149]:
+                    - generic [ref=e2150]:
+                      - generic [ref=e2151]: MODIFICATION
+                      - generic [ref=e2152]: 26/01/2018
+                    - generic [ref=e2153]: RCS de Niort
+                  - generic [ref=e2154]:
+                    - generic [ref=e2155]: "Dénomination : SEOLIS"
+                    - generic [ref=e2156]: "Description : Modification de représentant."
+                    - generic [ref=e2157]: "Administration : Président du directoire : DUTRUC Philippe Louis François ; Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance : BROSSARD Jacques ; Vice-président du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : MOTARD Roland ; Membre du conseil de surveillance : SILLON Jean-Claude ; Membre du conseil de surveillance : GUIGNARD Bernard ; Directeur général : SITOU Akhobi Ayinla ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 ; Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 ; Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 ; Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 ; Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014 ; Actionnaire unique : RIMBOD Jean-Louis modification le 07 Décembre 2015 ; Membre du conseil de surveillance : MOUILLER Philippe en fonction le 16 Octobre 2017 ; Membre du directoire : CHARPY Nicolas en fonction le 24 Janvier 2018"
+                  - link "Bodacc B n°20180018, annonce n°1377 " [ref=e2158] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20180018/1377
+                    - text: Bodacc B n°20180018, annonce n°1377
+                    - generic [ref=e2159]: 
+                - listitem [ref=e2160]:
+                  - generic [ref=e2161]:
+                    - generic [ref=e2162]:
+                      - generic [ref=e2163]: MODIFICATION
+                      - generic [ref=e2164]: 19/10/2017
+                    - generic [ref=e2165]: RCS de Niort
+                  - generic [ref=e2166]:
+                    - generic [ref=e2167]: "Dénomination : SEOLIS"
+                    - generic [ref=e2168]: "Description : Modification de représentant.."
+                    - generic [ref=e2169]: "Administration : Président du directoire : DUTRUC Philippe Louis François ; Membre du directoire : SITOU Akhobi Ayinla ; Président du conseil de surveillance : BROSSARD Jacques ; Vice-président du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : LAVAULT Claude ; Membre du conseil de surveillance : MOTARD Roland ; Membre du conseil de surveillance : SILLON Jean-Claude ; Membre du conseil de surveillance : GUIGNARD Bernard ; Directeur général : SITOU Akhobi Ayinla ; Commissaire aux comptes titulaire : GROUPE Y AUDIT ; Commissaire aux comptes titulaire : VERLET Damien ; Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 ; Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 ; Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 ; Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 ; Membre du directoire : ANDRE Michel modification le 03 Janvier 2014 ; Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 ; Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014 ; Actionnaire unique : RIMBOD Jean-Louis modification le 07 Décembre 2015 ; Membre du conseil de surveillance : MOUILLER Philippe en fonction le 16 Octobre 2017"
+                  - link "Bodacc B n°20170201, annonce n°1769 " [ref=e2170] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20170201/1769
+                    - text: Bodacc B n°20170201, annonce n°1769
+                    - generic [ref=e2171]: 
+                - listitem [ref=e2172]:
+                  - generic [ref=e2173]:
+                    - generic [ref=e2174]:
+                      - generic [ref=e2175]: DÉPÔT DES COMPTES
+                      - generic [ref=e2176]: 10/08/2017
+                    - generic [ref=e2177]: RCS de Niort
+                  - generic [ref=e2178]:
+                    - generic [ref=e2179]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2180]: "Date de clôture : 31/12/2016"
+                    - generic [ref=e2181]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20170076, annonce n°6733 " [ref=e2182] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20170076/6733
+                    - text: Bodacc C n°20170076, annonce n°6733
+                    - generic [ref=e2183]: 
+                - listitem [ref=e2184]:
+                  - generic [ref=e2185]:
+                    - generic [ref=e2186]:
+                      - generic [ref=e2187]: DÉPÔT DES COMPTES
+                      - generic [ref=e2188]: 10/08/2017
+                    - generic [ref=e2189]: RCS de Niort
+                  - generic [ref=e2190]:
+                    - generic [ref=e2191]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2192]: "Date de clôture : 31/12/2016"
+                    - generic [ref=e2193]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20170076, annonce n°6732 " [ref=e2194] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20170076/6732
+                    - text: Bodacc C n°20170076, annonce n°6732
+                    - generic [ref=e2195]: 
+                - listitem [ref=e2196]:
+                  - generic [ref=e2197]:
+                    - generic [ref=e2198]:
+                      - generic [ref=e2199]: VENTE
+                      - generic [ref=e2200]: 17/05/2017
+                    - generic [ref=e2201]: RCS de Niort
+                  - generic [ref=e2202]:
+                    - generic [ref=e2203]: "Adresse : 336 AV de Paris 79000 Niort"
+                    - generic [ref=e2204]: "Catégorie vente : Autre achat, apport, attribution (immatriculation d'une personne morale, uniquement)"
+                  - link "Bodacc A n°20170094, annonce n°811 " [ref=e2205] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/A/20170094/811
+                    - text: Bodacc A n°20170094, annonce n°811
+                    - generic [ref=e2206]: 
+                - listitem [ref=e2207]:
+                  - generic [ref=e2208]:
+                    - generic [ref=e2209]:
+                      - generic [ref=e2210]: DÉPÔT DES COMPTES
+                      - generic [ref=e2211]: 11/08/2016
+                    - generic [ref=e2212]: RCS de Niort
+                  - generic [ref=e2213]:
+                    - generic [ref=e2214]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2215]: "Date de clôture : 31/12/2015"
+                    - generic [ref=e2216]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20160080, annonce n°7086 " [ref=e2217] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20160080/7086
+                    - text: Bodacc C n°20160080, annonce n°7086
+                    - generic [ref=e2218]: 
+                - listitem [ref=e2219]:
+                  - generic [ref=e2220]:
+                    - generic [ref=e2221]:
+                      - generic [ref=e2222]: DÉPÔT DES COMPTES
+                      - generic [ref=e2223]: 11/08/2016
+                    - generic [ref=e2224]: RCS de Niort
+                  - generic [ref=e2225]:
+                    - generic [ref=e2226]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2227]: "Date de clôture : 31/12/2015"
+                    - generic [ref=e2228]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20160080, annonce n°7085 " [ref=e2229] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20160080/7085
+                    - text: Bodacc C n°20160080, annonce n°7085
+                    - generic [ref=e2230]: 
+                - listitem [ref=e2231]:
+                  - generic [ref=e2232]:
+                    - generic [ref=e2233]:
+                      - generic [ref=e2234]: MODIFICATION
+                      - generic [ref=e2235]: 06/12/2015
+                    - generic [ref=e2236]: RCS de Niort
+                  - generic [ref=e2237]:
+                    - generic [ref=e2238]: "Dénomination : SEOLIS"
+                    - generic [ref=e2239]: "Description : Modification de représentant.."
+                    - generic [ref=e2240]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 Membre du directoire : ANDRE Michel modification le 03 Janvier 2014 Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014 Actionnaire unique : RIMBOD Jean-Louis en fonction le 30 Novembre 2015"
+                  - link "Bodacc B n°20150235, annonce n°1467 " [ref=e2241] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20150235/1467
+                    - text: Bodacc B n°20150235, annonce n°1467
+                    - generic [ref=e2242]: 
+                - listitem [ref=e2243]:
+                  - generic [ref=e2244]:
+                    - generic [ref=e2245]:
+                      - generic [ref=e2246]: DÉPÔT DES COMPTES
+                      - generic [ref=e2247]: 06/08/2015
+                    - generic [ref=e2248]: RCS de Niort
+                  - generic [ref=e2249]:
+                    - generic [ref=e2250]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2251]: "Date de clôture : 31/12/2014"
+                    - generic [ref=e2252]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20150073, annonce n°7241 " [ref=e2253] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20150073/7241
+                    - text: Bodacc C n°20150073, annonce n°7241
+                    - generic [ref=e2254]: 
+                - listitem [ref=e2255]:
+                  - generic [ref=e2256]:
+                    - generic [ref=e2257]:
+                      - generic [ref=e2258]: DÉPÔT DES COMPTES
+                      - generic [ref=e2259]: 06/08/2015
+                    - generic [ref=e2260]: RCS de Niort
+                  - generic [ref=e2261]:
+                    - generic [ref=e2262]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2263]: "Date de clôture : 31/12/2014"
+                    - generic [ref=e2264]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20150073, annonce n°7240 " [ref=e2265] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20150073/7240
+                    - text: Bodacc C n°20150073, annonce n°7240
+                    - generic [ref=e2266]: 
+                - listitem [ref=e2267]:
+                  - generic [ref=e2268]:
+                    - generic [ref=e2269]:
+                      - generic [ref=e2270]: MODIFICATION
+                      - generic [ref=e2271]: 29/07/2015
+                    - generic [ref=e2272]: RCS de Niort
+                  - generic [ref=e2273]:
+                    - generic [ref=e2274]: "Dénomination : SEOLIS"
+                    - generic [ref=e2275]: "Description : Modification de représentant."
+                    - generic [ref=e2276]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 Membre du directoire : ANDRE Michel modification le 03 Janvier 2014 Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014"
+                  - link "Bodacc B n°20150143, annonce n°1876 " [ref=e2277] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20150143/1876
+                    - text: Bodacc B n°20150143, annonce n°1876
+                    - generic [ref=e2278]: 
+                - listitem [ref=e2279]:
+                  - generic [ref=e2280]:
+                    - generic [ref=e2281]:
+                      - generic [ref=e2282]: MODIFICATION
+                      - generic [ref=e2283]: 01/08/2014
+                    - generic [ref=e2284]: RCS de Niort
+                  - generic [ref=e2285]:
+                    - generic [ref=e2286]: "Dénomination : SEOLIS"
+                    - generic [ref=e2287]: "Description : Modification de représentant."
+                    - generic [ref=e2288]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT modification le 09 Janvier 2014 Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 Membre du conseil de surveillance : GEAY Bernard Camille Jean Joseph en fonction le 06 Août 2012 Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 Membre du directoire : ANDRE Michel modification le 03 Janvier 2014 Membre du conseil de surveillance : DAILLERE Fanny en fonction le 24 Juillet 2014 Membre du conseil de surveillance : HERAULT Francette en fonction le 24 Juillet 2014 Membre du conseil de surveillance : OLIVIER Pascal en fonction le 24 Juillet 2014"
+                  - link "Bodacc B n°20140146, annonce n°1755 " [ref=e2289] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20140146/1755
+                    - text: Bodacc B n°20140146, annonce n°1755
+                    - generic [ref=e2290]: 
+                - listitem [ref=e2291]:
+                  - generic [ref=e2292]:
+                    - generic [ref=e2293]:
+                      - generic [ref=e2294]: DÉPÔT DES COMPTES
+                      - generic [ref=e2295]: 31/07/2014
+                    - generic [ref=e2296]: RCS de Niort
+                  - generic [ref=e2297]:
+                    - generic [ref=e2298]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2299]: "Date de clôture : 31/12/2013"
+                    - generic [ref=e2300]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20140046, annonce n°8296 " [ref=e2301] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20140046/8296
+                    - text: Bodacc C n°20140046, annonce n°8296
+                    - generic [ref=e2302]: 
+                - listitem [ref=e2303]:
+                  - generic [ref=e2304]:
+                    - generic [ref=e2305]:
+                      - generic [ref=e2306]: DÉPÔT DES COMPTES
+                      - generic [ref=e2307]: 31/07/2014
+                    - generic [ref=e2308]: RCS de Niort
+                  - generic [ref=e2309]:
+                    - generic [ref=e2310]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2311]: "Date de clôture : 31/12/2013"
+                    - generic [ref=e2312]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20140046, annonce n°8295 " [ref=e2313] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20140046/8295
+                    - text: Bodacc C n°20140046, annonce n°8295
+                    - generic [ref=e2314]: 
+                - listitem [ref=e2315]:
+                  - generic [ref=e2316]:
+                    - generic [ref=e2317]:
+                      - generic [ref=e2318]: MODIFICATION
+                      - generic [ref=e2319]: 05/01/2014
+                    - generic [ref=e2320]: RCS de Niort
+                  - generic [ref=e2321]:
+                    - generic [ref=e2322]: "Dénomination : SEOLIS"
+                    - generic [ref=e2323]: "Description : Modification de représentant."
+                    - generic [ref=e2324]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Vice-président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean Marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 Membre du conseil de surveillance : GEAY Bernard Camille Jean Joseph en fonction le 06 Août 2012 Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012 Membre du directoire : ANDRE Michel en fonction le 26 Décembre 2013"
+                  - link "Bodacc B n°20140003, annonce n°870 " [ref=e2325] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20140003/870
+                    - text: Bodacc B n°20140003, annonce n°870
+                    - generic [ref=e2326]: 
+                - listitem [ref=e2327]:
+                  - generic [ref=e2328]:
+                    - generic [ref=e2329]:
+                      - generic [ref=e2330]: DÉPÔT DES COMPTES
+                      - generic [ref=e2331]: 29/08/2013
+                    - generic [ref=e2332]: RCS de Niort
+                  - generic [ref=e2333]:
+                    - generic [ref=e2334]: "Type de dépôt : Comptes consolidés et rapports"
+                    - generic [ref=e2335]: "Date de clôture : 31/12/2012"
+                    - generic [ref=e2336]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20130058, annonce n°6342 " [ref=e2337] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20130058/6342
+                    - text: Bodacc C n°20130058, annonce n°6342
+                    - generic [ref=e2338]: 
+                - listitem [ref=e2339]:
+                  - generic [ref=e2340]:
+                    - generic [ref=e2341]:
+                      - generic [ref=e2342]: DÉPÔT DES COMPTES
+                      - generic [ref=e2343]: 29/08/2013
+                    - generic [ref=e2344]: RCS de Niort
+                  - generic [ref=e2345]:
+                    - generic [ref=e2346]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2347]: "Date de clôture : 31/12/2012"
+                    - generic [ref=e2348]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20130058, annonce n°6341 " [ref=e2349] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20130058/6341
+                    - text: Bodacc C n°20130058, annonce n°6341
+                    - generic [ref=e2350]: 
+                - listitem [ref=e2351]:
+                  - generic [ref=e2352]:
+                    - generic [ref=e2353]:
+                      - generic [ref=e2354]: DÉPÔT DES COMPTES
+                      - generic [ref=e2355]: 21/08/2012
+                    - generic [ref=e2356]: RCS de Niort
+                  - generic [ref=e2357]:
+                    - generic [ref=e2358]: "Type de dépôt : Comptes annuels, consolidés et rapports"
+                    - generic [ref=e2359]: "Date de clôture : 31/12/2011"
+                    - generic [ref=e2360]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20120051, annonce n°7242 " [ref=e2361] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20120051/7242
+                    - text: Bodacc C n°20120051, annonce n°7242
+                    - generic [ref=e2362]: 
+                - listitem [ref=e2363]:
+                  - generic [ref=e2364]:
+                    - generic [ref=e2365]:
+                      - generic [ref=e2366]: DÉPÔT DES COMPTES
+                      - generic [ref=e2367]: 21/08/2012
+                    - generic [ref=e2368]: RCS de Niort
+                  - generic [ref=e2369]:
+                    - generic [ref=e2370]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2371]: "Date de clôture : 31/12/2011"
+                    - generic [ref=e2372]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20120051, annonce n°7241 " [ref=e2373] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20120051/7241
+                    - text: Bodacc C n°20120051, annonce n°7241
+                    - generic [ref=e2374]: 
+                - listitem [ref=e2375]:
+                  - generic [ref=e2376]:
+                    - generic [ref=e2377]:
+                      - generic [ref=e2378]: MODIFICATION
+                      - generic [ref=e2379]: 14/08/2012
+                    - generic [ref=e2380]: RCS de Niort
+                  - generic [ref=e2381]:
+                    - generic [ref=e2382]: "Dénomination : SEOLIS"
+                    - generic [ref=e2383]: "Description : Modification de représentant."
+                    - generic [ref=e2384]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice président du conseil de surveillance : LAVAULT Claude Vice président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean Marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT Commissaire aux comptes suppléant : PEROT Alain en fonction le 06 Août 2012 Membre du conseil de surveillance : GEAY Bernard Camille Jean Joseph en fonction le 06 Août 2012 Membre du conseil de surveillance : EPRINCHARD Michel Jean-Marie en fonction le 06 Août 2012 Membre du conseil de surveillance : GABILLY Alain André Jean-Pierre en fonction le 06 Août 2012"
+                  - link "Bodacc B n°20120156, annonce n°1318 " [ref=e2385] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20120156/1318
+                    - text: Bodacc B n°20120156, annonce n°1318
+                    - generic [ref=e2386]: 
+                - listitem [ref=e2387]:
+                  - generic [ref=e2388]:
+                    - generic [ref=e2389]:
+                      - generic [ref=e2390]: MODIFICATION
+                      - generic [ref=e2391]: 19/01/2012
+                    - generic [ref=e2392]: RCS de Niort
+                  - generic [ref=e2393]:
+                    - generic [ref=e2394]: "Dénomination : SEOLIS"
+                    - generic [ref=e2395]: "Description : Modification de représentant."
+                    - generic [ref=e2396]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Ayinla Président du conseil de surveillance : BROSSARD Jacques Vice président du conseil de surveillance : LAVAULT Claude Vice président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean Marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : JOURDAIN Bernard Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Ayinla Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : DROUIN Thierry Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20120013, annonce n°898 " [ref=e2397] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20120013/898
+                    - text: Bodacc B n°20120013, annonce n°898
+                    - generic [ref=e2398]: 
+                - listitem [ref=e2399]:
+                  - generic [ref=e2400]:
+                    - generic [ref=e2401]:
+                      - generic [ref=e2402]: DÉPÔT DES COMPTES
+                      - generic [ref=e2403]: 22/08/2011
+                    - generic [ref=e2404]: RCS de Niort
+                  - generic [ref=e2405]:
+                    - generic [ref=e2406]: "Type de dépôt : Comptes annuels, consolidés et rapports"
+                    - generic [ref=e2407]: "Date de clôture : 31/12/2010"
+                    - generic [ref=e2408]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20110049, annonce n°11501 " [ref=e2409] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20110049/11501
+                    - text: Bodacc C n°20110049, annonce n°11501
+                    - generic [ref=e2410]: 
+                - listitem [ref=e2411]:
+                  - generic [ref=e2412]:
+                    - generic [ref=e2413]:
+                      - generic [ref=e2414]: DÉPÔT DES COMPTES
+                      - generic [ref=e2415]: 22/08/2011
+                    - generic [ref=e2416]: RCS de Niort
+                  - generic [ref=e2417]:
+                    - generic [ref=e2418]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2419]: "Date de clôture : 31/12/2010"
+                    - generic [ref=e2420]: "Adresse : 336 avenue de Paris 79000 Niort"
+                  - link "Bodacc C n°20110049, annonce n°11500 " [ref=e2421] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20110049/11500
+                    - text: Bodacc C n°20110049, annonce n°11500
+                    - generic [ref=e2422]: 
+                - listitem [ref=e2423]:
+                  - generic [ref=e2424]:
+                    - generic [ref=e2425]:
+                      - generic [ref=e2426]: MODIFICATION
+                      - generic [ref=e2427]: 28/09/2010
+                    - generic [ref=e2428]: RCS de Niort
+                  - generic [ref=e2429]:
+                    - generic [ref=e2430]: "Dénomination : SEOLIS"
+                    - generic [ref=e2431]: "Capital : 72 116 000,00 €"
+                    - generic [ref=e2432]: "Adresse : 336 avenue de Paris 79009 Niort Cedex"
+                    - generic [ref=e2433]: "Description : Transfert du siège et de l'établissement principal avec création"
+                    - generic [ref=e2434]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Vice-président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : LEPERCQ Arnaud Membre du conseil de surveillance : CLEMENT Jean michel Membre du conseil de surveillance : JOURDAIN Bernard Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : DROUIN Thierry Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20100188, annonce n°2190 " [ref=e2435] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20100188/2190
+                    - text: Bodacc B n°20100188, annonce n°2190
+                    - generic [ref=e2436]: 
+                - listitem [ref=e2437]:
+                  - generic [ref=e2438]:
+                    - generic [ref=e2439]:
+                      - generic [ref=e2440]: DÉPÔT DES COMPTES
+                      - generic [ref=e2441]: 03/09/2010
+                    - generic [ref=e2442]: RCS de Niort
+                  - generic [ref=e2443]:
+                    - generic [ref=e2444]: "Type de dépôt : Comptes annuels, consolidés et rapports"
+                    - generic [ref=e2445]: "Date de clôture : 31/12/2009"
+                    - generic [ref=e2446]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20100053, annonce n°9370 " [ref=e2447] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20100053/9370
+                    - text: Bodacc C n°20100053, annonce n°9370
+                    - generic [ref=e2448]: 
+                - listitem [ref=e2449]:
+                  - generic [ref=e2450]:
+                    - generic [ref=e2451]:
+                      - generic [ref=e2452]: DÉPÔT DES COMPTES
+                      - generic [ref=e2453]: 03/09/2010
+                    - generic [ref=e2454]: RCS de Niort
+                  - generic [ref=e2455]:
+                    - generic [ref=e2456]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2457]: "Date de clôture : 31/12/2009"
+                    - generic [ref=e2458]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20100053, annonce n°9369 " [ref=e2459] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20100053/9369
+                    - text: Bodacc C n°20100053, annonce n°9369
+                    - generic [ref=e2460]: 
+                - listitem [ref=e2461]:
+                  - generic [ref=e2462]:
+                    - generic [ref=e2463]:
+                      - generic [ref=e2464]: DÉPÔT DES COMPTES
+                      - generic [ref=e2465]: 29/03/2010
+                    - generic [ref=e2466]: RCS de Niort
+                  - generic [ref=e2467]:
+                    - generic [ref=e2468]: "Type de dépôt : Comptes annuels, consolidés et rapports"
+                    - generic [ref=e2469]: "Date de clôture : 31/12/2008"
+                    - generic [ref=e2470]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20100018, annonce n°10623 " [ref=e2471] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20100018/10623
+                    - text: Bodacc C n°20100018, annonce n°10623
+                    - generic [ref=e2472]: 
+                - listitem [ref=e2473]:
+                  - generic [ref=e2474]:
+                    - generic [ref=e2475]:
+                      - generic [ref=e2476]: DÉPÔT DES COMPTES
+                      - generic [ref=e2477]: 29/03/2010
+                    - generic [ref=e2478]: RCS de Niort
+                  - generic [ref=e2479]:
+                    - generic [ref=e2480]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2481]: "Date de clôture : 31/12/2008"
+                    - generic [ref=e2482]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20100018, annonce n°10622 " [ref=e2483] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20100018/10622
+                    - text: Bodacc C n°20100018, annonce n°10622
+                    - generic [ref=e2484]: 
+                - listitem [ref=e2485]:
+                  - generic [ref=e2486]:
+                    - generic [ref=e2487]:
+                      - generic [ref=e2488]: MODIFICATION
+                      - generic [ref=e2489]: 25/03/2010
+                    - generic [ref=e2490]: RCS de Niort
+                  - generic [ref=e2491]:
+                    - generic [ref=e2492]: "Dénomination : SEOLIS"
+                    - generic [ref=e2493]: "Capital : 72 116 000,00 €"
+                    - generic [ref=e2494]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                    - generic [ref=e2495]: "Description : Changement de membres du directoire"
+                    - generic [ref=e2496]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Vice-président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : LEPERCQ Arnaud Membre du conseil de surveillance : CLEMENT Jean michel Membre du conseil de surveillance : JOURDAIN Bernard Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : DROUIN Thierry Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20100059, annonce n°1631 " [ref=e2497] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20100059/1631
+                    - text: Bodacc B n°20100059, annonce n°1631
+                    - generic [ref=e2498]: 
+                - listitem [ref=e2499]:
+                  - generic [ref=e2500]:
+                    - generic [ref=e2501]:
+                      - generic [ref=e2502]: MODIFICATION
+                      - generic [ref=e2503]: 17/03/2010
+                    - generic [ref=e2504]: RCS de Niort
+                  - generic [ref=e2505]:
+                    - generic [ref=e2506]: "Dénomination : SEOLIS"
+                    - generic [ref=e2507]: "Capital : 72 116 000,00 €"
+                    - generic [ref=e2508]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                    - generic [ref=e2509]: "Description : Démission de membres du directoire"
+                    - generic [ref=e2510]: "Administration : Président du directoire : DUTRUC Philippe Louis François Membre du directoire : SITOU Akhobi Président du conseil de surveillance : BROSSARD Jacques Vice-président du conseil de surveillance : LAVAULT Claude Vice-président du conseil de surveillance : MOUILLER Philipppe Jean Membre du conseil de surveillance : LAVAULT Claude Membre du conseil de surveillance : GUILLET Jean marie Membre du conseil de surveillance : MOTARD Roland Membre du conseil de surveillance : LEPERCQ Arnaud Membre du conseil de surveillance : CLEMENT Jean michel Membre du conseil de surveillance : JOURDAIN Bernard Membre du conseil de surveillance : SILLON Jean-Claude Membre du conseil de surveillance : GUIGNARD Bernard Membre du conseil de surveillance : POUSSARD Olivier Membre du conseil de surveillance : LETOURNEUR Jean-Claude Directeur général : SITOU Akhobi Commissaire aux comptes titulaire : GROUPE Y AUDIT Commissaire aux comptes titulaire : VERLET Damien Commissaire aux comptes suppléant : DROUIN Thierry Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT"
+                  - link "Bodacc B n°20100053, annonce n°1871 " [ref=e2511] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20100053/1871
+                    - text: Bodacc B n°20100053, annonce n°1871
+                    - generic [ref=e2512]: 
+                - listitem [ref=e2513]:
+                  - generic [ref=e2514]:
+                    - generic [ref=e2515]:
+                      - generic [ref=e2516]: DÉPÔT DES COMPTES
+                      - generic [ref=e2517]: 24/01/2009
+                    - generic [ref=e2518]: RCS de Niort
+                  - generic [ref=e2519]:
+                    - generic [ref=e2520]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2521]: "Date de clôture : 30/06/2008"
+                    - generic [ref=e2522]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20090008, annonce n°8893 " [ref=e2523] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20090008/8893
+                    - text: Bodacc C n°20090008, annonce n°8893
+                    - generic [ref=e2524]: 
+                - listitem [ref=e2525]:
+                  - generic [ref=e2526]:
+                    - generic [ref=e2527]:
+                      - generic [ref=e2528]: MODIFICATION
+                      - generic [ref=e2529]: 18/12/2008
+                    - generic [ref=e2530]: RCS de Niort
+                  - generic [ref=e2531]:
+                    - generic [ref=e2532]: "Dénomination : SEOLIS"
+                    - generic [ref=e2533]: "Capital : 72 116 000,00 €"
+                    - generic [ref=e2534]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                    - generic [ref=e2535]: "Description : Changement de dénomination sociale Changement de commissaire aux comptes"
+                    - generic [ref=e2536]: "Administration : Président du directoire : DUTRUC Philippe Louis François. Membre du directoire : BIDON Andre. Membre du directoire : CHARTIER Philippe. Membre du directoire : SITOU Akhobi. Membre du directoire : BLANES Christian. Président du conseil de surveillance : BROSSARD Jacques. Vice-président du conseil de surveillance : LAVAULT Claude. Vice-président du conseil de surveillance : MOUILLER Philipppe Jean. Membre du conseil de surveillance : LAVAULT Claude. Membre du conseil de surveillance : GUILLET Jean marie. Membre du conseil de surveillance : MOTARD Roland. Membre du conseil de surveillance : LEPERCQ Arnaud. Membre du conseil de surveillance : CLEMENT Jean michel. Membre du conseil de surveillance : JOURDAIN Bernard. Membre du conseil de surveillance : SILLON Jean-Claude. Membre du conseil de surveillance : GUIGNARD Bernard. Membre du conseil de surveillance : POUSSARD Olivier. Membre du conseil de surveillance : LETOURNEUR Jean-Claude. Directeur général : SITOU Akhobi. Commissaire aux comptes titulaire : GROUPE Y AUDIT. Commissaire aux comptes titulaire : VERLET Damien. Commissaire aux comptes suppléant : DROUIN Thierry. Commissaire aux comptes suppléant : RICHEMONT CAPERAA AUDIT."
+                  - link "Bodacc B n°20080232, annonce n°1657 " [ref=e2537] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20080232/1657
+                    - text: Bodacc B n°20080232, annonce n°1657
+                    - generic [ref=e2538]: 
+                - listitem [ref=e2539]:
+                  - generic [ref=e2540]:
+                    - generic [ref=e2541]:
+                      - generic [ref=e2542]: MODIFICATION
+                      - generic [ref=e2543]: 28/11/2008
+                    - generic [ref=e2544]: RCS de Niort
+                  - generic [ref=e2545]:
+                    - generic [ref=e2546]: "Dénomination : SOCIETE ANONYME D'ECONOMIE MIXTE LOCALE SOREGIES DEUX SEVRES par abreviation SAEML SOREGIES DEUX SEVRES"
+                    - generic [ref=e2547]: "Capital : 72 116 000,00 €"
+                    - generic [ref=e2548]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                    - generic [ref=e2549]: "Description : Changement de membres du conseil de surveillance Changement de membres du directoire"
+                    - generic [ref=e2550]: "Administration : Président du directoire : DUTRUC Philippe Louis François. Membre du directoire : BIDON Andre. Membre du directoire : CHARTIER Philippe. Membre du directoire : SITOU Akhobi. Membre du directoire : BLANES Christian. Président du conseil de surveillance : BROSSARD Jacques. Vice-président du conseil de surveillance : LAVAULT Claude. Vice-président du conseil de surveillance : MOUILLER Philipppe Jean. Membre du conseil de surveillance : LAVAULT Claude. Membre du conseil de surveillance : GUILLET Jean marie. Membre du conseil de surveillance : MOTARD Roland. Membre du conseil de surveillance : LEPERCQ Arnaud. Membre du conseil de surveillance : CLEMENT Jean michel. Membre du conseil de surveillance : JOURDAIN Bernard. Membre du conseil de surveillance : SILLON Jean-Claude. Membre du conseil de surveillance : GUIGNARD Bernard. Membre du conseil de surveillance : POUSSARD Olivier. Membre du conseil de surveillance : LETOURNEUR Jean-Claude. Directeur général : SITOU Akhobi. Commissaire aux comptes titulaire : GROUPE Y AUDIT. Commissaire aux comptes suppléant : DROUIN Thierry."
+                  - link "Bodacc B n°20080218, annonce n°1923 " [ref=e2551] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/B/20080218/1923
+                    - text: Bodacc B n°20080218, annonce n°1923
+                    - generic [ref=e2552]: 
+                - listitem [ref=e2553]:
+                  - generic [ref=e2554]:
+                    - generic [ref=e2555]:
+                      - generic [ref=e2556]: DÉPÔT DES COMPTES
+                      - generic [ref=e2557]: 29/08/2008
+                    - generic [ref=e2558]: RCS de Niort
+                  - generic [ref=e2559]:
+                    - generic [ref=e2560]: "Type de dépôt : Comptes annuels et rapports"
+                    - generic [ref=e2561]: "Date de clôture : 31/12/2007"
+                    - generic [ref=e2562]: "Adresse : 14 rue Nôtre Dame 79009 Niort Cedex"
+                  - link "Bodacc C n°20080062, annonce n°11110 " [ref=e2563] [cursor=pointer]:
+                    - /url: https://www.bodacc.fr/annonce/detail-annonce/C/20080062/11110
+                    - text: Bodacc C n°20080062, annonce n°11110
+                    - generic [ref=e2564]: 
+          - generic [ref=e2567]:
+            - heading "Cartographie de SEOLIS" [level=2] [ref=e2568]
+            - generic [ref=e2569]:
+              - link "" [ref=e2571] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e2572]: 
+              - link "" [ref=e2573] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e2574]: 
+          - generic [ref=e2580]:
+            - heading "Comment contacter SEOLIS ?" [level=2] [ref=e2582]
+            - generic [ref=e2583]:
+              - table [ref=e2584]:
+                - rowgroup [ref=e2585]:
+                  - 'row "Téléphone : Réservé aux utilisateurs connectés" [ref=e2586]':
+                    - rowheader "Téléphone :" [ref=e2587]
+                    - cell "Réservé aux utilisateurs connectés" [ref=e2588]
+                  - 'row "Email : Réservé aux utilisateurs connectés" [ref=e2589]':
+                    - rowheader "Email :" [ref=e2590]
+                    - cell "Réservé aux utilisateurs connectés" [ref=e2591]
+                  - 'row "Sites internet : Réservé aux utilisateurs connectés" [ref=e2592]':
+                    - rowheader "Sites internet :" [ref=e2593]
+                    - cell "Réservé aux utilisateurs connectés" [ref=e2594]
+                  - 'row "Réseaux sociaux :   " [ref=e2595]':
+                    - rowheader "Réseaux sociaux :" [ref=e2596]
+                    - cell "  " [ref=e2597]:
+                      - link "" [ref=e2598] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/seolis
+                        - generic [ref=e2599]: 
+                      - link "" [ref=e2600] [cursor=pointer]:
+                        - /url: https://www.facebook.com/seolis.energies
+                        - generic [ref=e2601]: 
+                      - generic [ref=e2603]: 
+                  - 'row "Adresse complète : 336 AVENUE DE PARIS 79000 NIORT " [ref=e2604]':
+                    - rowheader "Adresse complète :" [ref=e2605]
+                    - cell "336 AVENUE DE PARIS 79000 NIORT " [ref=e2606]:
+                      - generic [ref=e2607]:
+                        - text: 336 AVENUE DE PARIS
+                        - text: 79000 NIORT
+                        - generic [ref=e2608] [cursor=pointer]: 
+              - generic [ref=e2611] [cursor=pointer]:
+                - text: Délégué à la protection des données
+                - generic [ref=e2612]: 
+              - generic [ref=e2614]:
+                - generic [ref=e2615]: 
+                - generic [ref=e2616]: Cette entreprise s'est opposée à l'utilisation de ses données à des fins de prospection.
+          - generic [ref=e2617]:
+            - heading "Entreprises citées de SEOLIS" [level=2] [ref=e2619]
+            - list [ref=e2621]:
+              - listitem [ref=e2622]:
+                - generic [ref=e2623]:
+                  - link "GEREDIS DEUX SEVRES (503 639 643)" [ref=e2624] [cursor=pointer]:
+                    - /url: geredis-deux-sevres-503639643
+                  - generic [ref=e2625]: Cité 28 fois entre 2008 et 2026
+                - generic [ref=e2626]:
+                  - generic [ref=e2627]:
+                    - generic [ref=e2628]:
+                      - generic [ref=e2629]:
+                        - text: Nature
+                        - generic [ref=e2630]:
+                          - text: supposée
+                          - generic [ref=e2631]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2632]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Jean REDIEN" [ref=e2633] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Jean+REDIEN&date_de_naissance_beneficiaire_min=23-01-1957&date_de_naissance_beneficiaire_max=23-01-1957
+                      - text: ","
+                      - link "GROUPE Y AUDIT" [ref=e2634] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=377530563
+                      - text: ","
+                      - link "Alain PEROT" [ref=e2635] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Alain+PEROT&date_de_naissance_beneficiaire_min=23-12-1958&date_de_naissance_beneficiaire_max=23-12-1958
+                      - text: et 3 autres
+                  - link "En savoir plus" [ref=e2637] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2638]:
+                - generic [ref=e2639]:
+                  - link "SOLAES AUDIT - RICHEMONT CAPERAA AUDIT (481 805 240)" [ref=e2640] [cursor=pointer]:
+                    - /url: solaes-audit-richemont-caperaa-audit-481805240
+                  - generic [ref=e2641]: Cité 2 fois en 2014 et 2025
+                - generic [ref=e2642]:
+                  - generic [ref=e2644]:
+                    - generic [ref=e2645]:
+                      - text: Nature
+                      - generic [ref=e2646]:
+                        - text: supposée
+                        - generic [ref=e2647]: 
+                      - text: "de la relation :"
+                    - text: Commissaire aux comptes
+                  - link "En savoir plus" [ref=e2649] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2650]:
+                - generic [ref=e2651]:
+                  - link "BESS DU PATUREAULT (990 153 629)" [ref=e2652] [cursor=pointer]:
+                    - /url: bess-du-patureault-990153629
+                  - generic [ref=e2653]: Cité 1 fois en 2025
+                - generic [ref=e2654]:
+                  - generic [ref=e2656]:
+                    - generic [ref=e2657]:
+                      - text: Nature
+                      - generic [ref=e2658]:
+                        - text: supposée
+                        - generic [ref=e2659]: 
+                      - text: "de la relation :"
+                    - text: Banque
+                  - link "En savoir plus" [ref=e2661] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2662]:
+                - generic [ref=e2663]:
+                  - link "GROUPE Y AUDIT (377 530 563)" [ref=e2664] [cursor=pointer]:
+                    - /url: groupe-y-audit-377530563
+                  - generic [ref=e2665]: Cité 4 fois entre 2008 et 2025
+                - generic [ref=e2666]:
+                  - generic [ref=e2668]:
+                    - generic [ref=e2669]:
+                      - text: Nature
+                      - generic [ref=e2670]:
+                        - text: supposée
+                        - generic [ref=e2671]: 
+                      - text: "de la relation :"
+                    - text: Commissaire aux comptes
+                  - link "En savoir plus" [ref=e2673] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2674]:
+                - generic [ref=e2675]:
+                  - link "SEOLIS PROD (750 835 431)" [ref=e2676] [cursor=pointer]:
+                    - /url: seolis-prod-750835431
+                  - generic [ref=e2677]: Cité 13 fois entre 2012 et 2025
+                - generic [ref=e2678]:
+                  - generic [ref=e2679]:
+                    - generic [ref=e2680]:
+                      - generic [ref=e2681]:
+                        - text: Nature
+                        - generic [ref=e2682]:
+                          - text: supposée
+                          - generic [ref=e2683]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2684]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "SEOLIS" [ref=e2685] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=492041066
+                      - text: ","
+                      - link "GROUPE Y AUDIT" [ref=e2686] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=377530563
+                      - text: ","
+                      - link "Pierre FROIDURE" [ref=e2687] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Pierre+FROIDURE&date_de_naissance_beneficiaire_min=12-05-1972&date_de_naissance_beneficiaire_max=12-05-1972
+                      - text: et 2 autres
+                  - link "En savoir plus" [ref=e2689] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2690]:
+                - generic [ref=e2691]:
+                  - link "SEOLIS MOBILITES (899 931 273)" [ref=e2692] [cursor=pointer]:
+                    - /url: seolis-mobilites-899931273
+                  - generic [ref=e2693]: Cité 4 fois entre 2021 et 2024
+                - generic [ref=e2694]:
+                  - generic [ref=e2695]:
+                    - generic [ref=e2696]:
+                      - generic [ref=e2697]:
+                        - text: Nature
+                        - generic [ref=e2698]:
+                          - text: supposée
+                          - generic [ref=e2699]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2700]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "SEOLIS" [ref=e2701] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=492041066
+                      - text: ","
+                      - link "GROUPE Y AUDIT" [ref=e2702] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=377530563
+                      - text: ","
+                      - link "Akhobi SITOU" [ref=e2703] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Akhobi+SITOU&date_de_naissance_beneficiaire_min=01-01-1958&date_de_naissance_beneficiaire_max=01-01-1958
+                      - text: et 1 autre
+                  - link "En savoir plus" [ref=e2705] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2706]:
+                - generic [ref=e2707]:
+                  - link "SELIA (532 010 576)" [ref=e2708] [cursor=pointer]:
+                    - /url: selia-532010576
+                  - generic [ref=e2709]: Cité 9 fois entre 2011 et 2024
+                - generic [ref=e2710]:
+                  - generic [ref=e2711]:
+                    - generic [ref=e2712]:
+                      - generic [ref=e2713]:
+                        - text: Nature
+                        - generic [ref=e2714]:
+                          - text: supposée
+                          - generic [ref=e2715]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2716]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Philippe DUTRUC" [ref=e2717] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Philippe+DUTRUC&date_de_naissance_beneficiaire_min=17-01-1954&date_de_naissance_beneficiaire_max=17-01-1954
+                      - text: ","
+                      - link "GROUPE Y AUDIT" [ref=e2718] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=+
+                      - text: ","
+                      - link "Catherine COUSINARD" [ref=e2719] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Catherine+COUSINARD&date_de_naissance_beneficiaire_min=23-11-1974&date_de_naissance_beneficiaire_max=23-11-1974
+                  - link "En savoir plus" [ref=e2721] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2722]:
+                - generic [ref=e2723]:
+                  - link "3D ENERGIES (751 401 142)" [ref=e2724] [cursor=pointer]:
+                    - /url: 3d-energies-751401142
+                  - generic [ref=e2725]: Cité 2 fois en 2012 et 2021
+                - generic [ref=e2726]:
+                  - generic [ref=e2728]:
+                    - generic [ref=e2729]:
+                      - text: Nature
+                      - generic [ref=e2730]:
+                        - text: supposée
+                        - generic [ref=e2731]: 
+                      - text: "de la relation :"
+                    - text: Banque
+                  - link "En savoir plus" [ref=e2733] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2734]:
+                - generic [ref=e2735]:
+                  - link "AGENCE REGIONALE POUR LES TRAVAUX D ECONOMIES D ENERGIE (811 257 005)" [ref=e2736] [cursor=pointer]:
+                    - /url: agence-regionale-pour-les-travaux-d-economies-d-energie-811257005
+                  - generic [ref=e2737]: Cité 8 fois entre 2015 et 2020
+                - generic [ref=e2738]:
+                  - generic [ref=e2739]:
+                    - generic [ref=e2740]:
+                      - generic [ref=e2741]:
+                        - text: Nature
+                        - generic [ref=e2742]:
+                          - text: supposée
+                          - generic [ref=e2743]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2744]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "HSF AUDIT" [ref=e2745] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=489052050
+                      - text: ","
+                      - link "Pascal DEL'HOMME" [ref=e2746] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Pascal+DEL%27HOMME
+                      - text: ","
+                      - link "FIPME" [ref=e2747] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=532868726
+                      - text: et 1 autre
+                  - link "En savoir plus" [ref=e2749] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2750]:
+                - generic [ref=e2751]:
+                  - link "I-ENR (794 204 701)" [ref=e2752] [cursor=pointer]:
+                    - /url: i-enr-794204701
+                  - generic [ref=e2753]: Cité 3 fois entre 2016 et 2019
+                - generic [ref=e2754]:
+                  - generic [ref=e2755]:
+                    - generic [ref=e2756]:
+                      - generic [ref=e2757]:
+                        - text: Nature
+                        - generic [ref=e2758]:
+                          - text: supposée
+                          - generic [ref=e2759]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2760]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "SEOLIS PROD" [ref=e2761] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=+
+                      - text: ","
+                      - link "GROUPE Y AUDIT" [ref=e2762] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=+
+                      - text: ","
+                      - link "PHILIPPE DUTRUC" [ref=e2763] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=PHILIPPE+DUTRUC&date_de_naissance_beneficiaire_min=01-01-1954&date_de_naissance_beneficiaire_max=01-01-1954
+                  - link "En savoir plus" [ref=e2765] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2766]:
+                - generic [ref=e2767]:
+                  - link "VMH 11 (811 247 907)" [ref=e2768] [cursor=pointer]:
+                    - /url: vmh-11-811247907
+                  - generic [ref=e2769]: Cité 1 fois en 2019
+                - generic [ref=e2770]:
+                  - generic [ref=e2771]:
+                    - generic [ref=e2772]:
+                      - generic [ref=e2773]:
+                        - text: Nature
+                        - generic [ref=e2774]:
+                          - text: supposée
+                          - generic [ref=e2775]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2776]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "GROUPE Y AUDIT" [ref=e2777] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=377530563
+                      - text: ","
+                      - link "SEOLIS PROD" [ref=e2778] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=750835431
+                      - text: ","
+                      - link "AKHOBI SITOU" [ref=e2779] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=AKHOBI+SITOU&date_de_naissance_beneficiaire_min=01-01-1958&date_de_naissance_beneficiaire_max=01-01-1958
+                  - link "En savoir plus" [ref=e2781] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2782]:
+                - generic [ref=e2783]:
+                  - link "PATRICE LARNAC TITULAIRE D'UN OFFICE DE GREFFIER DE TRIBUNAL DE COMMERCE (814 729 539)" [ref=e2784] [cursor=pointer]:
+                    - /url: patrice-larnac-titulaire-dun-office-de-greffier-de-tribunal-de-commerce-814729539
+                  - generic [ref=e2785]: Cité 1 fois en 2019
+                - generic [ref=e2786]:
+                  - generic [ref=e2787]:
+                    - generic [ref=e2788]:
+                      - generic [ref=e2789]:
+                        - text: Nature
+                        - generic [ref=e2790]:
+                          - text: supposée
+                          - generic [ref=e2791]: 
+                        - text: "de la relation :"
+                      - text: Formaliste
+                    - generic [ref=e2792]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Patrice LARNAC" [ref=e2793] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Patrice+LARNAC&date_de_naissance_beneficiaire_min=29-05-1971&date_de_naissance_beneficiaire_max=29-05-1971
+                  - link "En savoir plus" [ref=e2795] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2796]:
+                - generic [ref=e2797]:
+                  - link "IONESIS (489 623 819)" [ref=e2798] [cursor=pointer]:
+                    - /url: ionesis-489623819
+                  - generic [ref=e2799]: Cité 5 fois entre 2012 et 2018
+                - generic [ref=e2800]:
+                  - generic [ref=e2801]:
+                    - generic [ref=e2802]:
+                      - generic [ref=e2803]:
+                        - text: Nature
+                        - generic [ref=e2804]:
+                          - text: supposée
+                          - generic [ref=e2805]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2806]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Alain PEROT" [ref=e2807] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Alain+PEROT&date_de_naissance_beneficiaire_min=23-12-1958&date_de_naissance_beneficiaire_max=23-12-1958
+                      - text: ","
+                      - link "GROUPE Y AUDIT SAS" [ref=e2808] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=377530563
+                      - text: ","
+                      - link "SEOLIS" [ref=e2809] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=492041066
+                      - text: et 1 autre
+                  - link "En savoir plus" [ref=e2811] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2812]:
+                - generic [ref=e2813]:
+                  - link "CEGEF RECHARD ET ASSOCIES (331 675 173)" [ref=e2814] [cursor=pointer]:
+                    - /url: cegef-rechard-et-associes-331675173
+                  - generic [ref=e2815]: Cité 1 fois en 2017
+                - generic [ref=e2816]:
+                  - generic [ref=e2817]:
+                    - generic [ref=e2818]:
+                      - generic [ref=e2819]:
+                        - text: Nature
+                        - generic [ref=e2820]:
+                          - text: supposée
+                          - generic [ref=e2821]: 
+                        - text: "de la relation :"
+                      - text: Commissaire aux apports
+                    - generic [ref=e2822]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Jérôme COUTAND" [ref=e2823] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=J%C3%A9r%C3%B4me+COUTAND&date_de_naissance_beneficiaire_min=21-08-1979&date_de_naissance_beneficiaire_max=21-08-1979
+                      - text: ","
+                      - link "Mikaël HUGONNET" [ref=e2824] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Mika%C3%ABl+HUGONNET&date_de_naissance_beneficiaire_min=29-11-1972&date_de_naissance_beneficiaire_max=29-11-1972
+                      - text: ","
+                      - link "Hervé PARISOT" [ref=e2825] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Herv%C3%A9+PARISOT&date_de_naissance_beneficiaire_min=01-01-1959&date_de_naissance_beneficiaire_max=01-01-1959
+                  - link "En savoir plus" [ref=e2827] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2828]:
+                - generic [ref=e2829]:
+                  - link "COMPUSTORE FRANCE (313 241 424)" [ref=e2830] [cursor=pointer]:
+                    - /url: compustore-france-313241424
+                  - generic [ref=e2831]: Cité 2 fois en 2008 et 2017
+                - generic [ref=e2832]:
+                  - generic [ref=e2834]:
+                    - generic [ref=e2835]:
+                      - text: Nature
+                      - generic [ref=e2836]:
+                        - text: supposée
+                        - generic [ref=e2837]: 
+                      - text: "de la relation :"
+                    - text: Actionnariat
+                  - link "En savoir plus" [ref=e2839] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2840]:
+                - generic [ref=e2841]:
+                  - link "PETIT JACQUES (408 145 316)" [ref=e2842] [cursor=pointer]:
+                    - /url: petit-jacques-408145316
+                  - generic [ref=e2843]: Cité 1 fois en 2017
+                - generic [ref=e2844]:
+                  - generic [ref=e2846]:
+                    - generic [ref=e2847]:
+                      - text: Nature
+                      - generic [ref=e2848]:
+                        - text: supposée
+                        - generic [ref=e2849]: 
+                      - text: "de la relation :"
+                    - text: Banque
+                  - link "En savoir plus" [ref=e2851] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2852]:
+                - generic [ref=e2853]:
+                  - link "SCI BERYL (424 058 931)" [ref=e2854] [cursor=pointer]:
+                    - /url: sci-beryl-424058931
+                  - generic [ref=e2855]: Cité 1 fois en 2017
+                - generic [ref=e2856]:
+                  - generic [ref=e2857]:
+                    - generic [ref=e2858]:
+                      - generic [ref=e2859]:
+                        - text: Nature
+                        - generic [ref=e2860]:
+                          - text: supposée
+                          - generic [ref=e2861]: 
+                        - text: "de la relation :"
+                      - text: Inconnue
+                    - generic [ref=e2862]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Beryl BLANCHARD" [ref=e2863] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Beryl+BLANCHARD&date_de_naissance_beneficiaire_min=15-10-1960&date_de_naissance_beneficiaire_max=15-10-1960
+                      - text: ","
+                      - link "Xavier DELECOUR" [ref=e2864] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Xavier+DELECOUR&date_de_naissance_beneficiaire_min=05-08-1988&date_de_naissance_beneficiaire_max=05-08-1988
+                      - text: ","
+                      - link "Bertrand DELECOUR" [ref=e2865] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Bertrand+DELECOUR&date_de_naissance_beneficiaire_min=13-09-1953&date_de_naissance_beneficiaire_max=13-09-1953
+                  - link "En savoir plus" [ref=e2867] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2868]:
+                - generic [ref=e2869]:
+                  - link "DALLEMAGNE JEAN (780 333 126)" [ref=e2870] [cursor=pointer]:
+                    - /url: dallemagne-jean-780333126
+                  - generic [ref=e2871]: Cité 1 fois en 2008
+                - generic [ref=e2872]:
+                  - generic [ref=e2874]:
+                    - generic [ref=e2875]:
+                      - text: Nature
+                      - generic [ref=e2876]:
+                        - text: supposée
+                        - generic [ref=e2877]: 
+                      - text: "de la relation :"
+                    - text: Banque
+                  - link "En savoir plus" [ref=e2879] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2880]:
+                - generic [ref=e2881]:
+                  - link "HSF AUDIT (489 052 050)" [ref=e2882] [cursor=pointer]:
+                    - /url: hsf-audit-489052050
+                  - generic [ref=e2883]: Cité 1 fois en 2008
+                - generic [ref=e2884]:
+                  - generic [ref=e2885]:
+                    - generic [ref=e2886]:
+                      - generic [ref=e2887]:
+                        - text: Nature
+                        - generic [ref=e2888]:
+                          - text: supposée
+                          - generic [ref=e2889]: 
+                        - text: "de la relation :"
+                      - text: Commissaire aux apports
+                    - generic [ref=e2890]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Patrick CRUCHON" [ref=e2891] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Patrick+CRUCHON&date_de_naissance_beneficiaire_min=17-11-1969&date_de_naissance_beneficiaire_max=17-11-1969
+                      - text: ","
+                      - link "Yves PAUGAM" [ref=e2892] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Yves+PAUGAM&date_de_naissance_beneficiaire_min=28-11-1966&date_de_naissance_beneficiaire_max=28-11-1966
+                      - text: ","
+                      - link "Pascal DEL'HOMME" [ref=e2893] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Pascal+DEL%27HOMME&date_de_naissance_beneficiaire_min=19-09-1963&date_de_naissance_beneficiaire_max=19-09-1963
+                      - text: et 12 autres
+                  - link "En savoir plus" [ref=e2895] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2896]:
+                - generic [ref=e2897]:
+                  - link "SYND INTERCOMMUNAL D'ENERGIE DES DEUX SEVRES (257 900 563)" [ref=e2898] [cursor=pointer]:
+                    - /url: synd-intercommunal-denergie-des-deux-sevres-257900563
+                  - generic [ref=e2899]: Cité 1 fois en 2006
+                - generic [ref=e2900]:
+                  - generic [ref=e2902]:
+                    - generic [ref=e2903]:
+                      - text: Nature
+                      - generic [ref=e2904]:
+                        - text: supposée
+                        - generic [ref=e2905]: 
+                      - text: "de la relation :"
+                    - text: Actionnariat
+                  - link "En savoir plus" [ref=e2907] [cursor=pointer]:
+                    - /url: "#"
+              - listitem [ref=e2908]:
+                - generic [ref=e2909]:
+                  - link "SOREGIES (450 889 225)" [ref=e2910] [cursor=pointer]:
+                    - /url: soregies-450889225
+                  - generic [ref=e2911]: Cité 1 fois en 2006
+                - generic [ref=e2912]:
+                  - generic [ref=e2913]:
+                    - generic [ref=e2914]:
+                      - generic [ref=e2915]:
+                        - text: Nature
+                        - generic [ref=e2916]:
+                          - text: supposée
+                          - generic [ref=e2917]: 
+                        - text: "de la relation :"
+                      - text: Actionnariat
+                    - generic [ref=e2918]:
+                      - text: "Dirigeants et bénéficiaires effectifs :"
+                      - link "Philippe CHARTIER" [ref=e2919] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Philippe+CHARTIER&date_de_naissance_beneficiaire_min=16-12-1948&date_de_naissance_beneficiaire_max=16-12-1948
+                      - text: ","
+                      - link "Marc LOISEL" [ref=e2920] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Marc+LOISEL&date_de_naissance_beneficiaire_min=07-02-1960&date_de_naissance_beneficiaire_max=07-02-1960
+                      - text: ","
+                      - link "Jean-Michel CLEMENT" [ref=e2921] [cursor=pointer]:
+                        - /url: /recherche-beneficiaires?q=Jean-Michel+CLEMENT&date_de_naissance_beneficiaire_min=31-10-1954&date_de_naissance_beneficiaire_max=31-10-1954
+                      - text: et 15 autres
+                  - link "En savoir plus" [ref=e2923] [cursor=pointer]:
+                    - /url: "#"
+              - generic [ref=e2924]:
+                - text: Seules 21 sur environ 98 relations (21.4%) sont affichées dans cette liste.
+                - text: Vous pouvez commander un export de la totalité des relations via
+                - link "ce formulaire" [ref=e2925] [cursor=pointer]:
+                  - /url: https://form.typeform.com/to/CMjcl85E
+                - text: .
+          - text: 
+          - generic [ref=e2927]:
+            - generic [ref=e2928]:
+              - generic [ref=e2929]:
+                - heading "Appels d'offres gagnés par SEOLIS" [level=2] [ref=e2931]
+                - list [ref=e2933]:
+                  - listitem [ref=e2934]:
+                    - paragraph [ref=e2935]: "Objet : Consommation électrique bâtiments publics et éclairage public"
+                    - paragraph [ref=e2936]: "Montant : 71 000,00 € · Notifié le : 17/12/2025 · Durée : 1 an"
+                    - paragraph [ref=e2937]: "Statut : Procédure adaptée"
+                    - paragraph [ref=e2938]:
+                      - text: "Acheteur :"
+                      - link "COMMUNE DE CHAMPDENIERS (MAIRIE)" [ref=e2939] [cursor=pointer]:
+                        - /url: commune-de-champdeniers-mairie-217900661
+                    - link "En savoir plus " [ref=e2940] [cursor=pointer]:
+                      - /url: https://www.macellum.fr/marche/bcfe315824a2b0ecd87303022e2688b6b67381fc
+                      - text: En savoir plus
+                      - generic [ref=e2941]: 
+                  - listitem [ref=e2942]:
+                    - paragraph [ref=e2943]: "Objet : Consommation délectricité bâtiments publics et éclairages publics"
+                    - paragraph [ref=e2944]: "Montant : 90 000,00 € · Notifié le : 27/07/2023 · Durée : 1 an"
+                    - paragraph [ref=e2945]: "Statut : Procédure adaptée"
+                    - paragraph [ref=e2946]:
+                      - text: "Acheteur :"
+                      - link "COMMUNE DE CHAMPDENIERS (MAIRIE)" [ref=e2947] [cursor=pointer]:
+                        - /url: commune-de-champdeniers-mairie-217900661
+                    - link "En savoir plus " [ref=e2948] [cursor=pointer]:
+                      - /url: https://www.macellum.fr/marche/e1fee97835cd51cac153f1c0776791d198ce1889
+                      - text: En savoir plus
+                      - generic [ref=e2949]: 
+              - text:                    
+            - generic [ref=e2950]:
+              - generic [ref=e2952]: Appels d'offres gagnés (2)
+              - generic [ref=e2954] [cursor=pointer]: Appels d'offres lancés (20)
+          - generic [ref=e2955]:
+            - heading "Labels et certificats de SEOLIS" [level=2] [ref=e2957]
+            - generic [ref=e2959]:
+              - generic [ref=e2960]:
+                - generic [ref=e2961]: Egalité professionnelle - Egapro
+                - generic [ref=e2963]:
+                  - text: Certifiée
+                  - generic [ref=e2964]: 
+              - generic [ref=e2965]:
+                - generic [ref=e2966]: "Note 2025 (sur 100) : 89"
+                - generic [ref=e2967]: Conforme aux normes Egapro
+              - generic [ref=e2969] [cursor=pointer]:
+                - text: Afficher plus
+                - generic [ref=e2970]: 
+          - generic [ref=e2971]:
+            - heading "Accords collectifs de SEOLIS" [level=2] [ref=e2973]
+            - generic [ref=e2974]:
+              - button "Filtrer par type de document " [ref=e2976] [cursor=pointer]:
+                - text: Filtrer par type de document
+                - generic [ref=e2977]: 
+              - list [ref=e2979]:
+                - listitem [ref=e2980]:
+                  - generic [ref=e2981]:
+                    - generic [ref=e2982]: Accord alternance
+                    - link "Télécharger le document" [ref=e2984] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e2985]: 
+                  - generic [ref=e2986]:
+                    - generic [ref=e2987]: "Référence : T07925061221"
+                    - generic [ref=e2988]: "Date de signature : 26/06/2025"
+                    - generic [ref=e2989]: "Date de publication : 02/09/2025"
+                    - generic [ref=e2990]: "Thématiques : Formation professionnelle"
+                  - link "Voir sur Legifrance " [ref=e2991] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000052178859
+                    - text: Voir sur Legifrance
+                    - generic [ref=e2992]: 
+                - listitem [ref=e2993]:
+                  - generic [ref=e2994]:
+                    - generic [ref=e2995]: Accord relatif à la définition de l'augmenation exceptionnelle du bénéfice net fiscal et aux modalités de partage de la valeur
+                    - link "Télécharger le document" [ref=e2997] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e2998]: 
+                  - generic [ref=e2999]:
+                    - generic [ref=e3000]: "Référence : T07925060879"
+                    - generic [ref=e3001]: "Date de signature : 24/01/2025"
+                    - generic [ref=e3002]: "Date de publication : 10/02/2025"
+                    - generic [ref=e3003]: "Thématiques : Prime de partage des profits. Système de prime (autre qu'évolution)"
+                  - link "Voir sur Legifrance " [ref=e3004] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000051147910
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3005]: 
+                - listitem [ref=e3006]:
+                  - generic [ref=e3007]:
+                    - generic [ref=e3008]: Accord sur les principes relatifs à la composition et aux modalités de fonctionnement de la commission secondaire du personnel à Séolis
+                    - link "Télécharger le document" [ref=e3010] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3011]: 
+                  - generic [ref=e3012]:
+                    - generic [ref=e3013]: "Référence : T07924060241"
+                    - generic [ref=e3014]: "Date de signature : 25/01/2024"
+                    - generic [ref=e3015]: "Date de publication : 05/02/2024"
+                    - generic [ref=e3016]: "Thématiques : Commissions paritaires"
+                  - link "Voir sur Legifrance " [ref=e3017] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000049086588
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3018]: 
+                - listitem [ref=e3019]:
+                  - generic [ref=e3020]:
+                    - generic [ref=e3021]: Accord collectif relatif à la mobilité durable
+                    - link "Télécharger le document" [ref=e3023] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3024]: 
+                  - generic [ref=e3025]:
+                    - generic [ref=e3026]: "Référence : T07923060136"
+                    - generic [ref=e3027]: "Date de signature : 29/11/2023"
+                    - generic [ref=e3028]: "Date de publication : 11/12/2023"
+                    - generic [ref=e3029]: "Thématiques : Autre, précisez"
+                  - link "Voir sur Legifrance " [ref=e3030] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000048544853
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3031]: 
+                - listitem [ref=e3032]:
+                  - generic [ref=e3033]:
+                    - generic [ref=e3034]: Accord relatif à l'utilisation du vote électronique comme moyen exclusif de vote aux élections 2023 des représentants du personnel au CSE de SÉOLIS
+                    - link "Télécharger le document" [ref=e3036] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3037]: 
+                  - generic [ref=e3038]:
+                    - generic [ref=e3039]: "Référence : T07923003670"
+                    - generic [ref=e3040]: "Date de signature : 30/06/2023"
+                    - generic [ref=e3041]: "Date de publication : 10/07/2023"
+                    - generic [ref=e3042]: "Thématiques : Elections professionnelles, prorogations de mandat et vote électronique"
+                  - link "Voir sur Legifrance " [ref=e3043] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000047801695
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3044]: 
+                - listitem [ref=e3045]:
+                  - generic [ref=e3046]:
+                    - generic [ref=e3047]: Accord relatif à l'égalité professionnelle entre les femmes et les hommes
+                    - link "Télécharger le document" [ref=e3049] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3050]: 
+                  - generic [ref=e3051]:
+                    - generic [ref=e3052]: "Référence : T07923003388"
+                    - generic [ref=e3053]: "Date de signature : 02/03/2023"
+                    - generic [ref=e3054]: "Date de publication : 20/03/2023"
+                    - generic [ref=e3055]: "Thématiques : Egalité salariale F/H"
+                  - link "Voir sur Legifrance " [ref=e3056] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000047319890
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3057]: 
+                - listitem [ref=e3058]:
+                  - generic [ref=e3059]:
+                    - generic [ref=e3060]: Accord relatif aux mesures salariales au sein du groupe SEOLIS
+                    - link "Télécharger le document" [ref=e3062] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3063]: 
+                  - generic [ref=e3064]:
+                    - generic [ref=e3065]: "Référence : T07922003235"
+                    - generic [ref=e3066]: "Date de signature : 16/12/2022"
+                    - generic [ref=e3067]: "Date de publication : 23/01/2023"
+                    - generic [ref=e3068]: "Thématiques : Evolution des salaires (augmentation, gel, diminution)"
+                  - link "Voir sur Legifrance " [ref=e3069] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000047018804
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3070]: 
+                - listitem [ref=e3071]:
+                  - generic [ref=e3072]:
+                    - generic [ref=e3073]: Avancements au choix au 1er janvier 2022 au sein du groupe SÉOLIS
+                    - link "Télécharger le document" [ref=e3075] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3076]: 
+                  - generic [ref=e3077]:
+                    - generic [ref=e3078]: "Référence : T07922002594"
+                    - generic [ref=e3079]: "Date de signature : 01/02/2022"
+                    - generic [ref=e3080]: "Date de publication : 14/02/2022"
+                    - generic [ref=e3081]: "Thématiques :"
+                  - link "Voir sur Legifrance " [ref=e3082] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000045162172
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3083]: 
+                - listitem [ref=e3084]:
+                  - generic [ref=e3085]:
+                    - generic [ref=e3086]: Accord collectif relatif à la mise en place du télétravail au sein de SÉOLIS et GÉRÉDIS
+                    - link "Télécharger le document" [ref=e3088] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3089]: 
+                  - generic [ref=e3090]:
+                    - generic [ref=e3091]: "Référence : T07921002454"
+                    - generic [ref=e3092]: "Date de signature : 25/10/2021"
+                    - generic [ref=e3093]: "Date de publication : 17/01/2022"
+                    - generic [ref=e3094]: "Thématiques : Autres dispositions durée et aménagement du temps de travail"
+                  - link "Voir sur Legifrance " [ref=e3095] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000044994966
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3096]: 
+                - listitem [ref=e3097]:
+                  - generic [ref=e3098]:
+                    - generic [ref=e3099]: Avancements au choix au 1er janvier 2021 au sein du groupe SÉOLIS
+                    - link "Télécharger le document" [ref=e3101] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3102]: 
+                  - generic [ref=e3103]:
+                    - generic [ref=e3104]: "Référence : T07921002026"
+                    - generic [ref=e3105]: "Date de signature : 01/02/2021"
+                    - generic [ref=e3106]: "Date de publication : 01/05/2023"
+                    - generic [ref=e3107]: "Thématiques : Autre, précisez"
+                  - link "Voir sur Legifrance " [ref=e3108] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000047508203
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3109]: 
+                - listitem [ref=e3110]:
+                  - generic [ref=e3111]:
+                    - generic [ref=e3112]: Accord sur les avancements au choix au 1er janvier 2020
+                    - link "Télécharger le document" [ref=e3114] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3115]: 
+                  - generic [ref=e3116]:
+                    - generic [ref=e3117]: "Référence : T07920001409"
+                    - generic [ref=e3118]: "Date de signature : 11/02/2020"
+                    - generic [ref=e3119]: "Date de publication : 03/03/2021"
+                    - generic [ref=e3120]: "Thématiques :"
+                  - link "Voir sur Legifrance " [ref=e3121] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000043206700
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3122]: 
+                - listitem [ref=e3123]:
+                  - generic [ref=e3124]:
+                    - generic [ref=e3125]: Accord sur les principes relatifs à la composition et aux modalités de fonctionnement de la CSP
+                    - link "Télécharger le document" [ref=e3127] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3128]: 
+                  - generic [ref=e3129]:
+                    - generic [ref=e3130]: "Référence : T07920001377"
+                    - generic [ref=e3131]: "Date de signature : 31/01/2020"
+                    - generic [ref=e3132]: "Date de publication : 03/03/2021"
+                    - generic [ref=e3133]: "Thématiques :"
+                  - link "Voir sur Legifrance " [ref=e3134] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000043206690
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3135]: 
+                - listitem [ref=e3136]:
+                  - generic [ref=e3137]:
+                    - generic [ref=e3138]: Accord Préélectoral
+                    - link "Télécharger le document" [ref=e3140] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3141]: 
+                  - generic [ref=e3142]:
+                    - generic [ref=e3143]: "Référence : T07919001153"
+                    - generic [ref=e3144]: "Date de signature : 10/09/2019"
+                    - generic [ref=e3145]: "Date de publication : 27/02/2020"
+                    - generic [ref=e3146]: "Thématiques : Elections professionnelles, prorogations de mandat et vote électronique"
+                  - link "Voir sur Legifrance " [ref=e3147] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000041645806
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3148]: 
+                - listitem [ref=e3149]:
+                  - generic [ref=e3150]:
+                    - generic [ref=e3151]: Accord relatif à la mise en place du comité social et économique et à son fonctionnement
+                    - link "Télécharger le document" [ref=e3153] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3154]: 
+                  - generic [ref=e3155]:
+                    - generic [ref=e3156]: "Référence : T07919001083"
+                    - generic [ref=e3157]: "Date de signature : 05/07/2019"
+                    - generic [ref=e3158]: "Date de publication : 22/08/2019"
+                    - generic [ref=e3159]: "Thématiques : Elections professionnelles, prorogations de mandat et vote électronique"
+                  - link "Voir sur Legifrance " [ref=e3160] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000038941154
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3161]: 
+                - listitem [ref=e3162]:
+                  - generic [ref=e3163]:
+                    - generic [ref=e3164]: Avenant n°1 relatif à l'accord sur le CET au sein du Groupe SÉOLIS
+                    - link "Télécharger le document" [ref=e3166] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3167]: 
+                  - generic [ref=e3168]:
+                    - generic [ref=e3169]: "Référence : T07918000539"
+                    - generic [ref=e3170]: "Date de signature : 10/12/2018"
+                    - generic [ref=e3171]: "Date de publication : 12/03/2019"
+                    - generic [ref=e3172]: "Thématiques : Compte épargne temps"
+                  - link "Voir sur Legifrance " [ref=e3173] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000038223718
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3174]: 
+                - listitem [ref=e3175]:
+                  - generic [ref=e3176]:
+                    - generic [ref=e3177]: Accord relatif à l'égalité professionnelle entre les femmes et les hommes
+                    - link "Télécharger le document" [ref=e3179] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3180]: 
+                  - generic [ref=e3181]:
+                    - generic [ref=e3182]: "Référence : T07918000457"
+                    - generic [ref=e3183]: "Date de signature : 19/10/2018"
+                    - generic [ref=e3184]: "Date de publication : 22/11/2018"
+                    - generic [ref=e3185]: "Thématiques :"
+                  - link "Voir sur Legifrance " [ref=e3186] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000037636351
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3187]: 
+                - listitem [ref=e3188]:
+                  - generic [ref=e3189]:
+                    - generic [ref=e3190]: AVANCEMENTS AU CHOIX
+                    - link "Télécharger le document" [ref=e3192] [cursor=pointer]:
+                      - /url: "#_"
+                      - generic [ref=e3193]: 
+                  - generic [ref=e3194]:
+                    - generic [ref=e3195]: "Référence : A07918002027"
+                    - generic [ref=e3196]: "Date de signature : 01/02/2018"
+                    - generic [ref=e3197]: "Date de publication : 27/03/2018"
+                    - generic [ref=e3198]: "Thématiques : Autre, précisez"
+                  - link "Voir sur Legifrance " [ref=e3199] [cursor=pointer]:
+                    - /url: https://www.legifrance.gouv.fr/acco/id/ACCOTEXT000036745183
+                    - text: Voir sur Legifrance
+                    - generic [ref=e3200]: 
+          - generic [ref=e3204]:
+            - heading "Marques déposées par SEOLIS" [level=2] [ref=e3206]
+            - list [ref=e3207]:
+              - listitem [ref=e3208]:
+                - generic [ref=e3211]: Séolis Mobilités
+                - generic [ref=e3212]:
+                  - strong [ref=e3214]: Séolis Mobilités
+                  - generic [ref=e3215]: Enregistrée le 11/02/2022
+                  - generic [ref=e3216]: Expire le 11/02/2032
+                  - generic [ref=e3217]: "Classes : 09 , 35 , 36 , 37 , 39"
+                  - generic [ref=e3218]: "Numéro : FR4843110"
+                  - generic [ref=e3219]:
+                    - text: Marque enregistrée
+                    - generic [ref=e3220]: 
+                - link "" [ref=e3223] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4843110"]
+                  - generic [ref=e3224]: 
+              - listitem [ref=e3225]:
+                - generic [ref=e3228]: ODEUS
+                - generic [ref=e3229]:
+                  - strong [ref=e3231]: ODEUS
+                  - generic [ref=e3232]: Enregistrée le 11/02/2022
+                  - generic [ref=e3233]: Expire le 11/02/2032
+                  - generic [ref=e3234]: "Classes : 06 , 09 , 19 , 35 , 37 , 40"
+                  - generic [ref=e3235]: "Numéro : FR4843114"
+                  - generic [ref=e3236]:
+                    - text: Marque enregistrée
+                    - generic [ref=e3237]: 
+                - link "" [ref=e3240] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4843114"]
+                  - generic [ref=e3241]: 
+              - listitem [ref=e3242]:
+                - generic [ref=e3245]: Votre énergie est ici
+                - generic [ref=e3246]:
+                  - strong [ref=e3248]: Votre énergie est ici
+                  - generic [ref=e3249]: Enregistrée le 18/03/2016
+                  - generic [ref=e3250]: Expire le 18/03/2036
+                  - generic [ref=e3251]: "Classes : 35 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3252]: "Numéro : FR4257970"
+                  - generic [ref=e3253]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3254]: 
+                - link "" [ref=e3257] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4257970"]
+                  - generic [ref=e3258]: 
+              - listitem [ref=e3259]:
+                - generic [ref=e3262]: Zen'elec
+                - generic [ref=e3263]:
+                  - strong [ref=e3265]: Zen'elec
+                  - generic [ref=e3266]: Enregistrée le 26/01/2016
+                  - generic [ref=e3267]: Expire le 26/01/2036
+                  - generic [ref=e3268]: "Classes : 35 , 36 , 37"
+                  - generic [ref=e3269]: "Numéro : FR4243508"
+                  - generic [ref=e3270]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3271]: 
+                - link "" [ref=e3274] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4243508"]
+                  - generic [ref=e3275]: 
+              - listitem [ref=e3276]:
+                - generic [ref=e3279]: Zen'gaz
+                - generic [ref=e3280]:
+                  - strong [ref=e3282]: Zen'gaz
+                  - generic [ref=e3283]: Enregistrée le 26/01/2016
+                  - generic [ref=e3284]: Expire le 26/01/2026
+                  - generic [ref=e3285]: "Classes : 35 , 36 , 37"
+                  - generic [ref=e3286]: "Numéro : FR4243512"
+                  - generic [ref=e3287]:
+                    - text: Marque enregistrée
+                    - generic [ref=e3288]: 
+                - link "" [ref=e3291] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4243512"]
+                  - generic [ref=e3292]: 
+              - listitem [ref=e3293]:
+                - generic [ref=e3296]: Une infinie proximité
+                - generic [ref=e3297]:
+                  - strong [ref=e3299]: Une infinie proximité
+                  - generic [ref=e3300]: Enregistrée le 04/03/2015
+                  - generic [ref=e3301]: Expire le 04/03/2035
+                  - generic [ref=e3302]: "Classes : 35 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3303]: "Numéro : FR4161844"
+                  - generic [ref=e3304]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3305]: 
+                - link "" [ref=e3308] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4161844"]
+                  - generic [ref=e3309]: 
+              - listitem [ref=e3310]:
+                - generic [ref=e3313]: LUM'IRIS
+                - generic [ref=e3314]:
+                  - strong [ref=e3316]: LUM'IRIS
+                  - generic [ref=e3317]: Enregistrée le 23/10/2014
+                  - generic [ref=e3318]: Expire le 23/10/2034
+                  - generic [ref=e3319]: "Classes : 35"
+                  - generic [ref=e3320]: "Numéro : FR4129335"
+                  - generic [ref=e3321]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3322]: 
+                - link "" [ref=e3325] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR4129335"]
+                  - generic [ref=e3326]: 
+              - listitem [ref=e3327]:
+                - generic [ref=e3330]: INTEGRALL
+                - generic [ref=e3331]:
+                  - strong [ref=e3333]: INTEGRALL
+                  - generic [ref=e3334]: Enregistrée le 05/11/2012
+                  - generic [ref=e3335]: Expire le 05/11/2022
+                  - generic [ref=e3336]: "Classes : 35 , 39 , 42"
+                  - generic [ref=e3337]: "Numéro : FR3959515"
+                  - generic [ref=e3338]: Marque expirée
+                - link "" [ref=e3341] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3959515"]
+                  - generic [ref=e3342]: 
+              - listitem [ref=e3343]:
+                - generic [ref=e3346]: INTEGREEN
+                - generic [ref=e3347]:
+                  - strong [ref=e3349]: INTEGREEN
+                  - generic [ref=e3350]: Enregistrée le 05/11/2012
+                  - generic [ref=e3351]: Expire le 05/11/2022
+                  - generic [ref=e3352]: "Classes : 35 , 39 , 42"
+                  - generic [ref=e3353]: "Numéro : FR3959516"
+                  - generic [ref=e3354]: Marque expirée
+                - link "" [ref=e3357] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3959516"]
+                  - generic [ref=e3358]: 
+              - listitem [ref=e3359]:
+                - generic [ref=e3362]: RESEAU ALTER BASE
+                - generic [ref=e3363]:
+                  - strong [ref=e3365]: RESEAU ALTER BASE
+                  - generic [ref=e3366]: Enregistrée le 09/10/2012
+                  - generic [ref=e3367]: Expire le 09/10/2032
+                  - generic [ref=e3368]: "Classes : 12 , 35 , 37 , 39 , 42"
+                  - generic [ref=e3369]: "Numéro : FR3955760"
+                  - generic [ref=e3370]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3371]: 
+                - link "" [ref=e3374] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3955760"]
+                  - generic [ref=e3375]: 
+              - listitem [ref=e3376]:
+                - generic [ref=e3379]: SELIA FILIALE DE SEOLIS ENERGIES & SERVICES
+                - generic [ref=e3380]:
+                  - strong [ref=e3382]: SELIA FILIALE DE SEOLIS ENERGIES & SERVICES
+                  - generic [ref=e3383]: Enregistrée le 13/05/2011
+                  - generic [ref=e3384]: Expire le 13/05/2031
+                  - generic [ref=e3385]: "Classes : 39 , 42"
+                  - generic [ref=e3386]: "Numéro : FR3831613"
+                  - generic [ref=e3387]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3388]: 
+                - link "" [ref=e3391] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3831613"]
+                  - generic [ref=e3392]: 
+              - listitem [ref=e3393]:
+                - generic [ref=e3396]: SELIA
+                - generic [ref=e3397]:
+                  - strong [ref=e3399]: SELIA
+                  - generic [ref=e3400]: Enregistrée le 22/02/2011
+                  - generic [ref=e3401]: Expire le 22/02/2031
+                  - generic [ref=e3402]: "Classes : 35 , 39 , 42"
+                  - generic [ref=e3403]: "Numéro : FR3808791"
+                  - generic [ref=e3404]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3405]: 
+                - link "" [ref=e3408] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3808791"]
+                  - generic [ref=e3409]: 
+              - listitem [ref=e3410]:
+                - generic [ref=e3413]: SEOLIA
+                - generic [ref=e3414]:
+                  - strong [ref=e3416]: SEOLIA
+                  - generic [ref=e3417]: Enregistrée le 22/02/2011
+                  - generic [ref=e3418]: Expire le 01/06/2026
+                  - generic [ref=e3419]: "Classes : 39 , 42"
+                  - generic [ref=e3420]: "Numéro : FR3808845"
+                  - generic [ref=e3421]: Marque ayant fait l'objet d'un retrait total
+                - link "" [ref=e3424] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3808845"]
+                  - generic [ref=e3425]: 
+              - listitem [ref=e3426]:
+                - generic [ref=e3429]: GEREDIS DEUX-SEVRES
+                - generic [ref=e3430]:
+                  - strong [ref=e3432]: GEREDIS DEUX-SEVRES
+                  - generic [ref=e3433]: Enregistrée le 06/11/2008
+                  - generic [ref=e3434]: Expire le 06/11/2018
+                  - generic [ref=e3435]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3436]: "Numéro : FR3610029"
+                  - generic [ref=e3437]: Marque expirée
+                - link "" [ref=e3440] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3610029"]
+                  - generic [ref=e3441]: 
+              - listitem [ref=e3442]:
+                - generic [ref=e3445]: SEOLIS
+                - generic [ref=e3446]:
+                  - strong [ref=e3448]: SEOLIS
+                  - generic [ref=e3449]: Enregistrée le 03/10/2008
+                  - generic [ref=e3450]: Expire le 03/10/2028
+                  - generic [ref=e3451]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3452]: "Numéro : FR3602661"
+                  - generic [ref=e3453]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3454]: 
+                - link "" [ref=e3457] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3602661"]
+                  - generic [ref=e3458]: 
+              - listitem [ref=e3459]:
+                - generic [ref=e3462]: ENERGIES SERVICES DEUX-SEVRES
+                - generic [ref=e3463]:
+                  - strong [ref=e3465]: ENERGIES SERVICES DEUX-SEVRES
+                  - generic [ref=e3466]: Enregistrée le 22/08/2008
+                  - generic [ref=e3467]: Expire le 22/08/2018
+                  - generic [ref=e3468]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3469]: "Numéro : FR3595172"
+                  - generic [ref=e3470]: Marque expirée
+                - link "" [ref=e3473] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3595172"]
+                  - generic [ref=e3474]: 
+              - listitem [ref=e3475]:
+                - generic [ref=e3478]: Deux-Sèvres Energies
+                - generic [ref=e3479]:
+                  - strong [ref=e3481]: Deux-Sèvres Energies
+                  - generic [ref=e3482]: Enregistrée le 22/08/2008
+                  - generic [ref=e3483]: Expire le 22/08/2018
+                  - generic [ref=e3484]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3485]: "Numéro : FR3595173"
+                  - generic [ref=e3486]: Marque expirée
+                - link "" [ref=e3489] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3595173"]
+                  - generic [ref=e3490]: 
+              - listitem [ref=e3491]:
+                - generic [ref=e3494]: SEOLIS
+                - generic [ref=e3495]:
+                  - strong [ref=e3497]: SEOLIS
+                  - generic [ref=e3498]: Enregistrée le 21/08/2008
+                  - generic [ref=e3499]: Expire le 21/08/2028
+                  - generic [ref=e3500]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3501]: "Numéro : FR3595011"
+                  - generic [ref=e3502]:
+                    - text: Marque renouvelée
+                    - generic [ref=e3503]: 
+                - link "" [ref=e3506] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3595011"]
+                  - generic [ref=e3507]: 
+              - listitem [ref=e3508]:
+                - generic [ref=e3511]: GEREDIS
+                - generic [ref=e3512]:
+                  - strong [ref=e3514]: GEREDIS
+                  - generic [ref=e3515]: Enregistrée le 17/04/2008
+                  - generic [ref=e3516]: Expire le 17/04/2018
+                  - generic [ref=e3517]: "Classes : 09 , 37 , 39 , 40 , 42"
+                  - generic [ref=e3518]: "Numéro : FR3570747"
+                  - generic [ref=e3519]: Marque expirée
+                - link "" [ref=e3522] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3570747"]
+                  - generic [ref=e3523]: 
+              - listitem [ref=e3524]:
+                - generic [ref=e3526]:
+                  - generic [ref=e3527]: Enregistrée le 18/02/2008
+                  - generic [ref=e3528]: Expire le 18/02/2018
+                  - generic [ref=e3529]: "Classes : 09 , 37 , 39"
+                  - generic [ref=e3530]: "Numéro : FR3557237"
+                  - generic [ref=e3531]: Marque expirée
+                - link "" [ref=e3534] [cursor=pointer]:
+                  - /url: https://data.inpi.fr/export/brands?format=pdf&ids=["FR3557237"]
+                  - generic [ref=e3535]: 
+    - contentinfo [ref=e3536]:
+      - generic [ref=e3537]:
+        - generic [ref=e3538]:
+          - link "Logo Pappers Entreprises" [ref=e3540] [cursor=pointer]:
+            - /url: /
+            - img "Logo Pappers Entreprises" [ref=e3541]
+          - generic [ref=e3542]:
+            - link "LinkedIn" [ref=e3543] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/pappers/
+              - generic [ref=e3544]: 
+            - link "Partager sur Facebook" [ref=e3545] [cursor=pointer]:
+              - /url: http://www.facebook.com/sharer.php?u=https://www.pappers.fr/
+              - generic [ref=e3546]: 
+            - link "Twitter" [ref=e3547] [cursor=pointer]:
+              - /url: https://twitter.com/get_pappers
+              - generic [ref=e3548]: 
+        - list [ref=e3550]:
+          - listitem [ref=e3551]:
+            - text: Ressources
+            - paragraph [ref=e3552]:
+              - link "Presse" [ref=e3553] [cursor=pointer]:
+                - /url: /presse
+            - paragraph [ref=e3554]:
+              - link "Classements " [ref=e3555] [cursor=pointer]:
+                - /url: /classements
+                - text: Classements
+                - generic [ref=e3556]: 
+            - paragraph [ref=e3557]:
+              - link "Blog" [ref=e3558] [cursor=pointer]:
+                - /url: /guide
+          - listitem [ref=e3559]:
+            - text: Informations légales
+            - paragraph [ref=e3560]:
+              - link "Données personnelles" [ref=e3561] [cursor=pointer]:
+                - /url: /politique-de-protection-des-donnees-personnelles
+            - paragraph [ref=e3562]:
+              - link "Mentions légales" [ref=e3563] [cursor=pointer]:
+                - /url: /mentions-legales
+          - listitem [ref=e3564]:
+            - text: Nous connaître
+            - paragraph [ref=e3565]:
+              - link "A propos" [ref=e3566] [cursor=pointer]:
+                - /url: /a-propos
+            - paragraph [ref=e3567]:
+              - link "FAQ" [ref=e3568] [cursor=pointer]:
+                - /url: /faq
+            - paragraph [ref=e3569]:
+              - link "Contact" [ref=e3570] [cursor=pointer]:
+                - /url: /contact
+        - list [ref=e3572]:
+          - paragraph [ref=e3573]: Nos données sont constamment actualisées, entièrement gratuites et proviennent de l'INSEE, l'INPI et du BODACC.
+          - generic [ref=e3574]:
+            - paragraph [ref=e3575]: "Inscrivez-vous à la newsletter mensuelle :"
+            - group [ref=e3576]:
+              - textbox "E-mail" [ref=e3577]
+              - button "" [disabled] [ref=e3578] [cursor=pointer]:
+                - generic [ref=e3579]: 
+            - group [ref=e3580]:
+              - checkbox "En vous inscrivant, vous acceptez la Politique générale de Protection des Données." [ref=e3581]
+              - generic [ref=e3582]:
+                - text: En vous inscrivant, vous acceptez la
+                - link "Politique générale de Protection des Données" [ref=e3583] [cursor=pointer]:
+                  - /url: /politique-de-protection-des-donnees-personnelles
+                - text: .
+  - generic:  
+```
