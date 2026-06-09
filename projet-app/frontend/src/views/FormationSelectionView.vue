@@ -729,6 +729,22 @@ const sections = computed(() => {
   }
 
   // Filter helper
+  // Use word-boundary matching to avoid substring false positives
+  // e.g., rule target "ia" should NOT match "excel-et-ia" or "word-et-ia"
+  const matchesSlugOrLabel = (formSlug, formLabel, target) => {
+    // Exact slug match
+    if (formSlug === target) return true;
+    // Exact label match
+    if (formLabel === target) return true;
+    // Check if target matches a complete segment of the slug (split by '-')
+    const slugParts = formSlug.split('-');
+    if (slugParts.includes(target)) return true;
+    // Check if target matches a complete segment of the label
+    const labelParts = formLabel.split('-');
+    if (labelParts.includes(target)) return true;
+    return false;
+  };
+
   const filterGroup = (items) => {
     let filtered = items;
 
@@ -741,16 +757,16 @@ const sections = computed(() => {
 
       // Check Exclude first
       const isExcluded = 
-        [...excludeMap.formations].some(ex => slug === ex || label.includes(ex)) ||
-        [...excludeMap.categories].some(ex => cat.includes(ex));
+        [...excludeMap.formations].some(ex => matchesSlugOrLabel(slug, label, ex)) ||
+        [...excludeMap.categories].some(ex => cat === ex || cat.includes(ex));
         
       if (isExcluded) return false;
 
       // Check Allow Only
       if (hasAllowRule) {
         const isAllowed = 
-          [...allowMap.formations].some(al => slug === al || label.includes(al)) ||
-          [...allowMap.categories].some(al => cat.includes(al));
+          [...allowMap.formations].some(al => matchesSlugOrLabel(slug, label, al)) ||
+          [...allowMap.categories].some(al => cat === al || cat.includes(al));
         return isAllowed;
       }
 

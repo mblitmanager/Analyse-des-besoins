@@ -133,7 +133,9 @@ export class SessionsService {
     // If formation is changed, reset progress to avoid mixing results from different formations
     // BUT skip reset when p3SkipQuiz is set — the P3 shortcut intentionally sends
     // formationChoisie + finalRecommendation + stopLevel together
-    if (data.formationChoisie && !(data as any).p3SkipQuiz) {
+    // Also skip reset when skipFormationReset is set — used when accepting a
+    // prerequisite recommendation (formation is set without changing the quiz state)
+    if (data.formationChoisie && !(data as any).p3SkipQuiz && !(data as any).skipFormationReset) {
       const resetData = data as any;
       resetData.levelsScores = {};
       resetData.stopLevel = null;
@@ -143,6 +145,9 @@ export class SessionsService {
       resetData.scorePretest = null;
       resetData.explanationMessage = null;
     }
+
+    // Remove ephemeral flag before persisting (not a DB column)
+    delete (data as any).skipFormationReset;
 
     await this.sessionRepo.update(id, data);
     return this.findOne(id);
@@ -1240,7 +1245,7 @@ export class SessionsService {
     if (autoSendEmail !== 'false') {
       await this.emailService.sendReport(
         emailTo,
-        `Analyse des besoins - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+        `Analyse des besoins - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie || fullRecommendation}`,
         `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
         <div style="background-color: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
           <span style="color: ${badgeColor}; font-weight: bold; font-size: 14px;">
@@ -1259,7 +1264,7 @@ export class SessionsService {
               ? `<p><strong>Parrain / Marraine :</strong> ${session.parrainPrenom || ''} ${session.parrainNom || ''}</p>`
               : ''
           }
-          <p><strong>Formation :</strong> ${session.formationChoisie}</p>
+          <p><strong>Formation :</strong> ${session.formationChoisie || fullRecommendation}</p>
           <p><strong>Recommandations :</strong></p>
           <div style="margin-bottom: 20px;">
             <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
@@ -1747,7 +1752,7 @@ export class SessionsService {
 
     const mailResult = await this.emailService.sendReport(
       emailTo,
-      `Analyse des besoins (Renvoyé) - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie}`,
+      `Analyse des besoins (Renvoyé) - ${badgeText} ${session.prenom} ${session.nom} - ${session.formationChoisie || fullRecommendation}`,
       `<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;">
       <div style="background-color: ${badgeBg}; border: 1px solid ${badgeBorder}; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;">
         <span style="color: ${badgeColor}; font-weight: bold; font-size: 14px;">
@@ -1766,7 +1771,7 @@ export class SessionsService {
             ? `<p><strong>Parrain / Marraine :</strong> ${session.parrainPrenom || ''} ${session.parrainNom || ''}</p>`
             : ''
         }
-        <p><strong>Formation :</strong> ${session.formationChoisie}</p>
+        <p><strong>Formation :</strong> ${session.formationChoisie || fullRecommendation}</p>
         <p><strong>Recommandations :</strong></p>
         <div style="margin-bottom: 20px;">
           <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
