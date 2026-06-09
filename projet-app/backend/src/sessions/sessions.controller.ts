@@ -41,6 +41,7 @@ export class UpdateSessionDto {
   formationChoisie?: string;
   isP3Mode?: boolean;
   p3SkipQuiz?: boolean;
+  skipFormationReset?: boolean;
   isCompleted?: boolean;
   scorePretest?: number;
   emailSentAt?: Date;

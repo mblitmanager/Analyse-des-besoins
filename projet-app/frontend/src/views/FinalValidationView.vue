@@ -65,6 +65,19 @@ const recommendedLabelParts = computed(() => {
   }).filter(p => p !== "");
 });
 
+// Hide "Formation visée" when it's essentially the same as the recommended parcours
+// (e.g., when user was redirected by a QuestionRule without choosing a formation)
+const isFormationSameAsRecommendation = computed(() => {
+  if (!session.value) return false;
+  const fc = (session.value.formationChoisie || "").toLowerCase().trim();
+  const fr = (session.value.finalRecommendation || "").toLowerCase().trim();
+  if (!fc || !fr) return false;
+  // Check if formationChoisie is contained in finalRecommendation or vice versa
+  // Also check if they share the same main formations (ignoring separators)
+  const normalize = (s) => s.replace(/[\/|&]/g, ' ').replace(/\s+/g, ' ').trim();
+  return normalize(fc) === normalize(fr) || fc.includes(fr) || fr.includes(fc);
+});
+
 const totalLevelsCount = computed(() => levelsEntries.value.length);
 
 const answeredPrereqCount = computed(() => {
@@ -133,7 +146,18 @@ function confirmGoHome() {
   showP3Modal.value = false;
   store.setP3Mode(false);
   localStorage.removeItem("session_id");
-  router.push("/");
+
+  // Redirect to the external site based on the brand origin
+  const brandUrls = {
+    aopia: "https://www.aopia.fr",
+    like: "https://www.likeformation.fr",
+  };
+  const externalUrl = brandUrls[store.brand];
+  if (externalUrl) {
+    window.location.href = externalUrl;
+  } else {
+    router.push("/");
+  }
 }
 
 function startP3() {
@@ -215,7 +239,7 @@ function confirmStartP3() {
                 <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Bénéficiaire</span>
                 <span class="text-sm font-black text-[#0d1b3e]">{{ session.prenom }} {{ session.nom }}</span>
               </div>
-              <div class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white">
+              <div v-if="session.formationChoisie && !isFormationSameAsRecommendation" class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white">
                 <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Formation visée</span>
                 <span class="text-sm font-black text-blue-600">{{ session.formationChoisie }}</span>
               </div>

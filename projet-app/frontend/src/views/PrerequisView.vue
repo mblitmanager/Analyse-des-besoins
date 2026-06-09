@@ -97,6 +97,7 @@ onMounted(async () => {
 });
 
 const proposalMessage = ref("");
+const proposalFormationLabel = ref(""); // Stores the actual formation recommendation from backend
 
 async function submitPrerequis(force = false) {
   const isForced = force === true;
@@ -141,6 +142,9 @@ async function submitPrerequis(force = false) {
       } else {
         // Show proposal if it's a custom message
         proposalMessage.value = session.recommendation || "Nous vous suggérons un parcours de renforcement.";
+        // Store the actual formation recommendation from backend for later use
+        proposalFormationLabel.value = session.finalRecommendation || 
+          (session.recommendations && session.recommendations.length > 0 ? session.recommendations.join(" & ") : "");
         showProposal.value = true;
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
@@ -158,7 +162,31 @@ async function submitPrerequis(force = false) {
 }
 
 async function acceptProposal() {
-  // If they accept, we just go to results (the backend already calculated the override)
+  // Save the recommended formation as formationChoisie before navigating
+  try {
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    // Use the real formation label from the backend recommendation
+    // Fall back to the parsed proposal message if backend didn't provide it
+    let formationLabel = proposalFormationLabel.value || recommendedFormations.value.join(" & ");
+    // Clean: keep only the first option from each step (remove alternatives after /)
+    // e.g. "TOSA Digcomp Initial & TOSA Word Initial / TOSA Excel Initial" → "TOSA Digcomp Initial & TOSA Word Initial"
+    if (formationLabel) {
+      formationLabel = formationLabel
+        .split(/\s*&\s*/)
+        .map(step => step.split(/\s*\/\s*/)[0].trim())
+        .filter(Boolean)
+        .join(" & ");
+    }
+    if (formationLabel) {
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+        formationChoisie: formationLabel,
+        skipFormationReset: true, // Prevent backend from resetting data (not a DB column)
+      });
+    }
+  } catch (error) {
+    console.error("Failed to save recommended formation:", error);
+  }
   router.push("/resultats");
 }
 

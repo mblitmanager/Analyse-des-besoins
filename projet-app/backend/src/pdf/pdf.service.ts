@@ -195,10 +195,18 @@ export class PdfService {
       }
       this.sectionTitle(doc, 'Formation et Résultat');
 
-      const formationInfo: string[][] = [
-        ['Formation demandée', data.formationChoisie || 'N/A'],
-        ['Parcours préconisé', data.finalRecommendation || 'Analyse en cours'],
-      ];
+      const formationDemandee = data.formationChoisie || 'N/A';
+      const parcoursPréconisé = data.finalRecommendation || 'Analyse en cours';
+      // Only show "Formation demandée" if it differs from the recommendation
+      // (when user was redirected by a QuestionRule, both are the same)
+      const formationInfo: string[][] = formationDemandee !== parcoursPréconisé && formationDemandee !== 'N/A'
+        ? [
+            ['Formation demandée', formationDemandee],
+            ['Parcours préconisé', parcoursPréconisé],
+          ]
+        : [
+            ['Parcours préconisé', parcoursPréconisé],
+          ];
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
 
       // Add a highlighted recommendation box
