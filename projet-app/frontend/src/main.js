@@ -48,6 +48,21 @@ axios.interceptors.response.use(
 app.use(pinia)
 app.use(router)
 
+// Directive globale v-click-outside
+app.directive('click-outside', {
+  mounted(el, binding) {
+    el.__clickOutsideHandler__ = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value(event);
+      }
+    };
+    document.addEventListener('pointerdown', el.__clickOutsideHandler__);
+  },
+  unmounted(el) {
+    document.removeEventListener('pointerdown', el.__clickOutsideHandler__);
+  },
+});
+
 async function bootstrap() {
   const store = useAppStore(pinia)
   const auth = useAuthStore(pinia)
