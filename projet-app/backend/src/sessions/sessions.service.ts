@@ -100,6 +100,22 @@ export class SessionsService {
     });
     if (!session) throw new NotFoundException('Session not found');
 
+    // Load previous completed sessions for the same stagiaire to facilitate P3 rules filtering
+    if (session.stagiaire && session.stagiaire.id) {
+      try {
+        const prevSessions = await this.sessionRepo.find({
+          where: {
+            stagiaire: { id: session.stagiaire.id },
+            isCompleted: true,
+          },
+          order: { createdAt: 'ASC' },
+        });
+        (session as any).previousSessions = prevSessions;
+      } catch (err) {
+        console.error('Failed to fetch previous sessions for P3:', err);
+      }
+    }
+
     if (
       session.formationChoisie ||
       (session.prerequisiteScore &&

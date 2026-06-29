@@ -115,6 +115,69 @@ function getLevelLabel(order) {
   return mapping[order] || `Niveau ${order}`;
 }
 
+// Get exact level label based on rule's specific source formations
+function getExactLevelLabel(order, sourceSlugs = [], sourceCategory = "") {
+  if (!order) return "";
+  
+  const slugs = (sourceSlugs || []).map(s => s.toLowerCase());
+  const category = (sourceCategory || "").toLowerCase().trim();
+
+  // 1. Try matching with exact source slugs
+  if (slugs.length > 0) {
+    const matches = allLevels.value.filter(
+      (lv) => lv.order === order && slugs.includes(lv.formationSlug?.toLowerCase())
+    );
+    if (matches.length > 0) {
+      // Return list of matching levels (e.g. "Anglais : A2")
+      return matches.map(m => `${m.formationLabel} : ${m.label}`).join(" / ");
+    }
+  }
+
+  // 2. Try matching with source category
+  if (category) {
+    const matches = allLevels.value.filter(
+      (lv) => lv.order === order && lv.formationCategory?.toLowerCase() === category
+    );
+    if (matches.length > 0) {
+      return matches.map(m => `${m.formationLabel} : ${m.label}`).join(" / ");
+    }
+  }
+
+  // 3. Fallback to any first matching level order across all formations
+  const found = allLevels.value.find((lv) => lv.order === order);
+  if (found) return `${found.formationLabel} : ${found.label}`;
+
+  const mapping = { 1: "Initial", 2: "Basique", 3: "Opérationnel", 4: "Avancé", 5: "Expert" };
+  return mapping[order] || `Niveau ${order}`;
+}
+
+// Dynamically filter levels belonging to selected source formations/categories
+const availableSourceLevels = computed(() => {
+  const selectedSlugs = (form.value.sourceSlugs || []).map(s => s.toLowerCase());
+  const selectedCategory = (form.value.sourceCategory || "").toLowerCase().trim();
+
+  if (selectedSlugs.length === 0 && !selectedCategory) {
+    // Fallback: if no source is selected, return all levels
+    return allLevels.value;
+  }
+
+  return allLevels.value.filter((lv) => {
+    const slugMatches = selectedSlugs.length > 0 && selectedSlugs.includes(lv.formationSlug?.toLowerCase());
+    const categoryMatches = selectedCategory && lv.formationCategory?.toLowerCase() === selectedCategory;
+    return slugMatches || categoryMatches;
+  });
+});
+
+// Dynamic level orders based on filtered levels
+const availableLevelOrderOptions = computed(() => {
+  const orders = new Set();
+  for (const lv of availableSourceLevels.value) {
+    if (lv.order != null) orders.add(lv.order);
+  }
+  return Array.from(orders).sort((a, b) => a - b);
+});
+
+
 function getFormationBySlug(slug) {
   return (formations.value || []).find((f) => f.slug?.toLowerCase() === slug?.toLowerCase());
 }
@@ -460,8 +523,8 @@ const excludeCount = computed(() => rules.value.filter((r) => r.filterMode === "
                 <span class="text-xs text-blue-800">
                   Niveau
                   <span class="font-black">{{ rule.levelOperator === "gte" ? "≥" : "≤" }}</span>
-                  <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 bg-white rounded-md border border-blue-100 font-bold text-blue-900 text-[11px]">
-                    {{ getLevelLabel(rule.maxLevelOrder) }}
+                  <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 bg-white rounded-md border border-blue-100 font-bold text-blue-900 text-[11px] whitespace-normal">
+                    {{ getExactLevelLabel(rule.maxLevelOrder, rule.sourceSlugs, rule.sourceCategory) }}
                     <span class="text-slate-400">({{ rule.maxLevelOrder }})</span>
                   </span>
                 </span>
@@ -739,30 +802,36 @@ const excludeCount = computed(() => rules.value.filter((r) => r.filterMode === "
                         <label class="text-xs font-bold text-slate-500 block mb-1">Niveau seuil</label>
                         <select
                           v-model="form.maxLevelOrder"
-                          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none font-semibold text-slate-800"
                         >
                           <option :value="null">-- Tous les niveaux --</option>
-                          <option v-for="order in levelOrderOptions" :key="order" :value="order">
-                            {{ order }} — {{ getLevelLabel(order) }}
+                          <option v-for="order in availableLevelOrderOptions" :key="order" :value="order">
+                            Niveau {{ order }} — {{ getExactLevelLabel(order, form.sourceSlugs, form.sourceCategory) }}
                           </option>
                         </select>
                       </div>
                     </div>
                     <!-- Visual level selector pills -->
-                    <div v-if="levelOrderOptions.length > 0" class="flex flex-wrap gap-2 pt-1">
-                      <button
-                        v-for="order in levelOrderOptions"
-                        :key="order"
-                        type="button"
-                        @click="form.maxLevelOrder = form.maxLevelOrder === order ? null : order"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
-                        :class="form.maxLevelOrder === order
-                          ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300'"
-                      >
-                        <span class="w-4 h-4 rounded-full bg-current opacity-20 flex-shrink-0 text-center leading-4 text-[9px] font-black">{{ order }}</span>
-                        {{ getLevelLabel(order) }}
-                      </button>
+                    <div class="space-y-1.5">
+                      <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Sélection rapide :</p>
+                      <div v-if="availableLevelOrderOptions.length > 0" class="flex flex-wrap gap-2 pt-1">
+                        <button
+                          v-for="order in availableLevelOrderOptions"
+                          :key="order"
+                          type="button"
+                          @click="form.maxLevelOrder = form.maxLevelOrder === order ? null : order"
+                          class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
+                          :class="form.maxLevelOrder === order
+                            ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300'"
+                        >
+                          <span class="w-4 h-4 rounded-full bg-current opacity-20 flex-shrink-0 text-center leading-4 text-[9px] font-black">{{ order }}</span>
+                          {{ getExactLevelLabel(order, form.sourceSlugs, form.sourceCategory) }}
+                        </button>
+                      </div>
+                      <p v-else class="text-xs text-amber-600 italic">
+                        Sélectionnez d'abord une catégorie ou une formation source pour filtrer les niveaux correspondants.
+                      </p>
                     </div>
                   </div>
                 </div>
