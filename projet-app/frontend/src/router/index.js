@@ -115,6 +115,11 @@ const router = createRouter({
           component: () => import('../views/admin/SettingsManagerView.vue')
         },
         {
+          path: 'workflow',
+          name: 'admin-workflow',
+          component: () => import('../views/admin/WorkflowManagerView.vue')
+        },
+        {
           path: 'parcours',
           name: 'admin-parcours',
           component: () => import('../views/admin/ParcoursManagerView.vue')

@@ -76,14 +76,29 @@ async function fetchFormations() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
 
-    formations.value = res.data;
+    if (store.isP3Mode && sessionId) {
+      // In P3 mode, use the server-side filtered endpoint which applies P3 rules
+      // based on the candidate's full training history
+      const res = await axios.get(`${apiBaseUrl}/sessions/${sessionId}/available-formations-with-p3`);
+      formations.value = res.data;
+    } else {
+      const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+      formations.value = res.data;
+    }
     
     // Once formations are loaded, compute level order if in P3 mode
     computeAndStorePrevLevelOrder();
   } catch (error) {
     console.error("Failed to fetch formations:", error);
+    // Fallback to all formations
+    try {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
+      formations.value = res.data;
+    } catch (fallbackError) {
+      console.error("Fallback formation fetch also failed:", fallbackError);
+    }
   } finally {
     loading.value = false;
   }
@@ -652,138 +667,26 @@ function canonicalSlug(value) {
 }
 
 // Build explicit sections per requested layout
+// NOTE: In P3 mode, formations are already filtered by the backend via
+// /sessions/:id/available-formations-with-p3 which applies P3 rules correctly
+// (respecting levelOperator gte/lte and checking previous sessions history).
+// Do NOT re-filter here to avoid double-filtering with potentially wrong logic.
 const sections = computed(() => {
   const map = new Map(groupedFormations.value.map((g) => [g.category, g.items]));
 
-  // P3 Filtering Logic based on API rules
-  const isP3 = store.isP3Mode;
-  const lastFormationSlug = localStorage.getItem('p3_prev_formation_slug') || ""; // Assuming we have the slug, or we can use label
-  const lastFormationLabel = currentSession.value?.formationChoisie || "";
-  const lastLevel = (currentSession.value?.stopLevel || "").toLowerCase();
-  const lastLevelOrder =
-    currentSession.value?.stopLevelOrder ||
-    Number(localStorage.getItem('p3_prev_level_order') || 0);
+  // No frontend filtering needed - backend already applied P3 rules
+  const getItems = (cat) => map.get(cat) || [];
 
-  // Dynamic level order getter
-  const getLevelOrder = (formationLabel, levelLabel) => {
-    const f = formations.value.find(form => form.label === formationLabel);
-    if (!f || !f.levels) {
-      const lvl = levelLabel.toLowerCase();
-      if (lvl.includes('initial')) return 1;
-      if (lvl.includes('basique')) return 2;
-      if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
-      if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
-      if (lvl.includes('expert')) return 5;
-      return 0;
-    }
-    const clean = (s) => s.toLowerCase().replace(/^niveau\s+/i, '').trim();
-    const target = clean(levelLabel);
-    const l = f.levels.find(lvl => clean(lvl.label) === target);
-    return l ? (l.order || 0) : 0;
-  };
-
-  const currentLevelOrder = lastLevelOrder || getLevelOrder(lastFormationLabel, lastLevel);
-  const prevCategory = normalizeKey(
-    formations.value.find(f => f.label === lastFormationLabel)?.category || ''
-  );
-  const prevSlug = canonicalSlug(lastFormationSlug);
-
-  // Determine applicable rules based on priority (lowest order first)
-  const sortedRules = [...p3Rules.value].sort((a, b) => a.order - b.order);
-  
-  const rulesToApply = sortedRules.filter(rule => {
-    // Check level condition
-    if (rule.maxLevelOrder != null && currentLevelOrder > rule.maxLevelOrder) {
-       return false;
-    }
-    // Check source category match
-    const ruleSourceCategory = normalizeKey(rule.sourceCategory);
-    const categoryMatches = ruleSourceCategory && prevCategory.includes(ruleSourceCategory);
-    
-    // Check source slug/label match
-    const slugMatches = rule.sourceSlugs?.length > 0 && rule.sourceSlugs.some(s => {
-      const ruleSlug = canonicalSlug(s);
-      const labelKey = canonicalSlug(lastFormationLabel);
-      return prevSlug === ruleSlug || labelKey.includes(ruleSlug);
-    });
-    
-    return categoryMatches || slugMatches;
-  });
-
-  // Allowed / Excluded sets
-  let allowMap = { formations: new Set(), categories: new Set() };
-  let excludeMap = { formations: new Set(), categories: new Set() };
-  let hasAllowRule = false;
-
-  if (isP3 && rulesToApply.length > 0) {
-    rulesToApply.forEach(r => {
-      if (r.filterMode === 'ALLOW_ONLY') {
-        hasAllowRule = true;
-        r.targetSlugs?.forEach(s => allowMap.formations.add(canonicalSlug(s)));
-        r.targetCategories?.forEach(c => allowMap.categories.add(normalizeKey(c)));
-      } else if (r.filterMode === 'EXCLUDE') {
-        r.targetSlugs?.forEach(s => excludeMap.formations.add(canonicalSlug(s)));
-        r.targetCategories?.forEach(c => excludeMap.categories.add(normalizeKey(c)));
-      }
-    });
-  }
-
-  // Filter helper
-  // Use word-boundary matching to avoid substring false positives
-  // e.g., rule target "ia" should NOT match "excel-et-ia" or "word-et-ia"
-  const matchesSlugOrLabel = (formSlug, formLabel, target) => {
-    // Exact slug match
-    if (formSlug === target) return true;
-    // Exact label match
-    if (formLabel === target) return true;
-    // Check if target matches a complete segment of the slug (split by '-')
-    const slugParts = formSlug.split('-');
-    if (slugParts.includes(target)) return true;
-    // Check if target matches a complete segment of the label
-    const labelParts = formLabel.split('-');
-    if (labelParts.includes(target)) return true;
-    return false;
-  };
-
-  const filterGroup = (items) => {
-    let filtered = items;
-
-    if (!isP3 || rulesToApply.length === 0) return filtered;
-    
-    return filtered.filter(f => {
-      const slug = canonicalSlug(f.slug);
-      const label = canonicalSlug(f.label);
-      const cat = normalizeKey(f.category);
-
-      // Check Exclude first
-      const isExcluded = 
-        [...excludeMap.formations].some(ex => matchesSlugOrLabel(slug, label, ex)) ||
-        [...excludeMap.categories].some(ex => cat === ex || cat.includes(ex));
-        
-      if (isExcluded) return false;
-
-      // Check Allow Only
-      if (hasAllowRule) {
-        const isAllowed = 
-          [...allowMap.formations].some(al => matchesSlugOrLabel(slug, label, al)) ||
-          [...allowMap.categories].some(al => cat === al || cat.includes(al));
-        return isAllowed;
-      }
-
-      return true; // If no allow rule, keep it (assuming not excluded)
-    });
-  };
-
-  const bureauItems = filterGroup(map.get('bureautique') || []);
+  const bureauItems = getItems('bureautique');
   const microsoft = bureauItems.filter(f => {
     const l = f.label.toLowerCase();
     return l.includes('microsoft') || l.includes('office') || l.includes('word') || l.includes('excel') || l.includes('ppt') || l.includes('powerpoint') || l.includes('outlook');
   });
   const google = bureauItems.filter(f => f.label.toLowerCase().includes('google'));
 
-  const langs = filterGroup(map.get('anglais-francais') || []);
-  const creation = filterGroup(map.get('illustration') || []);
-  const ia = filterGroup(map.get('ia-generative') || []);
+  const langs = getItems('anglais-francais');
+  const creation = getItems('illustration');
+  const ia = getItems('ia-generative');
   let iaGrp = [];
   if (ia.length > 0) {
     iaGrp = [{
@@ -794,7 +697,7 @@ const sections = computed(() => {
       children: ia
     }];
   }
-  const digcompGroup = filterGroup(map.get('digcomp-google-wordpress') || []);
+  const digcompGroup = getItems('digcomp-google-wordpress');
 
   return [
     { 

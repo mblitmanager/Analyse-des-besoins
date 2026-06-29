@@ -9,12 +9,8 @@ const toast = useToastStore();
 const settings = ref([]);
 const loading = ref(true);
 const saving = ref(false);
-const workflowSteps = ref([]);
-const savingWorkflow = ref(false);
-const newStep = ref({ code: '', label: '', route: '' });
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
-const activeTab = ref('settings'); // 'settings' or 'workflow'
 const searchQuery = ref('');
 
 const testEmailForm = ref({ to: '', subject: 'Test email from Admin', body: '<h1>It works!</h1><p>Ceci est un email de test.</p>' });
@@ -90,17 +86,16 @@ async function toggleSetting(setting) {
 }
 
 async function fetchSettings() {
-  loading.value = false;
+  loading.value = true;
   try {
     const token = localStorage.getItem("admin_token");
-    const [settingsRes, workflowRes] = await Promise.all([
-      axios.get(`${apiBaseUrl}/settings`, { headers: { Authorization: `Bearer ${token}` } }),
-      axios.get(`${apiBaseUrl}/workflow?all=true`, { headers: { Authorization: `Bearer ${token}` } })
-    ]);
-    settings.value = settingsRes.data;
-    workflowSteps.value = workflowRes.data;
+    const settingsRes = await axios.get(`${apiBaseUrl}/settings`, { 
+      headers: { Authorization: `Bearer ${token}` } 
+    });
+    settings.value = settingsRes.data || [];
   } catch (error) {
-    console.error("Failed to fetch data:", error);
+    console.error("Failed to fetch settings:", error);
+    toast.error("Erreur lors du chargement des réglages");
   } finally {
     loading.value = false;
   }
@@ -115,7 +110,6 @@ async function saveSetting(key, value) {
       { value },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    // Keep runtime workflow/settings logic in sync after admin update.
     appStore.invalidateSetting(key);
     toast.success("Paramètre mis à jour");
   } catch (error) {
@@ -125,87 +119,14 @@ async function saveSetting(key, value) {
   }
 }
 
-async function saveWorkflowOrder() {
-  savingWorkflow.value = true;
-  try {
-    const token = localStorage.getItem("admin_token");
-    const payload = workflowSteps.value.map((step, index) => ({
-      id: step.id,
-      order: index
-    }));
-    await axios.put(`${apiBaseUrl}/workflow/order`, payload, { headers: { Authorization: `Bearer ${token}` } });
-    await appStore.fetchWorkflow(); 
-    toast.success("Configuration du workflow enregistrée !");
-  } catch (error) {
-    console.error("Erreur workflow", error);
-    toast.error("Erreur lors de la mise à jour.");
-  } finally {
-    savingWorkflow.value = false;
-  }
-}
-
-async function createWorkflowStep() {
-  if (!newStep.value.label || !newStep.value.route) {
-    toast.error('Informations manquantes');
-    return;
-  }
-  try {
-    const token = localStorage.getItem("admin_token");
-    const payload = { ...newStep.value };
-    await axios.post(`${apiBaseUrl}/workflow`, payload, { headers: { Authorization: `Bearer ${token}` } });
-    await fetchSettings();
-    await appStore.fetchWorkflow();
-    newStep.value = { code: '', label: '', route: '' };
-  } catch (error) {
-    console.error('Erreur création étape', error);
-  }
-}
-
-async function deleteWorkflowStep(step) {
-  const isHardDelete = step.isActive === false;
-  if (!confirm(isHardDelete ? 'Supprimer définitivement ?' : 'Désactiver ?')) return;
-  try {
-    const token = localStorage.getItem("admin_token");
-    await axios.delete(`${apiBaseUrl}/workflow/${step.id}`, { headers: { Authorization: `Bearer ${token}` } });
-    await fetchSettings();
-    await appStore.fetchWorkflow();
-  } catch (error) {
-    console.error('Erreur suppression étape', error);
-  }
-}
-
-async function toggleStepActive(step) {
-  try {
-    const token = localStorage.getItem("admin_token");
-    const newStatus = !step.isActive;
-    await axios.put(`${apiBaseUrl}/workflow/${step.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
-    step.isActive = newStatus;
-    await appStore.fetchWorkflow();
-  } catch (error) {
-    console.error('Erreur toggle étape', error);
-  }
-}
-
-function moveStep(index, direction) {
-  if (direction === -1 && index > 0) {
-    const temp = workflowSteps.value[index];
-    workflowSteps.value[index] = workflowSteps.value[index - 1];
-    workflowSteps.value[index - 1] = temp;
-  } else if (direction === 1 && index < workflowSteps.value.length - 1) {
-    const temp = workflowSteps.value[index];
-    workflowSteps.value[index] = workflowSteps.value[index + 1];
-    workflowSteps.value[index + 1] = temp;
-  }
-}
-
-onMounted(fetchSettings);
-
 async function sendTestEmail() {
   if (!testEmailForm.value.to) return toast.error("Veuillez saisir une adresse email");
   sendingEmail.value = true;
   try {
     const token = localStorage.getItem("admin_token");
-    await axios.post(`${apiBaseUrl}/send-email`, testEmailForm.value, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.post(`${apiBaseUrl}/mail-config/test-email`, { to: testEmailForm.value.to }, { 
+      headers: { Authorization: `Bearer ${token}` } 
+    });
     toast.success("Email envoyé avec succès !");
     showTestEmailModal.value = false;
   } catch(error) {
@@ -215,110 +136,91 @@ async function sendTestEmail() {
     sendingEmail.value = false;
   }
 }
+
+onMounted(fetchSettings);
 </script>
 
 <template>
-  <div class="space-y-12 animate-fade-in font-outfit">
+  <div class="space-y-6 font-outfit">
     <!-- Header -->
     <div class="flex items-start justify-between">
       <div class="space-y-1">
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Configuration Système</h2>
-        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-          Paramètres globaux et Orchestration du Workflow Candidat
+        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Configuration Système</h2>
+        <p class="text-slate-500 text-sm">
+          Ajustez les paramètres globaux de la plateforme, les automatisations et les comportements généraux.
         </p>
       </div>
-      <button @click="showTestEmailModal = true" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center gap-2">
+      <button @click="showTestEmailModal = true" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer border border-slate-200">
         <span class="material-icons-outlined text-sm">mail</span>
         Test Envoi Mail
       </button>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="flex items-center p-1 bg-slate-100 rounded-[24px] w-fit mx-auto md:mx-0 shadow-inner">
-      <button 
-        @click="activeTab = 'settings'"
-        class="px-8 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2"
-        :class="activeTab === 'settings' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'"
-      >
-        <span class="material-icons-outlined text-sm">tune</span>
-        Configuration
-      </button>
-      <button 
-        @click="activeTab = 'workflow'"
-        class="px-8 py-3 rounded-[20px] text-[11px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2"
-        :class="activeTab === 'workflow' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-400 hover:text-slate-600'"
-      >
-        <span class="material-icons-outlined text-sm">account_tree</span>
-        Workflow Automate
-      </button>
-    </div>
-
-    <!-- Settings Content -->
-    <div v-if="activeTab === 'settings'" class="space-y-12 animate-slide-up" key="settings-tab">
+    <div class="space-y-8">
       <!-- Search Bar -->
       <div class="max-w-md">
         <div class="relative group">
-          <span class="material-icons-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors">search</span>
+          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors">search</span>
           <input 
             v-model="searchQuery"
             type="text" 
             placeholder="Rechercher un paramètre..."
-            class="w-full pl-14 pr-6 py-4 bg-white border border-slate-100 rounded-[28px] text-xs font-bold outline-none ring-4 ring-transparent focus:ring-brand-primary/5 focus:border-brand-primary shadow-sm transition-all"
+            class="w-full pl-11 pr-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-slate-400 shadow-sm transition-all"
           >
         </div>
       </div>
 
       <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="i in 6" :key="i" class="h-48 bg-white border border-slate-100 rounded-[32px] animate-pulse"></div>
+        <div v-for="i in 6" :key="i" class="h-44 bg-slate-50 border border-slate-100 rounded-2xl animate-pulse"></div>
       </div>
 
       <!-- Settings by Category -->
-      <div v-else v-for="cat in [...categories, { id: 'other', label: 'Autres', icon: 'more_horiz' }]" :key="cat.id" class="space-y-8">
-        <div v-if="settingsByCategory[cat.id]?.length > 0" class="space-y-6">
+      <div v-else v-for="cat in [...categories, { id: 'other', label: 'Autres', icon: 'more_horiz' }]" :key="cat.id" class="space-y-6">
+        <div v-if="settingsByCategory[cat.id]?.length > 0" class="space-y-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-900/10">
+            <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center shadow-sm">
               <span class="material-icons-outlined text-sm">{{ cat.icon }}</span>
             </div>
-            <h3 class="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">{{ cat.label }}</h3>
+            <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">{{ cat.label }}</h3>
             <div class="flex-1 h-px bg-slate-100"></div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <div 
               v-for="s in settingsByCategory[cat.id]" 
               :key="s.key"
-              class="bg-white rounded-[40px] p-8 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500 group relative overflow-hidden"
+              class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between hover:border-slate-200 transition-all group relative"
             >
-              <div class="space-y-6">
+              <div class="space-y-4">
                 <div class="flex items-start justify-between">
-                  <div :class="['w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-lg shadow-current/10', getSettingColor(s.key)]">
-                    <span class="material-icons-outlined text-2xl">{{ getSettingIcon(s.key) }}</span>
+                  <div :class="['w-10 h-10 rounded-xl flex items-center justify-center shadow-sm', getSettingColor(s.key)]">
+                    <span class="material-icons-outlined text-xl">{{ getSettingIcon(s.key) }}</span>
                   </div>
                   
                   <div v-if="isBoolean(s.value)" @click="toggleSetting(s)" class="cursor-pointer">
-                    <div :class="['w-12 h-6.5 rounded-full p-1 transition-colors duration-300', s.value === 'true' ? 'bg-slate-900' : 'bg-slate-200']">
-                      <div :class="['w-4.5 h-4.5 bg-white rounded-full shadow-md transition-transform duration-300 transform', s.value === 'true' ? 'translate-x-5.5' : 'translate-x-0']"></div>
+                    <div :class="['w-10 h-5.5 rounded-full p-0.5 transition-colors duration-200', s.value === 'true' ? 'bg-slate-900' : 'bg-slate-200']">
+                      <div :class="['w-4.5 h-4.5 bg-white rounded-full shadow-sm transition-transform duration-200 transform', s.value === 'true' ? 'translate-x-4.5' : 'translate-x-0']"></div>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 class="text-[11px] font-black text-slate-900 uppercase tracking-widest leading-relaxed">{{ s.description || s.key }}</h3>
-                  <p class="text-[9px] text-slate-400 font-bold mt-1 opacity-60">{{ s.key }}</p>
+                  <h3 class="text-xs font-bold text-slate-800 leading-normal">{{ s.description || s.key }}</h3>
+                  <p class="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-wider">{{ s.key }}</p>
                 </div>
               </div>
 
-              <div class="pt-8">
-                <div v-if="!isBoolean(s.value)" class="space-y-3">
+              <div class="pt-5 border-t border-slate-50 mt-4">
+                <div v-if="!isBoolean(s.value)" class="space-y-2">
                   <input
                     v-model="s.value"
                     type="text"
-                    class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white outline-none rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-inner"
-                    placeholder="Valeur du réglage..."
+                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:border-slate-400 focus:bg-white transition-all shadow-inner"
+                    placeholder="Valeur..."
                   />
                   <button
                     @click="saveSetting(s.key, s.value)"
-                    class="w-full py-3.5 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95"
+                    class="w-full py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all cursor-pointer"
                   >
                     Enregistrer
                   </button>
@@ -326,7 +228,7 @@ async function sendTestEmail() {
                 <div v-else class="flex items-center gap-2">
                   <div class="w-1.5 h-1.5 rounded-full animate-pulse" :class="s.value === 'true' ? 'bg-emerald-500' : 'bg-slate-300'"></div>
                   <p class="text-[9px] font-black uppercase tracking-widest" :class="s.value === 'true' ? 'text-emerald-500' : 'text-slate-400'">
-                    {{ s.value === 'true' ? 'Service Actif' : 'Désactivé' }}
+                    {{ s.value === 'true' ? 'Activé' : 'Désactivé' }}
                   </p>
                 </div>
               </div>
@@ -336,147 +238,30 @@ async function sendTestEmail() {
       </div>
     </div>
 
-    <!-- Workflow Section -->
-    <div v-else-if="activeTab === 'workflow'" class="space-y-12 animate-slide-up" key="workflow-tab">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <!-- Step Creator -->
-        <div class="lg:col-span-4 space-y-6">
-          <div class="bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm space-y-6 sticky top-8">
-            <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest">Injecter une étape</h3>
-            
-            <div class="space-y-4">
-              <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Code Unique</label>
-                <input v-model="newStep.code" placeholder="ex: FINAL_TEST" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-[11px] uppercase outline-none focus:ring-2 focus:ring-brand-primary/20" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Libellé Affiché</label>
-                <input v-model="newStep.label" placeholder="ex: Validation Finale" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-[11px] uppercase outline-none focus:ring-2 focus:ring-brand-primary/20" />
-              </div>
-              <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Route Frontend</label>
-                <input v-model="newStep.route" placeholder="ex: /final-validation" class="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl font-black text-[11px] outline-none focus:ring-2 focus:ring-brand-primary/20" />
-              </div>
-              
-              <button @click="createWorkflowStep" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95 flex items-center justify-center gap-2">
-                <span class="material-icons-outlined text-sm">add_circle</span>
-                Ajouter au pool
-              </button>
-            </div>
-          </div>
+    <!-- Test Email Modal -->
+    <div v-if="showTestEmailModal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-base font-black text-slate-800">Test Envoi Email</h3>
+          <button @click="showTestEmailModal = false" class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer border-none">
+            <span class="material-icons-outlined text-sm">close</span>
+          </button>
         </div>
-
-        <!-- Step List -->
-        <div class="lg:col-span-8 space-y-6">
-          <div v-if="loading" class="space-y-4">
-            <div v-for="i in 5" :key="i" class="h-20 bg-white border border-slate-100 rounded-3xl animate-pulse"></div>
+        <div class="space-y-4">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Destinataire</label>
+            <input v-model="testEmailForm.to" type="email" placeholder="test@example.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs outline-none focus:bg-white focus:border-slate-900 transition-all" />
           </div>
-
-          <div v-else class="space-y-4 relative">
-            <!-- Vertical Line -->
-            <div class="absolute left-[29px] top-10 bottom-10 w-px bg-slate-100 hidden md:block"></div>
-
-            <div
-              v-for="(step, index) in workflowSteps"
-              :key="step.id"
-              class="flex flex-col md:flex-row items-center gap-6 p-6 md:p-8 bg-white rounded-[40px] border border-slate-100 shadow-sm transition-all duration-500 group relative overflow-hidden"
-              :class="!step.isActive ? 'opacity-40 grayscale' : 'hover:shadow-2xl hover:shadow-slate-200/50 hover:-translate-y-1 bg-linear-to-br from-white to-slate-50/50'"
-            >
-              <!-- Glass Accent -->
-              <div v-if="step.isActive" class="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-slate-100/20 to-transparent rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-slate-200/40 transition-all duration-500"></div>
-
-              <!-- Index Circle with connector -->
-              <div class="relative z-10">
-                <div class="w-18 h-18 rounded-3xl bg-slate-900 border-8 border-white shadow-xl flex flex-col items-center justify-center group-hover:scale-110 transition-all duration-500">
-                  <span class="text-[14px] font-black text-white leading-none">0{{ index + 1 }}</span>
-                  <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">Étape</span>
-                </div>
-              </div>
-
-              <div class="flex-1 text-center md:text-left z-10">
-                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
-                  <h3 class="text-base font-black text-slate-900 tracking-tight">{{ step.label }}</h3>
-                  <div class="flex gap-1.5">
-                    <span v-if="index === 0" class="px-3 py-1 bg-blue-100 text-blue-600 text-[9px] font-black uppercase rounded-full shadow-sm shadow-blue-500/10">Entrée</span>
-                    <span v-if="index === workflowSteps.length - 1" class="px-3 py-1 bg-emerald-100 text-emerald-600 text-[9px] font-black uppercase rounded-full shadow-sm shadow-emerald-500/10">Sortie</span>
-                  </div>
-                </div>
-                <div class="flex items-center justify-center md:justify-start gap-4">
-                  <div class="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-xl border border-white shadow-sm">
-                    <span class="material-icons-outlined text-[14px] text-slate-400">code</span>
-                    <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest">{{ step.code }}</span>
-                  </div>
-                  <div class="flex items-center gap-1.5 bg-brand-primary/5 px-3 py-1.5 rounded-xl border border-brand-primary/10 shadow-sm">
-                    <span class="material-icons-outlined text-[14px] text-brand-primary">link</span>
-                    <span class="text-[10px] font-black text-brand-primary uppercase tracking-widest">{{ step.route }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3 shrink-0 z-10">
-                <button @click="toggleStepActive(step)" 
-                  class="w-12 h-12 rounded-2xl transition-all flex items-center justify-center shadow-lg active:scale-90"
-                  :class="step.isActive ? 'bg-emerald-50 text-emerald-500 hover:bg-emerald-500 hover:text-white shadow-emerald-500/10' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'"
-                >
-                  <span class="material-icons-outlined text-xl">{{ step.isActive ? 'visibility' : 'visibility_off' }}</span>
-                </button>
-                <div class="flex flex-col gap-1.5">
-                  <button @click="moveStep(index, -1)" :disabled="index === 0" class="w-12 h-8 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white disabled:opacity-30 transition-all flex items-center justify-center shadow-sm active:scale-95"><span class="material-icons-outlined text-lg">expand_less</span></button>
-                  <button @click="moveStep(index, 1)" :disabled="index === workflowSteps.length - 1" class="w-12 h-8 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white disabled:opacity-30 transition-all flex items-center justify-center shadow-sm active:scale-95"><span class="material-icons-outlined text-lg">expand_more</span></button>
-                </div>
-                <div class="w-px h-10 bg-slate-100 mx-1"></div>
-                <button @click="deleteWorkflowStep(step)" class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-lg shadow-rose-500/10 active:scale-90">
-                  <span class="material-icons-outlined text-xl">delete_outline</span>
-                </button>
-              </div>
-            </div>
-            
-            <div class="pt-10 flex justify-center">
-              <button
-                @click="saveWorkflowOrder"
-                :disabled="savingWorkflow"
-                class="px-12 py-5 bg-slate-900 text-white rounded-[32px] font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-2xl shadow-slate-900/20 hover:bg-slate-800 transition-all transform active:scale-95 disabled:opacity-50"
-              >
-                <span class="material-icons-outlined text-sm">save_as</span>
-                {{ savingWorkflow ? 'Synchro en cours...' : 'Appliquer la nouvelle séquence' }}
-              </button>
-            </div>
-          </div>
+          <button @click="sendTestEmail" :disabled="sendingEmail" class="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 cursor-pointer">
+            <span class="material-icons-outlined text-sm">{{ sendingEmail ? 'autorenew' : 'send' }}</span>
+            {{ sendingEmail ? 'Envoi en cours...' : 'Envoyer un mail de test' }}
+          </button>
         </div>
       </div>
     </div>
   </div>
-
-    <!-- Test Email Modal -->
-    <div v-if="showTestEmailModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-fade-in">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-black text-slate-900">Test Envoi Email</h3>
-          <button @click="showTestEmailModal = false" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-colors">
-            <span class="material-icons-outlined text-sm">close</span>
-          </button>
-        </div>
-        <div class="space-y-5">
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Destinataire</label>
-            <input v-model="testEmailForm.to" type="email" placeholder="test@example.com" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-blue-500 transition-all" />
-          </div>
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Sujet</label>
-            <input v-model="testEmailForm.subject" type="text" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-sm outline-none focus:bg-white focus:border-blue-500 transition-all" />
-          </div>
-          <button @click="sendTestEmail" :disabled="sendingEmail" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2 disabled:opacity-50">
-            <span class="material-icons-outlined text-sm">{{ sendingEmail ? 'autorenew' : 'send' }}</span>
-            {{ sendingEmail ? 'Envoi en cours...' : 'Envoyer' }}
-          </button>
-        </div>
-      </div>
-    </div>
 </template>
 
 <style scoped>
 .font-outfit { font-family: "Outfit", sans-serif; }
-.animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.shadow-current\/10 { --tw-shadow: 0 10px 15px -3px rgb(var(--tw-shadow-color) / 0.1); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
 </style>

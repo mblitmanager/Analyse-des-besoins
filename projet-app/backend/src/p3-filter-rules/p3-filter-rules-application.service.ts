@@ -38,11 +38,6 @@ export class P3FilterRulesApplicationService {
     formations: Formation[],
     session: Session,
   ): Promise<Formation[]> {
-    // If session hasn't completed a formation yet, no P3 filtering
-    if (!session.formationChoisie) {
-      return formations;
-    }
-
     // Get all active rules, ordered by priority (order ASC)
     const rules = await this.p3Service.findActive();
 
@@ -50,12 +45,34 @@ export class P3FilterRulesApplicationService {
       return formations;
     }
 
+    // Determine candidate's training history
+    const sessionsToCheck: any[] = (session as any).previousSessions || [];
+
+    // Fallback: if no historical completed sessions are loaded, but the current session
+    // itself has a chosen formation (e.g. standard flow or P2 mid-evaluation), check the current session.
+    if (sessionsToCheck.length === 0 && session.formationChoisie) {
+      sessionsToCheck.push(session);
+    }
+
+    if (sessionsToCheck.length === 0) {
+      return formations;
+    }
+
     let filtered = formations;
 
     // Apply each rule in priority order
     for (const rule of rules) {
-      // Check if this rule applies to the current session
-      if (!this.ruleMatches(rule, session)) {
+      // Check if this rule matches ANY of the completed sessions in the history
+      let ruleApplies = false;
+      for (const checkSession of sessionsToCheck) {
+        // Pass formations catalog so we can resolve label→slug
+        if (this.ruleMatches(rule, checkSession, formations)) {
+          ruleApplies = true;
+          break; // Match found, this rule is active for the current filter step
+        }
+      }
+
+      if (!ruleApplies) {
         continue;
       }
 
@@ -67,25 +84,22 @@ export class P3FilterRulesApplicationService {
   }
 
   /**
-   * Checks if a P3 filter rule matches the current session's context
+   * Checks if a P3 filter rule matches a given session context (current or historical)
    * 
-   * A rule matches if:
-   * 1. Source condition is met:
-   *    - sourceCategory matches formation's category (case-insensitive), OR
-   *    - sourceSlugs includes the formation slug (case-insensitive)
-   * 2. Level condition is met (if specified):
-   *    - lastValidatedLevel is at or below maxLevelOrder
+   * @param formations - Catalog of all formations (used to resolve label→slug)
    */
-  private ruleMatches(rule: any, session: Session): boolean {
-    // Get source formation (what the candidate just completed)
-    const sourceFormationSlug = session.formationChoisie?.toLowerCase() || '';
+  private ruleMatches(rule: any, checkSession: Session, formations: Formation[] = []): boolean {
+    const formationChoisie = checkSession.formationChoisie?.trim() || '';
+    if (!formationChoisie) {
+      return false;
+    }
 
-    // Check source condition
-    const sourceMatches = this.sourceMatches(
-      rule,
-      sourceFormationSlug,
-      session.lastValidatedLevel,
-    );
+    // Resolve the stored formation label/slug to the canonical slug from the catalog
+    // Sessions store formationChoisie as the label (e.g. "Anglais") but rules use slugs (e.g. "toeic")
+    const resolvedSlugs = this.resolveFormationSlugs(formationChoisie, formations);
+
+    // Check source condition using both the stored value and resolved slugs
+    const sourceMatches = this.sourceMatches(rule, formationChoisie, resolvedSlugs);
 
     if (!sourceMatches) {
       return false;
@@ -93,26 +107,57 @@ export class P3FilterRulesApplicationService {
 
     // Check level condition (if specified)
     if (rule.maxLevelOrder !== null && rule.maxLevelOrder !== undefined) {
-      const levelNumber = this.getLevelNumber(session);
+      const levelNumber = this.getLevelNumber(checkSession);
+
+      // Debug log to diagnose level comparison issues
+      console.log(`[P3-DEBUG] Rule "${rule.name}" | session=${checkSession.id?.slice(0,8)} | formation="${formationChoisie}" | resolvedSlugs=${resolvedSlugs.join(',')} | stopLevelOrder=${checkSession.stopLevelOrder} | stopLevel="${checkSession.stopLevel}" | lastValidatedLevel="${checkSession.lastValidatedLevel}" | computedLevel=${levelNumber} | operator=${rule.levelOperator} | threshold=${rule.maxLevelOrder}`);
+
       if (levelNumber === null) {
-        // If we can't parse the level, don't apply this rule
+        // If we can't parse the level, don't apply this rule (safe fallback = show the formation)
+        console.log(`[P3-DEBUG] → level is null → rule does NOT apply (formation stays visible)`);
         return false;
       }
       const operator = rule.levelOperator || 'lte';
       if (operator === 'gte') {
         if (levelNumber < rule.maxLevelOrder) {
-          // Candidate's level is lower than rule threshold
+          // Candidate's level is lower than rule threshold → rule does NOT apply
+          console.log(`[P3-DEBUG] → gte check: ${levelNumber} < ${rule.maxLevelOrder} → rule does NOT apply`);
           return false;
         }
+        console.log(`[P3-DEBUG] → gte check: ${levelNumber} >= ${rule.maxLevelOrder} → rule APPLIES → formation will be hidden`);
       } else {
         if (levelNumber > rule.maxLevelOrder) {
-          // Candidate's level is higher than rule threshold
+          // Candidate's level is higher than rule threshold → rule does NOT apply
+          console.log(`[P3-DEBUG] → lte check: ${levelNumber} > ${rule.maxLevelOrder} → rule does NOT apply`);
           return false;
         }
+        console.log(`[P3-DEBUG] → lte check: ${levelNumber} <= ${rule.maxLevelOrder} → rule APPLIES → formation will be hidden`);
       }
     }
 
     return true;
+  }
+
+  /**
+   * Resolves a formationChoisie (which may be a label like "Anglais" or a slug like "toeic")
+   * to all possible slugs using the formations catalog.
+   */
+  private resolveFormationSlugs(formationChoisie: string, formations: Formation[]): string[] {
+    const lower = formationChoisie.toLowerCase().trim();
+    const slugs: string[] = [lower]; // Always include the raw value as fallback
+
+    // Look up by label match
+    for (const f of formations) {
+      const labelLower = (f.label || '').toLowerCase().trim();
+      const slugLower = (f.slug || '').toLowerCase().trim();
+      if (labelLower === lower || slugLower === lower || 
+          labelLower.includes(lower) || lower.includes(labelLower)) {
+        if (slugLower && !slugs.includes(slugLower)) slugs.push(slugLower);
+        if (labelLower && !slugs.includes(labelLower)) slugs.push(labelLower);
+      }
+    }
+
+    return slugs;
   }
 
   private getLevelOrderFromLabel(label: string | null | undefined): number | null {
@@ -120,11 +165,11 @@ export class P3FilterRulesApplicationService {
       return null;
     }
     const lvl = label.toLowerCase();
-    if (lvl.includes('initial')) return 1;
-    if (lvl.includes('basique')) return 2;
-    if (lvl.includes('opérationnel') || lvl.includes('operationnel')) return 3;
-    if (lvl.includes('avancé') || lvl.includes('avance')) return 4;
-    if (lvl.includes('expert')) return 5;
+    if (lvl.includes('initial') || lvl.includes('a1')) return 1;
+    if (lvl.includes('basique') || lvl.includes('a2')) return 2;
+    if (lvl.includes('opérationnel') || lvl.includes('operationnel') || lvl.includes('b1')) return 3;
+    if (lvl.includes('avancé') || lvl.includes('avance') || lvl.includes('b2')) return 4;
+    if (lvl.includes('expert') || lvl.includes('c1')) return 5;
     return null;
   }
 
@@ -157,29 +202,43 @@ export class P3FilterRulesApplicationService {
   }
 
   /**
-   * Checks if the source part of the rule matches the session
-   * Matches if sourceCategory OR sourceSlugs match the previous formation
+   * Checks if the source part of the rule matches the target formation
+   * Uses both the raw stored value and resolved slugs from the catalog.
    */
   private sourceMatches(
     rule: any,
-    sourceFormationSlug: string,
-    lastValidatedLevel: string,
+    formationChoisie: string,
+    resolvedSlugs: string[],
   ): boolean {
     const sourceCategory = rule.sourceCategory?.toLowerCase();
-    const sourceSlugs = (rule.sourceSlugs || []).map((s: string) =>
-      s.toLowerCase(),
+    const ruleSlugs = (rule.sourceSlugs || []).map((s: string) =>
+      s.toLowerCase().trim(),
     );
 
-    // Try to extract category from formation slug (e.g., "word-basique" → "word")
-    // This is a simple heuristic; in production, you'd query the Formation entity
-    const sourceFormationCategory = sourceFormationSlug?.split('-')[0];
+    const lower = formationChoisie.toLowerCase().trim();
 
-    // Rule matches if sourceCategory OR sourceSlugs match
-    const categoryMatches =
-      sourceCategory &&
-      (sourceCategory === sourceFormationCategory ||
-        sourceCategory === sourceFormationSlug);
-    const slugMatches = sourceSlugs.length > 0 && sourceSlugs.includes(sourceFormationSlug);
+    // Check against all resolved slugs (includes label + catalog slug)
+    const slugMatches = ruleSlugs.length > 0 && resolvedSlugs.some(resolved =>
+      ruleSlugs.some(rs => resolved === rs || resolved.includes(rs) || rs.includes(resolved))
+    );
+
+    // Category guessing based on keywords in the stored formation label/slug
+    let guessedCategory = '';
+    if (lower.includes('word') || lower.includes('excel') || lower.includes('powerpoint') || lower.includes('outlook') || lower.includes('bureautique')) {
+      guessedCategory = 'bureautique';
+    } else if (lower.includes('toeic') || lower.includes('voltaire') || lower.includes('langue') || lower.includes('anglais') || lower.includes('français') || lower.includes('francais')) {
+      guessedCategory = 'langues';
+    } else if (lower.includes('sketchup') || lower.includes('illustrator') || lower.includes('gimp') || lower.includes('photoshop') || lower.includes('canva') || lower.includes('design') || lower.includes('création') || lower.includes('creation')) {
+      guessedCategory = 'création & design';
+    } else if (lower.includes('digcomp') || lower.includes('wordpress') || lower.includes('digital')) {
+      guessedCategory = 'digital & compétences';
+    }
+
+    const categoryMatches = sourceCategory && (
+      lower.includes(sourceCategory) || 
+      sourceCategory.includes(lower) ||
+      guessedCategory === sourceCategory
+    );
 
     return categoryMatches || slugMatches;
   }

@@ -67,8 +67,9 @@ const navGroups = [
   {
     label: "Système",
     items: [
-      { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
+      { label: "Workflow", icon: "account_tree", route: "/admin/workflow" },
       { label: "Paramètres", icon: "settings", route: "/admin/settings" },
+      { label: "Tests", icon: "checklist", route: "/admin/test-validation" },
     ],
   },
 ];
