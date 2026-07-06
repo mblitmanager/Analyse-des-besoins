@@ -13,6 +13,7 @@ async function bootstrap() {
   const allowedOrigins = [
     configService.get<string>('FRONTEND_URL'),
     'https://nsconseil.mbl-service.com',
+    'https://ab-back.mbl-service.com',
     'https://api-nsconseil.solara-seaview.com',
   ].filter(Boolean) as string[];
 

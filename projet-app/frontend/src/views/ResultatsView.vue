@@ -248,6 +248,30 @@ const isBlocked = computed(() => {
   return session.value?.isQuestionRuleOverride && session.value?.ruleResultType === 'BLOCK';
 });
 
+const hasChoiceSteps = computed(() =>
+  parcoursSteps.value.some(step => step.length > 1)
+);
+
+const choiceStepsCount = computed(() =>
+  parcoursSteps.value.filter(step => step.length > 1).length
+);
+
+const showChoiceSelector = computed(() =>
+  parcoursSteps.value.length > 1 && choiceStepsCount.value > 0
+);
+
+const parcoursInfoMessage = computed(() => {
+  if (isBlocked.value) {
+    return "Votre profil nécessite un accompagnement spécifique basé sur vos réponses.";
+  }
+
+  if (session.value?.parcoursRuleHadPrereqCondition && !isLowLevelResult.value) {
+    return "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test.";
+  }
+
+  return "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace.";
+});
+
 async function loadLevelsForFormation() {
   try {
     const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -887,20 +911,20 @@ const downloadPDF = async () => {
               <div class="mt-8 flex items-start gap-3 p-4 bg-white/50 rounded-2xl border border-brand-primary/5">
                 <span class="material-icons-outlined text-brand-primary text-lg mt-0.5">info</span>
                 <p class="text-gray-500 text-sm leading-relaxed italic">
-                  {{ isBlocked 
-                     ? "Votre profil nécessite un accompagnement spécifique basé sur vos réponses."
-                     : (session?.parcoursRuleHadPrereqCondition && !isLowLevelResult)
-                       ? "Ce parcours a été sélectionné en tenant compte de vos réponses aux questions prérequis ainsi que de vos résultats au test."
-                       : "Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace." 
-                  }}
+                  {{ parcoursInfoMessage }}
                 </p>
               </div>
 
-              <!-- Pourquoi ce parcours -->
-              <div v-if="session?.explanationMessage" class="mt-4 flex items-start gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-200/30">
+              <div
+                v-if="session?.explanationMessage && session.explanationMessage !== parcoursRuleMessage"
+                class="mt-4 flex items-start gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-200/30"
+              >
                 <span class="material-icons-outlined text-amber-600 text-lg mt-0.5">psychology</span>
+
                 <div class="space-y-1">
-                  <h4 class="text-xs font-bold text-amber-900 uppercase tracking-widest">Pourquoi ce parcours ?</h4>
+                  <h4 class="text-xs font-bold text-amber-900 uppercase tracking-widest">
+                    Pourquoi ce parcours ?
+                  </h4>
                   <p class="text-slate-600 text-sm leading-relaxed">
                     {{ session.explanationMessage }}
                   </p>
@@ -910,44 +934,74 @@ const downloadPDF = async () => {
             </div>
           </div>
 
-          <div v-if="parcoursSteps.some(c => c.length > 1)" class="p-6 md:p-8 space-y-6">
-            <template v-for="(stepChoices, stepIdx) in parcoursSteps" :key="stepIdx">
-              <div v-if="stepChoices.length > 1" class="flex items-start gap-5 relative">
+          <div
+            v-if="showChoiceSelector"
+            class="p-6 md:p-8 space-y-6"
+          >
+            <div
+              v-for="(stepChoices, stepIdx) in parcoursSteps"
+              :key="stepIdx"
+            >
+              <div
+                v-if="stepChoices.length > 1"
+                class="flex items-start gap-5 relative"
+              >
                 <div class="flex-1">
-                  <h4 class="text-base font-bold text-gray-800">
-                    {{ getStepTitle(stepIdx) }}
-                  </h4>
-                  
+
                   <div class="mt-4">
-                    <p class="text-sm font-bold text-gray-500 mb-3">Veuillez choisir votre spécialité pour cette étape :</p>
+                    <p class="text-sm font-bold text-gray-500 mb-3">
+                      Veuillez choisir votre spécialité pour cette étape :
+                    </p>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      <div 
-                        v-for="choiceObj in getAvailableChoices(stepIdx)" 
+                      <button
+                        v-for="choiceObj in getAvailableChoices(stepIdx)"
                         :key="choiceObj.label"
-                        @click="!choiceObj.disabled ? selectChoice(stepIdx, choiceObj.label) : null"
+                        type="button"
+                        :disabled="choiceObj.disabled"
+                        @click="selectChoice(stepIdx, choiceObj.label)"
                         class="p-4 border-2 rounded-xl text-center transition-all relative overflow-hidden flex flex-col items-center justify-center gap-2"
                         :class="[
-                          selectedChoices[stepIdx] === choiceObj.label ? 'border-brand-primary bg-brand-primary/10 shadow-md ring-2 ring-brand-primary/20' : 'border-slate-200 bg-white hover:border-brand-primary/30',
-                          choiceObj.disabled ? 'opacity-40 cursor-not-allowed grayscale bg-slate-50' : 'cursor-pointer'
+                          selectedChoices[stepIdx] === choiceObj.label
+                            ? 'border-brand-primary bg-brand-primary/10 shadow-md ring-2 ring-brand-primary/20'
+                            : 'border-slate-200 bg-white hover:border-brand-primary/30',
+                          choiceObj.disabled
+                            ? 'opacity-40 cursor-not-allowed grayscale bg-slate-50'
+                            : 'cursor-pointer'
                         ]"
                       >
-                        <span class="text-sm font-black" :class="selectedChoices[stepIdx] === choiceObj.label ? 'text-brand-primary' : (choiceObj.disabled ? 'text-slate-400' : 'text-slate-700')">
+                        <span
+                          class="text-sm font-black"
+                          :class="selectedChoices[stepIdx] === choiceObj.label
+                            ? 'text-brand-primary'
+                            : choiceObj.disabled
+                              ? 'text-slate-400'
+                              : 'text-slate-700'"
+                        >
                           {{ choiceObj.label }}
                         </span>
-                        <div v-if="selectedChoices[stepIdx] === choiceObj.label" class="absolute top-2 right-2 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
-                          <span class="material-icons-outlined text-[12px] font-bold">check</span>
+
+                        <div
+                          v-if="selectedChoices[stepIdx] === choiceObj.label"
+                          class="absolute top-2 right-2 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm"
+                        >
+                          <span class="material-icons-outlined text-[12px] font-bold">
+                            check
+                          </span>
                         </div>
-                        <div v-if="choiceObj.disabled" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+
+                        <div
+                          v-if="choiceObj.disabled"
+                          class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1"
+                        >
                           Déjà sélectionné
                         </div>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </template>
-
-        
+            </div>
           </div>
         </div>
 
