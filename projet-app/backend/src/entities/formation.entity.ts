@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Level } from './level.entity';
 import { ParcoursRule } from './parcours-rule.entity';
+import { P3OverrideRule } from './p3-override-rule.entity';
 
 @Entity('formations')
 export class Formation {
@@ -66,4 +67,7 @@ export class Formation {
 
   @OneToMany(() => ParcoursRule, (rule) => rule.formationEntity)
   parcoursRules: ParcoursRule[];
+
+  @OneToMany(() => P3OverrideRule, (rule) => rule.formationEntity)
+  p3OverrideRules: P3OverrideRule[];
 }

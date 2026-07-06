@@ -29,6 +29,8 @@ import { QuestionRule } from './entities/question-rule.entity';
 import { QuestionRulesModule } from './question-rules/question-rules.module';
 import { P3FilterRule } from './entities/p3-filter-rule.entity';
 import { P3FilterRulesModule } from './p3-filter-rules/p3-filter-rules.module';
+import { P3OverrideRule } from './entities/p3-override-rule.entity';
+import { P3OverrideModule } from './p3-override/p3-override.module';
 import { EmailTemplate } from './entities/email-template.entity';
 import { EmailTemplatesModule } from './email-templates/email-templates.module';
 import { MailConfigModule } from './mail-config/mail-config.module';
@@ -60,6 +62,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
               ParcoursRule,
               QuestionRule,
               P3FilterRule,
+              P3OverrideRule,
               EmailTemplate,
             ],
             synchronize: true,
@@ -87,6 +90,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
             ParcoursRule,
             QuestionRule,
             P3FilterRule,
+            P3OverrideRule,
             EmailTemplate,
           ],
           synchronize: true,
@@ -107,6 +111,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
       ParcoursRule,
       QuestionRule,
       P3FilterRule,
+      P3OverrideRule,
       EmailTemplate,
     ]),
     FormationsModule,
@@ -121,6 +126,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
     ParcoursModule,
     QuestionRulesModule,
     P3FilterRulesModule,
+    P3OverrideModule,
     EmailTemplatesModule,
     MailConfigModule,
   ],

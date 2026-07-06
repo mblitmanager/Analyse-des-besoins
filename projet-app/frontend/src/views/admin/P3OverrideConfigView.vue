@@ -14,57 +14,66 @@ const saving = ref(false);
 
 // P3 Override state
 const overrideEnabled = ref(false);
-const overrideFormations = ref(["", ""]);
-
-// Available formations for autocomplete
+const allRules = ref([]);
 const allFormations = ref([]);
-const allParcoursRules = ref([]);
 
-// Quick-add from parcours rules
-const availableLabels = computed(() => {
-  const labels = new Set();
-  allParcoursRules.value.forEach(r => {
-    if (r.formation1) labels.add(r.formation1);
-    if (r.formation2) labels.add(r.formation2);
-  });
-  allFormations.value.forEach(f => {
-    if (f.label) labels.add(f.label);
-    if (f.levels) {
-      f.levels.forEach(l => {
-        labels.add(`${f.label} ${l.label}`);
-      });
-    }
-  });
-  return [...labels].sort();
+// Form state for creating/editing rules
+const showForm = ref(false);
+const editingRule = ref(null);
+const newRule = ref({
+  formation: "",
+  formationId: null,
+  condition: "",
+  formation1: "",
+  formation2: "",
+  order: 0,
+  isActive: true,
+  certification: "",
+  explanationMessage: "",
+  parcoursTitle: "",
 });
 
-async function fetchConfig() {
+// Dynamic helpers for form building
+const selectedFormationLevels = ref([]);
+const conditionLevel = ref("");
+const conditionOperator = ref("=");
+
+// Filter rules by selected formation
+const currentFormation = ref(null);
+const filteredRules = computed(() => {
+  if (!currentFormation.value) return allRules.value;
+  return allRules.value.filter(r => 
+    r.formation === currentFormation.value.label || 
+    (currentFormation.value.id && r.formationId === currentFormation.value.id)
+  );
+});
+
+async function fetchFormations() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/formations`, { 
+      headers: { Authorization: `Bearer ${token()}` } 
+    });
+    allFormations.value = (res.data || []).filter(f => f.isActive !== false);
+    if (allFormations.value.length > 0) {
+      currentFormation.value = allFormations.value[0];
+    }
+  } catch (error) {
+    console.error("Failed to load formations:", error);
+  }
+}
+
+async function fetchRules() {
   loading.value = true;
   try {
-    const [enabledRes, formationsRes, allFormsRes, rulesRes] = await Promise.all([
+    const [enabledRes, rulesRes] = await Promise.all([
       appStore.fetchSetting('P3_OVERRIDE_ENABLED', { force: true }),
-      appStore.fetchSetting('P3_OVERRIDE_FORMATIONS', { force: true }),
-      axios.get(`${apiBaseUrl}/formations`, { headers: { Authorization: `Bearer ${token()}` } }),
-      axios.get(`${apiBaseUrl}/parcours`, { headers: { Authorization: `Bearer ${token()}` } }),
+      axios.get(`${apiBaseUrl}/p3-override`, { headers: { Authorization: `Bearer ${token()}` } }),
     ]);
     
     overrideEnabled.value = enabledRes === 'true';
-    
-    if (formationsRes) {
-      try {
-        const parsed = JSON.parse(formationsRes);
-        if (Array.isArray(parsed) && parsed.length >= 2) {
-          overrideFormations.value = parsed;
-        }
-      } catch (e) {
-        // Invalid JSON, keep defaults
-      }
-    }
-    
-    allFormations.value = allFormsRes.data || [];
-    allParcoursRules.value = rulesRes.data || [];
+    allRules.value = rulesRes.data || [];
   } catch (e) {
-    console.error("Failed to load P3 override config:", e);
+    console.error("Failed to load P3 override rules:", e);
   } finally {
     loading.value = false;
   }
@@ -81,16 +90,7 @@ async function saveConfig() {
       { headers }
     );
     
-    // Save formations array (filter empty entries, keep at least the non-empty ones)
-    const validFormations = overrideFormations.value.filter(f => f.trim() !== '');
-    await axios.patch(`${apiBaseUrl}/settings/P3_OVERRIDE_FORMATIONS`, 
-      { value: JSON.stringify(validFormations) }, 
-      { headers }
-    );
-    
     appStore.invalidateSetting('P3_OVERRIDE_ENABLED');
-    appStore.invalidateSetting('P3_OVERRIDE_FORMATIONS');
-    
     toast.success("Configuration P3 Override sauvegardée");
   } catch (e) {
     toast.error("Erreur lors de la sauvegarde: " + (e.response?.data?.message || e.message));
@@ -99,19 +99,111 @@ async function saveConfig() {
   }
 }
 
-function addFormationChoice() {
-  overrideFormations.value.push("");
-}
-
-function removeFormationChoice(index) {
-  if (overrideFormations.value.length <= 2) {
-    toast.error("Minimum 2 formations requises");
-    return;
+async function saveRule() {
+  saving.value = true;
+  try {
+    const headers = { Authorization: `Bearer ${token()}` };
+    const payload = { ...newRule.value };
+    
+    // Build condition string from operator and level
+    if (conditionLevel.value) {
+      payload.condition = `${conditionOperator.value} ${conditionLevel.value}`;
+    }
+    
+    if (editingRule.value) {
+      await axios.patch(`${apiBaseUrl}/p3-override/${editingRule.value.id}`, payload, { headers });
+      toast.success("Règle mise à jour");
+    } else {
+      await axios.post(`${apiBaseUrl}/p3-override`, payload, { headers });
+      toast.success("Règle créée");
+    }
+    
+    showForm.value = false;
+    editingRule.value = null;
+    await fetchRules();
+  } catch (e) {
+    toast.error("Erreur lors de la sauvegarde: " + (e.response?.data?.message || e.message));
+  } finally {
+    saving.value = false;
   }
-  overrideFormations.value.splice(index, 1);
 }
 
-onMounted(fetchConfig);
+async function deleteRule(id) {
+  if (!confirm("Supprimer cette règle ?")) return;
+  try {
+    await axios.delete(`${apiBaseUrl}/p3-override/${id}`, { 
+      headers: { Authorization: `Bearer ${token()}` } 
+    });
+    toast.success("Règle supprimée");
+    await fetchRules();
+  } catch (e) {
+    toast.error("Erreur lors de la suppression");
+  }
+}
+
+function openNewForm() {
+  editingRule.value = null;
+  newRule.value = {
+    formation: currentFormation.value?.label || "",
+    formationId: currentFormation.value?.id || null,
+    condition: "",
+    formation1: "",
+    formation2: "",
+    order: filteredRules.value.length,
+    isActive: true,
+    certification: "",
+    explanationMessage: "",
+    parcoursTitle: "",
+  };
+  conditionOperator.value = "=";
+  conditionLevel.value = "";
+  showForm.value = true;
+  // Load levels for the selected formation
+  if (currentFormation.value) {
+    fetchLevelsForFormation(currentFormation.value.label);
+  }
+}
+
+async function openEditForm(rule) {
+  editingRule.value = rule;
+  newRule.value = { 
+    ...rule,
+    isActive: rule.isActive !== false,
+  };
+  
+  // Parse condition
+  const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+  if (condMatch) {
+    conditionOperator.value = condMatch[1].replace('<=', '≤').replace('>=', '≥');
+    conditionLevel.value = condMatch[2];
+  }
+  
+  // Load levels for the formation
+  if (rule.formation) {
+    await fetchLevelsForFormation(rule.formation);
+  }
+  
+  showForm.value = true;
+}
+
+async function fetchLevelsForFormation(formationLabel) {
+  try {
+    const formation = allFormations.value.find(f => f.label === formationLabel);
+    if (!formation) return;
+    
+    const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`, { 
+      headers: { Authorization: `Bearer ${token()}` } 
+    });
+    selectedFormationLevels.value = (res.data || []).filter(l => l.isActive !== false);
+  } catch (error) {
+    console.error("Failed to load levels:", error);
+  }
+}
+
+onMounted(async () => {
+  await fetchFormations();
+  await fetchRules();
+});
 </script>
 
 <template>
@@ -119,9 +211,9 @@ onMounted(fetchConfig);
     <!-- Header -->
     <div class="flex items-start justify-between">
       <div class="space-y-1">
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight">P3 Override — Formations Forcées</h2>
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">P3 Override — Règles par Formation</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-          Configurer les formations proposées au choix lors du 3ème parcours
+          Configurer les formations proposées en P3 selon le niveau validé
         </p>
       </div>
     </div>
@@ -137,8 +229,8 @@ onMounted(fetchConfig);
             <h3 class="text-sm font-black text-slate-900">{{ overrideEnabled ? 'Override actif' : 'Override désactivé' }}</h3>
             <p class="text-[11px] text-slate-500 mt-0.5">
               {{ overrideEnabled 
-                ? 'Les utilisateurs verront un choix forcé entre les formations ci-dessous en P3' 
-                : 'Le comportement P3 standard est utilisé (logique automatique)'
+                ? 'Les règles P3 override sont appliquées pour forcer les choix de formation' 
+                : 'Le comportement P3 standard est utilisé'
               }}
             </p>
           </div>
@@ -157,93 +249,101 @@ onMounted(fetchConfig);
 
     <!-- Configuration Panel -->
     <div v-else class="space-y-8">
-      <!-- Formations Choices -->
-      <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm space-y-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <span class="material-icons-outlined text-sm">format_list_numbered</span>
-            </div>
-            <div>
-              <h3 class="text-sm font-black text-slate-900">Formations au choix</h3>
-              <p class="text-[10px] text-slate-400">L'utilisateur choisira parmi ces options en P3</p>
-            </div>
+      <!-- Formation Selector -->
+      <div class="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <span class="material-icons-outlined text-sm">school</span>
           </div>
-          <button @click="addFormationChoice" class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-1.5">
-            <span class="material-icons-outlined text-sm">add</span>
-            Ajouter
+          <div>
+            <h3 class="text-sm font-black text-slate-900">Sélectionner une formation</h3>
+            <p class="text-[10px] text-slate-400">Afficher les règles P3 override pour cette formation</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button 
+            v-for="formation in allFormations" 
+            :key="formation.id"
+            @click="currentFormation = formation"
+            :class="[
+              'px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all',
+              currentFormation?.id === formation.id 
+                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            ]"
+          >
+            {{ formation.label }}
           </button>
-        </div>
-
-        <div class="space-y-4">
-          <div v-for="(choice, idx) in overrideFormations" :key="idx" class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-              <span class="text-[11px] font-black text-slate-500">{{ idx + 1 }}</span>
-            </div>
-            <div class="flex-1 relative">
-              <input 
-                v-model="overrideFormations[idx]"
-                type="text"
-                :placeholder="`Formation ${idx + 1} (ex: TOSA Excel Basique)`"
-                class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
-                list="formation-suggestions"
-              />
-            </div>
-            <button 
-              v-if="overrideFormations.length > 2"
-              @click="removeFormationChoice(idx)" 
-              class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shrink-0"
-            >
-              <span class="material-icons-outlined text-lg">close</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Datalist for autocomplete -->
-        <datalist id="formation-suggestions">
-          <option v-for="label in availableLabels" :key="label" :value="label" />
-        </datalist>
-
-        <!-- Help Text -->
-        <div class="bg-amber-50 rounded-2xl p-5 border border-amber-100">
-          <div class="flex items-start gap-3">
-            <span class="material-icons-outlined text-amber-500 text-lg mt-0.5">info</span>
-            <div class="text-[11px] text-amber-700 leading-relaxed space-y-1">
-              <p class="font-bold">Comment ça marche :</p>
-              <ul class="list-disc pl-4 space-y-1">
-                <li>Quand l'override est <strong>activé</strong>, l'utilisateur en P3 voit un modal avec ces choix au lieu de la grille de formations</li>
-                <li>Il sélectionne l'une des formations → la session est finalisée directement (pas de quiz)</li>
-                <li>Le bouton "Choisir manuellement" permet quand même de voir la grille normale si besoin</li>
-                <li>Quand l'override est <strong>désactivé</strong>, la logique P3 standard s'applique (filtres, niveaux, quiz...)</li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
 
-      <!-- Preview -->
-      <div v-if="overrideFormations.filter(f => f.trim()).length >= 2" class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm space-y-6">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-            <span class="material-icons-outlined text-sm">preview</span>
-          </div>
-          <h3 class="text-sm font-black text-slate-900">Aperçu du choix utilisateur</h3>
-        </div>
-        
-        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-          <p class="text-center text-sm text-slate-500 mb-4 font-medium">Choisissez la formation pour votre 3ème parcours :</p>
-          <div class="space-y-3 max-w-sm mx-auto">
-            <div 
-              v-for="(choice, idx) in overrideFormations.filter(f => f.trim())" 
-              :key="idx"
-              class="flex items-center gap-3 p-4 rounded-xl border-2 border-indigo-200 bg-white"
-            >
-              <div class="w-5 h-5 rounded-full border-2 border-indigo-500 flex items-center justify-center">
-                <div v-if="idx === 0" class="w-3 h-3 rounded-full bg-indigo-500"></div>
-              </div>
-              <span class="text-sm font-bold text-slate-800">{{ choice }}</span>
+      <!-- Rules Table -->
+      <div v-if="currentFormation" class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
+              <span class="material-icons-outlined text-sm">rule</span>
+            </div>
+            <div>
+              <h3 class="text-sm font-black text-slate-900">Règles P3 Override — {{ currentFormation.label }}</h3>
+              <p class="text-[10px] text-slate-400">{{ filteredRules.length }} règle(s) configurée(s)</p>
             </div>
           </div>
+          <button 
+            @click="openNewForm"
+            class="px-4 py-2 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-500/20"
+          >
+            <span class="material-icons-outlined text-sm">add</span>
+            Nouvelle règle
+          </button>
+        </div>
+
+        <div v-if="filteredRules.length === 0" class="py-24 bg-white flex flex-col items-center justify-center text-slate-300">
+           <span class="material-icons-outlined text-6xl mb-4 opacity-10">rule</span>
+           <p class="text-xs font-black uppercase tracking-widest">Aucune règle définie pour {{ currentFormation.label }}</p>
+        </div>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="bg-slate-50/50 border-b border-slate-50">
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ordre</th>
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Condition Niveau</th>
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Formation P3</th>
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alternative</th>
+                <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-40 grayscale' : ''">
+                <td class="px-8 py-6">
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order }}</div>
+                </td>
+                <td class="px-8 py-6">
+                  <span class="text-xs font-black text-slate-900">{{ rule.condition }}</span>
+                </td>
+                <td class="px-8 py-6">
+                  <div class="flex flex-col gap-1">
+                    <span class="px-2.5 py-1 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg w-fit shadow-sm">{{ rule.formation1 }}</span>
+                  </div>
+                </td>
+                <td class="px-8 py-6">
+                  <span v-if="rule.formation2" class="px-2.5 py-1 bg-slate-50 text-slate-400 text-[8px] font-black uppercase tracking-widest rounded-lg">{{ rule.formation2 }}</span>
+                  <span v-else class="text-slate-300 text-[8px] italic">-</span>
+                </td>
+                <td class="px-8 py-6 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button @click="openEditForm(rule)" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all">
+                      <span class="material-icons-outlined text-sm">edit</span>
+                    </button>
+                    <button @click="deleteRule(rule.id)" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all">
+                      <span class="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -257,6 +357,93 @@ onMounted(fetchConfig);
           <span class="material-icons-outlined text-sm">{{ saving ? 'autorenew' : 'save' }}</span>
           {{ saving ? 'Enregistrement...' : 'Sauvegarder la configuration' }}
         </button>
+      </div>
+    </div>
+
+    <!-- Form Modal -->
+    <div v-if="showForm" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-black text-slate-900">{{ editingRule ? 'Modifier la règle' : 'Nouvelle règle P3 Override' }}</h3>
+          <button @click="showForm = false" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+            <span class="material-icons-outlined text-sm">close</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Formation</label>
+            <input v-model="newRule.formation" disabled class="w-full px-5 py-3 bg-slate-100 border-none rounded-xl text-sm font-bold text-slate-500" />
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Opérateur</label>
+              <select v-model="conditionOperator" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all">
+                <option value="=">=</option>
+                <option value="<">=</option>
+                <option value="<">=</option>
+                <option value="<=">≤</option>
+                <option value=">">=</option>
+                <option value=">=">≥</option>
+              </select>
+            </div>
+            <div class="col-span-2 space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Niveau</label>
+              <select v-model="conditionLevel" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all">
+                <option value="">Sélectionner un niveau...</option>
+                <option v-for="level in selectedFormationLevels" :key="level.id" :value="level.label">{{ level.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Formation P3 proposée</label>
+            <input v-model="newRule.formation1" placeholder="ex: TOSA Word Opérationnel" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Formation alternative (optionnel)</label>
+            <input v-model="newRule.formation2" placeholder="ex: TOSA Word Avancé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Intitulé du parcours</label>
+            <input v-model="newRule.parcoursTitle" placeholder="ex: Parcours Word Avancé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Certification délivrée</label>
+            <input v-model="newRule.certification" placeholder="ex: RS5432 - TOEIC Listening & Reading" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center gap-2">
+              <span class="material-icons-outlined text-[14px] text-amber-500">info</span>
+              Message explicatif (optionnel)
+            </label>
+            <textarea
+              v-model="newRule.explanationMessage"
+              rows="3"
+              placeholder="Ex: Ce parcours vous permettra de consolider vos compétences..."
+              class="w-full px-5 py-3 bg-amber-50 border-2 border-amber-100 rounded-xl font-medium text-xs outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 leading-relaxed resize-none text-slate-700"
+            ></textarea>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <input type="checkbox" v-model="newRule.isActive" id="isActive" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <label for="isActive" class="text-sm font-bold text-slate-700">Règle active</label>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button @click="showForm = false" class="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">
+            Annuler
+          </button>
+          <button @click="saveRule" :disabled="saving" class="px-6 py-3 bg-indigo-500 text-white rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all disabled:opacity-50">
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -118,6 +118,9 @@ export class Session {
   @Column({ type: 'text', nullable: true })
   explanationMessage: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  parcoursTitle: string | null;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }
