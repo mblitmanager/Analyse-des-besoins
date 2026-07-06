@@ -107,7 +107,7 @@ const currentNavItem = computed(() => {
           <AppLogo class="logo-svg" />
         </div>
         <transition name="fade-label">
-          <span v-if="!isCollapsed" class="brand-name">WiziLearn</span>
+          <span v-if="!isCollapsed" class="brand-name">Analyses des Besoins</span>
         </transition>
         <button @click="isSidebarOpen = false" class="sidebar-close-btn">
           <span class="material-icons-outlined">close</span>

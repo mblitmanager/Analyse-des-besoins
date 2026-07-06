@@ -38,8 +38,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
-    .setTitle('WiziLearn API')
-    .setDescription("Documentation technique de l'API WiziLearn (AOPIA/LIKE)")
+    .setTitle('Analyses des Besoins API')
+    .setDescription("Documentation technique de l'API AB (AOPIA/LIKE)")
     .setVersion('1.0')
     .addTag('auth', 'Authentification')
     .addTag('formations', 'Catalogue de formations')

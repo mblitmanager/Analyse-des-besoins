@@ -71,7 +71,7 @@ async function handleSignup() {
       
       <!-- Footer Info -->
       <div class="absolute bottom-10 left-0 right-0 text-center">
-        <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">© 2024 WiziLearn • Administration Centrale</p>
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">© 2026 Analyses des Besoins • Administration Centrale</p>
       </div>
     </div>
 

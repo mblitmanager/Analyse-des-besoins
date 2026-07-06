@@ -1,7 +1,7 @@
-# Présentation - Frontend WiziLearn (NS Conseil)
+# Présentation - Frontend Analyses des besoins (NS Conseil)
 
 ## Objectif
-Ce frontend fournit l'interface web publique et l'interface d'administration du projet WiziLearn / NS Conseil. Il guide l'utilisateur depuis l'accueil, la sélection de formation, les tests de positionnement et prérequis jusqu'à la validation finale.
+Ce frontend fournit l'interface web publique et l'interface d'administration du projet Analyses des besoins / NS Conseil. Il guide l'utilisateur depuis l'accueil, la sélection de formation, les tests de positionnement et prérequis jusqu'à la validation finale.
 
 ## Public cible
 - Bénéficiaires (apprenants)

@@ -15,8 +15,8 @@ export class TestEmailSender {
     try {
       await this.mailerService.sendMail({
         to,
-        subject: '[WiziLearn] Email de test',
-        html: '<p>Ceci est un email de test envoyé depuis le back-office WiziLearn.</p>',
+        subject: '[AB] Email de test',
+        html: '<p>Ceci est un email de test envoyé depuis le back-office Analyses des Besoins.</p>',
       });
       return { success: true };
     } catch (error) {

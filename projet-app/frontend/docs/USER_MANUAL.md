@@ -1,4 +1,4 @@
-# Manuel d'utilisation - Frontend WiziLearn (NS Conseil)
+# Manuel d'utilisation - Frontend Analyses des besoins (NS Conseil)
 
 ## 1. Introduction
 Ce manuel décrit l'utilisation de l'interface web côté utilisateur et les opérations courantes pour les administrateurs.
