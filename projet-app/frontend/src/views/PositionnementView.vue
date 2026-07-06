@@ -681,7 +681,39 @@ async function finishTest(overrideSession = null) {
 
       if (matchedRule) {
         // Si plusieurs règles ont le même score, afficher toutes les options
-        if (bestRules.length > 1 && !store.isP3Mode) {
+        if (bestRules.length > 1) {
+          const prevRecs = store.isP3Mode
+            ? [
+                localStorage.getItem('p3_prev_recommendations') || "",
+                localStorage.getItem('p3_prev_p1') || "",
+                localStorage.getItem('p3_prev_p2') || "",
+              ].join(" | ")
+            : "";
+          const cleanP3Label = (value) =>
+            String(value || "")
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .replace(/\b(niveau|tosa|icdl|digcomp|digitales|competences|anglais|francais)\b/g, " ")
+              .replace(/[^a-z0-9]+/g, " ")
+              .replace(/\s+/g, " ")
+              .trim();
+          const acquiredLabels = prevRecs
+            .split(/\s*&\s*|\s*\/\s*|\s*\|\s*/)
+            .map(cleanP3Label)
+            .filter(Boolean);
+          const isAlreadyAcquired = (label) => {
+            if (!store.isP3Mode) return false;
+            const clean = cleanP3Label(label);
+            if (!clean) return false;
+            return acquiredLabels.some((acquired) => {
+              if (acquired === clean || acquired.includes(clean) || clean.includes(acquired)) return true;
+              const words = clean.split(" ").filter((word) => word.length > 2);
+              const acquiredWords = acquired.split(" ").filter((word) => word.length > 2);
+              return words.length > 0 && words.every((word) => acquiredWords.includes(word));
+            });
+          };
+
           parcoursChoices.value = bestRules
             .map(({ rule }) => {
               const recommendations = [rule.formation1, rule.formation2]
@@ -691,19 +723,29 @@ async function finishTest(overrideSession = null) {
                   (item, idx, arr) =>
                     arr.findIndex((value) => value.toLowerCase() === item.toLowerCase()) === idx,
                 );
+              const filteredRecommendations = recommendations.filter((item) => !isAlreadyAcquired(item));
               const title = getRuleParcoursTitle(rule.parcoursTitle) || recommendations[0] || "Parcours";
 
               return {
                 id: rule.id,
                 title,
-                recommendations,
+                recommendations: filteredRecommendations,
                 explanationMessage: rule.explanationMessage || "",
               };
             })
             .filter((choice) => choice.recommendations.length > 0);
-          finalRecommendation.value = parcoursChoices.value.map((choice) => choice.title).join(' | ');
-          parcoursTitle.value = "";
-          parcoursRuleMessage.value = "Plusieurs parcours disponibles";
+          if (parcoursChoices.value.length > 1) {
+            finalRecommendation.value = parcoursChoices.value.map((choice) => choice.title).join(' | ');
+            parcoursTitle.value = "";
+            parcoursRuleMessage.value = "Plusieurs parcours disponibles";
+          } else if (parcoursChoices.value.length === 1) {
+            const onlyChoice = parcoursChoices.value[0];
+            matchedRule = bestRules.find(({ rule }) => rule.id === onlyChoice.id)?.rule || matchedRule;
+            finalRecommendation.value = onlyChoice.recommendations.join(" | ");
+            parcoursTitle.value = onlyChoice.title;
+            parcoursRuleMessage.value = onlyChoice.explanationMessage || "";
+            parcoursChoices.value = [];
+          }
         } else {
           parcoursChoices.value = [];
           const f1 = matchedRule.formation1 || "";
