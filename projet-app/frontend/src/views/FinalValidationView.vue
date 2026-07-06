@@ -138,15 +138,15 @@ const p3ValidationParcoursItems = computed(() => {
     label,
     className:
       index === 0
-        ? "border-sky-100 bg-sky-50/50 text-sky-700"
-        : "border-amber-100 bg-amber-50/60 text-amber-700",
+        ? "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]"
+        : "border-[#315264] bg-[#315264]/10 text-[#315264]",
   }));
 
   if (p3RecommendationLabel.value) {
     rows.push({
       badge: "P3",
       label: p3RecommendationLabel.value,
-      className: "border-indigo-100 bg-indigo-50/60 text-indigo-700",
+      className: "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]",
     });
   }
 
@@ -329,7 +329,7 @@ function confirmStartP3() {
           <div class="absolute -top-12 -left-12 w-32 h-32 bg-green-400/10 rounded-full blur-3xl animate-pulse"></div>
           <div class="absolute -bottom-12 -right-12 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl animate-pulse delay-700"></div>
 
-          <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-xl shadow-green-500/30 transform hover:rotate-12 transition-transform duration-500">
+          <div class="w-24 h-24 bg-gradient-to-br from-[#315264] to-[#4a6d8c] rounded-3xl flex items-center justify-center mx-auto mb-8 text-white shadow-xl shadow-[#315264]/30 transform hover:rotate-12 transition-transform duration-500">
             <span class="material-icons-outlined text-5xl">task_alt</span>
           </div>
 
@@ -533,13 +533,13 @@ function confirmStartP3() {
 
         <div class="flex flex-col gap-4">
           <!-- P3 Transition Card -->
-          <div v-if="!store.isP3Mode && isP3Enabled" class="bg-[#428597] rounded-4xl p-10 text-center space-y-8 shadow-2xl shadow-blue-600/20 relative overflow-hidden group">
+          <div v-if="!store.isP3Mode && isP3Enabled" class="bg-[#305364] rounded-4xl p-10 text-center space-y-8 shadow-2xl shadow-[#305364]/20 relative overflow-hidden group">
             <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
             <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
             
             <div class="relative z-10">
               <h3 class="text-2xl font-black text-white mb-2">Envie de continuer ?</h3>
-              <p class="text-blue-100 text-sm font-medium mb-8 max-w-sm mx-auto leading-relaxed">
+              <p class="text-[#EAE2D6] text-sm font-medium mb-8 max-w-sm mx-auto leading-relaxed">
                 Vous avez la possibilité de réaliser une troisième formation pour enrichir encore davantage votre profil.
               </p>
               <div class="flex flex-col sm:flex-row gap-4">
@@ -562,7 +562,7 @@ function confirmStartP3() {
           <button
             v-else
             @click="confirmGoHome"
-            class="w-full py-5 bg-[#3b82f6] text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 shadow-xl shadow-blue-500/10 transition-all flex items-center justify-center gap-3 cursor-pointer"
+            class="w-full py-5 bg-[#ebb872] text-[#305364] rounded-2xl font-black uppercase tracking-widest text-sm hover:brightness-105 shadow-xl shadow-[#ebb872]/20 transition-all flex items-center justify-center gap-3 cursor-pointer"
           >
             <span>Retour à l'accueil</span>
             <span class="material-icons-outlined">home</span>
@@ -598,7 +598,7 @@ function confirmStartP3() {
             <button @click="confirmGoHome" class="flex-1 py-3 px-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all">
               Non, merci
             </button>
-            <button @click="confirmStartP3" class="flex-1 py-3 px-4 bg-[#ebb973] text-brand-primary hover:bg-[#ebb973]/80 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb973]/30">
+            <button @click="confirmStartP3" class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all shadow-md shadow-[#ebb872]/30">
               Oui, avec plaisir
             </button>
           </div>
