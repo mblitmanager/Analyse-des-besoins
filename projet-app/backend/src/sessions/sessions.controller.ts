@@ -35,6 +35,12 @@ export class UpdateSessionDto {
   stopLevelOrder?: number;
   finalRecommendation?: string;
   parcoursTitle?: string | null;
+  parcoursChoices?: Array<{
+    id?: number | string;
+    title: string;
+    recommendations: string[];
+    explanationMessage?: string | null;
+  }> | null;
   parcoursRuleHadPrereqCondition?: boolean;
   explanationMessage?: string;
   complementaryQuestions?: any;
@@ -78,6 +84,7 @@ export class SessionsController {
       recommendationsList = [session.formationChoisie || 'Analyse'];
     }
 
+    const fullRecommendation = recommendationsList.join(' & ');
     let rec = recommendationsList.join(' & ');
     if (part !== undefined) {
       const partIndex = parseInt(part, 10);
@@ -99,6 +106,9 @@ export class SessionsController {
       situation: session.situation,
       formationChoisie: session.formationChoisie,
       finalRecommendation: rec,
+      parcoursTitle: processed.parcoursTitle || session.parcoursTitle,
+      recommendations: recommendationsList,
+      fullRecommendation,
       scoreFinal: processed.scorePretest,
       levelsScores: session.levelsScores as any,
       prerequisiteAnswers: processed.filteredPrerequis,

@@ -121,6 +121,14 @@ export class Session {
   @Column({ type: 'varchar', nullable: true })
   parcoursTitle: string | null;
 
+  @Column('simple-json', { nullable: true })
+  parcoursChoices: Array<{
+    id?: number | string;
+    title: string;
+    recommendations: string[];
+    explanationMessage?: string | null;
+  }> | null;
+
   @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
   stagiaire: Stagiaire;
 }

@@ -13,7 +13,7 @@ export class P3OverrideRule {
   id: number;
 
   @Column({ type: 'varchar', length: 100 })
-  formation: string; // e.g. "Word", "Excel", "Anglais" (Label for display)
+  formation: string;
 
   @Column({ nullable: true })
   formationId: number;
@@ -26,13 +26,19 @@ export class P3OverrideRule {
   formationEntity: Formation;
 
   @Column({ type: 'varchar', length: 255 })
-  condition: string; // e.g. "Si niveau validé = Basique" or "Si niveau validé >= Basique"
-
-  @Column({ type: 'varchar', length: 255 })
-  formation1: string; // Formation proposée en P3 (ex: "TOSA Word Opérationnel")
+  condition: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  formation2: string; // Formation alternative (ex: "TOSA Word Avancé")
+  conditionP1: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  conditionP2: string | null;
+
+  @Column({ type: 'varchar', length: 255 })
+  formation1: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  formation2: string;
 
   @Column({ type: 'float', default: 0 })
   order: number;
@@ -41,11 +47,11 @@ export class P3OverrideRule {
   isActive: boolean;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  certification: string; // Certification délivrée (ex: "RS5432 - TOEIC Listening & Reading")
+  certification: string;
 
   @Column({ type: 'text', nullable: true })
-  explanationMessage: string; // Message explicatif pour le candidat
+  explanationMessage: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  parcoursTitle: string; // Intitulé du parcours affiché en grand
+  parcoursTitle: string;
 }

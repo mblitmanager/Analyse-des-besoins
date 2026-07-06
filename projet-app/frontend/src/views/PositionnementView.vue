@@ -44,6 +44,7 @@ const showResults = ref(false);
 const finalRecommendation = ref("");
 const parcoursRuleMessage = ref("");
 const parcoursTitle = ref("");
+const parcoursChoices = ref([]);
 const p3Redirected = ref(false);
 const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
@@ -189,6 +190,9 @@ async function restoreProgressFromSession() {
 
     // Restaurer l'intitulé du parcours depuis la base de données
     parcoursTitle.value = getSessionParcoursTitle(session, formationLabel);
+    parcoursChoices.value = Array.isArray(session.parcoursChoices)
+      ? session.parcoursChoices
+      : [];
 
     // If session is already finalized on backend, show results directly
     if (session.finalRecommendation && session.stopLevel) {
@@ -474,10 +478,11 @@ async function nextStep() {
     const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
-      positionnementAnswers: positionnementAnswers.value,
-      explanationMessage: parcoursRuleMessage.value,
-      parcoursTitle: parcoursTitle.value || null,
-    });
+	      positionnementAnswers: positionnementAnswers.value,
+	      explanationMessage: parcoursRuleMessage.value,
+	      parcoursTitle: parcoursTitle.value || null,
+	      parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+	    });
 
     const session = patchRes.data;
 
@@ -537,7 +542,7 @@ async function finishTest(overrideSession = null) {
   // ── Try to use active parcours rules for the recommendation ──
   let usedParcoursRule = false;
   try {
-    const rulesRes = await axios.get(`${apiBaseUrl}/parcours`);
+    const rulesRes = await axios.get(`${apiBaseUrl}/parcours?activeOnly=true`);
     const allRules = rulesRes.data || [];
     // Filter rules for this formation that are active, ordered by their order field
     const formationRules = allRules
@@ -676,12 +681,31 @@ async function finishTest(overrideSession = null) {
 
       if (matchedRule) {
         // Si plusieurs règles ont le même score, afficher toutes les options
-        if (bestRules.length > 1) {
-          const options = bestRules.map(s => s.rule.formation1 || "").filter(Boolean);
-          finalRecommendation.value = options.join(' | ');
-          parcoursTitle.value = getRuleParcoursTitle(matchedRule.parcoursTitle);
+        if (bestRules.length > 1 && !store.isP3Mode) {
+          parcoursChoices.value = bestRules
+            .map(({ rule }) => {
+              const recommendations = [rule.formation1, rule.formation2]
+                .map((item) => String(item || "").trim())
+                .filter(Boolean)
+                .filter(
+                  (item, idx, arr) =>
+                    arr.findIndex((value) => value.toLowerCase() === item.toLowerCase()) === idx,
+                );
+              const title = getRuleParcoursTitle(rule.parcoursTitle) || recommendations[0] || "Parcours";
+
+              return {
+                id: rule.id,
+                title,
+                recommendations,
+                explanationMessage: rule.explanationMessage || "",
+              };
+            })
+            .filter((choice) => choice.recommendations.length > 0);
+          finalRecommendation.value = parcoursChoices.value.map((choice) => choice.title).join(' | ');
+          parcoursTitle.value = "";
           parcoursRuleMessage.value = "Plusieurs parcours disponibles";
         } else {
+          parcoursChoices.value = [];
           const f1 = matchedRule.formation1 || "";
           const f2 = matchedRule.formation2 || "";
           
@@ -749,6 +773,7 @@ async function finishTest(overrideSession = null) {
   if (!usedParcoursRule) {
     let l1 = formationLabel || 'Parcours personnalisé';
     parcoursTitle.value = "";
+    parcoursChoices.value = [];
     
     // Si on a des niveaux on tente de proposer le niveau validé ou le focus actuel
     if (levels.value && levels.value.length > 0) {
@@ -838,11 +863,12 @@ async function finishTest(overrideSession = null) {
     finalRecommendation: finalRecommendation.value,
     stopLevel: currentLevel.label,
     lastValidatedLevel: finalLevelLabel,
-    positionnementAnswers: positionnementAnswers.value,
-    parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
-    explanationMessage: parcoursRuleMessage.value,
-    parcoursTitle: parcoursTitle.value || null,
-  });
+	    positionnementAnswers: positionnementAnswers.value,
+	    parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
+	    explanationMessage: parcoursRuleMessage.value,
+	    parcoursTitle: parcoursTitle.value || null,
+	    parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+	  });
 
   const session = res.data;
   if (session.p3Redirected !== undefined) {
@@ -886,10 +912,11 @@ async function saveAndExit() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
-      positionnementAnswers: positionnementAnswers.value,
-      explanationMessage: parcoursRuleMessage.value,
-      parcoursTitle: parcoursTitle.value || null,
-    });
+	      positionnementAnswers: positionnementAnswers.value,
+	      explanationMessage: parcoursRuleMessage.value,
+	      parcoursTitle: parcoursTitle.value || null,
+	      parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+	    });
     router.push("/");
   } catch (error) {
     console.error("Failed to save progress:", error);
@@ -974,7 +1001,40 @@ async function saveAndExit() {
         </div>
           <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
             <!-- Parse steps (& separator) then alternatives (/ or OU) -->
-            <template v-if="finalRecommendation">
+            <template v-if="parcoursChoices.length > 1">
+  <div class="flex flex-col gap-4 min-w-[280px] md:min-w-[520px]">
+    <p class="text-[#315264] font-black uppercase tracking-widest text-xs">
+      Choix de parcours possibles
+    </p>
+
+    <template
+      v-for="(choice, index) in parcoursChoices"
+      :key="choice.id || choice.title"
+    >
+      <div
+        class="bg-white/70 border border-white rounded-2xl p-5 text-left shadow-sm"
+      >
+        <h2 class="text-[#315264] font-black text-2xl md:text-3xl mb-3">
+          {{ choice.title }}
+        </h2>
+      </div>
+
+      <div
+        v-if="index < parcoursChoices.length - 1"
+        class="flex items-center justify-center gap-3 text-[#315264] font-black uppercase tracking-widest text-xs"
+      >
+        <span class="h-px flex-1 bg-[#315264]/20"></span>
+        <span>ou</span>
+        <span class="h-px flex-1 bg-[#315264]/20"></span>
+      </div>
+    </template>
+
+    <p class="text-[#315264]/70 text-xs font-bold">
+      Vous pourrez choisir le parcours à conserver sur l'écran suivant.
+    </p>
+  </div>
+</template>
+            <template v-else-if="finalRecommendation">
               
               <div class="flex flex-col gap-3">
                 <h2 v-if="parcoursTitle" class="text-[#315264] font-black text-3xl md:text-4xl">{{ parcoursTitle }}</h2>

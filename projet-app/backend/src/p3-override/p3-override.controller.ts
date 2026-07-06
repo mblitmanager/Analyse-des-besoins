@@ -17,11 +17,12 @@ export class P3OverrideController {
   constructor(private readonly p3OverrideService: P3OverrideService) {}
 
   @Get()
-  findAll(@Query('formation') formation?: string) {
+  findAll(@Query('formation') formation?: string, @Query('activeOnly') activeOnly?: string) {
+    const onlyActive = activeOnly === 'true' || activeOnly === '1';
     if (formation) {
-      return this.p3OverrideService.findByFormation(formation);
+      return this.p3OverrideService.findByFormation(formation, onlyActive);
     }
-    return this.p3OverrideService.findAll();
+    return this.p3OverrideService.findAll(onlyActive);
   }
 
   @Post()

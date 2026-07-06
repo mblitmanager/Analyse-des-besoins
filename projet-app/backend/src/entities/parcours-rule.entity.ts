@@ -55,6 +55,18 @@ export class ParcoursRule {
   @Column({ type: 'varchar', length: 10, default: 'OR' })
   prerequisiteLogic: 'AND' | 'OR';
 
+  @Column({ type: 'simple-json', nullable: true })
+  selectionConditions: Array<{
+    workflow: 'prerequis' | 'complementary' | 'availabilities' | 'mise_a_niveau';
+    questionId: number;
+    responseIndexes?: number[];
+    expectedValue?: string;
+    operator?: 'IN' | 'NOT_IN' | 'CONTAINS' | 'NOT_CONTAINS';
+  }>;
+
+  @Column({ type: 'varchar', length: 10, default: 'AND' })
+  selectionConditionLogic: 'AND' | 'OR';
+
   @Column({ type: 'text', nullable: true })
   explanationMessage: string;
 

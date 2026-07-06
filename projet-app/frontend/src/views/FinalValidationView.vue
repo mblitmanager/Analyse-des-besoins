@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import { useToastStore } from "../stores/toast";
-import { getSessionParcoursTitle } from "../utils/parcoursLabel";
+import { getSessionParcoursTitle, normalizeParcoursLabel } from "../utils/parcoursLabel";
 
 const store = useAppStore();
 const router = useRouter();
@@ -43,6 +43,97 @@ const recommendedLabel = computed(() => {
   if (!session.value.formationChoisie && !level) return "Parcours personnalisé";
 
   return `${session.value.formationChoisie || ""} - ${level}`.trim();
+});
+
+const isP3Validation = computed(() => {
+  return !!(
+    store.isP3Mode ||
+    session.value?.isP3Mode ||
+    Number(session.value?.parcoursNumber) === 3
+  );
+});
+
+const p3RecommendationLabel = computed(() => {
+  if (!isP3Validation.value || !session.value) return "";
+  return (
+    session.value.finalRecommendation ||
+    session.value.parcoursTitle ||
+    recommendedLabel.value ||
+    ""
+  ).trim();
+});
+
+function splitRecommendation(value) {
+  return String(value || "")
+    .split(/\s*&\s*|\s*\|\s*|\s+et\s+/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function sessionRecommendationItems(sourceSession) {
+  if (!sourceSession) return [];
+  const labels = [];
+  const title = getSessionParcoursTitle(sourceSession);
+  const add = (label) => {
+    const clean = normalizeParcoursLabel(label);
+    if (!clean || clean === normalizeParcoursLabel(title)) return;
+    if (!labels.some((item) => normalizeParcoursLabel(item) === clean)) {
+      labels.push(label);
+    }
+  };
+
+  if (Array.isArray(sourceSession.recommendations)) {
+    sourceSession.recommendations.forEach(add);
+  }
+  splitRecommendation(sourceSession.finalRecommendation).forEach(add);
+  if (labels.length === 0 && title) labels.push(title);
+  return labels;
+}
+
+const p3ValidationParcoursItems = computed(() => {
+  if (!isP3Validation.value || !session.value) return [];
+
+  const previousLabels = [];
+  const addPrevious = (label) => {
+    const clean = normalizeParcoursLabel(label);
+    if (!clean) return;
+    if (!previousLabels.some((item) => normalizeParcoursLabel(item) === clean)) {
+      previousLabels.push(label);
+    }
+  };
+
+  const previousSessions = Array.isArray(session.value.previousSessions)
+    ? session.value.previousSessions
+        .filter((item) => item?.id !== session.value.id)
+        .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+    : [];
+
+  previousSessions.forEach((item) => {
+    sessionRecommendationItems(item).forEach(addPrevious);
+  });
+
+  if (previousLabels.length < 2) {
+    splitRecommendation(localStorage.getItem("p3_prev_recommendations")).forEach(addPrevious);
+  }
+
+  const rows = previousLabels.slice(0, 2).map((label, index) => ({
+    badge: `P${index + 1}`,
+    label,
+    className:
+      index === 0
+        ? "border-sky-100 bg-sky-50/50 text-sky-700"
+        : "border-amber-100 bg-amber-50/60 text-amber-700",
+  }));
+
+  if (p3RecommendationLabel.value) {
+    rows.push({
+      badge: "P3",
+      label: p3RecommendationLabel.value,
+      className: "border-indigo-100 bg-indigo-50/60 text-indigo-700",
+    });
+  }
+
+  return rows;
 });
 
 const recommendedLabelParts = computed(() => {
@@ -184,6 +275,9 @@ function startP3() {
     }
     localStorage.setItem("p3_prev_recommendations", newRecs);
   }
+  const previousItems = sessionRecommendationItems(session.value);
+  if (previousItems[0]) localStorage.setItem("p3_prev_p1", previousItems[0]);
+  if (previousItems[1]) localStorage.setItem("p3_prev_p2", previousItems[1]);
   if (session.value?.stopLevel || session.value?.lastValidatedLevel) {
     localStorage.setItem("p3_prev_stop_level", session.value.stopLevel || session.value.lastValidatedLevel);
   }
@@ -253,6 +347,27 @@ function confirmStartP3() {
                 <span class="text-sm font-black text-green-600 text-right max-w-[300px] break-words">
                   {{ recommendedLabel }}
                 </span>
+              </div>
+              <div
+                v-if="isP3Validation && p3ValidationParcoursItems.length"
+                class="bg-white/70 p-3 rounded-xl border border-indigo-100 shadow-sm space-y-2"
+              >
+                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                  Récapitulatif des parcours
+                </p>
+                <div
+                  v-for="item in p3ValidationParcoursItems"
+                  :key="item.badge"
+                  class="flex items-start gap-3 rounded-lg border p-3"
+                  :class="item.className"
+                >
+                  <span class="shrink-0 inline-flex items-center justify-center min-w-10 h-7 px-3 rounded-full bg-white/80 text-[11px] font-black">
+                    {{ item.badge }}
+                  </span>
+                  <p class="min-w-0 text-sm font-black text-[#0d1b3e] break-words">
+                    {{ item.label }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

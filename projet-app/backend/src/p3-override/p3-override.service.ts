@@ -10,15 +10,16 @@ export class P3OverrideService {
     private p3OverrideRepo: Repository<P3OverrideRule>,
   ) {}
 
-  findAll() {
+  findAll(activeOnly = false) {
     return this.p3OverrideRepo.find({ 
+      where: activeOnly ? { isActive: true } : undefined,
       order: { order: 'ASC' }
     });
   }
 
-  findByFormation(formation: string) {
+  findByFormation(formation: string, activeOnly = false) {
     return this.p3OverrideRepo.find({ 
-      where: { formation },
+      where: activeOnly ? { formation, isActive: true } : { formation },
       order: { order: 'ASC' }
     });
   }

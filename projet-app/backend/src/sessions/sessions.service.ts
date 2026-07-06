@@ -170,6 +170,7 @@ export class SessionsService {
       resetData.scorePretest = null;
       resetData.explanationMessage = null;
       resetData.parcoursTitle = null;
+      resetData.parcoursChoices = null;
     }
 
     // Remove ephemeral flag before persisting (not a DB column)
@@ -215,6 +216,86 @@ export class SessionsService {
 
     const cleanFormation = this.normalizeParcoursLabel(formationLabel);
     return !cleanFormation || cleanTitle !== cleanFormation;
+  }
+
+  private buildRecommendationSummaryHtml(options: {
+    parcoursTitle?: string | null;
+    recommendationsList: string[];
+    fullRecommendation: string;
+    isP3?: boolean;
+  }): string {
+    const recommendations = options.recommendationsList
+      .map((item) => String(item || '').trim())
+      .filter(Boolean);
+    const fallbackRecommendation =
+      options.fullRecommendation || recommendations.join(' & ') || 'Parcours';
+    const title = this.hasMeaningfulParcoursTitle(
+      options.parcoursTitle,
+      fallbackRecommendation,
+    )
+      ? String(options.parcoursTitle).trim()
+      : fallbackRecommendation;
+    const titleNorm = this.normalizeParcoursLabel(title);
+
+    const renderCard = (
+      label: string,
+      text: string,
+      colors: { badgeBg: string; badgeColor: string; border: string },
+    ) => `
+      <div style="padding: 12px 14px; background: #ffffff; border: 1px solid ${colors.border}; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);">
+        <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: ${colors.badgeBg}; color: ${colors.badgeColor}; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">${safe(label)}</span>
+        <span style="font-weight: 800; color: #0D1B3E;">${safe(text)}</span>
+      </div>
+    `;
+
+    if (options.isP3) {
+      const recommendationDetail =
+        recommendations.find(
+          (item) => this.normalizeParcoursLabel(item) !== titleNorm,
+        ) || '';
+
+      return `
+        <div style="padding: 14px; background: #f8fafc; border: 1px solid #dbeafe; border-radius: 12px; margin-bottom: 20px;">
+          <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">${safe(title)}</div>
+          ${renderCard(
+            'P3',
+            recommendationDetail
+              ? `3ème parcours - ${recommendationDetail}`
+              : '3ème parcours',
+            { badgeBg: '#EEF2FF', badgeColor: '#4338CA', border: '#C7D2FE' },
+          )}
+        </div>
+      `;
+    }
+
+    if (recommendations.length > 1) {
+      return `
+        <div style="padding: 14px; background: #f8fafc; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;">
+          <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">${safe(title)}</div>
+          ${recommendations
+            .slice(0, 2)
+            .map((item, index) =>
+              renderCard(`P${index + 1}`, item, {
+                badgeBg: index === 0 ? '#E0F2FE' : '#FEF3C7',
+                badgeColor: index === 0 ? '#075985' : '#92400E',
+                border: index === 0 ? '#BAE6FD' : '#FDE68A',
+              }),
+            )
+            .join('')}
+        </div>
+      `;
+    }
+
+    return `
+      <div style="padding: 14px; background: #f8fafc; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;">
+        <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">${safe(title)}</div>
+        ${renderCard('P1', recommendations[0] || fallbackRecommendation, {
+          badgeBg: '#E0F2FE',
+          badgeColor: '#075985',
+          border: '#BAE6FD',
+        })}
+      </div>
+    `;
   }
 
   private async resolveParcoursTitle(
@@ -576,6 +657,19 @@ export class SessionsService {
       const allPrereqs = await this.questionRepo.find({
         where: { type: 'prerequis' },
       });
+      const selectionQuestionIds = new Set<number>();
+      activeRules.forEach((rule) => {
+        (rule.selectionConditions || []).forEach((condition) => {
+          if (condition?.questionId) {
+            selectionQuestionIds.add(Number(condition.questionId));
+          }
+        });
+      });
+      const selectionQuestions = selectionQuestionIds.size
+        ? await this.questionRepo.find({
+            where: { id: In([...selectionQuestionIds]) },
+          })
+        : [];
 
       // Check if there are any prerequisite failures based on configurable settings
       const failureValuesStr = await this.settingsService.getValue(
@@ -645,6 +739,94 @@ export class SessionsService {
         return true;
       };
 
+      const getRuleAnswerSet = (workflow?: string | null) => {
+        switch (workflow) {
+          case 'prerequis':
+            return session.prerequisiteScore || {};
+          case 'complementary':
+            return session.complementaryQuestions || {};
+          case 'availabilities':
+            return session.availabilities || {};
+          case 'mise-a-niveau':
+          case 'mise_a_niveau':
+            return session.miseANiveauAnswers || {};
+          default:
+            return {};
+        }
+      };
+
+      const normalizeAnswerValue = (value: any) =>
+        String(value ?? '')
+          .trim()
+          .toLowerCase();
+
+      const answerValues = (value: any): string[] => {
+        if (Array.isArray(value)) {
+          return value.map(normalizeAnswerValue).filter(Boolean);
+        }
+
+        return String(value ?? '')
+          .split(',')
+          .map(normalizeAnswerValue)
+          .filter(Boolean);
+      };
+
+      const selectionConditionMatches = (
+        condition: NonNullable<ParcoursRule['selectionConditions']>[number],
+      ): boolean => {
+        const answers = getRuleAnswerSet(condition.workflow);
+        const userAnswer =
+          answers[condition.questionId] ?? answers[String(condition.questionId)];
+        if (
+          userAnswer === undefined ||
+          userAnswer === null ||
+          userAnswer === ''
+        ) {
+          return false;
+        }
+
+        const question = selectionQuestions.find(
+          (q) => q.id === Number(condition.questionId),
+        );
+        const expectedValues = [
+          ...(condition.responseIndexes || [])
+            .map((idx) => question?.options?.[idx])
+            .filter(Boolean),
+          condition.expectedValue,
+        ]
+          .filter(Boolean)
+          .map(normalizeAnswerValue);
+
+        if (expectedValues.length === 0) return false;
+
+        const actualValues = answerValues(userAnswer);
+        const actualText = actualValues.join(' ');
+        const operator = condition.operator || 'IN';
+
+        switch (operator) {
+          case 'NOT_IN':
+            return !actualValues.some((value) => expectedValues.includes(value));
+          case 'CONTAINS':
+            return expectedValues.some((value) => actualText.includes(value));
+          case 'NOT_CONTAINS':
+            return !expectedValues.some((value) => actualText.includes(value));
+          case 'IN':
+          default:
+            return actualValues.some((value) => expectedValues.includes(value));
+        }
+      };
+
+      const checkSelectionConditions = (rule: ParcoursRule): boolean => {
+        const conditions = rule.selectionConditions || [];
+        if (conditions.length === 0) return true;
+
+        const results = conditions.map(selectionConditionMatches);
+        const logic = rule.selectionConditionLogic || 'AND';
+        return logic === 'OR'
+          ? results.some(Boolean)
+          : results.every(Boolean);
+      };
+
       const stopIdx = levels.findIndex(
         (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
       );
@@ -704,8 +886,9 @@ export class SessionsService {
         const reqFail = !!r.requirePrerequisiteFailure;
         const userFailed = checkPrereqFailure(r);
         const prereqMatches = reqFail ? userFailed : true;
+        const selectionMatches = checkSelectionConditions(r);
 
-        return ruleMatches && prereqMatches;
+        return ruleMatches && prereqMatches && selectionMatches;
       });
 
       // 2. Select the first matched rule
@@ -717,7 +900,9 @@ export class SessionsService {
       if (!matchedRule) {
         matchedRule =
           activeRules.find(
-            (r) => !!r.requirePrerequisiteFailure === checkPrereqFailure(r),
+            (r) =>
+              !!r.requirePrerequisiteFailure === checkPrereqFailure(r) &&
+              checkSelectionConditions(r),
           ) || null;
       }
 
@@ -1281,8 +1466,17 @@ export class SessionsService {
 
     const fullRecommendation = recommendationsList.join(' & ');
 
-    // Generate PDF attachment for EACH formation
     const baseParcoursNumber = await this.getParcoursNumber(session);
+    const recommendationSummaryHtml = this.buildRecommendationSummaryHtml({
+      parcoursTitle: parcoursTitle || session.parcoursTitle,
+      recommendationsList,
+      fullRecommendation,
+      isP3:
+        recommendationsList.length === 1 &&
+        (session.isP3Mode || baseParcoursNumber >= 3),
+    });
+
+    // Generate PDF attachment for EACH formation
     for (let i = 0; i < recommendationsList.length; i++) {
       const rec = recommendationsList[i];
       const currentParcoursNumber = recommendationsList.length > 1 ? baseParcoursNumber + i : baseParcoursNumber;
@@ -1298,6 +1492,9 @@ export class SessionsService {
         situation: session.situation,
         formationChoisie: session.formationChoisie, // Original user selection
         finalRecommendation: rec, // Specific formation for this PDF
+        parcoursTitle: parcoursTitle || session.parcoursTitle,
+        recommendations: recommendationsList,
+        fullRecommendation,
         scoreFinal: scorePretest,
         levelsScores: session.levelsScores as Record<string, any>,
         prerequisiteAnswers: filteredPrerequis as Record<string, any>,
@@ -1406,9 +1603,7 @@ export class SessionsService {
           }
           <p><strong>Formation :</strong> ${session.formationChoisie || fullRecommendation}</p>
           <p><strong>Recommandations :</strong></p>
-          <div style="margin-bottom: 20px;">
-            <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
-          </div>
+          ${recommendationSummaryHtml}
           
           <div style="margin-top: 30px;">
             ${extraContent}
@@ -1516,6 +1711,9 @@ export class SessionsService {
       situation: session.situation,
       formationChoisie: session.formationChoisie || recommendation,
       finalRecommendation: recommendation,
+      parcoursTitle: parcoursTitle || session.parcoursTitle || session.formationChoisie,
+      recommendations: [recommendation],
+      fullRecommendation: recommendation,
       scoreFinal: -1, // No quiz taken
       levelsScores: {},
       prerequisiteAnswers: filteredPrerequis,
@@ -1546,6 +1744,12 @@ export class SessionsService {
     const emailAttachments: any[] = [
       { filename: pdfFilename, content: pdfBuffer },
     ];
+    const recommendationSummaryHtml = this.buildRecommendationSummaryHtml({
+      parcoursTitle: parcoursTitle || session.parcoursTitle || session.formationChoisie,
+      recommendationsList: [recommendation],
+      fullRecommendation: recommendation,
+      isP3: true,
+    });
 
     const publicPath = path.join(process.cwd(), 'public');
     const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
@@ -1589,11 +1793,7 @@ export class SessionsService {
           <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
           <p><strong>Formation :</strong> ${session.formationChoisie || 'P3'}</p>
           <p><strong>Recommandation :</strong></p>
-          <div style="margin-bottom: 20px;">
-            <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">
-              ${recommendation}
-            </div>
-          </div>
+          ${recommendationSummaryHtml}
           <div style="margin-top: 20px; text-align: right;">
             <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
             <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">
@@ -1806,6 +2006,15 @@ export class SessionsService {
     const fullRecommendation = recommendationsList.join(' & ');
 
     const baseParcoursNumber = await this.getParcoursNumber(session);
+    const recommendationSummaryHtml = this.buildRecommendationSummaryHtml({
+      parcoursTitle: parcoursTitle || session.parcoursTitle,
+      recommendationsList,
+      fullRecommendation,
+      isP3:
+        recommendationsList.length === 1 &&
+        (session.isP3Mode || baseParcoursNumber >= 3),
+    });
+
     for (let i = 0; i < recommendationsList.length; i++) {
       const rec = recommendationsList[i];
       const currentParcoursNumber = recommendationsList.length > 1 ? baseParcoursNumber + i : baseParcoursNumber;
@@ -1821,6 +2030,9 @@ export class SessionsService {
         situation: session.situation,
         formationChoisie: session.formationChoisie,
         finalRecommendation: rec,
+        parcoursTitle: parcoursTitle || session.parcoursTitle,
+        recommendations: recommendationsList,
+        fullRecommendation,
         scoreFinal: session.scorePretest !== null ? session.scorePretest : scorePretest,
         levelsScores: session.levelsScores as Record<string, any>,
         prerequisiteAnswers: filteredPrerequis as Record<string, any>,
@@ -1917,9 +2129,7 @@ export class SessionsService {
         }
         <p><strong>Formation :</strong> ${session.formationChoisie || fullRecommendation}</p>
         <p><strong>Recommandations :</strong></p>
-        <div style="margin-bottom: 20px;">
-          <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">${fullRecommendation}</div>
-        </div>
+        ${recommendationSummaryHtml}
         
         <div style="margin-top: 30px;">
           ${extraContent}
@@ -2002,6 +2212,9 @@ export class SessionsService {
       situation: session.situation,
       formationChoisie: session.formationChoisie || recommendation,
       finalRecommendation: recommendation,
+      parcoursTitle: parcoursTitle || session.parcoursTitle || session.formationChoisie,
+      recommendations: [recommendation],
+      fullRecommendation: recommendation,
       scoreFinal: -1,
       levelsScores: {},
       prerequisiteAnswers: filteredPrerequis,
@@ -2032,6 +2245,12 @@ export class SessionsService {
     const emailAttachments: any[] = [
       { filename: pdfFilename, content: pdfBuffer },
     ];
+    const recommendationSummaryHtml = this.buildRecommendationSummaryHtml({
+      parcoursTitle: parcoursTitle || session.parcoursTitle || session.formationChoisie,
+      recommendationsList: [recommendation],
+      fullRecommendation: recommendation,
+      isP3: true,
+    });
 
     const publicPath = path.join(process.cwd(), 'public');
     const logoAopiaPath = path.join(publicPath, 'logo', 'Logo-AOPIA.png');
@@ -2070,11 +2289,7 @@ export class SessionsService {
         <p><strong>Téléphone :</strong> ${session.telephone || ''}</p>
         <p><strong>Formation :</strong> ${session.formationChoisie || 'P3'}</p>
         <p><strong>Recommandation :</strong></p>
-        <div style="margin-bottom: 20px;">
-          <div style="padding: 10px; background: #f0fdf4; border-left: 4px solid #22C55E; margin-bottom: 8px; font-weight: bold; color: #166534;">
-            ${recommendation}
-          </div>
-        </div>
+        ${recommendationSummaryHtml}
         <div style="margin-top: 20px; text-align: right;">
           <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;">
           <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;">

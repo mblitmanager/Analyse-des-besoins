@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { useAppStore } from "../../stores/app";
 import { useToastStore } from "../../stores/toast";
@@ -16,7 +16,6 @@ const saving = ref(false);
 const overrideEnabled = ref(false);
 const allRules = ref([]);
 const allFormations = ref([]);
-const allParcoursRules = ref([]);
 
 // Form state for creating/editing rules
 const showForm = ref(false);
@@ -41,27 +40,6 @@ const selectedFormationLevels = ref([]);
 const conditionLevel = ref("");
 const conditionOperator = ref("=");
 
-const parcoursConditionOptions = computed(() => {
-  const values = [];
-  const seen = new Set();
-  const add = (value) => {
-    const label = String(value || "").trim();
-    const key = label.toLowerCase();
-    if (!label || seen.has(key)) return;
-    seen.add(key);
-    values.push(label);
-  };
-
-  allParcoursRules.value
-    .filter((rule) => rule.isActive !== false)
-    .forEach((rule) => {
-      add(rule.formation1);
-      add(rule.formation2);
-    });
-
-  return values.sort((a, b) => a.localeCompare(b, "fr"));
-});
-
 // Filter rules by selected formation
 const currentFormation = ref(null);
 const filteredRules = computed(() => {
@@ -75,7 +53,7 @@ const filteredRules = computed(() => {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { 
+    const res = await axios.get(`${apiBaseUrl}/formations`, { 
       headers: { Authorization: `Bearer ${token()}` } 
     });
     allFormations.value = (res.data || []).filter(f => f.isActive !== false);
@@ -90,15 +68,13 @@ async function fetchFormations() {
 async function fetchRules() {
   loading.value = true;
   try {
-    const [enabledRes, rulesRes, parcoursRes] = await Promise.all([
+    const [enabledRes, rulesRes] = await Promise.all([
       appStore.fetchSetting('P3_OVERRIDE_ENABLED', { force: true }),
       axios.get(`${apiBaseUrl}/p3-override?activeOnly=true`, { headers: { Authorization: `Bearer ${token()}` } }),
-      axios.get(`${apiBaseUrl}/parcours?activeOnly=true`, { headers: { Authorization: `Bearer ${token()}` } }),
     ]);
     
     overrideEnabled.value = enabledRes === 'true';
     allRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
-    allParcoursRules.value = (parcoursRes.data || []).filter(rule => rule.isActive !== false);
   } catch (e) {
     console.error("Failed to load P3 override rules:", e);
   } finally {
@@ -201,13 +177,10 @@ async function openEditForm(rule) {
   };
   
   // Parse condition
-  const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+  const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
   if (condMatch) {
     conditionOperator.value = condMatch[1].replace('<=', '≤').replace('>=', '≥');
     conditionLevel.value = condMatch[2];
-  } else {
-    conditionOperator.value = "=";
-    conditionLevel.value = "";
   }
   
   // Load levels for the formation
@@ -231,14 +204,6 @@ async function fetchLevelsForFormation(formationLabel) {
     console.error("Failed to load levels:", error);
   }
 }
-
-watch(currentFormation, async (formation) => {
-  if (!formation) {
-    selectedFormationLevels.value = [];
-    return;
-  }
-  await fetchLevelsForFormation(formation.label);
-});
 
 onMounted(async () => {
   await fetchFormations();
@@ -427,35 +392,19 @@ onMounted(async () => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Condition P1</label>
-              <select
+              <input
                 v-model="newRule.conditionP1"
+                placeholder="ex: Renforcement WORD"
                 class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
-              >
-                <option value="">Aucune condition P1</option>
-                <option
-                  v-for="option in parcoursConditionOptions"
-                  :key="`p1-${option}`"
-                  :value="option"
-                >
-                  {{ option }}
-                </option>
-              </select>
+              />
             </div>
             <div class="space-y-2">
               <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Condition P2</label>
-              <select
+              <input
                 v-model="newRule.conditionP2"
+                placeholder="ex: Essentiels WORD + EXCEL"
                 class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all"
-              >
-                <option value="">Aucune condition P2</option>
-                <option
-                  v-for="option in parcoursConditionOptions"
-                  :key="`p2-${option}`"
-                  :value="option"
-                >
-                  {{ option }}
-                </option>
-              </select>
+              />
             </div>
           </div>
 

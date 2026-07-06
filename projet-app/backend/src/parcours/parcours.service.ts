@@ -10,20 +10,26 @@ export class ParcoursService {
     private readonly repo: Repository<ParcoursRule>,
   ) {}
 
-  findAll(): Promise<ParcoursRule[]> {
-    return this.repo.find({ order: { formation: 'ASC', order: 'ASC' } });
+  findAll(activeOnly = false): Promise<ParcoursRule[]> {
+    return this.repo.find({
+      where: activeOnly ? { isActive: true } : undefined,
+      order: { formation: 'ASC', order: 'ASC' },
+    });
   }
 
-  findByFormation(formation: string): Promise<ParcoursRule[]> {
+  findByFormation(formation: string, activeOnly = false): Promise<ParcoursRule[]> {
+    const baseWhere = [{ formation }, { formationId: Number(formation) || -1 }];
     return this.repo.find({
-      where: [{ formation }, { formationId: Number(formation) || -1 }],
+      where: activeOnly
+        ? baseWhere.map((where) => ({ ...where, isActive: true }))
+        : baseWhere,
       order: { order: 'ASC' },
     });
   }
 
-  findByFormationId(formationId: number): Promise<ParcoursRule[]> {
+  findByFormationId(formationId: number, activeOnly = false): Promise<ParcoursRule[]> {
     return this.repo.find({
-      where: { formationId },
+      where: activeOnly ? { formationId, isActive: true } : { formationId },
       order: { order: 'ASC' },
     });
   }
