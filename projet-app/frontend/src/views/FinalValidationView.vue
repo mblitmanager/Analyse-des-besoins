@@ -90,6 +90,16 @@ function sessionRecommendationItems(sourceSession) {
   return labels;
 }
 
+function previousItemsFromExplanation(message) {
+  const source = String(message || "");
+  if (!source.includes("->")) return [];
+  const [leftSide] = source.split("->");
+  return leftSide
+    .split(/\s+\+\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 const p3ValidationParcoursItems = computed(() => {
   if (!isP3Validation.value || !session.value) return [];
 
@@ -101,6 +111,13 @@ const p3ValidationParcoursItems = computed(() => {
       previousLabels.push(label);
     }
   };
+
+  previousItemsFromExplanation(session.value.explanationMessage).forEach(addPrevious);
+
+  [
+    localStorage.getItem("p3_prev_p1") || "",
+    localStorage.getItem("p3_prev_p2") || "",
+  ].forEach(addPrevious);
 
   const previousSessions = Array.isArray(session.value.previousSessions)
     ? session.value.previousSessions
