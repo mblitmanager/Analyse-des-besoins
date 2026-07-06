@@ -41,7 +41,7 @@ const sampleValues = {
   confirmLink: "https://example.com/confirm?token=xyz789",
   link: "https://example.com",
   date: new Date().toLocaleDateString("fr-FR"),
-  company: "WiziLearn",
+  company: "Analyses des Besoins",
   phone: "+33 1 23 45 67 89",
   address: "123 Rue Exemple, 75001 Paris",
   subject: "Sujet exemple",

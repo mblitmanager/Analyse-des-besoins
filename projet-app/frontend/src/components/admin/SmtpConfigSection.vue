@@ -37,6 +37,10 @@ const recipients = reactive({
 const savingRecipients = ref(false);
 const newCcInput = ref("");
 
+// ── Auto Send Email ─────────────────────────────────────────────────────────────
+const autoSendEmail = ref(false);
+const savingAutoSend = ref(false);
+
 // Parsed CC list for display
 function parseCcList(value) {
   return (value || "")
@@ -118,10 +122,11 @@ function getAuthHeaders() {
 async function fetchConfig() {
   loading.value = true;
   try {
-    const [smtpRes, adminEmailRes, ccAdvRes] = await Promise.all([
+    const [smtpRes, adminEmailRes, ccAdvRes, autoSendRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/mail-config/smtp`, getAuthHeaders()).catch(() => ({ data: {} })),
       axios.get(`${apiBaseUrl}/settings/ADMIN_EMAIL`, getAuthHeaders()).catch(() => ({ data: { value: "" } })),
       axios.get(`${apiBaseUrl}/settings/EMAIL_CC_ADV`, getAuthHeaders()).catch(() => ({ data: { value: "" } })),
+      axios.get(`${apiBaseUrl}/settings/AUTO_SEND_EMAIL`, getAuthHeaders()).catch(() => ({ data: { value: "false" } })),
     ]);
 
     const data = smtpRes.data;
@@ -134,6 +139,7 @@ async function fetchConfig() {
 
     recipients.adminEmail = adminEmailRes.data?.value || "";
     recipients.ccAdv = ccAdvRes.data?.value || "";
+    autoSendEmail.value = autoSendRes.data?.value === "true";
   } catch (error) {
     toast.error("Erreur lors du chargement de la configuration");
   } finally {
@@ -194,6 +200,21 @@ async function saveRecipients() {
     toast.error("Erreur lors de l'enregistrement des destinataires");
   } finally {
     savingRecipients.value = false;
+  }
+}
+
+// ── Save Auto Send Email ────────────────────────────────────────────────────────
+async function saveAutoSendEmail() {
+  savingAutoSend.value = true;
+  try {
+    const token = localStorage.getItem("admin_token");
+    const headers = { Authorization: `Bearer ${token}` };
+    await axios.patch(`${apiBaseUrl}/settings/AUTO_SEND_EMAIL`, { value: autoSendEmail.value ? "true" : "false" }, { headers });
+    toast.success("Paramètre d'envoi automatique mis à jour");
+  } catch (error) {
+    toast.error("Erreur lors de la mise à jour du paramètre");
+  } finally {
+    savingAutoSend.value = false;
   }
 }
 
@@ -320,6 +341,31 @@ onMounted(fetchConfig);
           </span>
           {{ savingRecipients ? 'Enregistrement...' : 'Enregistrer les destinataires' }}
         </button>
+
+        <!-- Auto Send Email Toggle -->
+        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+              <span class="material-icons-outlined text-sm">auto_mode</span>
+            </div>
+            <div>
+              <h4 class="text-xs font-black text-slate-800">Envoyer automatiquement les bilans</h4>
+              <p class="text-[9px] text-slate-400 font-bold">Les bilans sont envoyés automatiquement par email à la fin du parcours</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="saveAutoSendEmail"
+            :disabled="savingAutoSend"
+            class="relative w-12 h-6 rounded-full transition-colors duration-200"
+            :class="autoSendEmail ? 'bg-emerald-500' : 'bg-slate-200'"
+          >
+            <div
+              class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200"
+              :class="autoSendEmail ? 'translate-x-6' : 'translate-x-0'"
+            />
+          </button>
+        </div>
       </div>
 
       <div class="h-px bg-slate-100"></div>

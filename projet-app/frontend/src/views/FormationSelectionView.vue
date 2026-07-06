@@ -753,13 +753,9 @@ async function confirmP3SameFormation() {
       stopLevelOrder: finalStopLevelOrder,
     });
     // Submit (finalize) the session - backend will use pre-set values
-    // Submit (finalize) the session - backend will use pre-set values
     await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
     
-    // Go to home and clear session to allow new ones
-    store.setP3Mode(false);
-    localStorage.removeItem("session_id");
-    router.push('/');
+    router.push('/validation');
   } catch (error) {
     console.error('Failed to confirm P3 same formation:', error);
     toast.error('Erreur lors de la validation du P3.');

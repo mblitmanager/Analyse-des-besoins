@@ -571,7 +571,7 @@ const generateSimplePdf = () => {
   }
 
   pdf.save(
-    `Bilan_WiziLearn_${session.value.prenom}_${session.value.nom}.pdf`,
+    `Bilan_AnalysesBesoins_${session.value.prenom}_${session.value.nom}.pdf`,
   );
 };
 
@@ -644,7 +644,7 @@ const downloadPDF = async () => {
 
     pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
     pdf.save(
-      `Bilan_WiziLearn_${session.value.prenom}_${session.value.nom}.pdf`
+      `Bilan_AnalysesBesoins_${session.value.prenom}_${session.value.nom}.pdf`
     );
   } catch (err) {
     console.error("PDF generation failed (html2canvas):", err);

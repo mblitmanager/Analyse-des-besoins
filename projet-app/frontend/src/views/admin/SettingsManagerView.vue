@@ -13,15 +13,11 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const searchQuery = ref('');
 
-const testEmailForm = ref({ to: '', subject: 'Test email from Admin', body: '<h1>It works!</h1><p>Ceci est un email de test.</p>' });
-const showTestEmailModal = ref(false);
-const sendingEmail = ref(false);
-
 const categories = [
-  { id: 'general', label: 'Général', icon: 'settings', patterns: ['ENABLE_', 'PLATFORM_'] },
-  { id: 'comm', label: 'Communication', icon: 'chat', patterns: ['EMAIL', 'PHONE', 'SMS'] },
+  { id: 'general', label: 'Général', icon: 'settings', patterns: ['ENABLE_', 'PLATFORM_', 'SUPPORT_'] },
   { id: 'automation', label: 'Automatisme', icon: 'auto_mode', patterns: ['AUTO_SKIP', 'PAGINATED'] },
   { id: 'p3', label: 'P3', icon: 'add_circle', patterns: ['P3_'] },
+  { id: 'prerequis', label: 'Prérequis', icon: 'checklist', patterns: ['PREREQUISITE_', 'PREREQUIS_'] },
 ];
 
 const filteredSettings = computed(() => {
@@ -33,6 +29,12 @@ const filteredSettings = computed(() => {
       (s.description && s.description.toLowerCase().includes(q))
     );
   }
+  // Exclude email-related settings (managed in MailConfigView)
+  filtered = filtered.filter(s => 
+    !s.key.includes('EMAIL') && 
+    !s.key.includes('ADMIN_EMAIL') &&
+    !s.key.includes('AUTO_SEND_EMAIL')
+  );
   return filtered;
 });
 
@@ -124,24 +126,6 @@ async function saveSetting(key, value) {
   }
 }
 
-async function sendTestEmail() {
-  if (!testEmailForm.value.to) return toast.error("Veuillez saisir une adresse email");
-  sendingEmail.value = true;
-  try {
-    const token = localStorage.getItem("admin_token");
-    await axios.post(`${apiBaseUrl}/mail-config/test-email`, { to: testEmailForm.value.to }, { 
-      headers: { Authorization: `Bearer ${token}` } 
-    });
-    toast.success("Email envoyé avec succès !");
-    showTestEmailModal.value = false;
-  } catch(error) {
-    console.error("Erreur d'envoi:", error);
-    toast.error("Erreur lors de l'envoi de l'email : " + (error.response?.data?.message || error.message));
-  } finally {
-    sendingEmail.value = false;
-  }
-}
-
 onMounted(fetchSettings);
 </script>
 
@@ -155,10 +139,6 @@ onMounted(fetchSettings);
           Ajustez les paramètres globaux de la plateforme, les automatisations et les comportements généraux.
         </p>
       </div>
-      <button @click="showTestEmailModal = true" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2 cursor-pointer border border-slate-200">
-        <span class="material-icons-outlined text-sm">mail</span>
-        Test Envoi Mail
-      </button>
     </div>
 
     <div class="space-y-8">
@@ -239,28 +219,6 @@ onMounted(fetchSettings);
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Test Email Modal -->
-    <div v-if="showTestEmailModal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-base font-black text-slate-800">Test Envoi Email</h3>
-          <button @click="showTestEmailModal = false" class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer border-none">
-            <span class="material-icons-outlined text-sm">close</span>
-          </button>
-        </div>
-        <div class="space-y-4">
-          <div class="space-y-1">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Destinataire</label>
-            <input v-model="testEmailForm.to" type="email" placeholder="test@example.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs outline-none focus:bg-white focus:border-slate-900 transition-all" />
-          </div>
-          <button @click="sendTestEmail" :disabled="sendingEmail" class="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2 mt-2 disabled:opacity-50 cursor-pointer">
-            <span class="material-icons-outlined text-sm">{{ sendingEmail ? 'autorenew' : 'send' }}</span>
-            {{ sendingEmail ? 'Envoi en cours...' : 'Envoyer un mail de test' }}
-          </button>
         </div>
       </div>
     </div>

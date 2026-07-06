@@ -40,7 +40,7 @@ async function handleLogin() {
             <AppLogo class="w-14 h-14" />
           </div>
         </div>
-        <h1 class="text-5xl font-black text-white mb-6 leading-tight">WiziLearn <span class="text-brand-primary">Admin</span></h1>
+        <h1 class="text-5xl font-black text-white mb-6 leading-tight">Analyse des Besoins <span class="text-brand-primary">Admin</span></h1>
         <p class="text-slate-400 text-lg font-medium leading-relaxed">
           Gérez votre plateforme de formation avec une interface intuitive, puissante et hautement personnalisable.
         </p>
@@ -63,7 +63,7 @@ async function handleLogin() {
       
       <!-- Footer Info -->
       <div class="absolute bottom-10 left-0 right-0 text-center">
-        <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">© 2024 WiziLearn • Propulsé par l'IA</p>
+        <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest">© 2026 Analyses des Besoins • Propulsé par l'IA</p>
       </div>
     </div>
 

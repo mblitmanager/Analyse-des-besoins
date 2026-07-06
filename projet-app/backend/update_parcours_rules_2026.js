@@ -321,50 +321,6 @@ async function updateParcoursRules() {
         parcoursTitle: 'Renforcement Wordpress'
       },
       
-      // ANGLAIS
-      {
-        formation: 'Anglais',
-        formationId: 25,
-        condition: 'Si résultat du test ANGLAIS ≤ A2',
-        formation1: 'Niveau A2 - TOEIC',
-        formation2: 'Niveau B1 - TOEIC',
-        order: 1,
-        isActive: true,
-        certification: null,
-        prerequisiteConditions: null,
-        prerequisiteLogic: 'OR',
-        explanationMessage: 'A2 + B1',
-        parcoursTitle: 'Renforcement Anglais (A2 & B1) - TOEIC'
-      },
-      {
-        formation: 'Anglais',
-        formationId: 25,
-        condition: 'Si résultat du test ANGLAIS = B1',
-        formation1: 'Niveau B1 - TOEIC',
-        formation2: 'Niveau B2 - TOEIC',
-        order: 2,
-        isActive: true,
-        certification: null,
-        prerequisiteConditions: null,
-        prerequisiteLogic: 'OR',
-        explanationMessage: 'B1 + B2',
-        parcoursTitle: 'Perfectionnement Anglais (B1 & B2) - TOEIC'
-      },
-      {
-        formation: 'Anglais',
-        formationId: 25,
-        condition: 'Si résultat du test ANGLAIS = B2',
-        formation1: 'Niveau B2 - TOEIC',
-        formation2: 'Niveau C1 - TOEIC',
-        order: 3,
-        isActive: true,
-        certification: null,
-        prerequisiteConditions: null,
-        prerequisiteLogic: 'OR',
-        explanationMessage: 'B2 + C1',
-        parcoursTitle: 'Expertise Anglais (B2 & C1) - TOEIC'
-      },
-      
       // FRANÇAIS
       {
         formation: 'Français',
