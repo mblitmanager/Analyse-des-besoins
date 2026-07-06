@@ -588,7 +588,7 @@ async function selectFormation() {
     const sameFormationTest = await store.fetchSetting('P3_SAME_FORMATION_TEST');
     const otherFormationTest = await store.fetchSetting('P3_OTHER_FORMATION_TEST');
     
-    if (prevFormation && selectedFormation.value.label === prevFormation) {
+    if (prevFormation && labelsMatch(selectedFormation.value.label, prevFormation)) {
       // Same formation selected
       if (sameFormationTest === 'false') {
         toast.error("En mode P3, vous devez choisir une formation différente de celle du P2.");
@@ -618,6 +618,9 @@ async function selectFormation() {
       return;
     } else {
       // Different formation selected - allow it
+    }
+    if (showP3OverrideForRules(findMatchingP3OverrideRules(selectedFormation.value))) {
+      return;
     }
   }
 
