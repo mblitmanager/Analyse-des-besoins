@@ -34,9 +34,22 @@ const p3NextLevelLabelRaw = ref("");
 const p3NextLevelOrder = ref(0);
 const p3IsMaxLevel = ref(false);
 const p3IsSingleLevel = ref(false);
+const p3NoConfiguredParcours = ref(false);
 const p3IsUnselectedChoice = ref(false);
 const p3UnselectedChoicesList = ref([]);
 const p3SelectedRemainingChoice = ref('');
+const p3AutoParcoursTitle = computed(() => {
+  if (p3IsUnselectedChoice.value) return p3SelectedRemainingChoice.value;
+  return p3NextParcoursTitle.value || p3NextLevelLabel.value;
+});
+
+const p3AutoFormationDetail = computed(() => {
+  if (p3IsUnselectedChoice.value) return "";
+  const detail = p3NextFinalRecommendation.value || "";
+  const title = p3AutoParcoursTitle.value;
+  if (!detail || normalizeParcoursLabel(detail) === normalizeParcoursLabel(title)) return "";
+  return detail;
+});
 
 // ── P3 OVERRIDE: Admin-configurable forced formations by formation and level ──
 const p3OverrideEnabled = ref(false);
@@ -44,6 +57,27 @@ const p3OverrideRules = ref([]); // Array of P3 override rules
 const showP3OverrideModal = ref(false);
 const p3OverrideSelectedChoice = ref('');
 const p3OverrideMatchedRule = ref(null); // The rule that matched the user's formation/level
+const p3OverrideMatchedRules = ref([]);
+
+const p3OverrideChoiceOptions = computed(() => {
+  const rules = p3OverrideMatchedRules.value.length
+    ? p3OverrideMatchedRules.value
+    : (p3OverrideMatchedRule.value ? [p3OverrideMatchedRule.value] : []);
+  const seen = new Set();
+  const options = [];
+
+  rules.forEach((rule) => {
+    ["formation1", "formation2"].forEach((field) => {
+      const label = String(rule?.[field] || "").trim();
+      const clean = normalizeParcoursLabel(label);
+      if (!label || seen.has(clean)) return;
+      seen.add(clean);
+      options.push({ label, rule });
+    });
+  });
+
+  return options;
+});
 
 const p3UnselectedChoicesListWithOrder = computed(() => {
   if (!selectedFormation.value?.levels) return [];
@@ -371,6 +405,40 @@ function matchesLegacyP3Override(rule) {
   }
 }
 
+function p3OverrideRuleMatchesFormation(rule, formation) {
+  if (!formation) return true;
+  return (
+    (rule.formationId && Number(rule.formationId) === Number(formation.id)) ||
+    labelsMatch(formation.label, rule.formation)
+  );
+}
+
+function findMatchingP3OverrideRules(formation = null) {
+  const sortedRules = [...p3OverrideRules.value]
+    .filter((rule) => rule.isActive !== false && p3OverrideRuleMatchesFormation(rule, formation))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const p1p2Matches = sortedRules.filter(
+    (rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule),
+  );
+  if (p1p2Matches.length) return p1p2Matches;
+
+  const legacyMatch = sortedRules.find(
+    (rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule),
+  );
+  return legacyMatch ? [legacyMatch] : [];
+}
+
+function showP3OverrideForRules(rules) {
+  if (!rules.length) return false;
+  p3OverrideEnabled.value = true;
+  p3OverrideMatchedRules.value = rules;
+  p3OverrideMatchedRule.value = rules[0];
+  p3OverrideSelectedChoice.value = p3OverrideChoiceOptions.value[0]?.label || "";
+  showP3OverrideModal.value = true;
+  return true;
+}
+
 /**
  * P3 Override: checks if admin has configured forced formation choices for P3.
  * Fetches P3 override rules and matches them against the user's formation and level.
@@ -387,17 +455,13 @@ async function fetchP3Override() {
     p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
     if (p3OverrideRules.value.length === 0) return;
 
-    const sortedRules = [...p3OverrideRules.value].sort((a, b) => (a.order || 0) - (b.order || 0));
-    const matchedRule =
-      sortedRules.find((rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule)) ||
-      sortedRules.find((rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule));
-
-    if (!matchedRule) return;
-
-    p3OverrideEnabled.value = true;
-    p3OverrideMatchedRule.value = matchedRule;
-    p3OverrideSelectedChoice.value = matchedRule.formation1;
-    showP3OverrideModal.value = true;
+    const currentFormation = currentSession.value
+      ? {
+          id: currentSession.value.formationId,
+          label: currentSession.value.formationChoisie,
+        }
+      : null;
+    showP3OverrideForRules(findMatchingP3OverrideRules(currentFormation));
   } catch (e) {
     console.warn('[P3 Override] Error fetching override rules:', e);
   }
@@ -409,9 +473,15 @@ async function confirmP3Override() {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     
-    // Determine formation label from the choice
-    const chosenLabel = p3OverrideSelectedChoice.value;
-    const rule = p3OverrideMatchedRule.value;
+    const selectedOption = p3OverrideChoiceOptions.value.find(
+      (option) => option.label === p3OverrideSelectedChoice.value,
+    );
+    const chosenLabel = selectedOption?.label || p3OverrideSelectedChoice.value;
+    const rule = selectedOption?.rule || p3OverrideMatchedRule.value;
+    const overrideP1 = String(rule?.conditionP1 || "").trim();
+    const overrideP2 = String(rule?.conditionP2 || "").trim();
+    if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
+    if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
     
     // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
     const payload = {
@@ -426,8 +496,11 @@ async function confirmP3Override() {
     if (rule?.parcoursTitle) {
       payload.parcoursTitle = rule.parcoursTitle;
     }
+    const overrideSummary = [overrideP1, overrideP2].filter(Boolean).join(" + ");
     if (rule?.explanationMessage) {
       payload.explanationMessage = rule.explanationMessage;
+    } else if (overrideSummary) {
+      payload.explanationMessage = `${overrideSummary} -> ${chosenLabel}`;
     }
     if (rule?.certification) {
       payload.certification = rule.certification;
@@ -451,6 +524,9 @@ function skipP3Override() {
   // User wants to proceed with normal formation selection instead
   showP3OverrideModal.value = false;
   p3OverrideEnabled.value = false;
+  p3OverrideMatchedRule.value = null;
+  p3OverrideMatchedRules.value = [];
+  p3OverrideSelectedChoice.value = "";
 }
 
 onMounted(async () => {
@@ -518,6 +594,9 @@ async function selectFormation() {
         toast.error("En mode P3, vous devez choisir une formation différente de celle du P2.");
         return;
       }
+      if (showP3OverrideForRules(findMatchingP3OverrideRules(selectedFormation.value))) {
+        return;
+      }
       // If allowed, skip quiz entirely
       p3SameFormationLabel.value = selectedFormation.value.label;
       const computedResult = computeNextLevel();
@@ -529,6 +608,7 @@ async function selectFormation() {
       p3NextLevelOrder.value = computedResult.nextLevelOrder;
       p3IsMaxLevel.value = computedResult.isMaxLevel;
       p3IsSingleLevel.value = computedResult.isSingleLevel || false;
+      p3NoConfiguredParcours.value = computedResult.noConfiguredParcours || false;
       p3IsUnselectedChoice.value = computedResult.isUnselectedChoice || false;
       p3UnselectedChoicesList.value = computedResult.unselectedChoices || [];
       if (p3UnselectedChoicesList.value.length > 0) {
@@ -745,21 +825,20 @@ function computeNextLevel() {
     }
     displayLabel = parcoursTitle || finalRecommendation;
   } else {
-    // ── FALLBACK DYNAMIC LABELING ──
-    const escapedForm = formation.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const prefixMatch = prevRecs.match(new RegExp(`(TOSA\\s+)?${escapedForm}`, 'i'));
-    
-    const suffixMatch = prevRecs.match(/\s*-\s*(TOEIC|VOLTAIRE|TOSA|ICDL|BUREAUTIQUE)\b/i);
-    const suffix = suffixMatch ? suffixMatch[0] : '';
-    
-    if (prefixMatch) {
-      const hasDashInHistory = prevRecs.includes(' - ');
-      const sep = hasDashInHistory ? ' - ' : ' ';
-      displayLabel = `${prefixMatch[0]}${sep}${nextLevel.label}${suffix}`;
-    } else {
-      displayLabel = `${formation.label} - ${nextLevel.label}${suffix}`;
-    }
-    finalRecommendation = displayLabel;
+    // Do not invent a P3 parcours that is not configured in active rules.
+    const message = "Aucun parcours actif ne correspond à cette progression.";
+    return {
+      label: message,
+      finalRecommendation: "",
+      parcoursTitle: "",
+      explanationMessage: "",
+      nextLevelLabel: message,
+      nextLevelOrder: nextLevel.order,
+      isMaxLevel: true,
+      isSingleLevel: false,
+      isUnselectedChoice: false,
+      noConfiguredParcours: true
+    };
   }
 
   return {
@@ -771,7 +850,8 @@ function computeNextLevel() {
     nextLevelOrder: nextLevel.order,
     isMaxLevel,
     isSingleLevel: false,
-    isUnselectedChoice: false
+    isUnselectedChoice: false,
+    noConfiguredParcours: false
   };
 }
 
@@ -1288,15 +1368,30 @@ function isSectionActive(section) {
               </div>
               
               <!-- Simple text mode (single choice or standard next level) -->
-              <p v-else class="text-xl font-black text-[#305364]">
-                {{ p3IsUnselectedChoice ? p3SelectedRemainingChoice : p3NextLevelLabel }}
-              </p>
+              <div v-else class="space-y-2">
+                <p class="text-xl font-black text-[#305364] leading-tight">
+                  {{ p3AutoParcoursTitle }}
+                </p>
+                <p v-if="p3AutoFormationDetail" class="text-sm font-black text-blue-700 leading-tight">
+                  {{ p3AutoFormationDetail }}
+                </p>
+              </div>
             </div>
             <p class="text-gray-400 font-bold italic text-[11px] text-center mb-6">
               Aucun test supplémentaire n'est nécessaire.
             </p>
           </template>
           
+          <template v-else-if="p3NoConfiguredParcours">
+            <div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-center mb-4">
+              <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Aucun parcours actif configuré</p>
+              <p class="text-lg font-black text-red-700">{{ p3NextLevelLabel }}</p>
+            </div>
+            <p class="text-red-500 font-medium text-sm text-center mb-6">
+              Cette proposition n'existe pas dans la liste des parcours actifs. Veuillez choisir une autre formation ou ajouter le parcours correspondant dans le back office.
+            </p>
+          </template>
+
           <template v-else>
             <div class="bg-red-50 border border-red-200 rounded-2xl p-4 text-center mb-4">
               <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Niveau Maximum Atteint</p>
@@ -1337,39 +1432,22 @@ function isSectionActive(section) {
           </p>
           
           <div class="space-y-3 mb-8">
-            <label 
+            <label
+              v-for="option in p3OverrideChoiceOptions"
+              :key="option.label"
               class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
-              :class="p3OverrideSelectedChoice === p3OverrideMatchedRule.formation1 ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+              :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
             >
-              <input 
-                type="radio" 
-                :value="p3OverrideMatchedRule.formation1" 
+              <input
+                type="radio"
+                :value="option.label"
                 v-model="p3OverrideSelectedChoice"
                 class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
               />
               <div class="flex-1">
-                <span class="text-sm font-black text-slate-900">{{ p3OverrideMatchedRule.formation1 }}</span>
+                <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
               </div>
-              <div v-if="p3OverrideSelectedChoice === p3OverrideMatchedRule.formation1" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                <span class="material-icons-outlined text-white text-sm">check</span>
-              </div>
-            </label>
-            
-            <label 
-              v-if="p3OverrideMatchedRule.formation2"
-              class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
-              :class="p3OverrideSelectedChoice === p3OverrideMatchedRule.formation2 ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-            >
-              <input 
-                type="radio" 
-                :value="p3OverrideMatchedRule.formation2" 
-                v-model="p3OverrideSelectedChoice"
-                class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
-              />
-              <div class="flex-1">
-                <span class="text-sm font-black text-slate-900">{{ p3OverrideMatchedRule.formation2 }}</span>
-              </div>
-              <div v-if="p3OverrideSelectedChoice === p3OverrideMatchedRule.formation2" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+              <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
                 <span class="material-icons-outlined text-white text-sm">check</span>
               </div>
             </label>
