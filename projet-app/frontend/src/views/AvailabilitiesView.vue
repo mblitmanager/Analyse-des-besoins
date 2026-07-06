@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
 import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
+import { getSessionParcoursTitle } from "../utils/parcoursLabel";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import axios from "axios";
@@ -22,6 +23,8 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
+  const title = getSessionParcoursTitle(session.value);
+  if (title) return title;
   if (session.value.finalRecommendation)
     return session.value.finalRecommendation;
 

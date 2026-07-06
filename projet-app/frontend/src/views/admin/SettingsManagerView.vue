@@ -21,6 +21,7 @@ const categories = [
   { id: 'general', label: 'Général', icon: 'settings', patterns: ['ENABLE_', 'PLATFORM_'] },
   { id: 'comm', label: 'Communication', icon: 'chat', patterns: ['EMAIL', 'PHONE', 'SMS'] },
   { id: 'automation', label: 'Automatisme', icon: 'auto_mode', patterns: ['AUTO_SKIP', 'PAGINATED'] },
+  { id: 'p3', label: 'P3', icon: 'add_circle', patterns: ['P3_'] },
 ];
 
 const filteredSettings = computed(() => {
@@ -61,6 +62,8 @@ const getSettingIcon = (key) => {
   if (key === 'ENABLE_REFERRAL') return 'group_add';
   if (key.includes('ALERT')) return 'notification_important';
   if (key.includes('THRESHOLD')) return 'trending_up';
+  if (key === 'P3_SAME_FORMATION_TEST') return 'school';
+  if (key === 'P3_OTHER_FORMATION_TEST') return 'compare_arrows';
   return 'settings';
 };
 
@@ -74,6 +77,8 @@ const getSettingColor = (key) => {
   if (key === 'ENABLE_REFERRAL') return 'bg-sky-100 text-sky-600';
   if (key.includes('ALERT')) return 'bg-rose-100 text-rose-600';
   if (key.includes('THRESHOLD')) return 'bg-orange-100 text-orange-600';
+  if (key === 'P3_SAME_FORMATION_TEST') return 'bg-teal-100 text-teal-600';
+  if (key === 'P3_OTHER_FORMATION_TEST') return 'bg-cyan-100 text-cyan-600';
   return 'bg-slate-100 text-slate-600';
 };
 

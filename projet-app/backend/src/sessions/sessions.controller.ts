@@ -34,6 +34,8 @@ export class UpdateSessionDto {
   stopLevel?: string;
   stopLevelOrder?: number;
   finalRecommendation?: string;
+  parcoursTitle?: string | null;
+  parcoursRuleHadPrereqCondition?: boolean;
   explanationMessage?: string;
   complementaryQuestions?: any;
   availabilities?: any;
@@ -132,8 +134,8 @@ export class SessionsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.sessionsService.findAll();
+  findAll(@Query('stagiaireId') stagiaireId?: string) {
+    return this.sessionsService.findAll(stagiaireId);
   }
 
   @Post()

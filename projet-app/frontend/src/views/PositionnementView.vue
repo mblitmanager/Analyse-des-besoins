@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAppStore } from "../stores/app";
 import { formatBoldText } from "../utils/formatText";
 import { filterConditionalQuestions, clearHiddenResponses } from "../utils/conditionalQuestions";
+import { getSessionParcoursTitle, isMeaningfulParcoursTitle } from "../utils/parcoursLabel";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from "../components/HighLevelAlertModal.vue";
@@ -42,6 +43,7 @@ const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour ré
 const showResults = ref(false);
 const finalRecommendation = ref("");
 const parcoursRuleMessage = ref("");
+const parcoursTitle = ref("");
 const p3Redirected = ref(false);
 const isPaginated = ref(false);
 const currentQuestionIndex = ref(0);
@@ -63,6 +65,11 @@ const skipFormationWarning = ref(false);
 const formation = ref(null);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+function getRuleParcoursTitle(ruleTitle) {
+  const title = String(ruleTitle || "").trim();
+  return isMeaningfulParcoursTitle(title, formationLabel) ? title : "";
+}
 
 // Computed: filter questions based on conditional logic
 const levelContent = computed(() => {
@@ -174,6 +181,14 @@ async function restoreProgressFromSession() {
     if (session.prerequisiteScore && Object.keys(session.prerequisiteScore).length > 0) {
       prerequisiteAnswers.value = session.prerequisiteScore;
     }
+
+    // Restaurer le message de règle de parcours depuis la base de données
+    if (session.explanationMessage) {
+      parcoursRuleMessage.value = session.explanationMessage;
+    }
+
+    // Restaurer l'intitulé du parcours depuis la base de données
+    parcoursTitle.value = getSessionParcoursTitle(session, formationLabel);
 
     // If session is already finalized on backend, show results directly
     if (session.finalRecommendation && session.stopLevel) {
@@ -460,6 +475,8 @@ async function nextStep() {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
       positionnementAnswers: positionnementAnswers.value,
+      explanationMessage: parcoursRuleMessage.value,
+      parcoursTitle: parcoursTitle.value || null,
     });
 
     const session = patchRes.data;
@@ -540,7 +557,12 @@ async function finishTest(overrideSession = null) {
         if (condMatch) {
           const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
           const targetStr = cleanLabel(condMatch[2]);
-          const targetIdx = levels.value.findIndex((l) => cleanLabel(l.label) === targetStr);
+          const targetIdx = levels.value.findIndex((l) => {
+            const cleaned = cleanLabel(l.label);
+            // For Anglais levels (A1, A2, B1, B2, C1), extract just the level part
+            const levelPart = cleaned.split(/\s*-\s*/)[0].trim();
+            return levelPart === targetStr;
+          });
           if (targetIdx === -1) return false;
           switch (operator) {
             case '=':  return currentLevelIndex.value === targetIdx;
@@ -639,13 +661,12 @@ async function finishTest(overrideSession = null) {
         debug: s.debug,
       })));
 
-      // ── 4. Règle gagnante = score le plus élevé ──
+      // ── 4. Règles gagnantes = score le plus élevé ──
       // En cas d'égalité → order le plus bas (déjà triées)
-      const best = scoredRules
-        .filter(s => s.score > 0)
-        .sort((a, b) => b.score - a.score)[0];
+      const maxScore = Math.max(...scoredRules.filter(s => s.score > 0).map(s => s.score));
+      const bestRules = scoredRules.filter(s => s.score === maxScore && s.score > 0);
 
-      let matchedRule = best?.rule || null;
+      let matchedRule = bestRules[0]?.rule || null;
 
       // Fallback : aucune règle ne passe → dernière règle active
       if (!matchedRule) {
@@ -654,57 +675,70 @@ async function finishTest(overrideSession = null) {
       }
 
       if (matchedRule) {
-        const f1 = matchedRule.formation1 || "";
-        const f2 = matchedRule.formation2 || "";
-        
-        if (store.isP3Mode) {
-            // P3 Mode: Skip history duplicates
-            const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
-            const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
-            const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
-            
-            const isProposed = (val) => {
-                const vClean = cleanS(val);
-                return recs.some(r => {
-                    const rClean = cleanS(r);
-                    const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                    const vWords = vClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                    return vWords.some(vw => rWords.includes(vw));
-                });
-            };
-
-            if (isProposed(f1) && f2) {
-                finalRecommendation.value = f2;
-                p3Redirected.value = true;
-            } else if (isProposed(f1) && !f2) {
-                // f1 is a duplicate but no f2 alternative exists in the rule.
-                // Try to bump to the next level for this formation.
-                const sortedLvls = [...(levels.value || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
-                const currentLvlClean = cleanS(f1);
-                const matchedIdx = sortedLvls.findIndex(l => currentLvlClean.includes(cleanS(l.label)));
-                if (matchedIdx !== -1 && matchedIdx < sortedLvls.length - 1) {
-                    const nextLvl = sortedLvls[matchedIdx + 1];
-                    finalRecommendation.value = `${formationLabel} ${nextLvl.label}`.trim();
-                    p3Redirected.value = true;
-                } else {
-                    // Already at max level or can't determine — keep f1 as fallback
-                    finalRecommendation.value = f1;
-                }
-            } else {
-                finalRecommendation.value = f1;
-            }
+        // Si plusieurs règles ont le même score, afficher toutes les options
+        if (bestRules.length > 1) {
+          const options = bestRules.map(s => s.rule.formation1 || "").filter(Boolean);
+          finalRecommendation.value = options.join(' | ');
+          parcoursTitle.value = getRuleParcoursTitle(matchedRule.parcoursTitle);
+          parcoursRuleMessage.value = "Plusieurs parcours disponibles";
         } else {
-            if (f2 && f1 !== f2) {
-                finalRecommendation.value = `${f1} | ${f2}`;
-            } else {
-                finalRecommendation.value = f1;
-            }
+          const f1 = matchedRule.formation1 || "";
+          const f2 = matchedRule.formation2 || "";
+          
+          if (store.isP3Mode) {
+              // P3 Mode: Skip history duplicates
+              const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
+              const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+              const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
+              
+              const isProposed = (val) => {
+                  const vClean = cleanS(val);
+                  return recs.some(r => {
+                      const rClean = cleanS(r);
+                      const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                      const vWords = vClean.split(/[\s\-\']+/).filter(w => w.length > 1);
+                      return vWords.some(vw => rWords.includes(vw));
+                  });
+              };
+
+              if (isProposed(f1) && f2) {
+                  finalRecommendation.value = f2;
+                  p3Redirected.value = true;
+              } else if (isProposed(f1) && !f2) {
+                  // f1 is a duplicate but no f2 alternative exists in the rule.
+                  // Try to bump to the next level for this formation.
+                  const sortedLvls = [...(levels.value || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
+                  const currentLvlClean = cleanS(f1);
+                  const matchedIdx = sortedLvls.findIndex(l => currentLvlClean.includes(cleanS(l.label)));
+                  if (matchedIdx !== -1 && matchedIdx < sortedLvls.length - 1) {
+                      const nextLvl = sortedLvls[matchedIdx + 1];
+                      finalRecommendation.value = `${formationLabel} ${nextLvl.label}`.trim();
+                      p3Redirected.value = true;
+                  } else {
+                      // Already at max level or can't determine — keep f1 as fallback
+                      finalRecommendation.value = f1;
+                  }
+              } else {
+                  finalRecommendation.value = f1;
+              }
+          } else {
+              if (f2 && f1 !== f2) {
+                  finalRecommendation.value = `${f1} | ${f2}`;
+              } else {
+                  finalRecommendation.value = f1;
+              }
+          }
         }
         usedParcoursRule = true;
         // Track if the winning rule had a prerequisite condition
         parcoursRuleHadPrereqCondition.value = !!matchedRule.requirePrerequisiteFailure;
         // Store the explanation message for display
         parcoursRuleMessage.value = matchedRule.explanationMessage || "";
+        // Store the parcours title for display
+        if (bestRules.length === 1) {
+          parcoursTitle.value = getRuleParcoursTitle(matchedRule.parcoursTitle);
+        }
+        console.log(`[Parcours] Règle utilisée : ${matchedRule.id}, condition : "${matchedRule.condition}", prérequis : ${matchedRule.requirePrerequisiteFailure ? 'oui' : 'non'}, message : "${parcoursRuleMessage.value}", titre : "${parcoursTitle.value}"`);
       }
     }
   } catch (error) {
@@ -714,6 +748,7 @@ async function finishTest(overrideSession = null) {
   // ── Fallback: logic if no parcours rules matched ──
   if (!usedParcoursRule) {
     let l1 = formationLabel || 'Parcours personnalisé';
+    parcoursTitle.value = "";
     
     // Si on a des niveaux on tente de proposer le niveau validé ou le focus actuel
     if (levels.value && levels.value.length > 0) {
@@ -791,6 +826,8 @@ async function finishTest(overrideSession = null) {
       stopLevel: currentLevel.label,
       lastValidatedLevel: finalLevelLabel,
       positionnementAnswers: positionnementAnswers.value,
+      explanationMessage: parcoursRuleMessage.value,
+      parcoursTitle: parcoursTitle.value || null,
     });
     return; // Stop here, modal will trigger showResults = true
   }
@@ -803,6 +840,8 @@ async function finishTest(overrideSession = null) {
     lastValidatedLevel: finalLevelLabel,
     positionnementAnswers: positionnementAnswers.value,
     parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
+    explanationMessage: parcoursRuleMessage.value,
+    parcoursTitle: parcoursTitle.value || null,
   });
 
   const session = res.data;
@@ -848,6 +887,8 @@ async function saveAndExit() {
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       positionnementAnswers: positionnementAnswers.value,
+      explanationMessage: parcoursRuleMessage.value,
+      parcoursTitle: parcoursTitle.value || null,
     });
     router.push("/");
   } catch (error) {
@@ -927,7 +968,6 @@ async function saveAndExit() {
               <span class="material-icons-outlined text-amber-600">info</span>
             </div>
             <div>
-              
               <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
             </div>
           </div>
@@ -935,8 +975,11 @@ async function saveAndExit() {
           <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
             <!-- Parse steps (& separator) then alternatives (/ or OU) -->
             <template v-if="finalRecommendation">
+              
               <div class="flex flex-col gap-3">
-                <div
+                <h2 v-if="parcoursTitle" class="text-[#315264] font-black text-3xl md:text-4xl">{{ parcoursTitle }}</h2>
+                <!-- <p class="text-[#315264] font-black text-2xl md:text-3xl">{{ parcoursRuleMessage }}</p> -->
+                <!-- <div
                   v-for="(step, stepIdx) in finalRecommendation.split(/\s*&\s*|\s*\|\s*/)"
                   :key="stepIdx"
                   class="flex items-center gap-3"
@@ -950,7 +993,7 @@ async function saveAndExit() {
                       <span v-if="ci < step.split(/\s*\/\s*|\s+OU\s+/i).length - 1" class="text-[#315264]/60 font-bold text-base mx-2">ou</span>
                     </template>
                   </div>
-                </div>
+                </div> -->
               </div>
             </template>
           </div>
@@ -1337,11 +1380,17 @@ async function saveAndExit() {
                 <button
                   v-else
                   @click="nextStep"
-                  :disabled="submitting || !currentResponses[filteredQuestions[currentQuestionIndex].id]"
+                  :disabled="
+                    submitting ||
+                    Object.entries(currentResponses).some(([id, r]) => {
+                      const q = questions.find(qv => qv.id == id);
+                      return q?.responseType === 'text' ? !r || r.trim() === '' : r === null;
+                    })
+                  "
                   class="px-10 py-4 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
                 >
                   <span>{{ currentLevelIndex === levels.length - 1 ? "Terminer le test" : "Valider le niveau" }}</span>
-                  <span v-if="!submitting" class="material-icons-outlined text-lg">offline_bolt</span>
+                  <span v-if="!submitting" class="material-icons-outlined text-lg">arrow_forward</span>
                   <div v-else class="animate-spin border-2 border-white/30 border-t-white rounded-full h-4 w-4"></div>
                 </button>
               </template>

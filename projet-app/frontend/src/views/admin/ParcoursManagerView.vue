@@ -46,6 +46,7 @@ const newRule = ref({
   prerequisiteConditions: [],
   prerequisiteLogic: "OR",
   explanationMessage: "",
+  parcoursTitle: "",
 });
 
 // Dynamic helpers for form building
@@ -129,6 +130,7 @@ function openNewForm() {
     prerequisiteConditions: [],
     prerequisiteLogic: "OR",
     explanationMessage: "",
+    parcoursTitle: "",
   };
   conditionOperator.value = "=";
   f1Formation.value = "";
@@ -152,6 +154,7 @@ async function openEditForm(rule) {
     prerequisiteConditions: rule.prerequisiteConditions || [],
     prerequisiteLogic: rule.prerequisiteLogic || "OR",
     explanationMessage: rule.explanationMessage || "",
+    parcoursTitle: rule.parcoursTitle || "",
   };
   
   if (rule.formation) {
@@ -547,6 +550,7 @@ onMounted(async () => {
               <thead>
                 <tr class="bg-slate-50/50 border-b border-slate-50">
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ordre</th>
+                  <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Intitulé</th>
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Condition Score</th>
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Redirection Principale</th>
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Réussite Pré-requis</th>
@@ -557,6 +561,9 @@ onMounted(async () => {
                 <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-40 grayscale' : ''">
                   <td class="px-8 py-6">
                     <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.id }}</div>
+                  </td>
+                  <td class="px-8 py-6">
+                    <span class="text-xs font-black text-slate-900">{{ rule.parcoursTitle || '-' }}</span>
                   </td>
                   <td class="px-8 py-6">
                     <span class="text-xs font-black text-slate-900">{{ rule.condition }}</span>
@@ -619,7 +626,10 @@ onMounted(async () => {
                     <option value=">">&gt;</option>
                     <option value="≥">≥</option>
                   </select>
-                  <input v-model="conditionLevel" placeholder="Valeur (ex: 80)" class="flex-1 px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-sm outline-none focus:ring-2 focus:ring-brand-primary/20" />
+                  <select v-model="conditionLevel" class="flex-1 px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-sm outline-none focus:ring-2 focus:ring-brand-primary/20">
+                    <option value="">Sélectionner un niveau...</option>
+                    <option v-for="lvl in formationForm.levels" :key="lvl.id" :value="lvl.label">{{ lvl.label }}</option>
+                  </select>
                </div>
             </div>
 
@@ -684,6 +694,12 @@ onMounted(async () => {
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Certification délivrée</label>
                 <input v-model="newRule.certification" placeholder="ex: RS5432 - TOEIC Listening & Reading" class="w-full px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20" />
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Intitulé du parcours</label>
+              <input v-model="newRule.parcoursTitle" placeholder="ex: Parcours Anglais Professionnel" class="w-full px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20" />
+              <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-1">Titre affiché en grand sur la page de résultats.</p>
             </div>
 
             <div class="space-y-2">

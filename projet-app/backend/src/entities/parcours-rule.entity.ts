@@ -57,4 +57,7 @@ export class ParcoursRule {
 
   @Column({ type: 'text', nullable: true })
   explanationMessage: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  parcoursTitle: string;
 }

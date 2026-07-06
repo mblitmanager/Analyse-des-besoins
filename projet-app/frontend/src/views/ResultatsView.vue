@@ -9,6 +9,7 @@ import SiteFooter from '../components/SiteFooter.vue';
 import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import { useToastStore } from "../stores/toast";
+import { getSessionParcoursTitle } from "../utils/parcoursLabel";
 
 const store = useAppStore();
 const router = useRouter();
@@ -20,6 +21,8 @@ const loading = ref(true);
 const pdfContent = ref(null);
 const downloadingPDF = ref(false);
 const levels = ref([]);
+const parcoursTitle = ref("");
+const parcoursRuleMessage = ref("");
 
 // High level alert settings
 const alertSettings = ref({
@@ -32,6 +35,9 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
+  
+  const title = getSessionParcoursTitle(session.value);
+  if (title) return title;
   
   let label = "";
   // If a rule override is present, use its specific recommendation
@@ -264,6 +270,13 @@ async function loadResultats() {
   try {
     const response = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = response.data;
+    
+    // Restaurer l'intitulé du parcours et le message explicatif depuis la session
+    parcoursTitle.value = getSessionParcoursTitle(session.value);
+    if (session.value.explanationMessage) {
+      parcoursRuleMessage.value = session.value.explanationMessage;
+    }
+    
     await loadLevelsForFormation();
     await fetchAlertSettings();
   } catch (error) {
@@ -822,11 +835,20 @@ const downloadPDF = async () => {
             class="bg-brand-primary/5 p-6 md:p-8 border-b border-brand-primary/10 relative overflow-hidden"
           >
             <div class="relative z-10">
-              <span
+              <!-- Intitulé du parcours -->
+              <h2 v-if="parcoursTitle" class="text-3xl md:text-4xl font-black text-slate-900 mb-4">{{ parcoursTitle }}</h2>
+              
+              <!-- Message explicatif du parcours -->
+              <div v-if="parcoursRuleMessage" class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-start gap-3">
+                <span class="material-icons-outlined text-amber-600 mt-0.5">info</span>
+                <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
+              </div>
+              
+              <!-- <span
                 class="inline-block px-3 py-1 bg-brand-primary text-black rounded-full text-[10px] font-bold uppercase tracking-widest mb-4"
               >
                 Nous vous proposons le parcours :
-              </span>
+              </span> -->
               <!-- Numbered steps display -->
               <div class="space-y-8 mt-6 relative">
                 <div

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useAppStore } from "../stores/app";
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import { useToastStore } from "../stores/toast";
+import { getSessionParcoursTitle } from "../utils/parcoursLabel";
 
 const store = useAppStore();
 const router = useRouter();
@@ -31,6 +32,8 @@ const validatedLevelsCount = computed(() => {
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
+  const title = getSessionParcoursTitle(session.value);
+  if (title) return title;
   if (session.value.finalRecommendation)
     return session.value.finalRecommendation;
 
@@ -243,15 +246,13 @@ function confirmStartP3() {
                 <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Formation visée</span>
                 <span class="text-sm font-black text-blue-600">{{ session.formationChoisie }}</span>
               </div>
-              <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabelParts.length">
+              <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabel">
                 <span class="text-xs text-gray-500 font-bold"
                   >Parcours recommandé</span
                 >
-                <div class="flex flex-col items-end gap-1">
-                  <span v-for="part in recommendedLabelParts" :key="part" class="text-sm font-black text-green-600 text-right max-w-[200px]">
-                    {{ part }}
-                  </span>
-                </div>
+                <span class="text-sm font-black text-green-600 text-right max-w-[300px] break-words">
+                  {{ recommendedLabel }}
+                </span>
               </div>
             </div>
           </div>

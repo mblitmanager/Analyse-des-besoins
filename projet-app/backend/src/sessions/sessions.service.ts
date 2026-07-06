@@ -86,8 +86,10 @@ export class SessionsService {
     return idx !== -1 ? idx + 1 : 1;
   }
 
-  async findAll() {
+  async findAll(stagiaireId?: string) {
+    const where = stagiaireId ? { stagiaire: { id: parseInt(stagiaireId) } } : {};
     return this.sessionRepo.find({
+      where,
       relations: ['stagiaire'],
       order: { createdAt: 'DESC' },
     });
@@ -129,6 +131,13 @@ export class SessionsService {
         // Ensure visibility flags are passed to the frontend
         (session as any).isQuestionRuleOverride = data.isQuestionRuleOverride;
         (session as any).ruleResultType = data.ruleResultType;
+        (session as any).parcoursTitle =
+          this.hasMeaningfulParcoursTitle(
+            session.parcoursTitle,
+            session.formationChoisie,
+          )
+            ? session.parcoursTitle
+            : data.parcoursTitle || session.parcoursTitle;
 
         // Ensure values are synced if not already stored
         if (!session.finalRecommendation) {
@@ -160,6 +169,7 @@ export class SessionsService {
       resetData.finalRecommendation = null;
       resetData.scorePretest = null;
       resetData.explanationMessage = null;
+      resetData.parcoursTitle = null;
     }
 
     // Remove ephemeral flag before persisting (not a DB column)
@@ -178,6 +188,105 @@ export class SessionsService {
     return { success: true };
   }
 
+  private normalizeParcoursLabel(value?: string | null): string {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/œ/g, 'oe')
+      .replace(/Œ/g, 'oe')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  private hasMeaningfulParcoursTitle(
+    title?: string | null,
+    formationLabel?: string | null,
+  ): boolean {
+    const cleanTitle = this.normalizeParcoursLabel(title);
+    if (!cleanTitle) return false;
+    if (
+      cleanTitle === 'parcours' ||
+      cleanTitle === 'parcours personnalise' ||
+      cleanTitle === 'parcours de formation'
+    ) {
+      return false;
+    }
+
+    const cleanFormation = this.normalizeParcoursLabel(formationLabel);
+    return !cleanFormation || cleanTitle !== cleanFormation;
+  }
+
+  private async resolveParcoursTitle(
+    session: Session,
+    recommendations: string[] = [],
+  ): Promise<string | null> {
+    if (
+      this.hasMeaningfulParcoursTitle(
+        session.parcoursTitle,
+        session.formationChoisie,
+      )
+    ) {
+      return session.parcoursTitle?.trim() || null;
+    }
+
+    const recText = [session.finalRecommendation, ...recommendations]
+      .filter(Boolean)
+      .join(' | ');
+    const recNorm = this.normalizeParcoursLabel(recText);
+    if (!recNorm) return null;
+
+    const formationChoice = String(session.formationChoisie ?? '').trim();
+    const formation = formationChoice
+      ? await this.sessionRepo.manager.getRepository(Formation).findOne({
+          where: [{ slug: formationChoice }, { label: formationChoice }],
+        })
+      : null;
+
+    const activeRulesWhere: any[] = [];
+    if (formation?.id) {
+      activeRulesWhere.push({ formationId: formation.id, isActive: true });
+    }
+    if (formationChoice) {
+      activeRulesWhere.push({
+        formation: ILike(formationChoice),
+        isActive: true,
+      });
+    }
+    if (activeRulesWhere.length === 0) return null;
+
+    const rules = await this.parcoursRuleRepo.find({
+      where: activeRulesWhere,
+      order: { order: 'ASC' },
+    });
+
+    const matchingRule = rules.find((rule) => {
+      const f1 = this.normalizeParcoursLabel(rule.formation1);
+      const f2 = this.normalizeParcoursLabel(rule.formation2);
+      const title = this.normalizeParcoursLabel(rule.parcoursTitle);
+      const hasF1 = !!f1 && (recNorm.includes(f1) || f1.includes(recNorm));
+      const hasF2 = !!f2 && (recNorm.includes(f2) || f2.includes(recNorm));
+
+      if (f1 && f2 && hasF1 && hasF2) return true;
+      if ((hasF1 || hasF2) && !recNorm.includes(' | ') && !recNorm.includes(' & ')) {
+        return true;
+      }
+      return !!title && recNorm.includes(title);
+    });
+
+    if (
+      matchingRule &&
+      this.hasMeaningfulParcoursTitle(
+        matchingRule.parcoursTitle,
+        session.formationChoisie,
+      )
+    ) {
+      return matchingRule.parcoursTitle.trim();
+    }
+
+    return null;
+  }
+
   async getRecommendationData(session: Session): Promise<{
     recommendation: string;
     recommendations?: string[];
@@ -193,6 +302,7 @@ export class SessionsService {
     filteredAvailabilities?: any;
     miseTitle: string;
     certification?: any;
+    parcoursTitle?: string | null;
     isQuestionRuleOverride?: boolean;
     ruleResultType?: string | null;
     levels: Level[];
@@ -255,6 +365,10 @@ export class SessionsService {
       const recommendations = session.finalRecommendation.includes(' & ')
         ? session.finalRecommendation.split(' & ')
         : [session.finalRecommendation];
+      const parcoursTitle = await this.resolveParcoursTitle(
+        session,
+        recommendations,
+      );
 
       const formationLabel = session.formationChoisie;
 
@@ -301,6 +415,7 @@ export class SessionsService {
         correctAnswersById,
         p3Redirected: false,
         explanationMessage: session.explanationMessage,
+        parcoursTitle,
       };
     }
 
@@ -727,6 +842,12 @@ export class SessionsService {
           filteredAvailabilities: session.availabilities,
           miseTitle: 'Mise à niveau (réponses)',
           certification: matchedRule.certification,
+          parcoursTitle: this.hasMeaningfulParcoursTitle(
+            matchedRule.parcoursTitle,
+            session.formationChoisie,
+          )
+            ? matchedRule.parcoursTitle
+            : null,
           levels,
           stopLevelOrder:
             session.stopLevelOrder ||
@@ -758,6 +879,7 @@ export class SessionsService {
         miseTitle: session.formationChoisie
           ? `Mise à niveau (réponses – ${safe(session.formationChoisie)})`
           : 'Mise à niveau (réponses)',
+        parcoursTitle: (overrideSession as any).parcoursTitle,
         levels,
         correctAnswersById,
         p3Redirected: false,
@@ -967,6 +1089,7 @@ export class SessionsService {
       filteredComplementaryAnswers,
       filteredAvailabilities,
       miseTitle,
+      parcoursTitle: undefined,
       levels,
       correctAnswersById,
       p3Redirected: p3Redirected || false,
@@ -993,6 +1116,7 @@ export class SessionsService {
       filteredAvailabilities,
       miseTitle,
       levels,
+      parcoursTitle,
     } = await this.getRecommendationData(session);
 
     const levelsTable = session.levelsScores
@@ -1310,6 +1434,7 @@ export class SessionsService {
 
     return this.update(id, {
       finalRecommendation: recommendation,
+      parcoursTitle: parcoursTitle,
       stopLevel: finalLevel
         ? finalLevel.label
         : levels.length > 0
@@ -1343,6 +1468,7 @@ export class SessionsService {
       filteredPrerequis,
       filteredComplementaryAnswers,
       filteredAvailabilities,
+      parcoursTitle,
     } = await this.getRecommendationData(session);
 
     const adminEmail = await this.settingsService.getValue(
@@ -1483,6 +1609,7 @@ export class SessionsService {
 
     return this.update(session.id, {
       finalRecommendation: recommendation,
+      parcoursTitle: parcoursTitle || session.parcoursTitle,
       stopLevel: session.stopLevel || 'P3 Auto',
       stopLevelOrder: session.stopLevelOrder,
       scorePretest: -1,
@@ -1516,6 +1643,7 @@ export class SessionsService {
       filteredAvailabilities,
       miseTitle,
       levels,
+      parcoursTitle,
     } = await this.getRecommendationData(session);
 
     const levelsTable = session.levelsScores
@@ -1827,6 +1955,7 @@ export class SessionsService {
       filteredPrerequis,
       filteredComplementaryAnswers,
       filteredAvailabilities,
+      parcoursTitle,
     } = await this.getRecommendationData(session);
 
     const adminEmail = await this.settingsService.getValue(
