@@ -500,11 +500,7 @@ async function selectFormation() {
       showP3SameFormationModal.value = true;
       return;
     } else {
-      // Different formation selected
-      if (otherFormationTest === 'true') {
-        toast.error("En mode P3, vous devez choisir la même formation que celle du P2.");
-        return;
-      }
+      // Different formation selected - allow it
     }
   }
 
@@ -1194,9 +1190,9 @@ function isSectionActive(section) {
             <span class="material-icons-outlined text-3xl">{{ p3IsMaxLevel ? 'block' : 'trending_up' }}</span>
           </div>
           
-          <h2 class="text-xl font-black text-center text-[#305364] mb-3 uppercase tracking-tight">{{ p3IsSingleLevel ? 'Formation à parcours unique' : 'Même formation' }}</h2>
+          <h2 class="text-xl font-black text-center text-[#305364] mb-3 uppercase tracking-tight">{{ p3IsSingleLevel ? 'Formation à parcours unique' : 'Formation sélectionnée' }}</h2>
           <p class="text-gray-600 font-medium text-center mb-2 leading-relaxed">
-            Vous avez choisi <strong class="text-[#305364]">{{ p3SameFormationLabel }}</strong><span v-if="!p3IsSingleLevel">, la même formation que votre parcours précédent</span>.
+            Vous avez choisi <strong class="text-[#305364]">{{ p3SameFormationLabel }}</strong><span v-if="!p3IsSingleLevel"> pour votre 3ème parcours</span>.
           </p>
           
           <template v-if="p3IsSingleLevel">
