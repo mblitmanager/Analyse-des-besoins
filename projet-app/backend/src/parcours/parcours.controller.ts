@@ -17,11 +17,12 @@ export class ParcoursController {
   constructor(private readonly parcoursService: ParcoursService) {}
 
   @Get()
-  findAll(@Query('formation') formation?: string) {
+  findAll(@Query('formation') formation?: string, @Query('activeOnly') activeOnly?: string) {
+    const onlyActive = activeOnly === 'true' || activeOnly === '1';
     if (formation) {
-      return this.parcoursService.findByFormation(formation);
+      return this.parcoursService.findByFormation(formation, onlyActive);
     }
-    return this.parcoursService.findAll();
+    return this.parcoursService.findAll(onlyActive);
   }
 
   @Post()

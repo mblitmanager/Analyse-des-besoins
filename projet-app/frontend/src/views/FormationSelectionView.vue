@@ -27,6 +27,9 @@ const selectedSuite = ref(localStorage.getItem('selected_suite') || '');
 const showP3SameFormationModal = ref(false);
 const p3SameFormationLabel = ref("");
 const p3NextLevelLabel = ref("");
+const p3NextFinalRecommendation = ref("");
+const p3NextParcoursTitle = ref("");
+const p3NextExplanation = ref("");
 const p3NextLevelLabelRaw = ref("");
 const p3NextLevelOrder = ref(0);
 const p3IsMaxLevel = ref(false);
@@ -277,12 +280,94 @@ async function fetchP3Rules() {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const [p3Res, parcoursRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/p3-filter-rules?activeOnly=true`),
-      axios.get(`${apiBaseUrl}/parcours`)
+      axios.get(`${apiBaseUrl}/parcours?activeOnly=true`)
     ]);
     p3Rules.value = p3Res.data;
-    allParcoursRules.value = parcoursRes.data || [];
+    allParcoursRules.value = (parcoursRes.data || []).filter(rule => rule.isActive !== false);
   } catch (err) {
     console.error("Failed to fetch P3/Parcours rules:", err);
+  }
+}
+
+function labelsMatch(actual, expected) {
+  const cleanActual = normalizeParcoursLabel(actual);
+  const cleanExpected = normalizeParcoursLabel(expected);
+  if (!cleanExpected) return true;
+  if (!cleanActual) return false;
+  return (
+    cleanActual === cleanExpected ||
+    cleanActual.includes(cleanExpected) ||
+    cleanExpected.includes(cleanActual)
+  );
+}
+
+function getP3PreviousItemsForConditions() {
+  const title = getSessionParcoursTitle(currentSession.value);
+  const sessionItems = getFormationItemsFromSession(currentSession.value, title);
+  const fallbackItems = [
+    localStorage.getItem("p3_prev_p1") || "",
+    localStorage.getItem("p3_prev_p2") || "",
+  ];
+  const legacyItems = p3PrevRecommendations.value;
+
+  return [
+    sessionItems[0] || fallbackItems[0] || legacyItems[0] || "",
+    sessionItems[1] || fallbackItems[1] || legacyItems[1] || "",
+  ];
+}
+
+function hasP1P2OverrideConditions(rule) {
+  return !!(String(rule.conditionP1 || "").trim() || String(rule.conditionP2 || "").trim());
+}
+
+function matchesP1P2Override(rule) {
+  const [p1, p2] = getP3PreviousItemsForConditions();
+  const p1Ok = !String(rule.conditionP1 || "").trim() || labelsMatch(p1, rule.conditionP1);
+  const p2Ok = !String(rule.conditionP2 || "").trim() || labelsMatch(p2, rule.conditionP2);
+  return p1Ok && p2Ok;
+}
+
+function matchesLegacyP3Override(rule) {
+  const prevFormation = localStorage.getItem('p3_prev_formation') || currentSession.value?.formationChoisie || '';
+  if (!prevFormation) return false;
+
+  const formationMatches =
+    labelsMatch(prevFormation, rule.formation) ||
+    (rule.formationId && Number(rule.formationId) === Number(currentSession.value?.formationId));
+  if (!formationMatches) return false;
+
+  const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+  if (!condMatch) return false;
+
+  const operator = condMatch[1].replace('≤', '<=').replace('≥', '>=');
+  const targetLevel = condMatch[2];
+  const userLevelLabel = currentSession.value?.stopLevel || localStorage.getItem('p3_prev_stop_level') || '';
+  if (!userLevelLabel) return false;
+
+  const previousFormation = formations.value.find((formation) =>
+    labelsMatch(formation.label, prevFormation) ||
+    (rule.formationId && Number(formation.id) === Number(rule.formationId))
+  );
+  const levels = previousFormation?.levels || [];
+  const targetLevelObj = levels.find((level) => labelsMatch(level.label, targetLevel));
+  const userLevelObj = levels.find((level) => labelsMatch(level.label, userLevelLabel));
+  if (!targetLevelObj || !userLevelObj) return false;
+
+  const targetOrder = Number(targetLevelObj.order || 0);
+  const userOrder = Number(userLevelObj.order || 0);
+  switch (operator) {
+    case '=':
+      return userOrder === targetOrder;
+    case '<':
+      return userOrder < targetOrder;
+    case '<=':
+      return userOrder <= targetOrder;
+    case '>':
+      return userOrder > targetOrder;
+    case '>=':
+      return userOrder >= targetOrder;
+    default:
+      return false;
   }
 }
 
@@ -296,70 +381,19 @@ async function fetchP3Override() {
   try {
     const enabled = await store.fetchSetting('P3_OVERRIDE_ENABLED');
     if (enabled !== 'true') return;
-    
+
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const rulesRes = await axios.get(`${apiBaseUrl}/p3-override`);
-    p3OverrideRules.value = (rulesRes.data || []).filter(r => r.isActive !== false);
-    
+    const rulesRes = await axios.get(`${apiBaseUrl}/p3-override?activeOnly=true`);
+    p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
     if (p3OverrideRules.value.length === 0) return;
-    
-    // Get the user's previous formation and level from session
-    const prevFormation = localStorage.getItem('p3_prev_formation') || '';
-    const prevLevelOrder = Number(localStorage.getItem('p3_prev_level_order') || 0);
-    
-    if (!prevFormation) return;
-    
-    // Find matching rule for the user's formation
-    const matchedRule = p3OverrideRules.value.find(r => 
-      r.formation === prevFormation || 
-      (r.formationId && r.formationId === currentSession.value?.formationId)
-    );
-    
+
+    const sortedRules = [...p3OverrideRules.value].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const matchedRule =
+      sortedRules.find((rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule)) ||
+      sortedRules.find((rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule));
+
     if (!matchedRule) return;
-    
-    // Parse the condition and check if it matches the user's level
-    // Condition format: "= Basique", "< Basique", "≥ Basique", etc.
-    const condMatch = matchedRule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
-    if (!condMatch) return;
-    
-    const operator = condMatch[1].replace('<=', '<=').replace('>=', '>=').replace('≤', '<=').replace('≥', '>=');
-    const targetLevel = condMatch[2];
-    
-    // Get the user's level label from the session
-    const userLevelLabel = currentSession.value?.stopLevel || '';
-    if (!userLevelLabel) return;
-    
-    // Compare levels using order
-    const targetLevelObj = selectedFormation.value?.levels?.find(l => l.label === targetLevel);
-    const userLevelObj = selectedFormation.value?.levels?.find(l => l.label === userLevelLabel);
-    
-    if (!targetLevelObj || !userLevelObj) return;
-    
-    const targetOrder = targetLevelObj.order;
-    const userOrder = userLevelObj.order;
-    
-    let conditionMet = false;
-    switch (operator) {
-      case '=':
-        conditionMet = userOrder === targetOrder;
-        break;
-      case '<':
-        conditionMet = userOrder < targetOrder;
-        break;
-      case '<=':
-        conditionMet = userOrder <= targetOrder;
-        break;
-      case '>':
-        conditionMet = userOrder > targetOrder;
-        break;
-      case '>=':
-        conditionMet = userOrder >= targetOrder;
-        break;
-    }
-    
-    if (!conditionMet) return;
-    
-    // Rule matched! Show override modal
+
     p3OverrideEnabled.value = true;
     p3OverrideMatchedRule.value = matchedRule;
     p3OverrideSelectedChoice.value = matchedRule.formation1;
@@ -368,7 +402,6 @@ async function fetchP3Override() {
     console.warn('[P3 Override] Error fetching override rules:', e);
   }
 }
-
 async function confirmP3Override() {
   if (!p3OverrideSelectedChoice.value) return;
   showP3OverrideModal.value = false;
@@ -405,10 +438,7 @@ async function confirmP3Override() {
     // Submit (finalize) the session
     await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
     
-    // Clear P3 state and go home
-    store.setP3Mode(false);
-    localStorage.removeItem("session_id");
-    router.push('/');
+    router.push('/validation');
   } catch (error) {
     console.error('Failed to confirm P3 override:', error);
     toast.error('Erreur lors de la validation du P3.');
@@ -423,7 +453,7 @@ function skipP3Override() {
   p3OverrideEnabled.value = false;
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!sessionId) {
     router.push("/");
     return;
@@ -431,20 +461,24 @@ onMounted(() => {
   
   // Fresh P1 session: clear any leftover P3 state from previous journeys
   if (store.parcoursNumber === 1) {
-    const p3Keys = ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices'];
+    const p3Keys = ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_p1', 'p3_prev_p2', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices'];
     p3Keys.forEach(k => localStorage.removeItem(k));
   }
   
-  // Fetch session data first for P3 filtering
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-  axios.get(`${apiBaseUrl}/sessions/${sessionId}`).then(res => {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     currentSession.value = res.data;
-    fetchPreviousSessions();
-  }).catch(err => console.error("Failed to fetch session for P3 filtering", err));
+    await fetchPreviousSessions();
+  } catch (err) {
+    console.error("Failed to fetch session for P3 filtering", err);
+  }
 
-  fetchFormations();
-  fetchP3Rules();
-  fetchP3Override();
+  await Promise.all([
+    fetchFormations(),
+    fetchP3Rules(),
+  ]);
+  await fetchP3Override();
 
   // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
   observer = new IntersectionObserver(
@@ -488,6 +522,9 @@ async function selectFormation() {
       p3SameFormationLabel.value = selectedFormation.value.label;
       const computedResult = computeNextLevel();
       p3NextLevelLabel.value = computedResult.label;
+      p3NextFinalRecommendation.value = computedResult.finalRecommendation || computedResult.label;
+      p3NextParcoursTitle.value = computedResult.parcoursTitle || "";
+      p3NextExplanation.value = computedResult.explanationMessage || "";
       p3NextLevelLabelRaw.value = computedResult.nextLevelLabel;
       p3NextLevelOrder.value = computedResult.nextLevelOrder;
       p3IsMaxLevel.value = computedResult.isMaxLevel;
@@ -676,6 +713,9 @@ function computeNextLevel() {
   const nextLevelClean = cleanR(nextLevel.label);
   
   let displayLabel = `${formation.label} - ${nextLevel.label}`;
+  let finalRecommendation = displayLabel;
+  let parcoursTitle = "";
+  let explanationMessage = "";
   
   const matchedRule = allParcoursRules.value.find(r => {
     // Match by formation ID or EXACT label
@@ -690,14 +730,20 @@ function computeNextLevel() {
   });
 
   if (matchedRule) {
+    parcoursTitle = getSessionParcoursTitle(
+      { parcoursTitle: matchedRule.parcoursTitle, formationChoisie: formation.label },
+      formation.label,
+    );
+    explanationMessage = matchedRule.explanationMessage || "";
     // Pick the output label that matches the target level
     const f1Clean = cleanR(matchedRule.formation1);
     const f2Clean = cleanR(matchedRule.formation2);
     if (f1Clean.includes(nextLevelClean)) {
-      displayLabel = matchedRule.formation1;
+      finalRecommendation = matchedRule.formation1;
     } else if (f2Clean.includes(nextLevelClean)) {
-      displayLabel = matchedRule.formation2;
+      finalRecommendation = matchedRule.formation2;
     }
+    displayLabel = parcoursTitle || finalRecommendation;
   } else {
     // ── FALLBACK DYNAMIC LABELING ──
     const escapedForm = formation.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -713,10 +759,14 @@ function computeNextLevel() {
     } else {
       displayLabel = `${formation.label} - ${nextLevel.label}${suffix}`;
     }
+    finalRecommendation = displayLabel;
   }
 
   return {
     label: displayLabel,
+    finalRecommendation,
+    parcoursTitle,
+    explanationMessage,
     nextLevelLabel: nextLevel.label,
     nextLevelOrder: nextLevel.order,
     isMaxLevel,
@@ -731,27 +781,34 @@ async function confirmP3SameFormation() {
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     
-    let finalRec = p3NextLevelLabel.value;
+    let finalRec = p3NextFinalRecommendation.value || p3NextLevelLabel.value;
     let finalStopLevel = p3NextLevelLabelRaw.value;
     let finalStopLevelOrder = p3NextLevelOrder.value;
+    let finalParcoursTitle = p3NextParcoursTitle.value;
+    let finalExplanation = p3NextExplanation.value;
     
     if (p3IsUnselectedChoice.value && p3SelectedRemainingChoice.value) {
       finalRec = p3SelectedRemainingChoice.value;
       finalStopLevel = p3SelectedRemainingChoice.value;
+      finalParcoursTitle = "";
+      finalExplanation = "";
       // Use the order from the selected choice if available, otherwise fallback to history
       const choiceObj = p3UnselectedChoicesListWithOrder.value.find(c => c.label === finalRec);
       finalStopLevelOrder = choiceObj ? choiceObj.order : Number(localStorage.getItem('p3_prev_level_order') || 0);
     }
     
     // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+    const payload = {
       formationChoisie: selectedFormation.value.label,
       isP3Mode: true,
       p3SkipQuiz: true,
       finalRecommendation: finalRec,
       stopLevel: finalStopLevel,
       stopLevelOrder: finalStopLevelOrder,
-    });
+    };
+    if (finalParcoursTitle) payload.parcoursTitle = finalParcoursTitle;
+    if (finalExplanation) payload.explanationMessage = finalExplanation;
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
     // Submit (finalize) the session - backend will use pre-set values
     await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
     
@@ -1554,3 +1611,4 @@ function isSectionActive(section) {
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
 }
 </style>
+

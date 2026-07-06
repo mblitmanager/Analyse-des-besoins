@@ -45,6 +45,8 @@ const newRule = ref({
   certification: "",
   prerequisiteConditions: [],
   prerequisiteLogic: "OR",
+  selectionConditions: [],
+  selectionConditionLogic: "AND",
   explanationMessage: "",
   parcoursTitle: "",
 });
@@ -52,6 +54,7 @@ const newRule = ref({
 // Dynamic helpers for form building
 const selectedFormationLevels = ref([]);
 const prereqQuestions = ref([]); 
+const conditionQuestions = ref([]);
 const conditionLevel = ref("");
 const conditionOperator = ref("=");
 const f1Formation = ref("");
@@ -65,6 +68,27 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 const getAuthHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('admin_token')}` });
 
 const toast = useToastStore();
+
+const workflowLabels = {
+  prerequis: "Pré-requis",
+  complementary: "Complémentaires",
+  availabilities: "Disponibilités",
+  mise_a_niveau: "Mise à niveau",
+  "mise-a-niveau": "Mise à niveau",
+};
+
+const selectableConditionQuestions = computed(() => {
+  const allowedTypes = [
+    "prerequis",
+    "complementary",
+    "availabilities",
+    "mise_a_niveau",
+    "mise-a-niveau",
+  ];
+  return conditionQuestions.value.filter(
+    (question) => allowedTypes.includes(question.type) && question.isActive !== false,
+  );
+});
 
 
 const categories = computed(() => {
@@ -85,21 +109,22 @@ const filteredRules = computed(() => {
   if (!currentFormation.value) return [];
   return rules.value.filter((r) => {
     const matchesFormation = r.formation === currentFormation.value.label;
+    const isActive = r.isActive !== false;
     const q = searchTerm.value.toLowerCase().trim();
     const matchesSearch = !q || 
       (r.condition || "").toLowerCase().includes(q) || 
       (r.formation1 || "").toLowerCase().includes(q) || 
       (r.formation2 || "").toLowerCase().includes(q);
     
-    return matchesFormation && matchesSearch;
+    return isActive && matchesFormation && matchesSearch;
   });
 });
 
 async function fetchRules() {
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours`, { headers: getAuthHeaders() });
-    rules.value = res.data;
+    const res = await axios.get(`${apiBaseUrl}/parcours?activeOnly=true`, { headers: getAuthHeaders() });
+    rules.value = (res.data || []).filter(rule => rule.isActive !== false);
   } catch (error) {
     console.error("Failed to fetch parcours rules:", error);
   } finally {
@@ -114,6 +139,7 @@ function selectFormation(f) {
     levels: f.levels ? [...f.levels] : [],
     color: f.color || "#3B82F6" // Fallback to avoid color input warning
   };
+  fetchConditionQuestions(f.slug);
 }
 
 function openNewForm() {
@@ -129,6 +155,8 @@ function openNewForm() {
     certification: "",
     prerequisiteConditions: [],
     prerequisiteLogic: "OR",
+    selectionConditions: [],
+    selectionConditionLogic: "AND",
     explanationMessage: "",
     parcoursTitle: "",
   };
@@ -153,6 +181,8 @@ async function openEditForm(rule) {
     certification: rule.certification || "",
     prerequisiteConditions: rule.prerequisiteConditions || [],
     prerequisiteLogic: rule.prerequisiteLogic || "OR",
+    selectionConditions: rule.selectionConditions || [],
+    selectionConditionLogic: rule.selectionConditionLogic || "AND",
     explanationMessage: rule.explanationMessage || "",
     parcoursTitle: rule.parcoursTitle || "",
   };
@@ -226,6 +256,50 @@ function isPrereqOptionSelected(questionId, optIndex) {
   return cond ? cond.responseIndexes.includes(optIndex) : false;
 }
 
+function toggleSelectionQuestion(question) {
+  if (!newRule.value.selectionConditions) newRule.value.selectionConditions = [];
+  const index = newRule.value.selectionConditions.findIndex(c => c.questionId === question.id);
+  if (index === -1) {
+    newRule.value.selectionConditions.push({
+      workflow: question.type === "mise-a-niveau" ? "mise_a_niveau" : question.type,
+      questionId: question.id,
+      responseIndexes: [],
+      expectedValue: "",
+      operator: "IN",
+    });
+  } else {
+    newRule.value.selectionConditions.splice(index, 1);
+  }
+}
+
+function getSelectionCondition(questionId) {
+  return (newRule.value.selectionConditions || []).find(c => c.questionId === questionId);
+}
+
+function isSelectionQuestionSelected(questionId) {
+  return !!getSelectionCondition(questionId);
+}
+
+function toggleSelectionOption(questionId, optIndex) {
+  const cond = getSelectionCondition(questionId);
+  if (!cond) return;
+  if (!cond.responseIndexes) cond.responseIndexes = [];
+  const idx = cond.responseIndexes.indexOf(optIndex);
+  if (idx === -1) cond.responseIndexes.push(optIndex);
+  else cond.responseIndexes.splice(idx, 1);
+}
+
+function isSelectionOptionSelected(questionId, optIndex) {
+  const cond = getSelectionCondition(questionId);
+  return cond?.responseIndexes?.includes(optIndex) || false;
+}
+
+function setSelectionExpectedValue(questionId, value) {
+  const cond = getSelectionCondition(questionId);
+  if (!cond) return;
+  cond.expectedValue = value;
+}
+
 async function saveRule() {
   try {
     if (editingRule.value) {
@@ -269,8 +343,8 @@ async function toggleRuleActive(rule) {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations`, { headers: getAuthHeaders() });
-    formationsList.value = res.data;
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { headers: getAuthHeaders() });
+    formationsList.value = (res.data || []).filter(formation => formation.isActive !== false);
     if (formationsList.value.length > 0 && !activeFormationId.value) {
       const savedId = localStorage.getItem('admin_parcours_activeFormationId');
       if (savedId) {
@@ -308,7 +382,7 @@ async function fetchLevelsForFormation(label) {
   }
   try {
     const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`, { headers: getAuthHeaders() });
-    selectedFormationLevels.value = res.data || [];
+    selectedFormationLevels.value = (res.data || []).filter(level => level.isActive !== false);
   } catch (error) {
     console.error("Failed to fetch levels:", error);
     selectedFormationLevels.value = [];
@@ -324,6 +398,18 @@ async function fetchPrereqQuestions() {
     prereqQuestions.value = res.data || [];
   } catch (error) {
     console.error("Failed to fetch prereq questions:", error);
+  }
+}
+
+async function fetchConditionQuestions(formationSlug) {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/questions`, {
+      params: formationSlug ? { formation: formationSlug } : {},
+      headers: getAuthHeaders()
+    });
+    conditionQuestions.value = res.data || [];
+  } catch (error) {
+    console.error("Failed to fetch condition questions:", error);
   }
 }
 
@@ -554,13 +640,14 @@ onMounted(async () => {
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Condition Score</th>
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Redirection Principale</th>
                   <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Réussite Pré-requis</th>
-                  <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+	                  <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Conditions</th>
+	                  <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50">
                 <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-40 grayscale' : ''">
                   <td class="px-8 py-6">
-                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.id }}</div>
+	                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order ?? 0 }}</div>
                   </td>
                   <td class="px-8 py-6">
                     <span class="text-xs font-black text-slate-900">{{ rule.parcoursTitle || '-' }}</span>
@@ -579,8 +666,13 @@ onMounted(async () => {
                        {{ rule.requirePrerequisiteFailure ? 'Obligatoire' : 'Ignoré' }}
                      </span>
                   </td>
-                  <td class="px-8 py-6">
-                    <div class="flex items-center justify-end gap-2 pr-4">
+	                  <td class="px-8 py-6">
+	                     <span class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest" :class="(rule.selectionConditions || []).length ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-slate-50 text-slate-400 border border-slate-100'">
+	                       {{ (rule.selectionConditions || []).length ? `${(rule.selectionConditions || []).length} condition(s)` : 'Aucune' }}
+	                     </span>
+	                  </td>
+	                  <td class="px-8 py-6">
+	                    <div class="flex items-center justify-end gap-2 pr-4">
                        <button @click="toggleRuleActive(rule)" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-slate-900 transition-all">
                          <span class="material-icons-outlined text-sm">{{ rule.isActive !== false ? 'visibility' : 'visibility_off' }}</span>
                        </button>
@@ -630,10 +722,22 @@ onMounted(async () => {
                     <option value="">Sélectionner un niveau...</option>
                     <option v-for="lvl in formationForm.levels" :key="lvl.id" :value="lvl.label">{{ lvl.label }}</option>
                   </select>
-               </div>
-            </div>
+	               </div>
+	            </div>
 
-            <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between">
+	            <div class="space-y-2">
+	              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Priorité</label>
+	              <input
+	                type="number"
+	                v-model.number="newRule.order"
+	                class="w-full px-5 py-3 bg-slate-50 border-none rounded-xl font-black text-xs outline-none focus:ring-2 focus:ring-brand-primary/20"
+	              />
+	              <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest px-1">
+	                Plus le nombre est petit, plus la règle est évaluée tôt.
+	              </p>
+	            </div>
+
+	            <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between">
               <div>
                 <h4 class="text-xs font-black text-slate-900 uppercase">Échec Pré-requis</h4>
                 <p class="text-[10px] font-bold text-slate-400">Règle conditionnée par l'échec aux pré-requis</p>
@@ -641,10 +745,75 @@ onMounted(async () => {
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" v-model="newRule.requirePrerequisiteFailure" class="sr-only peer" />
                 <div class="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
-              </label>
-            </div>
+	              </label>
+	            </div>
 
-            <div class="space-y-4">
+	            <div class="p-6 bg-indigo-50/40 rounded-3xl border border-indigo-100 space-y-4">
+	              <div class="flex items-start justify-between gap-4">
+	                <div>
+	                  <h4 class="text-xs font-black text-slate-900 uppercase">Conditions de sélection</h4>
+	                  <p class="text-[10px] font-bold text-slate-400 leading-relaxed">
+	                    Utilisé pour départager plusieurs parcours ayant le même résultat de test.
+	                  </p>
+	                </div>
+	                <select v-model="newRule.selectionConditionLogic" class="px-3 py-2 bg-white border border-indigo-100 rounded-xl font-black text-[10px] text-indigo-700 outline-none">
+	                  <option value="AND">ET</option>
+	                  <option value="OR">OU</option>
+	                </select>
+	              </div>
+
+	              <div v-if="selectableConditionQuestions.length === 0" class="text-[10px] font-bold text-slate-400">
+	                Aucune question prérequis/complémentaire/disponibilité disponible.
+	              </div>
+	              <div v-else class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar pr-1">
+	                <div
+	                  v-for="question in selectableConditionQuestions"
+	                  :key="question.id"
+	                  class="bg-white rounded-2xl border border-indigo-50 p-4 space-y-3"
+	                >
+	                  <label class="flex items-start gap-3 cursor-pointer">
+	                    <input
+	                      type="checkbox"
+	                      class="mt-1"
+	                      :checked="isSelectionQuestionSelected(question.id)"
+	                      @change="toggleSelectionQuestion(question)"
+	                    />
+	                    <div class="min-w-0">
+	                      <div class="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-1">
+	                        {{ workflowLabels[question.type] || question.type }}
+	                      </div>
+	                      <div class="text-xs font-black text-slate-800 leading-snug">
+	                        {{ question.text }}
+	                      </div>
+	                    </div>
+	                  </label>
+
+	                  <div v-if="isSelectionQuestionSelected(question.id)" class="pl-7">
+	                    <div v-if="question.options && question.options.length" class="flex flex-wrap gap-2">
+	                      <button
+	                        v-for="(option, optIdx) in question.options"
+	                        :key="optIdx"
+	                        type="button"
+	                        @click="toggleSelectionOption(question.id, optIdx)"
+	                        class="px-3 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-widest transition-all"
+	                        :class="isSelectionOptionSelected(question.id, optIdx) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-400 border-slate-100 hover:border-indigo-200'"
+	                      >
+	                        {{ option }}
+	                      </button>
+	                    </div>
+	                    <input
+	                      v-else
+	                      :value="getSelectionCondition(question.id)?.expectedValue || ''"
+	                      @input="setSelectionExpectedValue(question.id, $event.target.value)"
+	                      placeholder="Valeur attendue..."
+	                      class="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-indigo-300"
+	                    />
+	                  </div>
+	                </div>
+	              </div>
+	            </div>
+
+	            <div class="space-y-4">
                 <div class="space-y-2">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
                     Redirection Principale (Cible 1)

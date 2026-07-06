@@ -18,6 +18,9 @@ export class PdfService {
     brand?: string | null;
     formationChoisie?: string | null;
     finalRecommendation?: string | null;
+    parcoursTitle?: string | null;
+    recommendations?: string[];
+    fullRecommendation?: string | null;
     scoreFinal?: number;
     levelsScores?: Record<string, any>;
     prerequisiteAnswers?: Record<string, any>;
@@ -196,7 +199,16 @@ export class PdfService {
       this.sectionTitle(doc, 'Formation et Résultat');
 
       const formationDemandee = data.formationChoisie || 'N/A';
-      const parcoursPréconisé = data.finalRecommendation || 'Analyse en cours';
+      const recommendationItems = this.getRecommendationItems(data);
+      const fullRecommendation =
+        data.fullRecommendation ||
+        recommendationItems.join(' & ') ||
+        data.finalRecommendation ||
+        'Analyse en cours';
+      const parcoursPréconisé = this.getRecommendationTitle(
+        data.parcoursTitle,
+        fullRecommendation,
+      );
       // Only show "Formation demandée" if it differs from the recommendation
       // (when user was redirected by a QuestionRule, both are the same)
       const formationInfo: string[][] = formationDemandee !== parcoursPréconisé && formationDemandee !== 'N/A'
@@ -209,23 +221,19 @@ export class PdfService {
           ];
       this.drawTable(doc, formationInfo, darkText, grayText, lightBg);
 
-      // Add a highlighted recommendation box
-      if (data.finalRecommendation) {
+      if (
+        data.finalRecommendation ||
+        data.parcoursTitle ||
+        recommendationItems.length > 0
+      ) {
         doc.moveDown(0.2);
-        const boxWidth = doc.page.width - 100;
-        const boxY = doc.y;
-        doc.rect(50, boxY, boxWidth, 30).fill('#F0FDF4'); // Light emerald bg
-        doc.rect(50, boxY, 4, 30).fill('#22C55E'); // Emerald left border
-
-        doc
-          .fontSize(10)
-          .fillColor('#166534')
-          .font('Helvetica-Bold')
-          .text(data.finalRecommendation, 65, boxY + 10, {
-            width: boxWidth - 30,
-          });
-        doc.font('Helvetica');
-        doc.y = boxY + 40;
+        this.renderRecommendationSummary(
+          doc,
+          parcoursPréconisé,
+          recommendationItems,
+          fullRecommendation,
+          !!data.isP3Mode || data.parcoursNumber === 3,
+        );
       }
 
       const checkSectionBreak = (h: number = 100) => {
@@ -335,6 +343,187 @@ export class PdfService {
 
       doc.end();
     });
+  }
+
+  private normalizeLabel(value?: string | null): string {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  private hasMeaningfulTitle(
+    title?: string | null,
+    fallback?: string | null,
+  ): boolean {
+    const cleanTitle = this.normalizeLabel(title);
+    if (!cleanTitle) return false;
+    if (
+      cleanTitle === 'parcours' ||
+      cleanTitle === 'parcours personnalise' ||
+      cleanTitle === 'parcours de formation'
+    ) {
+      return false;
+    }
+
+    const cleanFallback = this.normalizeLabel(fallback);
+    return !cleanFallback || cleanTitle !== cleanFallback;
+  }
+
+  private getRecommendationItems(data: {
+    finalRecommendation?: string | null;
+    recommendations?: string[];
+  }): string[] {
+    const source =
+      data.recommendations && data.recommendations.length > 0
+        ? data.recommendations
+        : String(data.finalRecommendation || '')
+            .replace(/\|/g, '&')
+            .split('&');
+
+    return source
+      .map((item) => String(item || '').trim())
+      .filter(Boolean);
+  }
+
+  private getRecommendationTitle(
+    parcoursTitle?: string | null,
+    fallback?: string | null,
+  ): string {
+    return this.hasMeaningfulTitle(parcoursTitle, fallback)
+      ? String(parcoursTitle).trim()
+      : fallback || 'Analyse en cours';
+  }
+
+  private renderRecommendationSummary(
+    doc: PDFKit.PDFDocument,
+    title: string,
+    recommendations: string[],
+    fallbackRecommendation: string,
+    isP3: boolean,
+  ) {
+    const boxX = 50;
+    const boxWidth = doc.page.width - 100;
+    const padding = 14;
+    const innerWidth = boxWidth - padding * 2;
+    const titleText = title || fallbackRecommendation || 'Parcours préconisé';
+    const titleNorm = this.normalizeLabel(titleText);
+    const p3Detail = recommendations.find(
+      (item) => this.normalizeLabel(item) !== titleNorm,
+    );
+    const cardItems = isP3
+      ? [
+          {
+            label: 'P3',
+            text: p3Detail ? `3ème parcours - ${p3Detail}` : '3ème parcours',
+            badgeBg: '#EEF2FF',
+            badgeColor: '#4338CA',
+            border: '#C7D2FE',
+          },
+        ]
+      : (recommendations.length > 1
+          ? recommendations.slice(0, 2)
+          : [recommendations[0] || fallbackRecommendation]
+        ).map((item, index) => ({
+          label: `P${index + 1}`,
+          text: item,
+          badgeBg: index === 0 ? '#E0F2FE' : '#FEF3C7',
+          badgeColor: index === 0 ? '#075985' : '#92400E',
+          border: index === 0 ? '#BAE6FD' : '#FDE68A',
+        }));
+
+    doc.font('Helvetica-Bold').fontSize(12);
+    const titleHeight = doc.heightOfString(titleText, { width: innerWidth });
+    const cardHeights = cardItems.map((item) => {
+      doc.font('Helvetica-Bold').fontSize(9);
+      return Math.max(
+        30,
+        doc.heightOfString(item.text, { width: innerWidth - 62 }) + 16,
+      );
+    });
+    const totalHeight =
+      padding +
+      titleHeight +
+      10 +
+      cardHeights.reduce((sum, h) => sum + h + 6, 0) +
+      padding -
+      6;
+
+    if (doc.y + totalHeight > doc.page.height - 80) {
+      doc.addPage();
+    }
+
+    const boxY = doc.y;
+    doc.rect(boxX, boxY, boxWidth, totalHeight).fill('#F8FAFC');
+    doc.rect(boxX, boxY, 4, totalHeight).fill(isP3 ? '#6366F1' : '#22C55E');
+    doc
+      .rect(boxX, boxY, boxWidth, totalHeight)
+      .strokeColor(isP3 ? '#C7D2FE' : '#BBF7D0')
+      .lineWidth(1)
+      .stroke();
+
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(12)
+      .fillColor('#0D1B3E')
+      .text(titleText, boxX + padding, boxY + padding, { width: innerWidth });
+
+    let y = boxY + padding + titleHeight + 10;
+    cardItems.forEach((item, index) => {
+      this.drawRecommendationCard(
+        doc,
+        boxX + padding,
+        y,
+        innerWidth,
+        cardHeights[index],
+        item,
+      );
+      y += cardHeights[index] + 6;
+    });
+
+    doc.font('Helvetica');
+    doc.y = boxY + totalHeight + 10;
+  }
+
+  private drawRecommendationCard(
+    doc: PDFKit.PDFDocument,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    item: {
+      label: string;
+      text: string;
+      badgeBg: string;
+      badgeColor: string;
+      border: string;
+    },
+  ) {
+    const badgeWidth = 34;
+    const badgeHeight = 16;
+    const textX = x + 10 + badgeWidth + 10;
+    const textWidth = width - 20 - badgeWidth - 10;
+
+    doc.rect(x, y, width, height).fill('#FFFFFF');
+    doc.rect(x, y, width, height).strokeColor(item.border).lineWidth(1).stroke();
+    doc.rect(x + 10, y + 7, badgeWidth, badgeHeight).fill(item.badgeBg);
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(8)
+      .fillColor(item.badgeColor)
+      .text(item.label, x + 10, y + 11, {
+        width: badgeWidth,
+        align: 'center',
+      });
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(9)
+      .fillColor('#0D1B3E')
+      .text(item.text, textX, y + 8, {
+        width: textWidth,
+      });
   }
 
   private sectionTitle(doc: PDFKit.PDFDocument, title: string) {

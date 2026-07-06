@@ -98,7 +98,7 @@ async function startTest() {
   try {
     // Reset P3 mode for new sessions
     store.setP3Mode(false);
-    ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices', 'p3_prev_formation_slug'].forEach(k => localStorage.removeItem(k));
+    ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_p1', 'p3_prev_p2', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices', 'p3_prev_formation_slug'].forEach(k => localStorage.removeItem(k));
     
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";

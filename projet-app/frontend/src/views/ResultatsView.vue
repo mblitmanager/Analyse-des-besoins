@@ -23,6 +23,7 @@ const downloadingPDF = ref(false);
 const levels = ref([]);
 const parcoursTitle = ref("");
 const parcoursRuleMessage = ref("");
+const selectedParcoursChoiceId = ref(null);
 
 // High level alert settings
 const alertSettings = ref({
@@ -70,6 +71,39 @@ const recommendedLabel = computed(() => {
   const info = getLevelInfo(label);
   return info ? `${label} (${info.theme})` : label;
 });
+
+const parcoursChoices = computed(() => {
+  if (!Array.isArray(session.value?.parcoursChoices)) return [];
+  return session.value.parcoursChoices
+    .map((choice, index) => ({
+      id: choice.id ?? `choice-${index}`,
+      title: String(choice.title || "").trim() || `Parcours ${index + 1}`,
+      recommendations: Array.isArray(choice.recommendations)
+        ? choice.recommendations.map((item) => String(item || "").trim()).filter(Boolean)
+        : [],
+      explanationMessage: choice.explanationMessage || "",
+    }))
+    .filter((choice) => choice.recommendations.length > 0);
+});
+
+const hasParcoursChoices = computed(() => parcoursChoices.value.length > 1);
+
+const selectedParcoursChoice = computed(() => {
+  if (!hasParcoursChoices.value) return parcoursChoices.value[0] || null;
+  return parcoursChoices.value.find(
+    (choice) => String(choice.id) === String(selectedParcoursChoiceId.value),
+  ) || null;
+});
+
+const displayedParcoursTitle = computed(() => {
+  if (selectedParcoursChoice.value) return selectedParcoursChoice.value.title;
+  return parcoursTitle.value;
+});
+
+function selectParcoursChoice(choice) {
+  selectedParcoursChoiceId.value = choice.id;
+  selectedChoices.value = {};
+}
 
 // helper for adapting messaging when prereq shows insuffisant
 const hasInsufficientPrereq = computed(() => {
@@ -206,8 +240,12 @@ const parcoursSteps = computed(() => {
   if (!session.value) return [];
   
   let rawStr = session.value.finalRecommendation || "";
+  if (hasParcoursChoices.value) {
+    if (!selectedParcoursChoice.value) return [];
+    rawStr = selectedParcoursChoice.value.recommendations.join(' & ');
+  }
   // Check if explicit array logic was used (legacy)
-  if (Array.isArray(session.value.recommendations) && session.value.recommendations.length > 0) {
+  if (!hasParcoursChoices.value && Array.isArray(session.value.recommendations) && session.value.recommendations.length > 0) {
     rawStr = session.value.recommendations.join(' & ');
   }
   
@@ -349,9 +387,10 @@ async function fetchAlertSettings() {
 const selectedChoices = ref({});
 
 watch(parcoursSteps, (steps) => {
+  selectedChoices.value = {};
   steps.forEach((choices, idx) => {
     // Automatically select if there is only one choice
-    if (choices.length === 1 && !selectedChoices.value[idx]) {
+    if (choices.length === 1) {
       selectedChoices.value[idx] = choices[0];
     }
   });
@@ -400,6 +439,7 @@ const selectChoice = (stepIdx, choiceLabel) => {
 };
 
 const isSelectionComplete = computed(() => {
+  if (hasParcoursChoices.value && !selectedParcoursChoice.value) return false;
   return parcoursSteps.value.length > 0 && parcoursSteps.value.every((choices, idx) => {
     return !!selectedChoices.value[idx];
   });
@@ -423,10 +463,26 @@ const confirmAndGoNext = async () => {
     localStorage.setItem('p3_unselected_choices', JSON.stringify(unselectedChoices));
 
     try {
-      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-        finalRecommendation: finalRec
-      });
+      const payload = {
+        finalRecommendation: finalRec,
+      };
+      if (selectedParcoursChoice.value) {
+        payload.parcoursTitle = selectedParcoursChoice.value.title;
+        payload.explanationMessage = selectedParcoursChoice.value.explanationMessage || session.value.explanationMessage || null;
+        payload.parcoursChoices = null;
+      }
+
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
       session.value.finalRecommendation = finalRec;
+      if (selectedParcoursChoice.value) {
+        session.value.parcoursTitle = selectedParcoursChoice.value.title;
+        session.value.parcoursChoices = null;
+        parcoursTitle.value = selectedParcoursChoice.value.title;
+        if (selectedParcoursChoice.value.explanationMessage) {
+          session.value.explanationMessage = selectedParcoursChoice.value.explanationMessage;
+          parcoursRuleMessage.value = selectedParcoursChoice.value.explanationMessage;
+        }
+      }
     } catch (error) {
        console.error("Failed to save selected final option", error);
     }
@@ -851,6 +907,57 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
+        <div
+          v-if="hasParcoursChoices"
+          class="bg-white rounded-3xl shadow-xl border border-white p-6 md:p-8 mb-6"
+        >
+          <div class="mb-5">
+            <h3 class="text-xl md:text-2xl font-black text-slate-900">
+              Choisissez votre parcours
+            </h3>
+            <p class="text-sm text-slate-500 font-medium mt-1">
+              Plusieurs parcours correspondent à votre résultat. Sélectionnez celui que vous souhaitez valider.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              v-for="choice in parcoursChoices"
+              :key="choice.id"
+              type="button"
+              @click="selectParcoursChoice(choice)"
+              class="text-left rounded-2xl border-2 p-5 transition-all bg-white"
+              :class="String(selectedParcoursChoiceId) === String(choice.id)
+                ? 'border-brand-primary shadow-xl shadow-brand-primary/10 bg-brand-primary/5'
+                : 'border-slate-100 hover:border-brand-primary/40 hover:shadow-lg'"
+            >
+              <div class="flex items-start justify-between gap-4 mb-4">
+                <h4 class="text-lg font-black text-slate-900 leading-tight">
+                  {{ choice.title }}
+                </h4>
+                <span
+                  class="material-icons-outlined text-xl"
+                  :class="String(selectedParcoursChoiceId) === String(choice.id) ? 'text-brand-primary' : 'text-slate-300'"
+                >
+                  {{ String(selectedParcoursChoiceId) === String(choice.id) ? 'check_circle' : 'radio_button_unchecked' }}
+                </span>
+              </div>
+              <!-- <div class="space-y-2">
+                <div
+                  v-for="(formation, idx) in choice.recommendations"
+                  :key="formation"
+                  class="flex items-center gap-3 text-sm font-bold text-slate-700"
+                >
+                  <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black flex items-center justify-center">
+                    P{{ idx + 1 }}
+                  </span>
+                  <span>{{ formation }}</span>
+                </div>
+              </div> -->
+            </button>
+          </div>
+        </div>
+
         <div v-if="parcoursSteps.length > 0"
           class="relative bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
         >
@@ -860,7 +967,7 @@ const downloadPDF = async () => {
           >
             <div class="relative z-10">
               <!-- Intitulé du parcours -->
-              <h2 v-if="parcoursTitle" class="text-3xl md:text-4xl font-black text-slate-900 mb-4">{{ parcoursTitle }}</h2>
+              <h2 v-if="displayedParcoursTitle" class="text-3xl md:text-4xl font-black text-slate-900 mb-4">{{ displayedParcoursTitle }}</h2>
               
               <!-- Message explicatif du parcours -->
               <div v-if="parcoursRuleMessage" class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-start gap-3">
