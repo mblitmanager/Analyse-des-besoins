@@ -1054,9 +1054,9 @@ async function saveAndExit() {
       :key="choice.id || choice.title"
     >
       <div
-        class="bg-white/70 border border-white rounded-2xl p-5 text-left shadow-sm"
+        class="bg-white/70 border border-white rounded-xl p-2 text-left shadow-sm"
       >
-        <h2 class="text-[#315264] font-black text-2xl md:text-3xl mb-3">
+        <h2 class="text-[#315264] font-black  md:text-l mb-3">
           {{ choice.title }}
         </h2>
       </div>
@@ -1079,7 +1079,7 @@ async function saveAndExit() {
             <template v-else-if="finalRecommendation">
               
               <div class="flex flex-col gap-3">
-                <h2 v-if="parcoursTitle" class="text-[#315264] font-black text-3xl md:text-4xl">{{ parcoursTitle }}</h2>
+                <h2 v-if="parcoursTitle" class="text-[#315264] font-black text-2xl md:text-3xl">{{ parcoursTitle }}</h2>
                 <!-- <p class="text-[#315264] font-black text-2xl md:text-3xl">{{ parcoursRuleMessage }}</p> -->
                 <!-- <div
                   v-for="(step, stepIdx) in finalRecommendation.split(/\s*&\s*|\s*\|\s*/)"

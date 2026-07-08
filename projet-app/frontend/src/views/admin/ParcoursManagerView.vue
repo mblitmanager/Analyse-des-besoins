@@ -9,6 +9,7 @@ const loading = ref(true);
 const activeFormationId = ref(null);
 const searchTerm = ref("");
 const selectedCategory = ref("all");
+const showInactive = ref(true); // Affiche les règles désactivées par défaut côté admin
 const editingRule = ref(null);
 const showForm = ref(false);
 const activeTab = ref("details"); // 'details' or 'rules'
@@ -109,22 +110,27 @@ const filteredRules = computed(() => {
   if (!currentFormation.value) return [];
   return rules.value.filter((r) => {
     const matchesFormation = r.formation === currentFormation.value.label;
-    const isActive = r.isActive !== false;
+    const passesActiveFilter = showInactive.value || r.isActive !== false;
     const q = searchTerm.value.toLowerCase().trim();
     const matchesSearch = !q || 
       (r.condition || "").toLowerCase().includes(q) || 
       (r.formation1 || "").toLowerCase().includes(q) || 
       (r.formation2 || "").toLowerCase().includes(q);
     
-    return isActive && matchesFormation && matchesSearch;
+    return passesActiveFilter && matchesFormation && matchesSearch;
   });
+});
+
+const inactiveRulesCount = computed(() => {
+  if (!currentFormation.value) return 0;
+  return rules.value.filter(r => r.formation === currentFormation.value.label && r.isActive === false).length;
 });
 
 async function fetchRules() {
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/parcours?activeOnly=true`, { headers: getAuthHeaders() });
-    rules.value = (res.data || []).filter(rule => rule.isActive !== false);
+    const res = await axios.get(`${apiBaseUrl}/parcours`, { headers: getAuthHeaders() });
+    rules.value = res.data || [];
   } catch (error) {
     console.error("Failed to fetch parcours rules:", error);
   } finally {
@@ -614,12 +620,30 @@ onMounted(async () => {
 
       <!-- Tab: Logic -->
       <div v-if="activeTab === 'rules'" class="animate-fade-in space-y-6">
-        <div class="flex items-center justify-between">
-          <div class="relative w-full max-w-md group">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="relative flex-1 min-w-[200px] max-w-md group">
             <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
             <input v-model="searchTerm" type="search" placeholder="Rechercher une règle..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm" />
           </div>
-          <button @click="openNewForm" class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2">
+
+          <!-- Toggle règles désactivées -->
+          <button
+            @click="showInactive = !showInactive"
+            class="relative px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shrink-0"
+            :class="showInactive
+              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+              : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'"
+          >
+            <span class="material-icons-outlined text-sm">{{ showInactive ? 'visibility_off' : 'visibility' }}</span>
+            <span>{{ showInactive ? 'Masquer inactifs' : 'Voir inactifs' }}</span>
+            <span
+              v-if="inactiveRulesCount > 0"
+              class="px-1.5 py-0.5 rounded-full text-[8px] font-black"
+              :class="showInactive ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-500'"
+            >{{ inactiveRulesCount }}</span>
+          </button>
+
+          <button @click="openNewForm" class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0">
             <span class="material-icons-outlined text-sm">add_road</span> Nouvelle Règle
           </button>
         </div>
@@ -629,6 +653,10 @@ onMounted(async () => {
         <div v-else-if="filteredRules.length === 0" class="py-24 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center text-slate-300">
            <span class="material-icons-outlined text-6xl mb-4 opacity-10">route</span>
            <p class="text-xs font-black uppercase tracking-widest">Aucune règle définie pour {{ currentFormation.label }}</p>
+           <button v-if="!showInactive && inactiveRulesCount > 0" @click="showInactive = true" class="mt-4 text-[10px] font-black text-amber-600 hover:underline flex items-center gap-1">
+             <span class="material-icons-outlined text-sm">visibility</span>
+             Voir {{ inactiveRulesCount }} règle(s) désactivée(s)
+           </button>
         </div>
 
         <div v-else class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
@@ -645,12 +673,18 @@ onMounted(async () => {
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50">
-                <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-40 grayscale' : ''">
+                <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-50 bg-slate-50/30' : ''">
                   <td class="px-8 py-6">
 	                    <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order ?? 0 }}</div>
                   </td>
                   <td class="px-8 py-6">
-                    <span class="text-xs font-black text-slate-900">{{ rule.parcoursTitle || '-' }}</span>
+                    <div class="flex flex-col gap-1">
+                      <span class="text-xs font-black text-slate-900">{{ rule.parcoursTitle || '-' }}</span>
+                      <span v-if="rule.isActive === false" class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-500 rounded-full text-[8px] font-black uppercase tracking-widest w-fit">
+                        <span class="material-icons-outlined text-[10px]">visibility_off</span>
+                        Désactivée
+                      </span>
+                    </div>
                   </td>
                   <td class="px-8 py-6">
                     <span class="text-xs font-black text-slate-900">{{ rule.condition }}</span>

@@ -276,11 +276,12 @@ const currentNavItem = computed(() => {
   display: flex;
   flex-direction: column;
   width: 256px;
+  height: 100vh;
   background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* Mobile: hidden by default */
@@ -355,6 +356,7 @@ const currentNavItem = computed(() => {
 /* ---- Nav ---- */
 .sidebar-nav {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 12px 8px;
