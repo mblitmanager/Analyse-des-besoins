@@ -47,10 +47,10 @@ export class SessionsService {
       if (!stagiaire) {
         stagiaire = this.stagiaireRepo.create({
           email: normalizedEmail,
-          nom: data.nom,
-          prenom: data.prenom,
-          civilite: data.civilite,
-          telephone: data.telephone,
+          nom: data.nom ?? '',
+          prenom: data.prenom ?? '',
+          civilite: data.civilite ?? '',
+          telephone: data.telephone ?? '',
         });
         await this.stagiaireRepo.save(stagiaire);
       }

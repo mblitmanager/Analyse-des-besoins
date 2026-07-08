@@ -2,13 +2,14 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.2
--- Dumped by pg_dump version 17.2
+\restrict FcUdcZajQ51jai9i7jymqLjibzlICBEYUSCi43WSAy9jjkFDRSl9qZhFKMZARnn
+
+-- Dumped from database version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -379,11 +380,11 @@ ALTER SEQUENCE public.questions_id_seq OWNED BY public.questions.id;
 
 CREATE TABLE public.sessions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    brand character varying NOT NULL,
-    civilite character varying NOT NULL,
-    nom character varying NOT NULL,
-    prenom character varying NOT NULL,
-    telephone character varying NOT NULL,
+    brand character varying,
+    civilite character varying,
+    nom character varying,
+    prenom character varying,
+    telephone character varying,
     conseiller character varying,
     "formationChoisie" character varying,
     "prerequisiteScore" text,
@@ -888,10 +889,7 @@ COPY public.p3_override_rules (id, formation, "formationId", condition, formatio
 --
 
 COPY public.parcours_rules (id, formation, condition, formation1, formation2, "isActive", "requirePrerequisiteFailure", "order", certification, "prerequisiteConditions", "prerequisiteLogic", "formationId", "explanationMessage", "parcoursTitle", "selectionConditions", "selectionConditionLogic") FROM stdin;
-399	Word	Si résultat du test = Basique	WORD Basique (TOSA)	WORD Opérationnel (ICDL)	t	f	1		[]	OR	44		Renforcement Word	\N	AND
 394	Digitales Compétences	Si résultat du test DIGCOMP ≤ Basique	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)	t	f	1		[]	OR	23		\tEssentiels Digitales Compétences & Word	[]	AND
-398	Digitales Compétences	Si résultat du test DIGCOMP = Opérationnel	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS (ICDL)	t	f	5		[]	OR	23		Perfectionnement Digitales Compétences & Outils Coll.	[]	AND
-417	Français	Si résultat du test FRANÇAIS = Technique	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)	t	f	1	\N	\N	OR	51	Technique + Professionnel	Renforcement Français	\N	AND
 418	Français	Si résultat du test FRANÇAIS = Professionnel	Français Professionnel (VOLTAIRE)	Français Affaires (VOLTAIRE)	t	f	2	\N	\N	OR	51	Professionnel + Affaires	Perfectionnement Français	\N	AND
 435	Word	Si résultat du test ≤ Initial	WORD Basique (TOSA)	Digitales Compétences Basique (TOSA)	t	f	1		[]	OR	44		Essentiels Digitales Compétences & WORD	\N	AND
 431	Word + IA	Si résultat du test ≤ Opérationnel	IA GENERATIVE (INKREA)	WORD (TOSA)	t	f	0		[]	OR	56		IA Générative	\N	AND
@@ -902,23 +900,38 @@ COPY public.parcours_rules (id, formation, condition, formation1, formation2, "i
 428	Anglais 	Si résultat du test = Niveau B1	Niveau B1 - TOEIC	Niveau B2 - TOEIC	t	f	1		[]	OR	25		"Perfectionnement Anglais" : (B1 & B2) - TOEIC	\N	AND
 429	Anglais 	Si résultat du test = Niveau B2	Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	f	2		[]	OR	25		"Expertise Anglais"  : (B2 & C1) - TOEIC	\N	AND
 413	WordPress	Si résultat du test ≤ Basique	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)	t	f	1		[]	OR	22		Renforcement Wordpress	\N	AND
-400	Excel	Si résultat du test ≤ Basique	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)	t	f	1		[]	OR	45		Renforcement Excel	\N	AND
-401	Excel	Si résultat du test EXCEL = Opérationnel	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	t	f	2		[]	OR	45		Expertise Excel	\N	AND
 402	PowerPoint	Si résultat du test ≤ Basique	PPT Basique (TOSA)	PPT Opérationnel (ICDL)	t	f	1		[]	OR	54		Renforcement Powerpoint	\N	AND
 409	Photoshop	Si résultat du test ≤ Basique	PHOTOSHOP basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)	t	f	1		[]	OR	20		Renforcement Photoshop	\N	AND
 432	Outlook	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)	OUTLOOK Opérationnel (ICDL)	t	f	0		[]	OR	15		Renforcement Outlook	\N	AND
 404	Outils Collaboratifs Google	Si résultat du test OC = Opérationnel	OUTILS COLLABORATIFS (ICDL)	GOOGLE DOCS (ICDL)	f	f	2	\N	\N	OR	43	OUTILS COLLABORATIFS + GOOGLE DOCS	Google Workspace (OC & DOCS)	\N	AND
 405	Outils Collaboratifs Google	Si résultat du test OC = Opérationnel	OUTILS COLLABORATIFS (ICDL)	GOOGLE SLIDES (ICDL)	f	f	3	\N	\N	OR	43	OUTILS COLLABORATIFS + GOOGLE SLIDES	Google Workspace (OC & SLIDES)	\N	AND
-407	Google Docs	Si résultat du test ≤ Basique	GOOGLE DOCS Opérationnel (ICDL)	GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL)	t	f	1		[]	OR	4		Bureautique Google (DOCS)	\N	AND
-403	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL) / Digitales Compétences Opérationnel (TOSA)	t	f	1		[]	OR	43		Google Workspace	\N	AND
 412	Illustrator	Si résultat du test ≤ Basique	ILLUSTRATOR Basique (TOSA)	ILLUSTRATOR Opérationnel (ICDL)	t	f	1		[]	OR	19		Renforcement Illustrator	\N	AND
-408	Google Slides	Si résultat du test ≤ Basique	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL)	t	f	1		[]	OR	10		Bureautique Google (SLIDES)	\N	AND
-406	Google Sheets	Si résultat du test ≤ Basique	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel / GOOGLE SLIDES Opérationnel (ICDL)	t	f	1		[]	OR	5	GOOGLE SHEETS + GOOGLE DOCS/SLIDES	Bureautique Google (SHEETS)	\N	AND
 437	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)	t	f	3		[]	OR	23		Essentiels Digitales Compétences & PPT	[]	AND
-436	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	t	f	4		[]	OR	23		Renforcement Digital Compétence 	[]	AND
 411	Gimp	Si résultat du test ≤ Basique	GIMP Opérationnel (ICDL)	ILLUSTRATOR Opérationnel (TOSA)	t	f	1		[]	OR	48		Création graphique	\N	AND
 410	SketchUp	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)	GIMP Opérationnel (ICDL)	t	f	1		[]	OR	21		Création visuels : 3D/Images	\N	AND
 438	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	f	2		[]	OR	23		Essentiels Digitales Compétences & Excel	[]	AND
+436	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	t	f	4		[]	OR	23		Renforcement Digital Compétence  & OUTLOOK	[]	AND
+399	Word	Si résultat du test = Basique	WORD Basique (TOSA)	WORD Opérationnel (ICDL)	t	f	3		[]	OR	44		Renforcement Word	[]	AND
+398	Digitales Compétences	Si résultat du test DIGCOMP = Opérationnel	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS Opérationnel (ICDL)	t	f	5		[]	OR	23		Perfectionnement Digitales Compétences & Outils Coll.	[]	AND
+439	Word	Si résultat du test = Basique	WORD Basique (TOSA)	EXCEL Basique (TOSA)	t	f	2		[]	OR	44		Essentiels WORD & EXCEL	[]	AND
+441	Word	Si résultat du test = Opérationnel	WORD Opérationnel (TOSA)	EXCEL Opérationnel (TOSA)	f	f	4		[]	OR	44		Perfectionnement WORD & EXCEL 	[]	AND
+443	Excel	Si résultat du test = Basique	WORD Basique (TOSA)	EXCEL Basique (TOSA)	t	f	3		[]	OR	45		Essentiels WORD & EXCEL	[]	AND
+400	Excel	Si résultat du test = Basique	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)	t	f	2		[]	OR	45		Renforcement Excel	[]	AND
+442	Excel	Si résultat du test ≤ Initial	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	f	1		[]	OR	45		Essentiels Digitales Compétences & EXCEL 	[]	AND
+401	Excel	Si résultat du test EXCEL = Opérationnel	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	t	f	4		[]	OR	45		Expertise Excel	[]	AND
+444	Excel	Si résultat du test = Opérationnel	WORD Opérationnel (TOSA)	EXCEL Opérationnel (TOSA)	t	f	5		[]	OR	45		Perfectionnement WORD & EXCEL	[]	AND
+445	PowerPoint	Si résultat du test ≤ Initial	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)	t	f	1		[]	OR	54		Essentiels Digitales Compétences & PPT	[]	AND
+417	Français	Si résultat du test ≤ Technique	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)	t	f	1		[]	OR	51	Technique + Professionnel	Renforcement Français	[]	AND
+406	Google Sheets	Si résultat du test ≤ Basique	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL)	t	f	1		[]	OR	5		Bureautique Google WORKSPACE (SHEETS & DOCS) 	[]	AND
+408	Google Slides	Si résultat du test ≤ Basique	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE DOCS Opérationnel (ICDL) 	t	f	1		[]	OR	10		Bureautique Google WORKSPACE (SLIDES & DOCS)	[]	AND
+407	Google Docs	Si résultat du test ≤ Basique	GOOGLE DOCS Opérationnel (ICDL)	GOOGLE SHEETS Opérationnel (ICDL)	t	f	1		[]	OR	4		Bureautique Google WORKSPACE (DOCS & SHEETS) 	[]	AND
+403	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL) 	t	f	1		[]	OR	43		Google WORKSPACE (OC & DOCS)\t	[]	AND
+446	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL) 	GOOGLE DOCS Opérationnel (ICDL)	t	f	2		[]	OR	43		Google WORKSPACE (OC & SHEETS)	[]	AND
+447	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL) 	GOOGLE DOCS Opérationnel (ICDL)	t	f	3		[]	OR	43		Google WORKSPACE (OC & SLIDES)	[]	AND
+448	Outils Collaboratifs Google	Si résultat du test = Opérationnel	Digital Compétence Opérationnel (TOSA)	OUTILS COLLABORATIFS Opérationnel (ICDL)	f	f	4		[]	OR	43		Perfectionnement Digital Compétence + OC 	[]	AND
+449	Google Slides	Si résultat du test ≤ Basique	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE SHEETS Opérationnel (ICDL)	t	f	2		[]	OR	10		Bureautique Google WORKSPACE (SLIDES & SHEETS) 	[]	AND
+450	Google Sheets	Si résultat du test ≤ Basique	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE SLIDES Opérationnel (ICDL)	t	f	2		[]	OR	5		Bureautique Google WORKSPACE (SHEETS & SLIDES ) 	[]	AND
+451	Google Docs	Si résultat du test ≤ Basique	GOOGLE DOCS Opérationnel (ICDL) 	GOOGLE SLIDES Opérationnel (ICDL)	t	f	2		[]	OR	4		Bureautique Google WORKSPACE (DOCS & SLIDES) 	[]	AND
 \.
 
 
@@ -1422,6 +1435,19 @@ cd580e78-e057-4fd7-b1b9-0f481f81b11c	aopia	M.	test	06	06	Herizo Randria	Françai
 d09a4434-c61d-41df-b24e-f2fbc7e044ea	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Basique (TOSA) & OUTLOOK Basique (TOSA)	2026-07-06 16:48:05.370234	2026-07-06 16:48:36.517	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	Renforcement Digital Compétence	\N
 a15a9d8a-628b-47ff-bd98-defb7158f11b	aopia	M.	test	za	a	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Initial	WORD Basique (TOSA)	2026-07-06 21:44:35.374482	2026-07-06 21:45:04.21	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N		Essentiels Digitales Compétences & Word	\N
 cceead3a-cf12-4948-bfbf-39af13a37236	aopia	M.	Dicomp	test	06	Herizo Randria	WORD Basique (TOSA)	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	WORD Basique (TOSA)	WORD Basique (TOSA)	2026-07-06 20:19:21.522094	2026-07-06 21:15:13.754	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> Word basique	Renforcement Digital Compétence - P3	\N
+253d4641-4c96-4263-a9f9-bda9fcd1b611	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2026-07-06 19:45:46.126966	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f	\N	\N	\N	\N	f	\N	1	\N	\N	\N	\N
+bd12bda2-0990-43ac-b2a9-bc2d237b72ee	aopia	M.	test	AB	.	TEST CECILE	WordPress	{"470":"Quotidiennement ","473":"Quotidiennement ","477":"Oui","2109":"Oui","2632":"Oui","2633":"Quotidiennement","2636":"Oui"}	{"Initial":{"score":1,"total":4,"percentage":25,"requiredCorrect":4,"validated":false}}	Initial	WORDPRESS Basique (TOSA) | WORDPRESS Opérationnel (ICDL)	2026-07-07 13:14:01.450406	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"2079":"Un nom de domaine (l'adresse du site) et un hébergement (l'espace de stockage sur un serveur).","2080":"Je ne sais pas","2081":"Je ne sais pas","2082":"À stocker la base de données de tous les articles et commentaires du site."}}	.	["Salarié"]	{"2183":"Créer un site vitrine"}	f	f	f	f					f	\N	1	\N		Renforcement Wordpress	\N
+43f0caf1-7060-4cf0-83a1-000539357da7	aopia	M.	Anglais	A1 KO	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-07 13:41:43.088518	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+6ac775fe-ff4b-4517-a44b-8d6ae0d33d1b	aopia	M.	Test AB	Digcomp	.	TEST CECILE	Excel	{"470":"Quotidiennement ","473":"Quotidiennement ","477":"Oui","2109":"Oui","2632":"Oui","2633":"Quotidiennement","2636":"Oui"}	{}	\N	\N	2026-07-07 09:29:57.60411	\N	\N	\N	\N	\N	\N	f	{}	coordinatrice	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+3012c61c-39f4-455e-87ef-25bcd463a7ba	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:48:28.134485	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+a72e3d23-58d3-4b26-a5c3-58ea6e5e9bf2	aopia	M.	AA	AA	06	herizo Randria	SketchUp	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui","2109":"Oui avec quelques difficultés ","2632":"Oui","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Initial	SKETCHUP Opérationnel (ICDL) | GIMP Opérationnel (ICDL)	2026-07-07 17:03:36.378662	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"2014":"Modélisation 3D","2015":"Choisir un élément du modèle","2016":"Mesurer une distance"}}	jk	["Salarié"]	{"2180":"Oui","2181":"Oui","2182":"Oui"}	f	f	f	f					f	\N	1	\N		Création visuels : 3D/Images	\N
+a39fff1a-6ede-4f95-af6a-01850e58772c	aopia	M.	test	w	06	Herizo Randria	Word	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Initial	WORD Basique (TOSA) | Digitales Compétences Basique (TOSA)	2026-07-07 13:45:05.39811	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Objet**"}}	test	["Demandeur d’emploi"]	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
+cb61ade2-cce5-498f-8167-40e2bad81521	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:54:09.38249	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+15edcb19-9e81-49ef-937a-55f3c56f18db	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:54:32.066515	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+79fc4d29-18bb-4d9e-ac47-805e0e9ea44c	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:55:09.045825	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+4f8ea524-9025-4fb2-924f-b36b02b2a56f	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:55:44.794997	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+10b685fd-eeb2-4a21-ab83-b3335909ff4e	aopia	M.	a	a	06	Herizo Randria	\N	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	\N	\N	\N	2026-07-07 13:56:12.87482	\N	\N	\N	\N	\N	\N	f	\N	test	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+7e4e8cc4-a594-4f5a-96e7-18db8f4be013	aopia	M.	a	a	0+	Herizo Randria	Digitales Compétences	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Oui","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Initial	Essentiels Digitales Compétences & Word | Essentiels Digitales Compétences & Excel | Essentiels Digitales Compétences & PPT | Renforcement Digital Compétence  & OUTLOOK	2026-07-07 17:01:44.7154	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	kl	["Salarié"]	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":394,"title":"Essentiels Digitales Compétences & Word","recommendations":["Digitales Compétences Basique (TOSA)","WORD Basique (TOSA)"],"explanationMessage":""},{"id":438,"title":"Essentiels Digitales Compétences & Excel","recommendations":["Digitales Compétences Basique (TOSA)","EXCEL Basique (TOSA)"],"explanationMessage":""},{"id":437,"title":"Essentiels Digitales Compétences & PPT","recommendations":["Digitales Compétences Basique (TOSA)","PPT Basique (TOSA)"],"explanationMessage":""},{"id":436,"title":"Renforcement Digital Compétence  & OUTLOOK","recommendations":["Digitales Compétences Basique (TOSA)","OUTLOOK Basique (TOSA)"],"explanationMessage":""}]
 \.
 
 
@@ -1448,11 +1474,11 @@ SMTP_USERNAME	contact@wizi-learn.com	\N
 SMTP_PORT	465	\N
 SMTP_ENCRYPTION	ssl	\N
 ADMIN_EMAIL	admin@ns-conseil.com	Email de réception des bilans
-SMTP_PASSWORD	byMdPUIO22y+iQVCLTR180sqWfsA72YXGjwJ846GeKa5jifM	\N
-EMAIL_CC_ADV	admin@ns-conseil.com	Adresses emails en copie (CC) pour l'ADV (séparées par des virgules)
 P3_SAME_FORMATION_TEST	true	Autoriser les tests sur la même formation en mode P3
 P3_OTHER_FORMATION_TEST	true	Exiger les tests sur une autre formation avant P3
 P3_OVERRIDE_ENABLED	true	\N
+EMAIL_CC_ADV	admin@ns-conseil.com, alexandre.florek@ns-conseil.com, adv@ns-conseil.com, merryl.thire@ns-conseil.com, cecile.raynal@ns-conseil.com	Adresses emails en copie (CC) pour l'ADV (séparées par des virgules)
+SMTP_PASSWORD	AAd82Y5vIAAr298Wn0K31+UuLFbvtwt/KDfdl/VhvghaRpYH	\N
 \.
 
 
@@ -1487,10 +1513,10 @@ COPY public.workflow_steps (id, code, label, "order", route, "isActive") FROM st
 4	POSITIONNEMENT	Test de positionnement	4	/positionnement	t
 5	RESULTATS	Résultat et validation de la formation	5	/resultats	t
 8	VALIDATION	Validation finale	8	/validation	t
-3	PREREQUIS	Test informatique prérequis	1	/prerequis	f
-6	COMPLEMENTARY	Questions complémentaires	6	/complementary	f
 7	AVAILABILITIES	Disponibilités	7	/availabilities	t
-9	MISE_A_NIVEAU	Mise Ã  niveau	3	/mise-a-niveau	f
+3	PREREQUIS	Test informatique prérequis	1	/prerequis	t
+9	MISE_A_NIVEAU	Mise Ã  niveau	3	/mise-a-niveau	t
+6	COMPLEMENTARY	Questions complémentaires	6	/complementary	t
 \.
 
 
@@ -1526,7 +1552,7 @@ SELECT pg_catalog.setval('public.p3_override_rules_id_seq', 289, true);
 -- Name: parcours_rules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.parcours_rules_id_seq', 438, true);
+SELECT pg_catalog.setval('public.parcours_rules_id_seq', 451, true);
 
 
 --
@@ -1758,6 +1784,267 @@ ALTER TABLE ONLY public.parcours_rules
 
 
 --
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
+--
+
+GRANT ALL ON SCHEMA public TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_generate_v1(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_generate_v1() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_generate_v1mc(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_generate_v1mc() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_generate_v3(namespace uuid, name text); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_generate_v3(namespace uuid, name text) TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_generate_v4(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_generate_v4() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_generate_v5(namespace uuid, name text); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_generate_v5(namespace uuid, name text) TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_nil(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_nil() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_ns_dns(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_ns_dns() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_ns_oid(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_ns_oid() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_ns_url(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_ns_url() TO analyse_user;
+
+
+--
+-- Name: FUNCTION uuid_ns_x500(); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.uuid_ns_x500() TO analyse_user;
+
+
+--
+-- Name: TABLE contacts; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.contacts TO analyse_user;
+
+
+--
+-- Name: SEQUENCE contacts_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.contacts_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE email_templates; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.email_templates TO analyse_user;
+
+
+--
+-- Name: TABLE formations; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.formations TO analyse_user;
+
+
+--
+-- Name: SEQUENCE formations_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.formations_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE levels; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.levels TO analyse_user;
+
+
+--
+-- Name: SEQUENCE levels_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.levels_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE p3_filter_rule; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.p3_filter_rule TO analyse_user;
+
+
+--
+-- Name: TABLE p3_override_rules; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.p3_override_rules TO analyse_user;
+
+
+--
+-- Name: SEQUENCE p3_override_rules_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.p3_override_rules_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE parcours_rules; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.parcours_rules TO analyse_user;
+
+
+--
+-- Name: SEQUENCE parcours_rules_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.parcours_rules_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE question_rules; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.question_rules TO analyse_user;
+
+
+--
+-- Name: TABLE questions; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.questions TO analyse_user;
+
+
+--
+-- Name: SEQUENCE questions_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.questions_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE sessions; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.sessions TO analyse_user;
+
+
+--
+-- Name: TABLE settings; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.settings TO analyse_user;
+
+
+--
+-- Name: TABLE stagiaires; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.stagiaires TO analyse_user;
+
+
+--
+-- Name: SEQUENCE stagiaires_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.stagiaires_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE users; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.users TO analyse_user;
+
+
+--
+-- Name: SEQUENCE users_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.users_id_seq TO analyse_user;
+
+
+--
+-- Name: TABLE workflow_steps; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.workflow_steps TO analyse_user;
+
+
+--
+-- Name: SEQUENCE workflow_steps_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.workflow_steps_id_seq TO analyse_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO analyse_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO analyse_user;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: postgres
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO analyse_user;
+
+
+--
 -- PostgreSQL database dump complete
 --
+
+\unrestrict FcUdcZajQ51jai9i7jymqLjibzlICBEYUSCi43WSAy9jjkFDRSl9qZhFKMZARnn
 

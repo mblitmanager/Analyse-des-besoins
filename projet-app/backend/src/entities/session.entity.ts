@@ -12,20 +12,20 @@ export class Session {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  brand: string;
+  @Column({ type: 'varchar', nullable: true })
+  brand: string | null;
 
-  @Column()
-  civilite: string;
+  @Column({ type: 'varchar', nullable: true })
+  civilite: string | null;
 
-  @Column()
-  nom: string;
+  @Column({ type: 'varchar', nullable: true })
+  nom: string | null;
 
-  @Column()
-  prenom: string;
+  @Column({ type: 'varchar', nullable: true })
+  prenom: string | null;
 
-  @Column()
-  telephone: string;
+  @Column({ type: 'varchar', nullable: true })
+  telephone: string | null;
 
   // commercial advisor name is optional – some flows may not have this information
   @Column({ type: 'varchar', nullable: true })

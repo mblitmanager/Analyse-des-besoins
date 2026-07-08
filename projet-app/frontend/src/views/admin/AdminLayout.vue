@@ -280,7 +280,7 @@ const currentNavItem = computed(() => {
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 /* Mobile: hidden by default */
