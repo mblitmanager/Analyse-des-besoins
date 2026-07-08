@@ -59,7 +59,7 @@ function handleChangeFormation() {
             
             <button 
               @click="handleContinue"
-              class="w-full py-4 text-gray-400 hover:text-gray-600 font-bold uppercase tracking-[0.2em] text-[10px] transition-all flex items-center justify-center gap-2"
+              class="px-12 py-5 bg-[#ebb872] text-[#305364] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
             >
               <span>Continuer avec {{ formation }}</span>
               <span class="material-icons-outlined text-sm">arrow_forward</span>
