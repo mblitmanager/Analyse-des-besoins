@@ -18,6 +18,7 @@ const categories = [
   { id: 'automation', label: 'Automatisme', icon: 'auto_mode', patterns: ['AUTO_SKIP', 'PAGINATED'] },
   { id: 'p3', label: 'P3', icon: 'add_circle', patterns: ['P3_'] },
   { id: 'prerequis', label: 'Prérequis', icon: 'checklist', patterns: ['PREREQUISITE_', 'PREREQUIS_'] },
+  { id: 'highlevel', label: 'Niveau supérieur', icon: 'trending_up', patterns: ['HIGH_LEVEL_'] },
 ];
 
 const filteredSettings = computed(() => {
@@ -64,8 +65,12 @@ const getSettingIcon = (key) => {
   if (key === 'ENABLE_REFERRAL') return 'group_add';
   if (key.includes('ALERT')) return 'notification_important';
   if (key.includes('THRESHOLD')) return 'trending_up';
+  if (key === 'HIGH_LEVEL_ALERT_BEHAVIOR') return 'tune';
+  if (key === 'HIGH_LEVEL_ALERT_MESSAGE') return 'chat';
   if (key === 'P3_SAME_FORMATION_TEST') return 'school';
   if (key === 'P3_OTHER_FORMATION_TEST') return 'compare_arrows';
+  if (key === 'P3_OVERRIDE_REQUIRE_TEST') return 'quiz';
+  if (key === 'P3_OVERRIDE_ALLOW_MANUAL') return 'edit_note';
   return 'settings';
 };
 
@@ -81,6 +86,8 @@ const getSettingColor = (key) => {
   if (key.includes('THRESHOLD')) return 'bg-orange-100 text-orange-600';
   if (key === 'P3_SAME_FORMATION_TEST') return 'bg-teal-100 text-teal-600';
   if (key === 'P3_OTHER_FORMATION_TEST') return 'bg-cyan-100 text-cyan-600';
+  if (key === 'P3_OVERRIDE_REQUIRE_TEST') return 'bg-violet-100 text-violet-600';
+  if (key === 'P3_OVERRIDE_ALLOW_MANUAL') return 'bg-sky-100 text-sky-600';
   return 'bg-slate-100 text-slate-600';
 };
 

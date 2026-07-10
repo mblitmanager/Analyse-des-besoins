@@ -46,6 +46,22 @@ export class P3OverrideRule {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  /**
+   * Si true : après sélection de ce parcours dans le modal P3 override,
+   * l'apprenant passe le test de positionnement avant la validation.
+   * Si false (défaut) : finalisation directe sans test.
+   */
+  @Column({ type: 'boolean', default: false })
+  requireTest: boolean;
+
+  /**
+   * Quand true (défaut) : le choix P3 est imposé peu importe le résultat du test.
+   * Quand false : le résultat du test détermine le parcours + message indiquant
+   * que le niveau est supérieur au choix initial.
+   */
+  @Column({ type: 'boolean', default: true })
+  forceChoice: boolean;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   certification: string;
 

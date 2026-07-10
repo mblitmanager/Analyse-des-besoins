@@ -4,7 +4,8 @@ import { computed } from 'vue';
 const props = defineProps({
   show: Boolean,
   formation: String,
-  level: String
+  level: String,
+  customMessage: { type: String, default: '' },
 });
 
 const emit = defineEmits(['close', 'changeFormation', 'continue']);
@@ -40,7 +41,7 @@ function handleChangeFormation() {
           
           <div class="space-y-4 mb-10">
             <p class="text-gray-500 text-center leading-relaxed text-lg">
-              Vous avez validé le niveau <strong class="text-blue-900">{{ level }}</strong>, qui est déjà supérieur au niveau cible de notre formation <strong class="text-blue-900">{{ formation }}</strong>.
+              {{ customMessage || `Vous avez validé le niveau` }} <strong class="text-blue-900">{{ level }}</strong>{{ customMessage ? '' : `, qui est déjà supérieur au niveau cible de notre formation` }} <strong v-if="!customMessage" class="text-blue-900">{{ formation }}</strong>.
             </p>
             <p class="text-gray-500 text-center leading-relaxed font-medium">
               Voulez-vous continuer avec le parcours proposé ou changer de formation ?

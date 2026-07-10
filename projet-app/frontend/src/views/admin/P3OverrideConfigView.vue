@@ -21,6 +21,16 @@ const allParcoursRules = ref([]);
 // Form state for creating/editing rules
 const showForm = ref(false);
 const editingRule = ref(null);
+
+// Refs pour les 3 champs de formation1 et formation2
+const f1Formation = ref("");
+const f1Level = ref("");
+const f1Certification = ref("");
+const f2Formation = ref("");
+const f2Level = ref("");
+const f2Certification = ref("");
+let isInitializingForm = false;
+
 const newRule = ref({
   formation: "",
   formationId: null,
@@ -31,6 +41,8 @@ const newRule = ref({
   formation2: "",
   order: 0,
   isActive: true,
+  requireTest: false,
+  forceChoice: true,
   certification: "",
   explanationMessage: "",
   parcoursTitle: "",
@@ -168,8 +180,39 @@ async function deleteRule(id) {
   }
 }
 
+// ── Helpers 3 champs formation ──
+const buildTargetString = (form, level, cert = '') => {
+  if (!form && !level) return '';
+  const base = form && level ? `${form} ${level}` : (form || level || '');
+  if (cert && cert.trim()) return `${base} (${cert.trim()})`;
+  return base;
+};
+
+function parseCertificationString(value) {
+  if (!value) return { formation: '', level: '', certification: '' };
+  const certMatch = value.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (certMatch) {
+    const beforeParen = certMatch[1].trim();
+    const certification = certMatch[2].trim();
+    return { formation: beforeParen, level: '', certification };
+  }
+  return { formation: value, level: '', certification: '' };
+}
+
+watch([f1Formation, f1Level, f1Certification], ([form, level, cert]) => {
+  if (isInitializingForm) return;
+  newRule.value.formation1 = buildTargetString(form, level, cert);
+});
+
+watch([f2Formation, f2Level, f2Certification], ([form, level, cert]) => {
+  if (isInitializingForm) return;
+  newRule.value.formation2 = buildTargetString(form, level, cert);
+});
+
 function openNewForm() {
   editingRule.value = null;
+  f1Formation.value = ""; f1Level.value = ""; f1Certification.value = "";
+  f2Formation.value = ""; f2Level.value = ""; f2Certification.value = "";
   newRule.value = {
     formation: currentFormation.value?.label || "",
     formationId: currentFormation.value?.id || null,
@@ -180,6 +223,8 @@ function openNewForm() {
     formation2: "",
     order: filteredRules.value.length,
     isActive: true,
+    requireTest: false,
+    forceChoice: true,
     certification: "",
     explanationMessage: "",
     parcoursTitle: "",
@@ -187,19 +232,31 @@ function openNewForm() {
   conditionOperator.value = "=";
   conditionLevel.value = "";
   showForm.value = true;
-  // Load levels for the selected formation
   if (currentFormation.value) {
     fetchLevelsForFormation(currentFormation.value.label);
   }
 }
 
 async function openEditForm(rule) {
+  isInitializingForm = true;
   editingRule.value = rule;
   newRule.value = { 
     ...rule,
     isActive: rule.isActive !== false,
+    requireTest: !!rule.requireTest,
+    forceChoice: rule.forceChoice !== false,
   };
-  
+
+  // Parser formation1 et formation2
+  const p1 = parseCertificationString(rule.formation1);
+  f1Formation.value = p1.formation;
+  f1Level.value = p1.level;
+  f1Certification.value = p1.certification;
+
+  const p2 = parseCertificationString(rule.formation2 || '');
+  f2Formation.value = p2.formation;
+  f2Level.value = p2.level;
+  f2Certification.value = p2.certification;
   // Parse condition
   const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
   if (condMatch) {
@@ -216,6 +273,7 @@ async function openEditForm(rule) {
   }
   
   showForm.value = true;
+  setTimeout(() => { isInitializingForm = false; }, 100);
 }
 
 async function fetchLevelsForFormation(formationLabel) {
@@ -381,6 +439,10 @@ onMounted(async () => {
                 </td>
                 <td class="px-8 py-6 text-right">
                   <div class="flex items-center justify-end gap-2">
+                    <span v-if="rule.requireTest" class="px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest bg-violet-100 text-violet-700 border border-violet-200 flex items-center gap-1 mr-1">
+                      <span class="material-icons-outlined text-[10px]">quiz</span>
+                      Test requis
+                    </span>
                     <button @click="openEditForm(rule)" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all">
                       <span class="material-icons-outlined text-sm">edit</span>
                     </button>
@@ -480,13 +542,37 @@ onMounted(async () => {
           </div>
 
           <div class="space-y-2">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Formation P3 proposée</label>
-            <input v-model="newRule.formation1" placeholder="ex: TOSA Word Opérationnel" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
+              Formation P3 proposée (Cible 1)
+            </label>
+            <div class="space-y-2">
+              <div class="grid grid-cols-2 gap-3">
+                <select v-model="f1Formation" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                  <option value="">Formation...</option>
+                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                </select>
+                <input v-model="f1Level" placeholder="Parcours (ex: Basique, Opérationnel...)" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              </div>
+              <input v-model="f1Certification" placeholder="Certification (ex: TOSA, ICDL, INKREA...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              <p v-if="newRule.formation1" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation1 }}</span></p>
+            </div>
           </div>
 
           <div class="space-y-2">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Formation alternative (optionnel)</label>
-            <input v-model="newRule.formation2" placeholder="ex: TOSA Word Avancé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">
+              Formation alternative (Cible 2 — optionnel)
+            </label>
+            <div class="space-y-2">
+              <div class="grid grid-cols-2 gap-3">
+                <select v-model="f2Formation" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                  <option value="">Formation...</option>
+                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                </select>
+                <input v-model="f2Level" placeholder="Parcours (ex: Basique, Opérationnel...)" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              </div>
+              <input v-model="f2Certification" placeholder="Certification (ex: TOSA, ICDL, INKREA...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              <p v-if="newRule.formation2" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation2 }}</span></p>
+            </div>
           </div>
 
           <div class="space-y-2">
@@ -515,6 +601,40 @@ onMounted(async () => {
           <div class="flex items-center gap-3">
             <input type="checkbox" v-model="newRule.isActive" id="isActive" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
             <label for="isActive" class="text-sm font-bold text-slate-700">Règle active</label>
+          </div>
+
+          <div class="flex items-center justify-between p-4 bg-violet-50 rounded-2xl border border-violet-100">
+            <div>
+              <h4 class="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                <span class="material-icons-outlined text-violet-500 text-sm">quiz</span>
+                Obliger le test de positionnement
+              </h4>
+              <p class="text-[10px] font-bold text-slate-400 mt-1 leading-relaxed">
+                Si activé, l'apprenant passera le test QCM pour ce parcours avant la validation. Le résultat du test est enregistré mais le parcours reste celui imposé ici.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+              <input type="checkbox" v-model="newRule.requireTest" class="sr-only peer" />
+              <div class="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-violet-500"></div>
+            </label>
+          </div>
+
+          <!-- forceChoice : visible seulement si requireTest est actif -->
+          <div v-if="newRule.requireTest" class="flex items-start justify-between p-4 bg-rose-50/60 rounded-2xl border border-rose-100 gap-4">
+            <div>
+              <h4 class="text-xs font-black text-slate-900 uppercase flex items-center gap-1.5">
+                <span class="material-icons-outlined text-rose-500 text-sm">lock</span>
+                Imposer le choix P3 (ignorer le résultat du test)
+              </h4>
+              <p class="text-[10px] font-bold text-slate-400 mt-1 leading-relaxed">
+                <strong>Activé</strong> : le parcours choisi ici est toujours affiché, peu importe le résultat du QCM.<br/>
+                <strong>Désactivé</strong> : le résultat du test détermine le parcours + message indiquant que le niveau est supérieur au choix initial.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+              <input type="checkbox" v-model="newRule.forceChoice" class="sr-only peer" />
+              <div class="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+            </label>
           </div>
         </div>
 

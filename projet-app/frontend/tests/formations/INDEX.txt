@@ -1,0 +1,104 @@
+# TEST MATRIX INDEX
+# All Formation / Level / Parcours Test Combinations
+
+## ANGLAIS (Formation Langue)
+? tests/formations/anglais/p1/parcours-1/test.spec.ts
+? tests/formations/anglais/p1/parcours-2/test.spec.ts
+? tests/formations/anglais/p2/parcours-1/test.spec.ts
+? tests/formations/anglais/p2/parcours-2/test.spec.ts
+
+## EXCEL (Formation Logiciel - Software)
+? tests/formations/excel/p1/parcours-1/test.spec.ts
+? tests/formations/excel/p1/parcours-2/test.spec.ts
+? tests/formations/excel/p2/parcours-1/test.spec.ts
+? tests/formations/excel/p2/parcours-2/test.spec.ts
+? tests/formations/excel/p3/parcours-1/test.spec.ts
+? tests/formations/excel/p3/parcours-2/test.spec.ts
+
+## WORD (Formation Logiciel - Software)
+? tests/formations/word/p1/parcours-1/test.spec.ts
+? tests/formations/word/p1/parcours-2/test.spec.ts
+? tests/formations/word/p2/parcours-1/test.spec.ts
+? tests/formations/word/p2/parcours-2/test.spec.ts
+? tests/formations/word/p3/parcours-1/test.spec.ts
+? tests/formations/word/p3/parcours-2/test.spec.ts
+
+## GIMP (Formation Logiciel - Graphics Software)
+? tests/formations/gimp/p1/parcours-1/test.spec.ts
+
+## IA GENERATIVE (Special - INKREA Rules)
+? tests/formations/ia-generative/p1/parcours-word-ia/test.spec.ts
+? tests/formations/ia-generative/p1/parcours-excel-ia/test.spec.ts
+
+---
+
+## QUICK COMMANDS
+
+# Run all formation tests
+npx playwright test tests/formations/
+
+# Run by formation
+npx playwright test tests/formations/anglais/
+npx playwright test tests/formations/excel/
+npx playwright test tests/formations/word/
+npx playwright test tests/formations/gimp/
+npx playwright test tests/formations/ia-generative/
+
+# Run by level
+npx playwright test tests/formations/*/p1/
+npx playwright test tests/formations/*/p2/
+npx playwright test tests/formations/*/p3/
+
+# Run specific test
+npx playwright test tests/formations/anglais/p1/parcours-1/
+
+# Run with UI
+npx playwright test tests/formations/ --ui
+
+# Debug mode
+npx playwright test tests/formations/excel/p1/ --debug
+
+# View report
+npx playwright show-report
+
+---
+
+## STATISTICS
+
+Total Formations: 5
+Total Levels: 12 (counted across formations)
+Total Parcours: 19
+Total Tests: 19
+
+Breakdown:
+- Anglais: 4 tests (P1-2 × 2 parcours)
+- Excel: 6 tests (P1-3 × 2 parcours)
+- Word: 6 tests (P1-3 × 2 parcours)
+- GIMP: 1 test (P1 × 1 parcours)
+- IA Générative: 2 tests (P1 × 2 parcours)
+
+---
+
+## EXPECTED RESULTS
+
+### Language Formations (Anglais)
+? PDF Section: "Usage de la langue"
+
+### Software Formations (Excel, Word, GIMP)
+? PDF Section: "Usage du logiciel"
+
+### IA Générative (Special Rules)
+? PDF Section: "Usage du logiciel"
+? Modal: Word+IA / Excel+IA options
+? P3 Override: Special handling
+
+---
+
+## VERSION HISTORY
+
+v1.0 - 2026-07-10
+- Created 19 test combinations
+- Organized by formation/level/parcours
+- Added README and INDEX documentation
+- Ready for Playwright execution
+

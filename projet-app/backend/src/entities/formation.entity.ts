@@ -59,6 +59,10 @@ export class Formation {
   @Column({ default: true })
   enableLowScoreWarning: boolean;
 
+  // Whether learners are allowed to manually choose a P3 formation for this formation
+  @Column({ type: 'boolean', default: false })
+  enableP3ManualChoice: boolean;
+
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 
