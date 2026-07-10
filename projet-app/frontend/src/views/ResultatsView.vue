@@ -475,9 +475,9 @@ const confirmAndGoNext = async () => {
       await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
       session.value.finalRecommendation = finalRec;
       if (selectedParcoursChoice.value) {
-        session.value.parcoursTitle = selectedParcoursChoice.value.title;
+        session.value.parcoursTitle = selectedParcoursChoice.value?.title ?? null;
         session.value.parcoursChoices = null;
-        parcoursTitle.value = selectedParcoursChoice.value.title;
+        parcoursTitle.value = selectedParcoursChoice.value?.title ?? parcoursTitle.value;
         if (selectedParcoursChoice.value.explanationMessage) {
           session.value.explanationMessage = selectedParcoursChoice.value.explanationMessage;
           parcoursRuleMessage.value = selectedParcoursChoice.value.explanationMessage;
@@ -970,7 +970,7 @@ const downloadPDF = async () => {
               <h2 v-if="displayedParcoursTitle" class="text-3xl md:text-4xl font-black text-slate-900 mb-4">{{ displayedParcoursTitle }}</h2>
               
               <!-- Message explicatif du parcours -->
-              <div v-if="parcoursRuleMessage" class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-start gap-3">
+              <div v-if="parcoursRuleMessage && !(session && (session.parcoursNumber === 3 || session.isP3Mode))" class="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl flex items-start gap-3">
                 <span class="material-icons-outlined text-amber-600 mt-0.5">info</span>
                 <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
               </div>
@@ -1023,7 +1023,7 @@ const downloadPDF = async () => {
               </div>
 
               <div
-                v-if="session?.explanationMessage && session.explanationMessage !== parcoursRuleMessage"
+                v-if="session?.explanationMessage && session.explanationMessage !== parcoursRuleMessage && !(session && (session.parcoursNumber === 3 || session.isP3Mode))"
                 class="mt-4 flex items-start gap-3 p-4 bg-amber-50/50 rounded-2xl border border-amber-200/30"
               >
                 <span class="material-icons-outlined text-amber-600 text-lg mt-0.5">psychology</span>

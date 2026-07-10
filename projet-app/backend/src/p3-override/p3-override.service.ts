@@ -13,14 +13,16 @@ export class P3OverrideService {
   findAll(activeOnly = false) {
     return this.p3OverrideRepo.find({ 
       where: activeOnly ? { isActive: true } : undefined,
-      order: { order: 'ASC' }
+      order: { order: 'ASC' },
+      relations: ['formationEntity'],
     });
   }
 
   findByFormation(formation: string, activeOnly = false) {
     return this.p3OverrideRepo.find({ 
       where: activeOnly ? { formation, isActive: true } : { formation },
-      order: { order: 'ASC' }
+      order: { order: 'ASC' },
+      relations: ['formationEntity'],
     });
   }
 

@@ -85,6 +85,8 @@ const form = ref({
   availabilitiesQuestionsScope: "both",
   miseANiveauQuestionsScope: "both",
   enableLowScoreWarning: true,
+  // Permettre le choix manuel pour le 3ème parcours (P3)
+  enableP3ManualChoice: false,
   levels: [],
 });
 
@@ -123,6 +125,8 @@ function openAddModal() {
     availabilitiesQuestionsScope: "both",
     miseANiveauQuestionsScope: "both",
     enableLowScoreWarning: true,
+    // Permettre le choix manuel pour le 3ème parcours (P3)
+    enableP3ManualChoice: false,
     levels: [],
   };
   showModal.value = true;
@@ -747,6 +751,13 @@ onMounted(() => {
                      <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="form.enableLowScoreWarning" class="sr-only peer">
                         <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
+                     </label>
+                   </div>
+                   <div class="flex items-center justify-between group/toggle">
+                     <span class="text-[9px] font-black text-slate-500 uppercase">Permettre choix manuel P3</span>
+                     <label class="relative inline-flex items-center cursor-pointer" :title="'Autoriser l\'utilisateur à choisir manuellement sa formation pour le 3ème parcours (P3)'">
+                        <input type="checkbox" v-model="form.enableP3ManualChoice" class="sr-only peer">
+                        <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-primary"></div>
                      </label>
                    </div>
                  </div>

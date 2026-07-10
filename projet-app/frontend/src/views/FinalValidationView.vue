@@ -153,6 +153,22 @@ const p3ValidationParcoursItems = computed(() => {
   return rows;
 });
 
+const p1p2ParcoursItems = computed(() => {
+  if (isP3Validation.value || !session.value) return [];
+  const items = sessionRecommendationItems(session.value);
+  if (items.length === 0 && recommendedLabel.value) {
+    // parcours simple : un seul badge P1
+    return [{ badge: 'P1', label: recommendedLabel.value, className: 'border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]' }];
+  }
+  return items.slice(0, 2).map((label, index) => ({
+    badge: `P${index + 1}`,
+    label,
+    className: index === 0
+      ? 'border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]'
+      : 'border-[#315264] bg-[#315264]/10 text-[#315264]',
+  }));
+});
+
 const recommendedLabelParts = computed(() => {
   if (!recommendedLabel.value) return [];
   // Split the exact ' & ' string or ' | ' returned by the logic
@@ -357,7 +373,7 @@ function confirmStartP3() {
                 <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Formation visée</span>
                 <span class="text-sm font-black text-blue-600">{{ session.formationChoisie }}</span>
               </div>
-              <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabel">
+              <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabel && isP3Validation">
                 <span class="text-xs text-gray-500 font-bold"
                   >Parcours recommandé</span
                 >
@@ -365,6 +381,35 @@ function confirmStartP3() {
                   {{ recommendedLabel }}
                 </span>
               </div>
+
+              <!-- P1/P2 : badges de parcours -->
+              <div
+                v-if="!isP3Validation && p1p2ParcoursItems.length"
+                class="bg-white/70 p-3 rounded-xl border border-emerald-100 shadow-sm space-y-2"
+              >
+                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                  Récapitulatif du parcours
+                </p>
+                <!-- Intitulé du parcours (parcoursTitle ou recommendedLabel) -->
+                <p v-if="session.parcoursTitle || recommendedLabel" class="text-sm font-black text-[#0d1b3e] px-1 pb-1 border-b border-gray-100">
+                  {{ session.parcoursTitle || recommendedLabel }}
+                </p>
+                <div
+                  v-for="item in p1p2ParcoursItems"
+                  :key="item.badge"
+                  class="flex items-start gap-3 rounded-lg border p-3"
+                  :class="item.className"
+                >
+                  <span class="shrink-0 inline-flex items-center justify-center min-w-10 h-7 px-3 rounded-full bg-white/80 text-[11px] font-black">
+                    {{ item.badge }}
+                  </span>
+                  <p class="min-w-0 text-sm font-black text-[#0d1b3e] break-words">
+                    {{ item.label }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- P3 : badges P1/P2/P3 -->
               <div
                 v-if="isP3Validation && p3ValidationParcoursItems.length"
                 class="bg-white/70 p-3 rounded-xl border border-indigo-100 shadow-sm space-y-2"

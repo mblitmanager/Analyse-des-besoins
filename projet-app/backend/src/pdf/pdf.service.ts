@@ -37,6 +37,8 @@ export class PdfService {
     isP3Mode?: boolean;
     parcoursNumber?: number;
     stopLevelOrder?: number;
+    // Optional flag provided by caller to indicate that this formation is a language course
+    isLanguageFormation?: boolean;
     correctAnswersById?: Record<number, string | string[]>;
   }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
@@ -296,9 +298,19 @@ export class PdfService {
       );
 
       checkSectionBreak(80);
+      // Titre dynamique selon le type de formation
+      // Determine title for mise à niveau section.
+      // Prefer an explicit flag provided by the caller (isLanguageFormation). If missing, fall back to label-matching for common language formations.
+      let isLangueFormation: boolean | undefined = (data as any).isLanguageFormation;
+      if (typeof isLangueFormation === 'undefined') {
+        isLangueFormation = ['anglais', 'français', 'francais'].some(
+          (lang) => (data.formationChoisie || '').toLowerCase().includes(lang),
+        );
+      }
+      const miseNiveauTitle = isLangueFormation ? 'Usage de la langue' : 'Usage du logiciel';
       this.renderAnswersSection(
         doc,
-        'Usage de la langue',
+        miseNiveauTitle,
         data.miseANiveauAnswers,
         data.qTextById,
         undefined,

@@ -96,6 +96,10 @@ export class SessionsController {
       }
     }
 
+    // Resolve formation entity to determine its category (Langue vs others)
+    const formationEntity = await this.formationsService.findBySlugOrLabel(session.formationChoisie || '');
+    const isLanguageFormation = !!formationEntity && String(formationEntity.category || '').toLowerCase() === 'langue';
+
     const pdfBuffer = await this.pdfService.generateSessionPdf({
       civilite: session.civilite,
       prenom: session.prenom,
@@ -121,6 +125,7 @@ export class SessionsController {
       parcoursNumber,
       correctAnswersById: processed.correctAnswersById,
       positionnementAnswers: session.positionnementAnswers,
+      isLanguageFormation,
     });
 
     const filename = this.sessionsService.generatePdfFilename(session, session.formationChoisie || 'Analyse', undefined, parcoursNumber);

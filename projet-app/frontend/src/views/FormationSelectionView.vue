@@ -55,6 +55,7 @@ const p3AutoFormationDetail = computed(() => {
 const p3OverrideEnabled = ref(false);
 const p3OverrideRules = ref([]); // Array of P3 override rules
 const showP3OverrideModal = ref(false);
+const p3OverrideAllowManual = ref(true);   // P3_OVERRIDE_ALLOW_MANUAL : afficher "Choisir manuellement"
 const p3OverrideSelectedChoice = ref('');
 const p3OverrideMatchedRule = ref(null); // The rule that matched the user's formation/level
 const p3OverrideMatchedRules = ref([]);
@@ -67,6 +68,25 @@ const p3OverrideChoiceOptions = computed(() => {
   const options = [];
 
   rules.forEach((rule) => {
+    // Special case: inkrea / IA générative group formation should present combined options
+    const isInkrea = (String(rule?.certification || '').toLowerCase() === 'inkrea') || (String(rule?.formation || '').toLowerCase().includes('intelligence artificielle')) || (String(rule?.formation || '').toLowerCase().includes('ia generative'));
+    if (isInkrea) {
+      // Prefer to pair IA with Word and Excel formations when available
+      const pairTargets = ['word', 'excel'];
+      pairTargets.forEach((targetKey) => {
+        const found = formations.value.find(f => (f.label || '').toLowerCase().includes(targetKey));
+        if (found) {
+          const combinedLabel = `${found.label} + ${rule.formation || 'IA GENERATIVE'}${rule.certification ? ` (${rule.certification})` : ''}`;
+          const clean = normalizeParcoursLabel(combinedLabel);
+          if (!seen.has(clean)) {
+            seen.add(clean);
+            options.push({ label: combinedLabel, rule });
+          }
+        }
+      });
+      return; // skip normal formation1/formation2 handling for this rule
+    }
+
     ["formation1", "formation2"].forEach((field) => {
       const label = String(rule?.[field] || "").trim();
       const clean = normalizeParcoursLabel(label);
@@ -344,9 +364,17 @@ function getP3PreviousItemsForConditions() {
   ];
   const legacyItems = p3PrevRecommendations.value;
 
+  // Si sessionItems[0] est vide, la formation principale (formationChoisie) peut être P1
+  // Ex: session P2 = Digcomp+Excel → formationChoisie = "Digitales Compétences", items = ["EXCEL Basique (TOSA)"]
+  // conditionP1 vérifie la formation principale → on l'ajoute comme fallback P1
+  const sessionFormation = currentSession.value?.formationChoisie || "";
+  const sessionFormationFull = currentSession.value?.finalRecommendation
+    ? currentSession.value.finalRecommendation.split(/\s*[\|&]\s*/)[0] || sessionFormation
+    : sessionFormation;
+
   return [
-    sessionItems[0] || fallbackItems[0] || legacyItems[0] || "",
-    sessionItems[1] || fallbackItems[1] || legacyItems[1] || "",
+    sessionItems[0] || fallbackItems[0] || legacyItems[0] || sessionFormationFull || "",
+    sessionItems[1] || sessionItems[0] || fallbackItems[1] || legacyItems[1] || sessionFormationFull || "",
   ];
 }
 
@@ -450,10 +478,7 @@ async function fetchP3Override() {
     const enabled = await store.fetchSetting('P3_OVERRIDE_ENABLED');
     if (enabled !== 'true') return;
 
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
-    const rulesRes = await axios.get(`${apiBaseUrl}/p3-override?activeOnly=true`);
-    p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
-    if (p3OverrideRules.value.length === 0) return;
+    await loadP3OverrideRules();
 
     const currentFormation = currentSession.value
       ? {
@@ -464,6 +489,22 @@ async function fetchP3Override() {
     showP3OverrideForRules(findMatchingP3OverrideRules(currentFormation));
   } catch (e) {
     console.warn('[P3 Override] Error fetching override rules:', e);
+  }
+}
+
+async function loadP3OverrideRules() {
+  try {
+    const enabled = await store.fetchSetting('P3_OVERRIDE_ENABLED');
+    if (enabled !== 'true') { p3OverrideRules.value = []; return; }
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const rulesRes = await axios.get(`${apiBaseUrl}/p3-override?activeOnly=true`);
+    p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
+
+    // Charger les options de comportement
+    const allowManualVal = await store.fetchSetting('P3_OVERRIDE_ALLOW_MANUAL');
+    p3OverrideAllowManual.value = allowManualVal !== 'false'; // true par défaut
+  } catch (e) {
+    console.warn('[P3 Override] Error loading rules:', e);
   }
 }
 async function confirmP3Override() {
@@ -482,36 +523,135 @@ async function confirmP3Override() {
     const overrideP2 = String(rule?.conditionP2 || "").trim();
     if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
     if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
-    
-    // Save the formation choice with p3SkipQuiz flag and pre-set recommendation
-    const payload = {
-      formationChoisie: chosenLabel,
-      isP3Mode: true,
-      p3SkipQuiz: true,
-      finalRecommendation: chosenLabel,
-      stopLevel: chosenLabel,
-    };
-    
-    // Add parcours title and explanation message if available from the rule
-    if (rule?.parcoursTitle) {
-      payload.parcoursTitle = rule.parcoursTitle;
+
+    if (rule?.requireTest) {
+      // ── Mode avec test : identifier la formation à tester depuis le CHOIX ──
+      // chosenLabel = "EXCEL Basique (TOSA)" → formation = "Excel"
+      // On cherche d'abord depuis chosenLabel, puis depuis formation1 de la règle
+
+      // Mapping certifications → formations connues (pour les cas où le label ne matche pas directement)
+      // Pour les formations groupes (IA Générative), on redirige vers la sélection normale
+      const certToFormation = {
+        'inkrea': { label: 'Intelligence Artificielle Générative', isGroup: true },
+      };
+
+      // 1. Extraire depuis chosenLabel : "EXCEL Basique (TOSA)" → "EXCEL Basique" → matcher "Excel"
+      const cleanChosen = chosenLabel.replace(/\s*\([^)]+\)$/, '').trim(); // "EXCEL Basique"
+      const certInChosen = (chosenLabel.match(/\(([^)]+)\)/) || [])[1]?.toLowerCase() || '';
+      
+      // Vérifier mapping certification d'abord
+      let targetFormation = null;
+      let isGroupFormation = false;
+      const certMapping = certToFormation[certInChosen];
+      if (certMapping) {
+        targetFormation = formations.value.find(f => f.label === certMapping.label || f.label.toLowerCase() === certMapping.label.toLowerCase());
+        isGroupFormation = certMapping.isGroup || false;
+      }
+
+      // Si c'est une formation groupe (IA Générative), l'apprenant doit choisir la sous-formation
+      // → On redirige vers FormationSelectionView avec le parcours forcé stocké
+      if (isGroupFormation && targetFormation) {
+        const payload = {
+          isP3Mode: true,
+          parcoursNumber: 3,
+        };
+        await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
+
+        localStorage.setItem('p3_forced_recommendation', chosenLabel);
+        localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
+        const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
+        localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${chosenLabel}` : ''));
+        localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
+
+        if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
+        if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
+
+        // Flag pour indiquer qu'on vient d'un groupe IA → éviter de redemander le modal P3 override
+        localStorage.setItem('p3_ia_group_redirect', 'true');
+
+        // Relancer la sélection de formation pour choisir Word+IA ou Excel+IA
+        store.setP3Mode(true);
+        submitting.value = false;
+        router.push('/formations');
+        return;
+      }
+
+      // Sinon cherche par correspondance label
+      if (!targetFormation) {
+        targetFormation = formations.value.find(f => {
+          const fl = f.label.toLowerCase();
+          const cl = cleanChosen.toLowerCase();
+          return cl.startsWith(fl) || fl === cl.split(' ')[0];
+        });
+      }
+
+      // 2. Extraire depuis formation1 de la règle si chosenLabel ne matche pas
+      if (!targetFormation && rule?.formation1) {
+        const cleanF1 = rule.formation1.replace(/\s*\([^)]+\)$/, '').trim();
+        targetFormation = formations.value.find(f => {
+          const fl = f.label.toLowerCase();
+          const cl = cleanF1.toLowerCase();
+          return cl.startsWith(fl) || fl === cl.split(' ')[0];
+        });
+      }
+
+      // 3. Chercher par formationId de la règle (dernier recours)
+      if (!targetFormation) {
+        targetFormation = formations.value.find(f => rule?.formationId && f.id === rule.formationId);
+      }
+
+      console.debug('[P3 Override] targetFormation:', targetFormation?.label, '| chosenLabel:', chosenLabel);
+
+      const formationLabel = targetFormation?.label || rule?.formation || chosenLabel;
+      const formationSlug = targetFormation?.slug || '';
+
+      const payload = {
+        formationChoisie: formationLabel,
+        isP3Mode: true,
+        parcoursNumber: 3,
+      };
+      if (rule?.parcoursTitle) payload.parcoursTitle = rule.parcoursTitle;
+      const overrideSummary = [overrideP1, overrideP2].filter(Boolean).join(" + ");
+      if (rule?.explanationMessage) payload.explanationMessage = rule.explanationMessage;
+      else if (overrideSummary) payload.explanationMessage = `${overrideSummary} -> ${chosenLabel}`;
+      if (rule?.certification) payload.certification = rule.certification;
+
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
+
+      // Stocker le parcours P3 imposé (le certif choisi) pour PositionnementView
+      localStorage.setItem('p3_forced_recommendation', chosenLabel);
+      localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
+      localStorage.setItem('p3_forced_explanation', payload.explanationMessage || '');
+      // forceChoice : true (défaut) = imposer peu importe le résultat du test
+      localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
+
+      if (formationSlug) {
+        localStorage.setItem("selected_formation_slug", formationSlug);
+      }
+      localStorage.setItem("selected_formation_label", formationLabel);
+
+      await store.updateActualWorkflow();
+      const nextRoute = await store.getNextRouteWithQuestions("/formations");
+      router.push(nextRoute || "/positionnement");
+    } else {
+      // ── Mode sans test (défaut) : finaliser directement ──
+      const payload = {
+        formationChoisie: chosenLabel,
+        isP3Mode: true,
+        p3SkipQuiz: true,
+        finalRecommendation: chosenLabel,
+        stopLevel: chosenLabel,
+      };
+      if (rule?.parcoursTitle) payload.parcoursTitle = rule.parcoursTitle;
+      const overrideSummary = [overrideP1, overrideP2].filter(Boolean).join(" + ");
+      if (rule?.explanationMessage) payload.explanationMessage = rule.explanationMessage;
+      else if (overrideSummary) payload.explanationMessage = `${overrideSummary} -> ${chosenLabel}`;
+      if (rule?.certification) payload.certification = rule.certification;
+
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
+      await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
+      router.push('/validation');
     }
-    const overrideSummary = [overrideP1, overrideP2].filter(Boolean).join(" + ");
-    if (rule?.explanationMessage) {
-      payload.explanationMessage = rule.explanationMessage;
-    } else if (overrideSummary) {
-      payload.explanationMessage = `${overrideSummary} -> ${chosenLabel}`;
-    }
-    if (rule?.certification) {
-      payload.certification = rule.certification;
-    }
-    
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
-    
-    // Submit (finalize) the session
-    await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
-    
-    router.push('/validation');
   } catch (error) {
     console.error('Failed to confirm P3 override:', error);
     toast.error('Erreur lors de la validation du P3.');
@@ -576,14 +716,58 @@ onUnmounted(() => {
 
 async function selectFormation() {
   if (!selectedFormation.value) return;
+
   // For bureautique formations require a suite choice
   if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique' && !selectedSuite.value) {
     toast.error('Veuillez choisir : Google Workspace ou Microsoft Office');
     return;
   }
 
+  // ── Cas redirection depuis groupe IA (Word+IA ou Excel+IA) ──
+  // Quand l'apprenant arrive ici après avoir choisi IA GENERATIVE dans le modal P3 override,
+  // on bypass toute la logique P3 override et on va directement au test/finalisation
+  if (store.isP3Mode && localStorage.getItem('p3_ia_group_redirect') === 'true') {
+    localStorage.removeItem('p3_ia_group_redirect');
+    await doSelectFormation();
+    return;
+  }
+
   // P3: if user chose the SAME formation as P2, check settings
   if (store.isP3Mode) {
+    // Charger les règles P3 override si pas encore fait (ex: entré en P3 après le montage)
+    if (p3OverrideRules.value.length === 0) {
+      await loadP3OverrideRules();
+    }
+    
+    if (selectedIsIAGenerative) {
+      console.log('[P3] IA Générative detected, looking for inkrea rules...');
+      const iaMatching = (p3OverrideRules.value || []).filter(rule => {
+        const isInkrea = (String(rule?.certification || '').toLowerCase() === 'inkrea') || (String(rule?.formation || '').toLowerCase().includes('intelligence')) || (String(rule?.formation || '').toLowerCase().includes('ia generative'));
+        console.log('[P3] Rule check:', rule.id, 'certification:', rule.certification, 'formation:', rule.formation, 'isInkrea:', isInkrea);
+        return isInkrea && rule.isActive !== false;
+      });
+      console.log('[P3] Found', iaMatching.length, 'inkrea rules');
+      if (iaMatching.length > 0) {
+        console.log('[P3] Showing P3 override modal with', iaMatching.length, 'rules');
+        if (showP3OverrideForRules(iaMatching)) return;
+      }
+    }
+
+    // ── Priorité absolue : vérifier P3 override en premier ──
+    // Si une règle override matche avec requireTest=true, on lance le test
+    // directement sans vérifier si c'est la même formation que P1/P2
+    const matchingOverrideRules = findMatchingP3OverrideRules(selectedFormation.value);
+    if (matchingOverrideRules.length > 0) {
+      // Vérifier si au moins une règle matchante a requireTest=true
+      const hasRequireTest = matchingOverrideRules.some(r => r.requireTest);
+      if (hasRequireTest) {
+        // Afficher le modal P3 override — confirmP3Override gérera le test
+        if (showP3OverrideForRules(matchingOverrideRules)) {
+          return;
+        }
+      }
+    }
+
     const prevFormation = localStorage.getItem('p3_prev_formation') || '';
     const sameFormationTest = await store.fetchSetting('P3_SAME_FORMATION_TEST');
     const otherFormationTest = await store.fetchSetting('P3_OTHER_FORMATION_TEST');
@@ -594,7 +778,7 @@ async function selectFormation() {
         toast.error("En mode P3, vous devez choisir une formation différente de celle du P2.");
         return;
       }
-      if (showP3OverrideForRules(findMatchingP3OverrideRules(selectedFormation.value))) {
+      if (showP3OverrideForRules(matchingOverrideRules)) {
         return;
       }
       // If allowed, skip quiz entirely
@@ -617,9 +801,20 @@ async function selectFormation() {
       showP3SameFormationModal.value = true;
       return;
     } else {
-      // Different formation selected - allow it
+      // Different formation selected
+      // Si P3_OTHER_FORMATION_TEST = false → skip le test, imposer le parcours P3 directement
+      if (otherFormationTest === 'false') {
+        if (showP3OverrideForRules(matchingOverrideRules)) {
+          return;
+        }
+        // Calculer le parcours P3 imposé et finaliser sans test
+        await doSelectFormationWithoutTest();
+        return;
+      }
     }
-    if (showP3OverrideForRules(findMatchingP3OverrideRules(selectedFormation.value))) {
+    // Pour les formations différentes avec P3_OTHER_FORMATION_TEST = true (ou non défini)
+    // et sans requireTest : vérifier l'override normalement
+    if (showP3OverrideForRules(matchingOverrideRules)) {
       return;
     }
   }
@@ -656,6 +851,22 @@ async function doSelectFormation() {
     );
     if (selectedSuite.value) localStorage.setItem('selected_suite', selectedSuite.value);
     
+    // En P3 avec formation DIFFÉRENTE : calculer et stocker le parcours P3 imposé
+    // Le test de positionnement sera fait pour évaluer le niveau, mais le parcours
+    // final sera toujours celui imposé ici (indépendant du résultat du QCM).
+    if (store.isP3Mode) {
+      const computedResult = computeNextLevel();
+      if (computedResult.finalRecommendation || computedResult.label) {
+        localStorage.setItem('p3_forced_recommendation', computedResult.finalRecommendation || computedResult.label);
+        localStorage.setItem('p3_forced_parcours_title', computedResult.parcoursTitle || '');
+        localStorage.setItem('p3_forced_explanation', computedResult.explanationMessage || '');
+      } else {
+        localStorage.removeItem('p3_forced_recommendation');
+        localStorage.removeItem('p3_forced_parcours_title');
+        localStorage.removeItem('p3_forced_explanation');
+      }
+    }
+    
     // Update the real workflow path based on the selected formation
     await store.updateActualWorkflow();
     
@@ -663,6 +874,60 @@ async function doSelectFormation() {
     router.push(nextRoute || "/positionnement");
   } catch (error) {
     console.error("Failed to select formation:", error);
+    toast.error("Erreur lors de la sélection de la formation.");
+  } finally {
+    submitting.value = false;
+  }
+}
+
+/**
+ * P3 formation différente + P3_OTHER_FORMATION_TEST = false :
+ * Sauvegarde la formation, calcule le parcours P3 imposé et finalise
+ * directement sans passer par le test de positionnement.
+ */
+async function doSelectFormationWithoutTest() {
+  submitting.value = true;
+  try {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+    const computedResult = computeNextLevel();
+    const finalRec = computedResult.finalRecommendation || computedResult.label || selectedFormation.value.label;
+    const finalTitle = computedResult.parcoursTitle || "";
+    const finalExplanation = computedResult.explanationMessage || "";
+    const finalStopLevel = computedResult.nextLevelLabel || computedResult.label || selectedFormation.value.label;
+    const finalStopLevelOrder = computedResult.nextLevelOrder || 0;
+
+    const payload = {
+      formationChoisie: selectedFormation.value.label,
+      isP3Mode: true,
+      p3SkipQuiz: true,
+      finalRecommendation: finalRec,
+      stopLevel: finalStopLevel,
+      stopLevelOrder: finalStopLevelOrder,
+      parcoursNumber: 3,
+    };
+    if (finalTitle) payload.parcoursTitle = finalTitle;
+    if (finalExplanation) payload.explanationMessage = finalExplanation;
+    if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique') {
+      payload.bureautiqueSuite = selectedSuite.value;
+    }
+
+    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
+
+    localStorage.setItem("selected_formation_slug", selectedFormation.value.slug);
+    localStorage.setItem("selected_formation_label", selectedFormation.value.label);
+    if (store.isP3Mode && currentSession.value) {
+      localStorage.setItem('p3_prev_formation', currentSession.value.formationChoisie || "");
+      localStorage.setItem('p3_prev_level_order', String(currentSession.value.stopLevelOrder || 0));
+    }
+    if (selectedSuite.value) localStorage.setItem('selected_suite', selectedSuite.value);
+
+    // Finaliser la session directement (pas de test)
+    await axios.post(`${apiBaseUrl}/sessions/${sessionId}/submit`);
+
+    router.push('/validation');
+  } catch (error) {
+    console.error("Failed to select formation without test:", error);
     toast.error("Erreur lors de la sélection de la formation.");
   } finally {
     submitting.value = false;
@@ -1104,7 +1369,7 @@ function isSectionActive(section) {
         </div>
 
         <!-- P3 Banner: Previous Parcours -->
-        <div v-if="store.isP3Mode && (p3SummaryTitle || p3ParcoursItems.length > 0)" 
+        <div v-if="store.isP3Mode && (p3SummaryTitle || p3ParcoursItems.length > 0) && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" 
              class="mt-10 bg-white/60 backdrop-blur-md rounded-3xl p-8 border border-white shadow-2xl shadow-blue-500/5 relative overflow-hidden group">
           <!-- Decorative elements -->
           <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-700"></div>
@@ -1146,7 +1411,14 @@ function isSectionActive(section) {
       </div>
 
       <div v-else class="bg-white rounded-4xl p-6 md:p-12 shadow-xl border border-white">
-        <div class="space-y-12">
+        <div v-if="store.isP3Mode && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice === false)" class="p-8 text-center">
+          <p class="text-lg font-black text-[#0d1b3e]">Seuls les choix imposés par l'administration sont disponibles pour cette formation.</p>
+          <p class="text-sm text-gray-500 mt-2">Si vous souhaitez procéder autrement, contactez un administrateur ou modifiez le paramètre dans l'espace admin.</p>
+          <div class="mt-4 flex items-center justify-center">
+            <button @click="showP3OverrideModal = true" class="px-6 py-2 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-xl shadow-md hover:brightness-105">Voir les choix imposés</button>
+          </div>
+        </div>
+        <div v-else class="space-y-12">
           <div v-for="section in sections" :key="section.key" class="space-y-6">
             <div class="flex items-center gap-4 mb-8">
               <div class="h-8 w-1.5 rounded-full" :style="{ backgroundColor: section.style?.color || '#3b82f6' }"></div>
@@ -1435,29 +1707,46 @@ function isSectionActive(section) {
           </p>
           
           <div class="space-y-3 mb-8">
-            <label
-              v-for="option in p3OverrideChoiceOptions"
-              :key="option.label"
-              class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
-              :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-            >
-              <input
-                type="radio"
-                :value="option.label"
-                v-model="p3OverrideSelectedChoice"
-                class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
-              />
-              <div class="flex-1">
-                <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
+            <!-- Special UI for IA générative (Inkrea): show large side-by-side choice buttons -->
+            <template v-if="p3OverrideMatchedRule && ((String(p3OverrideMatchedRule.certification || '').toLowerCase() === 'inkrea') || (String(p3OverrideMatchedRule.formation || '').toLowerCase().includes('intelligence')) || (String(p3OverrideMatchedRule.formation || '').toLowerCase().includes('ia generative')))">
+              <div class="grid grid-cols-2 gap-4">
+                <button
+                  v-for="option in p3OverrideChoiceOptions"
+                  :key="option.label"
+                  @click="p3OverrideSelectedChoice = option.label"
+                  :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                  class="p-4 rounded-2xl border-2 font-black text-sm text-[#0d1b3e] flex items-center justify-center gap-2"
+                >
+                  <span class="material-icons-outlined text-lg text-[#059669]">school</span>
+                  <span>{{ option.label }}</span>
+                </button>
               </div>
-              <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                <span class="material-icons-outlined text-white text-sm">check</span>
-              </div>
-            </label>
+            </template>
+            <template v-else>
+              <label
+                v-for="option in p3OverrideChoiceOptions"
+                :key="option.label"
+                class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
+                :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+              >
+                <input
+                  type="radio"
+                  :value="option.label"
+                  v-model="p3OverrideSelectedChoice"
+                  class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
+                />
+                <div class="flex-1">
+                  <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
+                </div>
+                <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                  <span class="material-icons-outlined text-white text-sm">check</span>
+                </div>
+              </label>
+            </template>
           </div>
           
           <div class="flex flex-col sm:flex-row gap-3">
-            <button @click="skipP3Override" class="flex-1 py-4 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
+            <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="flex-1 py-4 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
               Choisir manuellement
             </button>
             <button 

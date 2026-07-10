@@ -40,6 +40,23 @@ export class ParcoursRule {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  /**
+   * Quand true : ce parcours est complètement invisible pour l'apprenant,
+   * même si sa condition de niveau est atteinte. Il ne sera jamais affiché
+   * comme résultat dans PositionnementView.
+   * Utilisé pour les cas "trop avancé" / "trop faible" qui ne doivent pas
+   * apparaître dans les choix proposés.
+   */
+  @Column({ type: 'boolean', default: false })
+  isHiddenResult: boolean;
+
+  /**
+   * Type de masquage : 'too_advanced' (niveau trop élevé) ou 'too_weak' (niveau insuffisant).
+   * Null si isHiddenResult = false.
+   */
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  hiddenResultType: 'too_advanced' | 'too_weak' | null;
+
   @Column({ type: 'boolean', default: false })
   requirePrerequisiteFailure: boolean;
 

@@ -119,17 +119,35 @@ function getLevelLabel(order) {
 function getExactLevelLabel(order, sourceSlugs = [], sourceCategory = "") {
   if (!order) return "";
   
-  const slugs = (sourceSlugs || []).map(s => s.toLowerCase());
+  const slugsRaw = (sourceSlugs || []).map(s => String(s || "").trim()).filter(Boolean);
+  const slugs = slugsRaw.map(s => s.toLowerCase());
   const category = (sourceCategory || "").toLowerCase().trim();
 
-  // 1. Try matching with exact source slugs
+  // 1. Try matching with exact source slugs OR by matching against formation labels (robust to combined labels)
   if (slugs.length > 0) {
-    const matches = allLevels.value.filter(
-      (lv) => lv.order === order && slugs.includes(lv.formationSlug?.toLowerCase())
-    );
+    const matches = allLevels.value.filter((lv) => {
+      if (lv.order !== order) return false;
+      const lvSlug = String(lv.formationSlug || "").toLowerCase();
+      const lvLabel = String(lv.formationLabel || "").toLowerCase();
+      // exact slug match
+      if (slugs.includes(lvSlug)) return true;
+      // direct label match (handle cases where stored sourceSlugs contain labels rather than slugs)
+      if (slugs.includes(lvLabel)) return true;
+      // handle combined labels like "word + ia" by checking if all words appear in label
+      for (const s of slugs) {
+        const parts = s.split(/\s*[+\-/,&]\s*|\s+/).filter(Boolean);
+        if (parts.length > 1) {
+          // check if lvLabel contains all parts
+          const containsAll = parts.every(p => lvLabel.includes(p));
+          if (containsAll) return true;
+        }
+      }
+      return false;
+    });
     if (matches.length > 0) {
-      // Return list of matching levels (e.g. "Anglais : A2")
-      return matches.map(m => `${m.formationLabel} : ${m.label}`).join(" / ");
+      // If multiple matches, but they all belong to the same formation label, dedupe
+      const unique = Array.from(new Map(matches.map(m => [m.formationSlug || m.formationLabel, m])).values());
+      return unique.map(m => `${m.formationLabel} : ${m.label}`).join(" / ");
     }
   }
 

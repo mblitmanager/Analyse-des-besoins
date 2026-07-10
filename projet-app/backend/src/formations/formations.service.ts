@@ -33,6 +33,14 @@ export class FormationsService {
     });
   }
 
+  async findBySlugOrLabel(value: string) {
+    if (!value) return null;
+    return this.formationRepo.findOne({
+      where: [{ slug: value }, { label: value }],
+      relations: ['levels'],
+    });
+  }
+
   async findLevelsBySlug(slug: string) {
     return this.levelRepo.find({
       where: { formation: { slug } },
