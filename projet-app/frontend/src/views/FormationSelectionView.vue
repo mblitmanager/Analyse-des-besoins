@@ -78,18 +78,26 @@ const p3OverrideChoiceOptions = computed(() => {
         ? rule.testFormations 
         : Object.values(rule.testFormations || {});
       
-      // Utiliser les formations configurées dans testFormations
-      testFormationsArray.forEach((formationLabel) => {
-        const found = formations.value.find(f => (f.label || '').toLowerCase().includes(formationLabel.toLowerCase()));
+      // Utiliser les formations configurées dans testFormations (par ID ou label)
+      testFormationsArray.forEach((formationIdentifier) => {
+        // Essayer d'abord par ID, puis par label
+        let found = null;
+        const idNum = Number(formationIdentifier);
+        if (!isNaN(idNum) && idNum > 0) {
+          found = formations.value.find(f => f.id === idNum);
+        }
+        if (!found) {
+          found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
+        }
         if (found) {
           // Format: "Formation P3 proposée (Cible 1) (Formation de test)"
           // Utiliser formation1 (Cible 1) comme nom du parcours
           const parcoursName = rule.formation1 || rule.formation || 'Formation';
-          const combinedLabel = `${parcoursName} (${formationLabel})`;
+          const combinedLabel = `${parcoursName} (${found.label})`;
           const clean = normalizeParcoursLabel(combinedLabel);
           if (!seen.has(clean)) {
             seen.add(clean);
-            options.push({ label: combinedLabel, rule });
+            options.push({ label: combinedLabel, rule, formationId: found.id });
           }
         }
       });
@@ -444,10 +452,8 @@ function matchesLegacyP3Override(rule) {
 
 function p3OverrideRuleMatchesFormation(rule, formation) {
   if (!formation) return true;
-  return (
-    (rule.formationId && Number(rule.formationId) === Number(formation.id)) ||
-    labelsMatch(formation.label, rule.formation)
-  );
+  // Utiliser UNIQUEMENT l'ID de formation - pas de fallback sur label
+  return rule.formationId && Number(rule.formationId) === Number(formation.id);
 }
 
 function findMatchingP3OverrideRules(formation = null) {
@@ -455,39 +461,35 @@ function findMatchingP3OverrideRules(formation = null) {
     .filter((rule) => rule.isActive !== false && p3OverrideRuleMatchesFormation(rule, formation))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+  console.log('[P3] findMatchingP3OverrideRules - Formation:', formation?.id, formation?.label);
+  console.log('[P3] findMatchingP3OverrideRules - All active rules:', p3OverrideRules.value.length);
   console.log('[P3] findMatchingP3OverrideRules - All matching rules:', sortedRules.length);
-  console.log('[P3] findMatchingP3OverrideRules - Rules:', sortedRules.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, hasTestFormations: !!r.testFormations })));
+  console.log('[P3] findMatchingP3OverrideRules - Rules:', sortedRules.map(r => ({ 
+    id: r.id, 
+    formationId: r.formationId, 
+    formation: r.formation, 
+    parcoursTitle: r.parcoursTitle, 
+    hasTestFormations: !!r.testFormations 
+  })));
 
-  const p1p2Matches = sortedRules.filter(
+  // Afficher TOUTES les règles actives (pas de filtrage par conditions P1P2)
+  // Les conditions P1P2 servent uniquement pour la priorité d'affichage
+  
+  // Séparer les règles avec et sans conditions P1P2 pour la priorité
+  const rulesWithP1P2Conditions = sortedRules.filter(
     (rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule),
   );
-  if (p1p2Matches.length) {
-    console.log('[P3] findMatchingP3OverrideRules - P1P2 matches:', p1p2Matches.length);
-    
-    // Prioriser les règles avec testFormations configuré (IA Générative)
-    const rulesWithTestFormations = p1p2Matches.filter(rule => {
-      const tf = rule?.testFormations;
-      if (!tf) return false;
-      if (Array.isArray(tf)) return tf.length > 0;
-      if (typeof tf === 'object') return Object.keys(tf).length > 0;
-      return false;
-    });
-    
-    console.log('[P3] findMatchingP3OverrideRules - Rules with testFormations:', rulesWithTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, testFormations: r.testFormations })));
-    
-    if (rulesWithTestFormations.length > 0) {
-      console.log('[P3] findMatchingP3OverrideRules - Prioritizing rules with testFormations:', rulesWithTestFormations.length);
-      return rulesWithTestFormations;
-    }
-    
-    return p1p2Matches;
-  }
-
-  const legacyMatch = sortedRules.find(
-    (rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule),
+  
+  const rulesWithoutP1P2Conditions = sortedRules.filter(
+    (rule) => !hasP1P2OverrideConditions(rule)
   );
-  console.log('[P3] findMatchingP3OverrideRules - Legacy match:', legacyMatch ? legacyMatch.parcoursTitle : null);
-  return legacyMatch ? [legacyMatch] : [];
+  
+  console.log('[P3] findMatchingP3OverrideRules - Rules with matching P1P2 conditions:', rulesWithP1P2Conditions.length);
+  console.log('[P3] findMatchingP3OverrideRules - Rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
+  
+  // Priorité : règles avec conditions P1P2 correspondantes + règles sans conditions P1P2
+  // Mais toutes sont affichées
+  return sortedRules;
 }
 
 function showP3OverrideForRules(rules) {
@@ -512,12 +514,27 @@ async function fetchP3Override() {
 
     await loadP3OverrideRules();
 
-    const currentFormation = currentSession.value
-      ? {
+    let currentFormation = null;
+    if (currentSession.value) {
+      // Essayer d'abord l'ID de la session
+      if (currentSession.value.formationId) {
+        currentFormation = {
           id: currentSession.value.formationId,
           label: currentSession.value.formationChoisie,
+        };
+      } else if (currentSession.value.formationChoisie) {
+        // Si pas d'ID, trouver la formation par label
+        const foundFormation = formations.value.find(f => 
+          f.label.toLowerCase() === currentSession.value.formationChoisie.toLowerCase()
+        );
+        if (foundFormation) {
+          currentFormation = {
+            id: foundFormation.id,
+            label: foundFormation.label,
+          };
         }
-      : null;
+      }
+    }
     showP3OverrideForRules(findMatchingP3OverrideRules(currentFormation));
   } catch (e) {
     console.warn('[P3 Override] Error fetching override rules:', e);
@@ -615,12 +632,14 @@ async function confirmP3Override() {
           // Utiliser directement la formation de test pour le test de positionnement
           selectedFormation.value = testFormation;
           
-          // Stocker le parcours final pour l'affichage après le test
-          // Utiliser parcoursTitle si disponible, sinon formation, sinon fallback
-          const finalParcoursLabel = rule?.parcoursTitle || rule?.formation || 'Formation';
-          console.log('[P3] confirmP3Override - finalParcoursLabel to store:', finalParcoursLabel);
+          // Extraire le parcours final depuis chosenLabel
+          // Format: "IA GENERATIVE (INKREA) (Excel + IA)" → "IA GENERATIVE (INKREA)"
+          const parcoursMatch = chosenLabel.match(/^(.+?)\s*\([^)]+\)$/);
+          const finalParcoursLabel = parcoursMatch ? parcoursMatch[1].trim() : chosenLabel;
+          console.log('[P3] confirmP3Override - finalParcoursLabel extracted from chosenLabel:', finalParcoursLabel);
+          
           localStorage.setItem('p3_forced_recommendation', finalParcoursLabel);
-          localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
+          localStorage.setItem('p3_forced_parcours_title', finalParcoursLabel);
           const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
           localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
           localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');

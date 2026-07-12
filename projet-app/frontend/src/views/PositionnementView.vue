@@ -650,9 +650,12 @@ async function finishTest(overrideSession = null) {
     // Filter rules for this formation (actives ET inactives — les inactives servent d'alternatives "si veut quand même")
     const formationRules = allRules
       .filter(r => {
-        const matchesId = formation.value?.id && Number(r.formationId) === Number(formation.value.id);
-        const matchesLabel = r.formation === formationLabel;
-        return (matchesId || matchesLabel);
+        // Priorité absolue à l'ID de formation
+        if (formation.value?.id && r.formationId && Number(r.formationId) === Number(formation.value.id)) {
+          return true;
+        }
+        // Fallback sur le label seulement si l'ID n'est pas disponible
+        return r.formation === formationLabel;
       })
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -1163,10 +1166,16 @@ async function finishTest(overrideSession = null) {
 
     // Fallback to legacy admin threshold if it couldn't be detected dynamically
     if (!isHighLevel && alertSettings.value.formations.length > 0) {
-      const isTargetFormation = alertSettings.value.formations.some(f => 
-        (formationLabel || "").toLowerCase().includes(f.toLowerCase()) ||
-        (formationSlug || "").toLowerCase().includes(f.toLowerCase())
-      );
+      const isTargetFormation = alertSettings.value.formations.some(f => {
+        const fId = Number(f);
+        // Priorité à l'ID de formation
+        if (!isNaN(fId) && formation.value?.id && Number(formation.value.id) === fId) {
+          return true;
+        }
+        // Fallback sur label/slug
+        return (formationLabel || "").toLowerCase().includes(f.toLowerCase()) ||
+               (formationSlug || "").toLowerCase().includes(f.toLowerCase());
+      });
       
       if (isTargetFormation && validatedLevelObj.order >= alertSettings.value.thresholdOrder) {
         isHighLevel = true;
