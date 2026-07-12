@@ -582,7 +582,11 @@ async function finishTest(overrideSession = null) {
 
   // ── Cas P3 avec parcours forcé (requireTest = true sur la règle override) ──
   const p3ForcedRec = store.isP3Mode ? localStorage.getItem('p3_forced_recommendation') : null;
+  const p3ForcedFormationId = localStorage.getItem('p3_forced_formation_id');
+  const p3ForcedFormationLabel = localStorage.getItem('p3_forced_formation_label');
   console.log('[P3] PositionnementView - p3ForcedRec:', p3ForcedRec);
+  console.log('[P3] PositionnementView - p3ForcedFormationId:', p3ForcedFormationId, 'p3ForcedFormationLabel:', p3ForcedFormationLabel);
+  
   if (p3ForcedRec) {
     const p3ForcedTitle = localStorage.getItem('p3_forced_parcours_title') || '';
     const p3ForcedExplanation = localStorage.getItem('p3_forced_explanation') || '';
@@ -598,6 +602,8 @@ async function finishTest(overrideSession = null) {
     localStorage.removeItem('p3_forced_parcours_title');
     localStorage.removeItem('p3_forced_explanation');
     localStorage.removeItem('p3_forced_force_choice');
+    localStorage.removeItem('p3_forced_formation_id');
+    localStorage.removeItem('p3_forced_formation_label');
 
     if (shouldForce) {
       // ── Option activée : imposer le choix P3 peu importe le résultat ──
@@ -606,6 +612,17 @@ async function finishTest(overrideSession = null) {
       parcoursTitle.value = p3ForcedTitle;
       parcoursRuleMessage.value = p3ForcedExplanation;
       parcoursChoices.value = [];
+      
+      // Utiliser l'ID de formation si disponible
+      if (p3ForcedFormationId) {
+        try {
+          const res = await axios.get(`${apiBaseUrl}/formations/${p3ForcedFormationId}`);
+          formation.value = res.data;
+          console.log('[P3] PositionnementView - Loaded formation by ID:', formation.value);
+        } catch (error) {
+          console.error('[P3] PositionnementView - Failed to load formation by ID:', error);
+        }
+      }
     } else {
       // ── Option désactivée : laisser le test décider, mais afficher un message ──
       console.debug('[P3] Force choice désactivé → parcours du test utilisé, message info ajouté');
