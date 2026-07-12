@@ -68,19 +68,24 @@ const p3OverrideChoiceOptions = computed(() => {
   const options = [];
 
   rules.forEach((rule) => {
-    // Special case: inkrea / IA générative group formation should present combined options
-    const isInkrea = (String(rule?.certification || '').toLowerCase() === 'inkrea') || (String(rule?.formation || '').toLowerCase().includes('intelligence artificielle')) || (String(rule?.formation || '').toLowerCase().includes('ia generative'));
-    if (isInkrea) {
-      // Use testFormations if available, otherwise fallback to default Word and Excel
-      const testFormations = rule?.testFormations || [];
-      const pairTargets = testFormations.length > 0 
-        ? testFormations.map(f => f.toLowerCase())
-        : ['word', 'excel'];
+    // Vérifier si la règle a testFormations configuré (paramétrable, pas hardcoded)
+    const hasTestFormations = rule?.testFormations && 
+      (Array.isArray(rule.testFormations) ? rule.testFormations.length > 0 : Object.keys(rule.testFormations).length > 0);
+    
+    if (hasTestFormations) {
+      // Convertir testFormations en tableau si c'est un objet
+      const testFormationsArray = Array.isArray(rule.testFormations) 
+        ? rule.testFormations 
+        : Object.values(rule.testFormations || {});
       
-      pairTargets.forEach((targetKey) => {
-        const found = formations.value.find(f => (f.label || '').toLowerCase().includes(targetKey));
+      // Utiliser les formations configurées dans testFormations
+      testFormationsArray.forEach((formationLabel) => {
+        const found = formations.value.find(f => (f.label || '').toLowerCase().includes(formationLabel.toLowerCase()));
         if (found) {
-          const combinedLabel = `${found.label} + ${rule.formation || 'IA GENERATIVE'}${rule.certification ? ` (${rule.certification})` : ''}`;
+          // Format: "Formation P3 proposée (Cible 1) (Formation de test)"
+          // Utiliser formation1 (Cible 1) comme nom du parcours
+          const parcoursName = rule.formation1 || rule.formation || 'Formation';
+          const combinedLabel = `${parcoursName} (${formationLabel})`;
           const clean = normalizeParcoursLabel(combinedLabel);
           if (!seen.has(clean)) {
             seen.add(clean);
@@ -467,7 +472,6 @@ function showP3OverrideForRules(rules) {
   p3OverrideMatchedRules.value = rules;
   p3OverrideMatchedRule.value = rules[0];
   p3OverrideSelectedChoice.value = p3OverrideChoiceOptions.value[0]?.label || "";
-  showP3OverrideModal.value = true;
   return true;
 }
 
@@ -513,7 +517,8 @@ async function loadP3OverrideRules() {
 }
 async function confirmP3Override() {
   if (!p3OverrideSelectedChoice.value) return;
-  showP3OverrideModal.value = false;
+  console.log('[P3] confirmP3Override called with choice:', p3OverrideSelectedChoice.value);
+  p3OverrideEnabled.value = false;
   submitting.value = true;
   try {
     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
@@ -552,20 +557,88 @@ async function confirmP3Override() {
         isGroupFormation = certMapping.isGroup || false;
       }
 
+      // Vérifier si la règle a testFormations configuré (formation groupe paramétrable)
+      const hasTestFormations = rule?.testFormations && 
+        (Array.isArray(rule.testFormations) ? rule.testFormations.length > 0 : Object.keys(rule.testFormations).length > 0);
+      
+      console.log('[P3] confirmP3Override - hasTestFormations:', hasTestFormations, 'testFormations:', rule?.testFormations);
+      
+      if (hasTestFormations) {
+        // Extraire la formation de test depuis chosenLabel (ex: "Excel + IA" depuis "WORD Basique (TOSA) (Excel + IA)")
+        const match = chosenLabel.match(/\(([^)]+)\)$/);
+        const testFormationLabel = match ? match[1] : chosenLabel.split(' + ')[0].trim();
+        console.log('[P3] confirmP3Override - testFormationLabel extracted:', testFormationLabel);
+        
+        // Trouver la formation de test dans la liste des formations
+        // Priorité à la correspondance exacte, puis partielle
+        const testFormation = formations.value.find(f => {
+          const fl = f.label.toLowerCase();
+          const tl = testFormationLabel.toLowerCase();
+          // Correspondance exacte d'abord
+          if (fl === tl) return true;
+          // Correspondance exacte avec espaces/parenthèses
+          if (fl.replace(/\s+/g, '') === tl.replace(/\s+/g, '')) return true;
+          // Correspondance partielle seulement si le label contient le terme recherché en entier
+          if (fl.includes(tl)) return true;
+          return false;
+        });
+        
+        if (testFormation) {
+          console.log('[P3] confirmP3Override - Found test formation:', testFormation.label);
+          console.log('[P3] confirmP3Override - rule.formation:', rule?.formation);
+          console.log('[P3] confirmP3Override - rule.parcoursTitle:', rule?.parcoursTitle);
+          
+          // Utiliser directement la formation de test pour le test de positionnement
+          selectedFormation.value = testFormation;
+          
+          // Stocker le parcours final pour l'affichage après le test
+          // Utiliser parcoursTitle si disponible, sinon formation, sinon fallback
+          const finalParcoursLabel = rule?.parcoursTitle || rule?.formation || 'Formation';
+          console.log('[P3] confirmP3Override - finalParcoursLabel to store:', finalParcoursLabel);
+          localStorage.setItem('p3_forced_recommendation', finalParcoursLabel);
+          localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
+          const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
+          localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
+          localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
+          
+          if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
+          if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
+          
+          // Continuer automatiquement avec le test de positionnement
+          // Appeler doSelectFormation directement pour lancer le test
+          await doSelectFormation();
+          return;
+        } else {
+          console.log('[P3] confirmP3Override - Could not find test formation:', testFormationLabel);
+        }
+      }
+
       // Si c'est une formation groupe (IA Générative), l'apprenant doit choisir la sous-formation
       // → On redirige vers FormationSelectionView avec le parcours forcé stocké
       if (isGroupFormation && targetFormation) {
+        console.log('[P3] confirmP3Override - isGroupFormation, redirecting to formation selection');
         const payload = {
           isP3Mode: true,
           parcoursNumber: 3,
         };
         await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, payload);
 
-        localStorage.setItem('p3_forced_recommendation', chosenLabel);
+        // Extraire la formation de test depuis chosenLabel (ex: "Excel + IA" depuis "WORD Basique (TOSA) (Excel + IA)")
+        // Format actuel: formation1 (formationLabel)
+        const match = chosenLabel.match(/\(([^)]+)\)$/);
+        const testFormationLabel = match ? match[1] : chosenLabel.split(' + ')[0].trim();
+        
+        // Le parcours final est toujours la formation originale de la règle (IA Générative)
+        const finalParcoursLabel = rule?.formation || 'IA GENERATIVE (INKREA)';
+        
+        localStorage.setItem('p3_forced_recommendation', finalParcoursLabel);
         localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
         const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
-        localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${chosenLabel}` : ''));
+        localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
         localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
+        
+        // Stocker la formation de test séparément pour l'utiliser dans le test de positionnement
+        localStorage.setItem('p3_test_formation', testFormationLabel);
 
         if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
         if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
@@ -666,7 +739,6 @@ async function confirmP3Override() {
 
 function skipP3Override() {
   // User wants to proceed with normal formation selection instead
-  showP3OverrideModal.value = false;
   p3OverrideEnabled.value = false;
   p3OverrideMatchedRule.value = null;
   p3OverrideMatchedRules.value = [];
@@ -729,12 +801,39 @@ async function selectFormation() {
 
   // ── Cas redirection depuis groupe IA (Word+IA ou Excel+IA) ──
   // Quand l'apprenant arrive ici après avoir choisi IA GENERATIVE dans le modal P3 override,
-  // on doit afficher les options basées sur testFormations au lieu de bypasser
+  // on pré-sélectionne automatiquement la formation de test stockée dans p3_test_formation
   if (store.isP3Mode && localStorage.getItem('p3_ia_group_redirect') === 'true') {
     localStorage.removeItem('p3_ia_group_redirect');
-    // Ne pas bypasser - laisser l'utilisateur choisir la sous-formation
-    // La logique normale de sélection affichera les options basées sur testFormations
-    console.log('[P3] IA group redirect detected, showing formation selection with testFormations options');
+    const testFormationLabel = localStorage.getItem('p3_test_formation');
+    if (testFormationLabel) {
+      console.log('[P3] Looking for test formation:', testFormationLabel);
+      console.log('[P3] Available formations:', formations.value.map(f => f.label));
+      
+      // Pré-sélectionner la formation de test (ex: Word + IA)
+      // Essayer plusieurs méthodes de correspondance
+      const testFormation = formations.value.find(f => {
+        const fl = f.label.toLowerCase();
+        const tl = testFormationLabel.toLowerCase();
+        // Correspondance exacte
+        if (fl === tl) return true;
+        // Correspondance partielle (formation contient le label recherché)
+        if (fl.includes(tl)) return true;
+        // Correspondance partielle inversée (label recherché contient la formation)
+        if (tl.includes(fl)) return true;
+        // Correspondance par mot clé (ex: "excel" pour "Excel + IA")
+        const tlKeyword = tl.split(' ')[0]; // Premier mot
+        if (fl.includes(tlKeyword)) return true;
+        return false;
+      });
+      
+      if (testFormation) {
+        selectedFormation.value = testFormation;
+        console.log('[P3] Pre-selected test formation:', testFormation.label);
+      } else {
+        console.log('[P3] Could not find matching formation for:', testFormationLabel);
+      }
+      localStorage.removeItem('p3_test_formation');
+    }
   }
 
   // P3: if user chose the SAME formation as P2, check settings
@@ -744,25 +843,29 @@ async function selectFormation() {
       await loadP3OverrideRules();
     }
     
-    if (selectedIsIAGenerative) {
-      console.log('[P3] IA Générative detected, looking for inkrea rules...');
-      const iaMatching = (p3OverrideRules.value || []).filter(rule => {
-        const isInkrea = (String(rule?.certification || '').toLowerCase() === 'inkrea') || (String(rule?.formation || '').toLowerCase().includes('intelligence')) || (String(rule?.formation || '').toLowerCase().includes('ia generative'));
-        console.log('[P3] Rule check:', rule.id, 'certification:', rule.certification, 'formation:', rule.formation, 'isInkrea:', isInkrea);
-        return isInkrea && rule.isActive !== false;
-      });
-      console.log('[P3] Found', iaMatching.length, 'inkrea rules');
-      if (iaMatching.length > 0) {
-        console.log('[P3] Showing P3 override modal with', iaMatching.length, 'rules');
-        if (showP3OverrideForRules(iaMatching)) return;
-      }
-    }
-
-    // ── Priorité absolue : vérifier P3 override en premier ──
-    // Si une règle override matche avec requireTest=true, on lance le test
-    // directement sans vérifier si c'est la même formation que P1/P2
+    // ── Vérifier si la règle matchante a testFormations configurés ──
+    // Ceci est paramétrable via l'admin, pas hardcoded
     const matchingOverrideRules = findMatchingP3OverrideRules(selectedFormation.value);
     if (matchingOverrideRules.length > 0) {
+      // Filtrer les règles qui ont testFormations configurés
+      const rulesWithTestFormations = matchingOverrideRules.filter(rule => {
+        const tf = rule?.testFormations;
+        // Gérer à la fois les tableaux et les objets
+        if (!tf) return false;
+        if (Array.isArray(tf)) return tf.length > 0;
+        // Si c'est un objet, vérifier s'il a des propriétés
+        if (typeof tf === 'object') return Object.keys(tf).length > 0;
+        return false;
+      });
+      
+      if (rulesWithTestFormations.length > 0) {
+        console.log('[P3] Found rules with testFormations configured:', rulesWithTestFormations.length);
+        if (showP3OverrideForRules(rulesWithTestFormations)) return;
+      }
+      
+      // ── Priorité absolue : vérifier P3 override en premier ──
+      // Si une règle override matche avec requireTest=true, on lance le test
+      // directement sans vérifier si c'est la même formation que P1/P2
       // Vérifier si au moins une règle matchante a requireTest=true
       const hasRequireTest = matchingOverrideRules.some(r => r.requireTest);
       if (hasRequireTest) {
@@ -1701,73 +1804,77 @@ function isSectionActive(section) {
       </div>
     </div>
 
-    <!-- P3 Override Modal (Admin-configured forced choices by formation and level) -->
-    <div v-if="showP3OverrideModal && p3OverrideMatchedRule" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-white relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
-        
-        <div class="relative z-10">
-          <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-500 shadow-inner">
-            <span class="material-icons-outlined text-3xl">auto_awesome</span>
+    <!-- P3 Override Section (Admin-configured forced choices by formation and level) -->
+    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 shadow-2xl z-[70] p-4 md:p-6" :style="{ borderColor: selectedAccent.accent + '40', backgroundColor: selectedAccent.accentBg || '#eff6ff' }">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+            <span class="material-icons-outlined text-2xl">auto_awesome</span>
           </div>
-          
-          <h2 class="text-2xl font-black text-center text-[#0D1B3E] mb-2">3ème Parcours</h2>
-          <p class="text-gray-500 font-medium text-center mb-8 leading-relaxed text-sm">
-            Choisissez la formation que vous souhaitez réaliser pour compléter votre parcours :
-          </p>
-          
-          <div class="space-y-3 mb-8">
-            <!-- Special UI for IA générative (Inkrea): show large side-by-side choice buttons -->
-            <template v-if="p3OverrideMatchedRule && ((String(p3OverrideMatchedRule.certification || '').toLowerCase() === 'inkrea') || (String(p3OverrideMatchedRule.formation || '').toLowerCase().includes('intelligence')) || (String(p3OverrideMatchedRule.formation || '').toLowerCase().includes('ia generative')))">
-              <div class="grid grid-cols-2 gap-4">
-                <button
-                  v-for="option in p3OverrideChoiceOptions"
-                  :key="option.label"
-                  @click="p3OverrideSelectedChoice = option.label"
-                  :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-                  class="p-4 rounded-2xl border-2 font-black text-sm text-[#0d1b3e] flex items-center justify-center gap-2"
-                >
-                  <span class="material-icons-outlined text-lg text-[#059669]">school</span>
-                  <span>{{ option.label }}</span>
-                </button>
-              </div>
-            </template>
-            <template v-else>
-              <label
+          <div class="flex-1">
+            <p class="text-[10px] font-black uppercase tracking-[0.2em]" :style="{ color: selectedAccent.accent }">3ème Parcours</p>
+            <h3 class="text-lg md:text-xl font-black text-[#0D1B3E]">Choix recommandé</h3>
+          </div>
+        </div>
+        
+        <div class="space-y-3 mb-4">
+          <!-- Special UI for testFormations: show large side-by-side choice buttons -->
+          <template v-if="p3OverrideMatchedRule?.testFormations && (Array.isArray(p3OverrideMatchedRule.testFormations) ? p3OverrideMatchedRule.testFormations.length > 0 : Object.keys(p3OverrideMatchedRule.testFormations).length > 0)">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <button
                 v-for="option in p3OverrideChoiceOptions"
                 :key="option.label"
-                class="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
-                :class="p3OverrideSelectedChoice === option.label ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                @click="p3OverrideSelectedChoice = option.label"
+                :class="p3OverrideSelectedChoice === option.label ? 'border-2 shadow-xl transform scale-[1.02]' : 'border-2 hover:shadow-lg hover:scale-[1.01]'"
+                class="p-4 md:p-5 rounded-xl font-black text-sm md:text-base text-[#0d1b3e] flex items-center justify-center gap-3 transition-all bg-white"
+                :style="{ 
+                  borderColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : selectedAccent.accent + '30',
+                  boxShadow: p3OverrideSelectedChoice === option.label ? `0 10px 30px -5px ${selectedAccent.accent}40` : 'none'
+                }"
               >
-                <input
-                  type="radio"
-                  :value="option.label"
-                  v-model="p3OverrideSelectedChoice"
-                  class="w-5 h-5 text-indigo-500 border-slate-300 focus:ring-indigo-500"
-                />
-                <div class="flex-1">
-                  <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
+                <span class="material-icons-outlined text-xl md:text-2xl" :style="{ color: selectedAccent.accent }">school</span>
+                <span class="text-center">{{ option.label }}</span>
+                <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+                  <span class="material-icons-outlined text-sm">check</span>
                 </div>
-                <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                  <span class="material-icons-outlined text-white text-sm">check</span>
-                </div>
-              </label>
-            </template>
-          </div>
-          
-          <div class="flex flex-col sm:flex-row gap-3">
-            <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="flex-1 py-4 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all">
-              Choisir manuellement
-            </button>
-            <button 
-              @click="confirmP3Override" 
-              :disabled="!p3OverrideSelectedChoice || submitting"
-              class="flex-1 py-4 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50"
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <label
+              v-for="option in p3OverrideChoiceOptions"
+              :key="option.label"
+              class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all bg-white"
+              :class="p3OverrideSelectedChoice === option.label ? 'border-2 shadow-lg transform scale-[1.01]' : 'border-2 hover:shadow-lg hover:scale-[1.01]'"
+              :style="{ 
+                borderColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : selectedAccent.accent + '30',
+                boxShadow: p3OverrideSelectedChoice === option.label ? `0 10px 30px -5px ${selectedAccent.accent}40` : 'none'
+              }"
             >
-              {{ submitting ? 'Validation...' : 'Valider ce choix' }}
-            </button>
-          </div>
+              <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0" :style="{ borderColor: selectedAccent.accent, backgroundColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : 'white' }">
+                <div v-if="p3OverrideSelectedChoice === option.label" class="w-3 h-3 rounded-full bg-white"></div>
+              </div>
+              <div class="flex-1">
+                <span class="text-sm md:text-base font-black text-[#0d1b3e]">{{ option.label }}</span>
+              </div>
+              <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
+                <span class="material-icons-outlined text-sm">check</span>
+              </div>
+            </label>
+          </template>
+        </div>
+        
+        <div class="flex gap-3">
+          <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="py-3 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all">
+            Choisir manuellement
+          </button>
+          <button 
+            @click="confirmP3Override" 
+            :disabled="!p3OverrideSelectedChoice || submitting"
+            class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-lg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50"
+          >
+            {{ submitting ? 'Validation...' : 'Valider ce choix' }}
+          </button>
         </div>
       </div>
     </div>
