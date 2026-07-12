@@ -195,6 +195,7 @@ async function openEditForm(rule) {
     ...rule,
     requirePrerequisiteFailure: !!rule.requirePrerequisiteFailure,
     isHiddenResult: !!rule.isHiddenResult,
+    hiddenResultType: rule.hiddenResultType || null,
     certification: rule.certification || "",
     prerequisiteConditions: rule.prerequisiteConditions || [],
     prerequisiteLogic: rule.prerequisiteLogic || "OR",
@@ -366,6 +367,23 @@ async function toggleRuleActive(rule) {
   } catch (error) {
     console.error("Failed to toggle rule:", error);
     toast.error("Erreur lors de la mise à jour.");
+  }
+}
+
+async function duplicateRule(rule) {
+  try {
+    const payload = { 
+      ...rule, 
+      id: undefined,
+      order: filteredRules.value.length,
+      parcoursTitle: rule.parcoursTitle ? `${rule.parcoursTitle} (copie)` : '',
+    };
+    await axios.post(`${apiBaseUrl}/parcours`, payload, { headers: getAuthHeaders() });
+    toast.success("Règle dupliquée");
+    await fetchRules();
+  } catch (error) {
+    console.error("Failed to duplicate rule:", error);
+    toast.error("Erreur lors de la duplication.");
   }
 }
 
@@ -782,6 +800,9 @@ onMounted(async () => {
 	                  </td>
 	                  <td class="px-8 py-6">
 	                    <div class="flex items-center justify-end gap-2 pr-4">
+                       <button @click="duplicateRule(rule)" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-emerald-600 transition-all" title="Dupliquer">
+                         <span class="material-icons-outlined text-sm">content_copy</span>
+                       </button>
                        <button @click="toggleRuleActive(rule)" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-slate-900 transition-all">
                          <span class="material-icons-outlined text-sm">{{ rule.isActive !== false ? 'visibility' : 'visibility_off' }}</span>
                        </button>
@@ -869,15 +890,15 @@ onMounted(async () => {
               <div class="flex flex-col gap-2">
                 <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
                   :class="!newRule.isHiddenResult ? 'bg-white shadow-sm' : ''">
-                  <input type="radio" :value="false" v-model="newRule.isHiddenResult"
-                    @change="newRule.hiddenResultType = null"
+                  <input type="radio" :value="null" v-model="newRule.hiddenResultType"
+                    @change="newRule.isHiddenResult = false"
                     class="w-4 h-4 text-slate-500" />
                   <span class="text-xs font-bold text-slate-700">Affiché normalement</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
-                  :class="newRule.isHiddenResult && newRule.hiddenResultType === 'too_advanced' ? 'bg-white shadow-sm' : ''">
-                  <input type="radio" :value="true" v-model="newRule.isHiddenResult"
-                    @change="newRule.hiddenResultType = 'too_advanced'"
+                  :class="newRule.hiddenResultType === 'too_advanced' ? 'bg-white shadow-sm' : ''">
+                  <input type="radio" :value="'too_advanced'" v-model="newRule.hiddenResultType"
+                    @change="newRule.isHiddenResult = true"
                     class="w-4 h-4 text-orange-500" />
                   <div>
                     <span class="text-xs font-bold text-slate-700">Niveau trop avancé</span>
@@ -885,9 +906,9 @@ onMounted(async () => {
                   </div>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
-                  :class="newRule.isHiddenResult && newRule.hiddenResultType === 'too_weak' ? 'bg-white shadow-sm' : ''">
-                  <input type="radio" :value="true" v-model="newRule.isHiddenResult"
-                    @change="newRule.hiddenResultType = 'too_weak'"
+                  :class="newRule.hiddenResultType === 'too_weak' ? 'bg-white shadow-sm' : ''">
+                  <input type="radio" :value="'too_weak'" v-model="newRule.hiddenResultType"
+                    @change="newRule.isHiddenResult = true"
                     class="w-4 h-4 text-red-500" />
                   <div>
                     <span class="text-xs font-bold text-slate-700">Niveau insuffisant</span>

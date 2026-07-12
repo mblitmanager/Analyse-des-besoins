@@ -7,11 +7,12 @@ const props = defineProps({
   compact: { type: Boolean, default: false },
 });
 
-const emits = defineEmits(['edit', 'delete', 'toggle-active']);
+const emits = defineEmits(['edit', 'delete', 'toggle-active', 'duplicate']);
 
 function onEdit() { emits('edit', props.rule); }
 function onDelete() { emits('delete', props.rule); }
 function onToggleActive() { emits('toggle-active', props.rule); }
+function onDuplicate() { emits('duplicate', props.rule); }
 </script>
 
 <template>
@@ -37,6 +38,9 @@ function onToggleActive() { emits('toggle-active', props.rule); }
         <span class="material-icons-outlined text-[10px]">quiz</span>
         Test requis
       </span>
+      <button @click="onDuplicate" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all" title="Dupliquer">
+        <span class="material-icons-outlined text-sm">content_copy</span>
+      </button>
       <button @click="onEdit" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all">
         <span class="material-icons-outlined text-sm">edit</span>
       </button>

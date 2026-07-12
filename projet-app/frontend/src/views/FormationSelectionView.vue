@@ -71,8 +71,12 @@ const p3OverrideChoiceOptions = computed(() => {
     // Special case: inkrea / IA générative group formation should present combined options
     const isInkrea = (String(rule?.certification || '').toLowerCase() === 'inkrea') || (String(rule?.formation || '').toLowerCase().includes('intelligence artificielle')) || (String(rule?.formation || '').toLowerCase().includes('ia generative'));
     if (isInkrea) {
-      // Prefer to pair IA with Word and Excel formations when available
-      const pairTargets = ['word', 'excel'];
+      // Use testFormations if available, otherwise fallback to default Word and Excel
+      const testFormations = rule?.testFormations || [];
+      const pairTargets = testFormations.length > 0 
+        ? testFormations.map(f => f.toLowerCase())
+        : ['word', 'excel'];
+      
       pairTargets.forEach((targetKey) => {
         const found = formations.value.find(f => (f.label || '').toLowerCase().includes(targetKey));
         if (found) {
@@ -725,11 +729,12 @@ async function selectFormation() {
 
   // ── Cas redirection depuis groupe IA (Word+IA ou Excel+IA) ──
   // Quand l'apprenant arrive ici après avoir choisi IA GENERATIVE dans le modal P3 override,
-  // on bypass toute la logique P3 override et on va directement au test/finalisation
+  // on doit afficher les options basées sur testFormations au lieu de bypasser
   if (store.isP3Mode && localStorage.getItem('p3_ia_group_redirect') === 'true') {
     localStorage.removeItem('p3_ia_group_redirect');
-    await doSelectFormation();
-    return;
+    // Ne pas bypasser - laisser l'utilisateur choisir la sous-formation
+    // La logique normale de sélection affichera les options basées sur testFormations
+    console.log('[P3] IA group redirect detected, showing formation selection with testFormations options');
   }
 
   // P3: if user chose the SAME formation as P2, check settings
@@ -1051,7 +1056,13 @@ function computeNextLevel() {
   // The next level is simply prevIdx + 1
   const nextIdx = prevIdx + 1;
 
-  const isMaxLevel = nextIdx >= sortedLevels.length;
+  // Check if formation has a configured maxLevelOrder
+  const configuredMaxLevel = formation.maxLevelOrder !== null && formation.maxLevelOrder !== undefined ? formation.maxLevelOrder : null;
+  
+  // Use configured max level if available, otherwise use total levels count
+  const maxLevelThreshold = configuredMaxLevel !== null ? configuredMaxLevel : sortedLevels.length;
+  const isMaxLevel = nextIdx >= maxLevelThreshold;
+  
   const targetIdx = Math.min(nextIdx, sortedLevels.length - 1);
   const nextLevel = sortedLevels[targetIdx];
 
