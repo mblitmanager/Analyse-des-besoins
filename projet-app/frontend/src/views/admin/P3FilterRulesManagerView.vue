@@ -5,6 +5,8 @@ import { useToastStore } from "../../stores/toast";
 
 const toast = useToastStore();
 
+import FormationSelector from "../../components/FormationSelector.vue";
+
 const rules = ref([]);
 const loading = ref(true);
 const saving = ref(false);
@@ -732,72 +734,11 @@ const excludeCount = computed(() => rules.value.filter((r) => r.filterMode === "
 
                 <!-- SOURCE TAB -->
                 <div v-if="activeTab === 'source'" class="space-y-5">
-                  <!-- Source by category -->
-                  <div class="space-y-2">
-                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Par catégorie de formation</label>
-                    <div class="flex flex-wrap gap-2">
-                      <button
-                        v-for="cat in categoryOptions"
-                        :key="cat"
-                        type="button"
-                        @click="form.sourceCategory = form.sourceCategory === cat ? '' : cat"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border"
-                        :class="form.sourceCategory === cat
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'"
-                      >
-                        <span class="material-icons-outlined text-xs">category</span>
-                        <span class="capitalize">{{ cat }}</span>
-                        <span v-if="form.sourceCategory === cat" class="material-icons-outlined text-xs">check</span>
-                      </button>
-                      <button
-                        v-if="form.sourceCategory"
-                        type="button"
-                        @click="form.sourceCategory = ''"
-                        class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 border border-dashed border-slate-200 hover:text-red-500 hover:border-red-200 transition-colors"
-                      >
-                        Effacer
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center gap-3 text-xs text-slate-400">
-                    <div class="flex-1 h-px bg-slate-100"></div>
-                    <span class="font-bold">OU par formations spécifiques</span>
-                    <div class="flex-1 h-px bg-slate-100"></div>
-                  </div>
-
-                  <!-- Source by formations (grouped) -->
+                  <!-- Shared compact selector (category + dropdown) in multi mode -->
                   <div class="space-y-3">
-                    <div v-for="(fList, catName) in formationsByCategory" :key="catName">
-                      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 capitalize">{{ catName }}</p>
-                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                        <button
-                          v-for="f in fList"
-                          :key="f.slug"
-                          type="button"
-                          @click="toggleListValue('sourceSlugs', f.slug)"
-                          class="flex items-center gap-2 px-3 py-2 rounded-xl border text-left transition-all text-xs font-semibold"
-                          :class="isInList('sourceSlugs', f.slug)
-                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'"
-                        >
-                          <span class="material-icons-outlined text-sm flex-shrink-0" :style="isInList('sourceSlugs', f.slug) ? {} : { color: f.color || '#94a3b8' }">
-                            {{ f.icon || 'school' }}
-                          </span>
-                          <div class="min-w-0">
-                            <span class="block truncate font-bold">{{ f.label }}</span>
-                            <span class="text-[10px] opacity-60">{{ f.slug }}</span>
-                          </div>
-                          <span v-if="isInList('sourceSlugs', f.slug)" class="material-icons-outlined text-sm ml-auto flex-shrink-0">check</span>
-                        </button>
-                      </div>
-                    </div>
-                    <p v-if="Object.keys(formationsByCategory).length === 0" class="text-sm text-slate-400 italic text-center py-4">
-                      Aucune formation chargée
-                    </p>
+                    <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Sélectionnez une catégorie ou des formations</label>
+                    <FormationSelector :formations="formations" mode="multi" :selected-ids="form.sourceSlugs" :selected-category="form.sourceCategory" @update:selectedIds="(arr) => { form.sourceSlugs = arr }" @update:selectedCategory="(cat) => { form.sourceCategory = cat }" />
                   </div>
-
                   <!-- Level threshold -->
                   <div class="bg-amber-50 rounded-xl p-4 border border-amber-100 space-y-3">
                     <p class="text-xs font-black uppercase tracking-widest text-amber-700">Seuil de niveau (optionnel)</p>

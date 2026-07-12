@@ -1412,10 +1412,10 @@ function isSectionActive(section) {
 
       <div v-else class="bg-white rounded-4xl p-6 md:p-12 shadow-xl border border-white">
         <div v-if="store.isP3Mode && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice === false)" class="p-8 text-center">
-          <p class="text-lg font-black text-[#0d1b3e]">Seuls les choix imposés par l'administration sont disponibles pour cette formation.</p>
-          <p class="text-sm text-gray-500 mt-2">Si vous souhaitez procéder autrement, contactez un administrateur ou modifiez le paramètre dans l'espace admin.</p>
+          <p class="text-lg font-black text-[#0d1b3e]">Veuillez patienter, affichage des parcours disponibles...</p>
+          <p class="text-sm text-gray-500 mt-2">Chargement en cours...</p>
           <div class="mt-4 flex items-center justify-center">
-            <button @click="showP3OverrideModal = true" class="px-6 py-2 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-xl shadow-md hover:brightness-105">Voir les choix imposés</button>
+            <!-- <button @click="showP3OverrideModal = true" class="px-6 py-2 bg-[#ebb872] text-[#305364] font-black uppercase tracking-widest text-xs rounded-xl shadow-md hover:brightness-105">Voir les choix imposés</button> -->
           </div>
         </div>
         <div v-else class="space-y-12">
