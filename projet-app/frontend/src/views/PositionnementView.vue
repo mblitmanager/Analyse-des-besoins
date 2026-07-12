@@ -582,6 +582,7 @@ async function finishTest(overrideSession = null) {
 
   // ── Cas P3 avec parcours forcé (requireTest = true sur la règle override) ──
   const p3ForcedRec = store.isP3Mode ? localStorage.getItem('p3_forced_recommendation') : null;
+  console.log('[P3] PositionnementView - p3ForcedRec:', p3ForcedRec);
   if (p3ForcedRec) {
     const p3ForcedTitle = localStorage.getItem('p3_forced_parcours_title') || '';
     const p3ForcedExplanation = localStorage.getItem('p3_forced_explanation') || '';
@@ -589,6 +590,8 @@ async function finishTest(overrideSession = null) {
     // Vérifier le paramètre forceChoice de la règle (stocké en localStorage)
     const forceChoiceVal = localStorage.getItem('p3_forced_force_choice');
     const shouldForce = forceChoiceVal !== 'false'; // true par défaut
+
+    console.log('[P3] PositionnementView - shouldForce:', shouldForce, 'p3ForcedTitle:', p3ForcedTitle);
 
     // Nettoyer les clés P3 forcées
     localStorage.removeItem('p3_forced_recommendation');
