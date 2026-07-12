@@ -16,6 +16,10 @@ export class Level {
   @Column()
   label: string;
 
+  // Short name / numeric identifier (e.g., "débutant", "avancé", or a short code like "A1")
+  @Column({ type: 'varchar', nullable: true })
+  shortName: string | null;
+
   @Column()
   order: number;
 

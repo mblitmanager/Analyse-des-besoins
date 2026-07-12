@@ -43,6 +43,11 @@ const prereqQuestionsCache = ref([]); // Cache des questions prérequis pour ré
 const showResults = ref(false);
 const finalRecommendation = ref("");
 const parcoursRuleMessage = ref("");
+
+const isWordFormation = computed(() => {
+  const f = (formationLabel || formationSlug || "").toLowerCase();
+  return /word/.test(f) || /word-ia/.test(f) || /word \+ ia/.test(f);
+});
 const parcoursTitle = ref("");
 const parcoursChoices = ref([]);
 const p3Redirected = ref(false);
@@ -54,7 +59,9 @@ const highLevelValidated = ref("");
 // High level alert settings
 const alertSettings = ref({
   formations: [],
-  thresholdOrder: 2
+  thresholdOrder: 2,
+  behavior: 'modal',      // 'modal' | 'auto_change' | 'ignore'
+  customMessage: '',
 });
 
 // Low score warning modal
@@ -197,6 +204,16 @@ async function restoreProgressFromSession() {
     // If session is already finalized on backend, show results directly
     if (session.finalRecommendation && session.stopLevel) {
       finalRecommendation.value = session.finalRecommendation;
+      showResults.value = true;
+      return;
+    }
+    // Cas "niveau masqué" : session finalisée sans recommandation mais avec message de blocage
+    // En P3, on ignore cette restauration car l'explanationMessage vient d'une session précédente
+    if (!session.finalRecommendation && session.isCompleted && session.explanationMessage && !store.isP3Mode) {
+      finalRecommendation.value = "";
+      parcoursChoices.value = [];
+      parcoursTitle.value = session.parcoursTitle || "";
+      parcoursRuleMessage.value = session.explanationMessage;
       showResults.value = true;
       return;
     }
@@ -384,9 +401,11 @@ async function fetchPrereqQuestionsCache() {
 }
 async function fetchAlertSettings() {
   try {
-    const [formsRes, thresholdRes] = await Promise.all([
+    const [formsRes, thresholdRes, behaviorRes, messageRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_ALERT_FORMATIONS`),
-      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_THRESHOLD_ORDER`)
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_THRESHOLD_ORDER`),
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_ALERT_BEHAVIOR`).catch(() => ({ data: null })),
+      axios.get(`${apiBaseUrl}/settings/HIGH_LEVEL_ALERT_MESSAGE`).catch(() => ({ data: null })),
     ]);
     
     if (formsRes.data?.value) {
@@ -394,6 +413,12 @@ async function fetchAlertSettings() {
     }
     if (thresholdRes.data?.value) {
       alertSettings.value.thresholdOrder = parseInt(thresholdRes.data.value) || 2;
+    }
+    if (behaviorRes.data?.value) {
+      alertSettings.value.behavior = behaviorRes.data.value; // 'modal' | 'auto_change' | 'ignore'
+    }
+    if (messageRes.data?.value) {
+      alertSettings.value.customMessage = messageRes.data.value;
     }
   } catch (error) {
     console.warn("Failed to fetch high level alert settings:", error);
@@ -534,6 +559,60 @@ async function finishTest(overrideSession = null) {
     return;
   }
 
+  // ── Cas P3 avec parcours forcé (requireTest = true sur la règle override) ──
+  const p3ForcedRec = store.isP3Mode ? localStorage.getItem('p3_forced_recommendation') : null;
+  if (p3ForcedRec) {
+    const p3ForcedTitle = localStorage.getItem('p3_forced_parcours_title') || '';
+    const p3ForcedExplanation = localStorage.getItem('p3_forced_explanation') || '';
+
+    // Vérifier le paramètre forceChoice de la règle (stocké en localStorage)
+    const forceChoiceVal = localStorage.getItem('p3_forced_force_choice');
+    const shouldForce = forceChoiceVal !== 'false'; // true par défaut
+
+    // Nettoyer les clés P3 forcées
+    localStorage.removeItem('p3_forced_recommendation');
+    localStorage.removeItem('p3_forced_parcours_title');
+    localStorage.removeItem('p3_forced_explanation');
+    localStorage.removeItem('p3_forced_force_choice');
+
+    if (shouldForce) {
+      // ── Option activée : imposer le choix P3 peu importe le résultat ──
+      console.debug('[P3] Force choice activé → parcours imposé :', p3ForcedRec);
+      finalRecommendation.value = p3ForcedRec;
+      parcoursTitle.value = p3ForcedTitle;
+      parcoursRuleMessage.value = p3ForcedExplanation;
+      parcoursChoices.value = [];
+    } else {
+      // ── Option désactivée : laisser le test décider, mais afficher un message ──
+      console.debug('[P3] Force choice désactivé → parcours du test utilisé, message info ajouté');
+      // On ne touche pas finalRecommendation — il sera calculé normalement
+      // On stocke juste le choix P3 original pour référence dans le message
+      const originalChoice = p3ForcedRec;
+      // Le message sera ajouté après le calcul du résultat du test
+      localStorage.setItem('p3_original_choice_message',
+        `Votre niveau est supérieur au parcours ${originalChoice} que vous aviez sélectionné. Le parcours recommandé ci-dessous correspond mieux à votre niveau.`
+      );
+      // Continuer vers la logique normale de finishTest (ne pas return ici)
+      // On ignore le bloc forcé et on laisse la suite calculer le parcours
+    }
+
+    if (shouldForce) {
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+        levelsScores: levelsScores.value,
+        finalRecommendation: p3ForcedRec,
+        stopLevel: currentLevel?.label || '',
+        isCompleted: true,
+        parcoursTitle: p3ForcedTitle || null,
+        explanationMessage: p3ForcedExplanation || null,
+        parcoursChoices: null,
+      });
+      showResults.value = true;
+      submitting.value = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+  }
+
   const ensureNiveau = (label) => {
     if (!label) return label;
     return label.toLowerCase().includes("niveau") ? label : `Niveau ${label}`;
@@ -544,18 +623,30 @@ async function finishTest(overrideSession = null) {
   try {
     const rulesRes = await axios.get(`${apiBaseUrl}/parcours?activeOnly=true`);
     const allRules = rulesRes.data || [];
-    // Filter rules for this formation that are active, ordered by their order field
+    // Filter rules for this formation (actives ET inactives — les inactives servent d'alternatives "si veut quand même")
     const formationRules = allRules
       .filter(r => {
         const matchesId = formation.value?.id && Number(r.formationId) === Number(formation.value.id);
         const matchesLabel = r.formation === formationLabel;
-        return (matchesId || matchesLabel) && r.isActive !== false;
+        return (matchesId || matchesLabel);
       })
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (formationRules.length > 0) {
       const stopLabel = currentLevel.label.toUpperCase();
       const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
+
+      // Calculer l'index du dernier niveau VALIDÉ (pour les conditions "=")
+      // L'apprenant s'arrête au niveau courant s'il échoue, mais le dernier
+      // niveau validé est le précédent. Ex: validé Initial+Basique+Opérationnel,
+      // échoué Avance → lastValidatedIndex = idx(Opérationnel), currentLevelIndex = idx(Avance)
+      let lastValidatedIndex = -1;
+      levels.value.forEach((lvl, idx) => {
+        const entry = levelsScores.value[lvl.label];
+        if (entry && entry.validated) lastValidatedIndex = idx;
+      });
+      // Si aucun niveau validé, utiliser le niveau courant comme référence
+      if (lastValidatedIndex === -1) lastValidatedIndex = currentLevelIndex.value;
 
       const evaluateLevelCondition = (rule) => {
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
@@ -570,11 +661,13 @@ async function finishTest(overrideSession = null) {
           });
           if (targetIdx === -1) return false;
           switch (operator) {
-            case '=':  return currentLevelIndex.value === targetIdx;
-            case '<':  return currentLevelIndex.value < targetIdx;
-            case '≤':  return currentLevelIndex.value <= targetIdx;
-            case '>':  return currentLevelIndex.value > targetIdx;
-            case '≥':  return currentLevelIndex.value >= targetIdx;
+            // "=" → comparer avec le dernier niveau VALIDÉ (pas le niveau d'arrêt)
+            case '=':  return lastValidatedIndex === targetIdx;
+            // "<", "≤", ">", "≥" → comparer avec le niveau d'arrêt (logique adaptative)
+            case '<':  return lastValidatedIndex < targetIdx;
+            case '≤':  return lastValidatedIndex <= targetIdx;
+            case '>':  return lastValidatedIndex > targetIdx;
+            case '≥':  return lastValidatedIndex >= targetIdx;
             default:   return false;
           }
         }
@@ -641,6 +734,18 @@ async function finishTest(overrideSession = null) {
       // Une règle AVEC prérequis satisfaits est PLUS SPÉCIFIQUE qu'une règle sans prérequis.
       // → bonus de spécificité de 10 pour forcer sa priorité sur une règle générique
       const scoredRules = formationRules.map((rule) => {
+        // En P3 : ignorer les règles "niveau insuffisant" (too_weak)
+        // Un apprenant en P3 a déjà validé P1 et P2, son niveau ne peut pas être insuffisant
+        if (store.isP3Mode && rule.hiddenResultType === 'too_weak') {
+          return { rule, score: 0, debug: 'ignoré en P3 (too_weak)' };
+        }
+
+        // Règle marquée isHiddenResult : invisible pour l'apprenant, jamais proposée comme gagnante
+        if (rule.isHiddenResult) return { rule, score: 0, debug: 'masqué (isHiddenResult)' };
+
+        // Règle désactivée : exclue du scoring normal (sera utilisée comme alternative si besoin)
+        if (rule.isActive === false) return { rule, score: 0, debug: 'désactivé (isActive=false)' };
+
         const levelOk = evaluateLevelCondition(rule);
         if (!levelOk) return { rule, score: 0, debug: 'niveau KO' };
 
@@ -673,10 +778,126 @@ async function finishTest(overrideSession = null) {
 
       let matchedRule = bestRules[0]?.rule || null;
 
-      // Fallback : aucune règle ne passe → dernière règle active
+      // ── Cas "niveau trop avancé / trop faible" ──
+      // Si aucune règle visible ne correspond (score > 0), chercher si une règle
+      // isHiddenResult correspond au niveau actuel. Dans ce cas :
+      // - Afficher son explanationMessage comme message principal
+      // - Chercher les règles isActive=false (même condition) comme options alternatives
+      //   "si le bénéficiaire veut quand même" → proposées comme parcoursChoices
+      if (!matchedRule) {
+        const hiddenMatchingRule = scoredRules.find(s => {
+          if (!s.rule.isHiddenResult) return false;
+          // En P3 : ignorer les règles "niveau insuffisant"
+          if (store.isP3Mode && s.rule.hiddenResultType === 'too_weak') return false;
+          return evaluateLevelCondition(s.rule);
+        })?.rule || null;
+
+        if (hiddenMatchingRule) {
+          console.debug('[Parcours] Règle masquée correspondante → affichage message de blocage + options alternatives', hiddenMatchingRule.id);
+
+          // Detect if this hidden rule corresponds to the generic "Niveau trop avancé" case
+          const hiddenTitleLower = String(hiddenMatchingRule.parcoursTitle || '').toLowerCase();
+          const hiddenMsgLower = String(hiddenMatchingRule.explanationMessage || '').toLowerCase();
+          const isTooAdvancedMsg = hiddenTitleLower.includes('niveau trop avancé') || hiddenMsgLower.includes('niveau trop avancé') || hiddenMsgLower.includes('test qcm révèle un niveau supérieur');
+
+          finalRecommendation.value = "";
+          parcoursTitle.value = hiddenMatchingRule.parcoursTitle || "";
+          // Prefer the rule's explanationMessage, but if this is the "too advanced" case
+          // ensure we show the standardized 'Niveau trop avancé' message instead of the generic fallback.
+          if (isTooAdvancedMsg) {
+            parcoursRuleMessage.value = hiddenMatchingRule.explanationMessage || "Niveau trop avancé\nLe test QCM révèle un niveau supérieur à cette formation";
+          } else {
+            parcoursRuleMessage.value = hiddenMatchingRule.explanationMessage || "Votre niveau ne correspond pas à cette formation. Nous vous invitons à choisir une formation plus adaptée.";
+          }
+
+          if (isTooAdvancedMsg) {
+            // For the "too advanced" message, propose parcours that are associated with this same "Niveau trop avancé" condition
+            const candidateRules = formationRules.filter(r => {
+              const pt = String(r.parcoursTitle || '').toLowerCase();
+              const em = String(r.explanationMessage || '').toLowerCase();
+              return pt.includes('niveau trop avancé') || em.includes('niveau trop avancé') || em.includes('test qcm révèle un niveau supérieur');
+            });
+
+            if (candidateRules.length > 0) {
+              parcoursChoices.value = candidateRules.map(r => {
+                const recs = [r.formation1, r.formation2]
+                  .map(v => String(v || '').trim())
+                  .filter(Boolean)
+                  .filter((v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i);
+                return {
+                  id: r.id,
+                  title: getRuleParcoursTitle(r.parcoursTitle) || recs[0] || 'Parcours',
+                  recommendations: recs,
+                  explanationMessage: r.explanationMessage || '',
+                };
+              }).filter(c => c.recommendations.length > 0);
+            } else {
+              // Fallback to previously computed alternativeRules (inactive ones matching the same level)
+              const alternativeRules = formationRules.filter(r =>
+                !r.isHiddenResult &&
+                r.isActive === false &&
+                evaluateLevelCondition(r)
+              );
+              parcoursChoices.value = alternativeRules.map(r => {
+                const recs = [r.formation1, r.formation2]
+                  .map(v => String(v || '').trim())
+                  .filter(Boolean)
+                  .filter((v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i);
+                return {
+                  id: r.id,
+                  title: getRuleParcoursTitle(r.parcoursTitle) || recs[0] || 'Parcours',
+                  recommendations: recs,
+                  explanationMessage: r.explanationMessage || '',
+                };
+              }).filter(c => c.recommendations.length > 0);
+            }
+          } else {
+            // Default behavior: show inactive alternative rules for "if they really want to" flow
+            const alternativeRules = formationRules.filter(r =>
+              !r.isHiddenResult &&
+              r.isActive === false &&
+              evaluateLevelCondition(r)
+            );
+
+            if (alternativeRules.length > 0) {
+              parcoursChoices.value = alternativeRules.map(r => {
+                const recs = [r.formation1, r.formation2]
+                  .map(v => String(v || '').trim())
+                  .filter(Boolean)
+                  .filter((v, i, a) => a.findIndex(x => x.toLowerCase() === v.toLowerCase()) === i);
+                return {
+                  id: r.id,
+                  title: getRuleParcoursTitle(r.parcoursTitle) || recs[0] || 'Parcours',
+                  recommendations: recs,
+                  explanationMessage: r.explanationMessage || '',
+                };
+              }).filter(c => c.recommendations.length > 0);
+            } else {
+              parcoursChoices.value = [];
+            }
+          }
+
+          usedParcoursRule = true;
+          showResults.value = true;
+          submitting.value = false;
+          // Sauvegarder le message en session
+          await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+            levelsScores: levelsScores.value,
+            finalRecommendation: "",
+            stopLevel: levels.value[currentLevelIndex.value]?.label || "",
+            isCompleted: true,
+            explanationMessage: parcoursRuleMessage.value,
+            parcoursTitle: parcoursTitle.value || null,
+            parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+          });
+          return;
+        }
+      }
+
+      // Fallback : aucune règle ne passe et pas de règle masquée → dernière règle active (non masquée, non désactivée)
       if (!matchedRule) {
         console.debug('[Parcours] Aucune règle ne correspond, fallback sur la dernière règle active');
-        matchedRule = formationRules[formationRules.length - 1];
+        matchedRule = [...formationRules].reverse().find(r => !r.isHiddenResult && r.isActive !== false) || formationRules[formationRules.length - 1];
       }
 
       if (matchedRule) {
@@ -848,9 +1069,20 @@ async function finishTest(overrideSession = null) {
     const isMaxLevel = sortedLevelsDesc.length > 0 && validatedLevelObj.order === sortedLevelsDesc[0].order;
 
     const proposedLevelObj = sortedLevelsDesc.find(l => {
-      const rawLabel = l.label.toLowerCase();
+      const rawLabel = (l.label || '').toLowerCase();
+      const short = (l.shortName || '').toLowerCase();
       const cleanL = rawLabel.replace(/^niveau\s+/i, '').trim();
-      const recText = finalRecommendation.value.toLowerCase();
+      const recText = (finalRecommendation.value || '').toLowerCase();
+      // Prefer matching shortName if present
+      if (short) {
+        const s = short.trim();
+        if (s.length <= 3) {
+          const regex = new RegExp(`\\b${s}\\b`, 'i');
+          if (regex.test(recText)) return true;
+        } else if (recText.includes(s)) {
+          return true;
+        }
+      }
       // Match whole words for short labels like A1, A2 to avoid substring mismatch
       if (cleanL.length <= 2) {
         const regex = new RegExp(`\\b${cleanL}\\b`, 'i');
@@ -880,23 +1112,54 @@ async function finishTest(overrideSession = null) {
     if (isFirstLevel && !isMaxLevel) {
       isHighLevel = false;
     }
+
+    // Formation-level override: require both an explicit enable flag and an optional max level order
+    // Behavior requested: combine enableHighLevelAlert (boolean) + maxLevelOrder (number)
+    if (formation.value) {
+      // If admin explicitly disabled high-level alerts for this formation, never trigger
+      if (formation.value.enableHighLevelAlert === false) {
+        isHighLevel = false;
+      }
+
+      // If a maxLevelOrder is set on the formation, use it as a strict threshold
+      if (typeof formation.value.maxLevelOrder !== 'undefined' && !isNaN(Number(formation.value.maxLevelOrder))) {
+        const maxOrder = Number(formation.value.maxLevelOrder);
+        // Only trigger if the formation allows high level alerts (enabled or unspecified)
+        const enabled = formation.value.enableHighLevelAlert !== false;
+        isHighLevel = enabled && (validatedLevelObj.order >= maxOrder);
+      }
+    }
   }
 
   if (isHighLevel && !showResults.value) {
-    highLevelValidated.value = finalLevelLabel;
-    showHighLevelAlert.value = true;
-    submitting.value = false;
-    // We update the session anyway so it's saved
-    await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-      levelsScores: levelsScores.value,
-      finalRecommendation: finalRecommendation.value,
-      stopLevel: currentLevel.label,
-      lastValidatedLevel: finalLevelLabel,
-      positionnementAnswers: positionnementAnswers.value,
-      explanationMessage: parcoursRuleMessage.value,
-      parcoursTitle: parcoursTitle.value || null,
-    });
-    return; // Stop here, modal will trigger showResults = true
+
+    const behavior = alertSettings.value.behavior || 'modal';
+
+    if (behavior === 'ignore') {
+      // Ne rien faire, continuer normalement vers les résultats
+      isHighLevel = false;
+    } else if (behavior === 'auto_change') {
+      // Rediriger directement vers le choix de formation sans modal
+      submitting.value = false;
+      router.push("/formations");
+      return;
+    } else {
+      // 'modal' (défaut) : afficher le modal
+      highLevelValidated.value = finalLevelLabel;
+      showHighLevelAlert.value = true;
+      submitting.value = false;
+      // We update the session anyway so it's saved
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+        levelsScores: levelsScores.value,
+        finalRecommendation: finalRecommendation.value,
+        stopLevel: currentLevel.label,
+        lastValidatedLevel: finalLevelLabel,
+        positionnementAnswers: positionnementAnswers.value,
+        explanationMessage: parcoursRuleMessage.value,
+        parcoursTitle: parcoursTitle.value || null,
+      });
+      return; // Stop here, modal will trigger showResults = true
+    }
   }
 
   // 4. Update session
@@ -915,6 +1178,16 @@ async function finishTest(overrideSession = null) {
   const session = res.data;
   if (session.p3Redirected !== undefined) {
     p3Redirected.value = session.p3Redirected;
+  }
+
+  // Si P3_OVERRIDE_FORCE_CHOICE=false et qu'un choix original P3 existe,
+  // afficher un message informatif sur le niveau supérieur
+  const originalChoiceMsg = localStorage.getItem('p3_original_choice_message');
+  if (originalChoiceMsg) {
+    localStorage.removeItem('p3_original_choice_message');
+    if (!parcoursRuleMessage.value) {
+      parcoursRuleMessage.value = originalChoiceMsg;
+    }
   }
 
   showResults.value = true;
@@ -1002,6 +1275,54 @@ async function saveAndExit() {
             <span class="material-icons-outlined text-5xl">task_alt</span>
           </div> -->
 
+          <!-- Cas "niveau trop avancé / trop faible" : message de blocage -->
+          <template v-if="!finalRecommendation">
+            <div class="flex flex-col items-center gap-4 mb-8">
+              <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto">
+                <span class="material-icons-outlined text-4xl text-orange-400">info</span>
+              </div>
+              <h1 class="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
+                Évaluation terminée
+              </h1>
+              <div v-if="parcoursRuleMessage" class="max-w-lg mx-auto bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 text-left shadow-sm w-full">
+                <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
+              </div>
+
+              <div v-else-if="isWordFormation && !parcoursRuleMessage" class="max-w-lg mx-auto text-left mt-4">
+                <p class="text-gray-700 font-semibold mb-3">Votre niveau est trop avancé pour cette formation. Nous vous proposons :</p>
+
+                <div class="mb-3">
+                  <h4 class="text-sm font-black text-slate-700">➡️ Renforcement WORD (si vous souhaitez rester sur Word)</h4>
+                  <ul class="list-disc list-inside text-sm text-slate-700 mt-2">
+                    <li>TOSA WORD — Basique</li>
+                    <li>ICDL WORD — Opérationnel</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 class="text-sm font-black text-slate-700">➡️ Perfectionnement WORD + EXCEL (si vous souhaitez élargir)</h4>
+                  <ul class="list-disc list-inside text-sm text-slate-700 mt-2">
+                    <li>TOSA WORD — Opérationnel</li>
+                    <li>TOSA EXCEL — Opérationnel</li>
+                  </ul>
+                </div>
+
+                <p class="text-xs text-slate-500 mt-3">Choisissez l'option qui correspond le mieux à vos objectifs. Vous pourrez confirmer votre choix sur l'écran suivant.</p>
+              </div>
+
+              <p v-else class="text-gray-400 text-base max-w-lg mx-auto leading-relaxed">
+                Votre niveau ne correspond pas à cette formation. Nous vous invitons à choisir une formation plus adaptée.
+              </p>
+
+              <!-- Si des alternatives existent, les afficher avec un titre explicatif -->
+              <p v-if="parcoursChoices.length" class="text-sm font-bold text-slate-500 uppercase tracking-widest mt-2">
+                Si vous souhaitez tout de même suivre cette formation :
+              </p>
+            </div>
+          </template>
+
+          <!-- Cas normal : Félicitations + parcours recommandé -->
+          <template v-else>
           <h1
             class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight"
           >
@@ -1030,18 +1351,10 @@ async function saveAndExit() {
             </div>
           </div>
         
-        <!-- Message explicatif du parcours recommandé -->
-        <div v-if="parcoursRuleMessage" class="mt-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div class="bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 flex items-start gap-4 text-left shadow-sm">
-            <div class="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0 mt-0.5">
-              <span class="material-icons-outlined text-amber-600">info</span>
-            </div>
-            <div>
-              <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
-            </div>
-          </div>
-        </div>
-          <div class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
+          </template>
+
+          <!-- Box dorée : parcours recommandé OU alternatives "si veut quand même" -->
+          <div v-if="finalRecommendation || parcoursChoices.length" class="inline-block px-10 py-6 bg-[#ebb973] border-2 border-brand-primary rounded-3xl mb-12 transform hover:scale-105 transition-transform duration-500">
             <!-- Parse steps (& separator) then alternatives (/ or OU) -->
             <template v-if="parcoursChoices.length > 1">
   <div class="flex flex-col gap-4 min-w-[280px] md:min-w-[520px]">
@@ -1122,6 +1435,8 @@ async function saveAndExit() {
               </div>
             </div>
           </div>
+
+          <!-- Fermeture du template v-else (cas normal avec parcours) -->
 
           <button
             @click="finishStep"
@@ -1571,6 +1886,7 @@ async function saveAndExit() {
       :show="showHighLevelAlert"
       :formation="formationLabel"
       :level="highLevelValidated"
+      :customMessage="alertSettings.customMessage"
       @continue="handleHighLevelContinue"
       @changeFormation="handleHighLevelChangeFormation"
       @close="showHighLevelAlert = false"

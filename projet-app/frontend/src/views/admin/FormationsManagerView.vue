@@ -87,6 +87,9 @@ const form = ref({
   enableLowScoreWarning: true,
   // Permettre le choix manuel pour le 3ème parcours (P3)
   enableP3ManualChoice: false,
+  // High level alert defaults
+  enableHighLevelAlert: true,
+  maxLevelOrder: null,
   levels: [],
 });
 
@@ -127,6 +130,9 @@ function openAddModal() {
     enableLowScoreWarning: true,
     // Permettre le choix manuel pour le 3ème parcours (P3)
     enableP3ManualChoice: false,
+    // High level alert settings per formation (admin configurable)
+    enableHighLevelAlert: true,
+    maxLevelOrder: null,
     levels: [],
   };
   showModal.value = true;
@@ -437,6 +443,7 @@ async function saveFormation() {
       return {
         ...(lvl.id ? { id: lvl.id } : {}),
         label: lvl.label,
+        shortName: lvl.shortName || null,
         consigne: lvl.consigne,
         order: index,
         successThreshold: Number(lvl.successThreshold) || 0,
@@ -497,6 +504,19 @@ async function toggleLowScoreWarning(formation) {
     formation.enableLowScoreWarning = newValue;
   } catch (error) {
     console.error("Failed to update warning status:", error);
+  }
+}
+
+async function toggleHighLevelAlert(formation) {
+  try {
+    const newValue = !formation.enableHighLevelAlert;
+    await axios.patch(
+      `${apiBaseUrl}/formations/${formation.id}`,
+      { enableHighLevelAlert: newValue }
+    );
+    formation.enableHighLevelAlert = newValue;
+  } catch (error) {
+    console.error("Failed to update high level alert status:", error);
   }
 }
 
@@ -609,6 +629,16 @@ onMounted(() => {
             >
                <span class="material-icons-outlined text-[10px]">{{ f.enableLowScoreWarning ? 'warning' : 'notifications_off' }}</span>
                Alerte
+            </button>
+
+            <button
+              @click.stop="toggleHighLevelAlert(f)"
+              class="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border transition-all hover:scale-105 active:scale-95 shadow-sm ml-1"
+              :class="f.enableHighLevelAlert ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-300 bg-slate-50 border-slate-100'"
+              :title="f.enableHighLevelAlert ? 'Désactiver l\'alerte niveau élevé' : 'Activer l\'alerte niveau élevé'"
+            >
+               <span class="material-icons-outlined text-[10px]">trending_up</span>
+               Haut niveau
             </button>
           </div>
         </div>
@@ -760,6 +790,27 @@ onMounted(() => {
                         <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-primary"></div>
                      </label>
                    </div>
+                   <div class="flex items-center justify-between group/toggle">
+                     <span class="text-[9px] font-black text-slate-500 uppercase">Alerte Niveau Élevé</span>
+                     <label class="relative inline-flex items-center cursor-pointer" :title="'Afficher une alerte si l\'apprenant atteint un niveau élevé pour cette formation'">
+                        <input type="checkbox" v-model="form.enableHighLevelAlert" class="sr-only peer">
+                        <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
+                     </label>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                      <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Niveau max (ordre)</label>
+                      <div v-if="form.levels && form.levels.length > 0">
+                        <select v-model.number="form.maxLevelOrder" class="w-full px-4 py-2 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-xs">
+                          <option :value="null">Aucun (désactivé)</option>
+                          <option v-for="lv in form.levels" :key="lv._clientKey || lv.id" :value="lv.order">{{ lv.order }} — {{ lv.label }}</option>
+                        </select>
+                      </div>
+                      <div v-else>
+                        <input type="number" v-model.number="form.maxLevelOrder" placeholder="ex: 3" min="0" class="w-full px-4 py-2 bg-slate-50 border-2 border-transparent focus:border-brand-primary rounded-xl outline-none font-bold text-xs" />
+                      </div>
+                    </div>
+                   </div>
                  </div>
               </div>
             </div>
@@ -846,6 +897,10 @@ onMounted(() => {
                   <div class="flex-1 space-y-2 w-full">
                     <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Nom du Niveau</label>
                     <input v-model="lvl.label" placeholder="ex: Niveau A1" class="w-full px-5 py-3 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
+                  </div>
+                  <div class="w-48 space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Nom Court / Identifiant</label>
+                    <input v-model="lvl.shortName" placeholder="ex: débutant, A1" class="w-full px-4 py-2 bg-white border border-slate-200 focus:border-brand-primary rounded-xl outline-none font-bold text-sm" />
                   </div>
                   <div class="w-full md:w-32 space-y-2">
                     <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Seuil Réussite</label>

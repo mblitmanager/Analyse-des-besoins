@@ -59,6 +59,13 @@ export class Formation {
   @Column({ default: true })
   enableLowScoreWarning: boolean;
 
+  // High-level alert controls (admin configurable)
+  @Column({ type: 'boolean', default: true })
+  enableHighLevelAlert: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  maxLevelOrder: number | null;
+
   // Whether learners are allowed to manually choose a P3 formation for this formation
   @Column({ type: 'boolean', default: false })
   enableP3ManualChoice: boolean;
