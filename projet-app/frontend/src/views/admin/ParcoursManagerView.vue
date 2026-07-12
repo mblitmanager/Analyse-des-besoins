@@ -114,7 +114,9 @@ const currentFormation = computed(() => {
 const filteredRules = computed(() => {
   if (!currentFormation.value) return [];
   return rules.value.filter((r) => {
-    const matchesFormation = r.formation === currentFormation.value.label;
+    // Priorité absolue à l'ID de formation
+    const matchesFormation = (r.formationId && Number(r.formationId) === Number(currentFormation.value.id)) ||
+                              r.formation === currentFormation.value.label;
     const passesActiveFilter = showInactive.value || r.isActive !== false;
     const q = searchTerm.value.toLowerCase().trim();
     const matchesSearch = !q || 
@@ -128,7 +130,11 @@ const filteredRules = computed(() => {
 
 const inactiveRulesCount = computed(() => {
   if (!currentFormation.value) return 0;
-  return rules.value.filter(r => r.formation === currentFormation.value.label && r.isActive === false).length;
+  return rules.value.filter(r => 
+    ((r.formationId && Number(r.formationId) === Number(currentFormation.value.id)) || 
+     r.formation === currentFormation.value.label) && 
+    r.isActive === false
+  ).length;
 });
 
 async function fetchRules() {

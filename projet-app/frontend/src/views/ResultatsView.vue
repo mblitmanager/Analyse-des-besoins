@@ -513,10 +513,19 @@ const goNext = async () => {
 const shouldShowAlert = computed(() => {
   if (!session.value || !alertSettings.value.formations.length) return false;
   
-  // 1. Check if current formation is in alert list
-  const isTargetFormation = alertSettings.value.formations.some(f => 
-    session.value.formationChoisie?.toLowerCase().includes(f.toLowerCase())
-  );
+  // 1. Check if current formation is in alert list (priorité à l'ID)
+  const formationId = session.value.formationId;
+  const formationLabel = session.value.formationChoisie || '';
+  
+  const isTargetFormation = alertSettings.value.formations.some(f => {
+    const fId = Number(f);
+    // Si c'est un ID numérique, comparer avec l'ID de formation
+    if (!isNaN(fId) && formationId && Number(formationId) === fId) {
+      return true;
+    }
+    // Sinon, comparer avec le label (fallback)
+    return formationLabel.toLowerCase().includes(f.toLowerCase());
+  });
   if (!isTargetFormation) return false;
 
   // 2. Check achievement level

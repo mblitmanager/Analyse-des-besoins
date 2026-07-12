@@ -89,8 +89,9 @@ const showInactiveRules = ref(true);
 const filteredRules = computed(() => {
   const allFilteredRules = allRules.value.filter(r => {
     if (!currentFormation.value) return true;
-    return r.formation === currentFormation.value.label ||
-      (r.formationId && r.formationId === currentFormation.value.id);
+    // Priorité absolue à l'ID de formation
+    return (r.formationId && Number(r.formationId) === Number(currentFormation.value.id)) ||
+           r.formation === currentFormation.value.label;
   });
   if (showInactiveRules.value) return allFilteredRules;
   return allFilteredRules.filter(r => r.isActive !== false);
@@ -860,9 +861,9 @@ onMounted(async () => {
               <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-white rounded-xl border border-slate-100">
                 <label v-for="formation in allFormations" :key="formation.id" 
                   class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-all"
-                  :class="newRule.testFormations.includes(formation.label) ? 'bg-blue-50 border border-blue-200' : ''">
+                  :class="newRule.testFormations.includes(formation.id) ? 'bg-blue-50 border border-blue-200' : ''">
                   <input type="checkbox" 
-                    :value="formation.label" 
+                    :value="formation.id" 
                     v-model="newRule.testFormations"
                     class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
                   <span class="text-xs font-bold text-slate-700">{{ formation.label }}</span>
