@@ -469,14 +469,14 @@ function findMatchingP3OverrideRules(formation = null) {
     formationId: r.formationId, 
     formation: r.formation, 
     parcoursTitle: r.parcoursTitle, 
+    condition: r.condition,
+    conditionP1: r.conditionP1,
+    conditionP2: r.conditionP2,
     hasTestFormations: !!r.testFormations 
   })));
 
-  // Afficher TOUTES les règles actives (pas de filtrage par conditions P1P2)
-  // Les conditions P1P2 servent uniquement pour la priorité d'affichage
-  
-  // Séparer les règles avec et sans conditions P1P2 pour la priorité
-  const rulesWithP1P2Conditions = sortedRules.filter(
+  // Filtrer par conditions P1P2 ET niveau
+  const p1p2Matches = sortedRules.filter(
     (rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule),
   );
   
@@ -484,12 +484,108 @@ function findMatchingP3OverrideRules(formation = null) {
     (rule) => !hasP1P2OverrideConditions(rule)
   );
   
-  console.log('[P3] findMatchingP3OverrideRules - Rules with matching P1P2 conditions:', rulesWithP1P2Conditions.length);
+  console.log('[P3] findMatchingP3OverrideRules - Rules with matching P1P2 conditions:', p1p2Matches.length);
   console.log('[P3] findMatchingP3OverrideRules - Rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
   
-  // Priorité : règles avec conditions P1P2 correspondantes + règles sans conditions P1P2
-  // Mais toutes sont affichées
-  return sortedRules;
+  if (p1p2Matches.length) {
+    // Prioriser les règles avec testFormations configuré (IA Générative)
+    const rulesWithTestFormations = p1p2Matches.filter(rule => {
+      const tf = rule?.testFormations;
+      if (!tf) return false;
+      if (Array.isArray(tf)) return tf.length > 0;
+      if (typeof tf === 'object') return Object.keys(tf).length > 0;
+      return false;
+    });
+    
+    console.log('[P3] findMatchingP3OverrideRules - Rules with testFormations:', rulesWithTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, testFormations: r.testFormations })));
+    
+    // Règles sans testFormations mais actives
+    const rulesWithoutTestFormations = p1p2Matches.filter(rule => {
+      const tf = rule?.testFormations;
+      if (!tf) return true;
+      if (Array.isArray(tf)) return tf.length === 0;
+      if (typeof tf === 'object') return Object.keys(tf).length === 0;
+      return false;
+    });
+    
+    console.log('[P3] findMatchingP3OverrideRules - Rules without testFormations:', rulesWithoutTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle })));
+    
+    if (rulesWithTestFormations.length > 0) {
+      // Parmi les règles avec testFormations, prioriser celles liées à IA Générative
+      const iaGenerativeRules = rulesWithTestFormations.filter(rule => {
+        // Utiliser l'ID de formation si disponible, sinon le label
+        const formationId = rule?.formationId;
+        const formation = formations.value.find(f => f.id === formationId);
+        const formationLabel = formation?.label || rule?.formation || '';
+        const parcoursTitle = rule?.parcoursTitle || '';
+        const certification = rule?.certification || '';
+        
+        const searchStr = (formationLabel + ' ' + parcoursTitle + ' ' + certification).toLowerCase();
+        return searchStr.includes('ia') || searchStr.includes('intelligence') || searchStr.includes('générative') ||
+               searchStr.includes('inkrea');
+      });
+      
+      if (iaGenerativeRules.length > 0) {
+        console.log('[P3] findMatchingP3OverrideRules - Prioritizing IA Générative rules:', iaGenerativeRules.length);
+        return iaGenerativeRules;
+      }
+      
+      console.log('[P3] findMatchingP3OverrideRules - Prioritizing rules with testFormations:', rulesWithTestFormations.length);
+      return rulesWithTestFormations;
+    }
+    
+    // Si aucune règle avec testFormations, retourner les règles sans testFormations
+    if (rulesWithoutTestFormations.length > 0) {
+      console.log('[P3] findMatchingP3OverrideRules - Using rules without testFormations:', rulesWithoutTestFormations.length);
+      return rulesWithoutTestFormations;
+    }
+    
+    return p1p2Matches;
+  }
+  
+  // Si aucune règle P1P2 ne correspond, utiliser les règles sans conditions P1P2
+  if (rulesWithoutP1P2Conditions.length > 0) {
+    console.log('[P3] findMatchingP3OverrideRules - No P1P2 matches, using rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
+    
+    // Appliquer la même logique de priorité (testFormations, IA Générative, etc.)
+    const rulesWithTestFormations = rulesWithoutP1P2Conditions.filter(rule => {
+      const tf = rule?.testFormations;
+      if (!tf) return false;
+      if (Array.isArray(tf)) return tf.length > 0;
+      if (typeof tf === 'object') return Object.keys(tf).length > 0;
+      return false;
+    });
+    
+    if (rulesWithTestFormations.length > 0) {
+      const iaGenerativeRules = rulesWithTestFormations.filter(rule => {
+        const formationId = rule?.formationId;
+        const formation = formations.value.find(f => f.id === formationId);
+        const formationLabel = formation?.label || rule?.formation || '';
+        const parcoursTitle = rule?.parcoursTitle || '';
+        const certification = rule?.certification || '';
+        
+        const searchStr = (formationLabel + ' ' + parcoursTitle + ' ' + certification).toLowerCase();
+        return searchStr.includes('ia') || searchStr.includes('intelligence') || searchStr.includes('générative') ||
+               searchStr.includes('inkrea');
+      });
+      
+      if (iaGenerativeRules.length > 0) {
+        console.log('[P3] findMatchingP3OverrideRules - Prioritizing IA Générative rules (no P1P2):', iaGenerativeRules.length);
+        return iaGenerativeRules;
+      }
+      
+      console.log('[P3] findMatchingP3OverrideRules - Using rules with testFormations (no P1P2):', rulesWithTestFormations.length);
+      return rulesWithTestFormations;
+    }
+    
+    return rulesWithoutP1P2Conditions;
+  }
+
+  const legacyMatch = sortedRules.find(
+    (rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule),
+  );
+  console.log('[P3] findMatchingP3OverrideRules - Legacy match:', legacyMatch ? legacyMatch.parcoursTitle : null);
+  return legacyMatch ? [legacyMatch] : [];
 }
 
 function showP3OverrideForRules(rules) {
@@ -610,27 +706,39 @@ async function confirmP3Override() {
         const testFormationLabel = match ? match[1] : chosenLabel.split(' + ')[0].trim();
         console.log('[P3] confirmP3Override - testFormationLabel extracted:', testFormationLabel);
         
-        // Trouver la formation de test dans la liste des formations
-        // Priorité à la correspondance exacte, puis partielle
-        const testFormation = formations.value.find(f => {
-          const fl = f.label.toLowerCase();
-          const tl = testFormationLabel.toLowerCase();
-          // Correspondance exacte d'abord
-          if (fl === tl) return true;
-          // Correspondance exacte avec espaces/parenthèses
-          if (fl.replace(/\s+/g, '') === tl.replace(/\s+/g, '')) return true;
-          // Correspondance partielle seulement si le label contient le terme recherché en entier
-          if (fl.includes(tl)) return true;
-          return false;
-        });
+        // Utiliser l'ID de formation stocké dans testFormations (priorité)
+        let testFormation = null;
+        const testFormationId = selectedOption?.formationId;
+        if (testFormationId) {
+          testFormation = formations.value.find(f => f.id === testFormationId);
+        }
+        
+        // Fallback : trouver par label si l'ID n'est pas disponible
+        if (!testFormation) {
+          testFormation = formations.value.find(f => {
+            const fl = f.label.toLowerCase();
+            const tl = testFormationLabel.toLowerCase();
+            // Correspondance exacte d'abord
+            if (fl === tl) return true;
+            // Correspondance exacte avec espaces/parenthèses
+            if (fl.replace(/\s+/g, '') === tl.replace(/\s+/g, '')) return true;
+            // Correspondance partielle seulement si le label contient le terme recherché en entier
+            if (fl.includes(tl)) return true;
+            return false;
+          });
+        }
         
         if (testFormation) {
-          console.log('[P3] confirmP3Override - Found test formation:', testFormation.label);
+          console.log('[P3] confirmP3Override - Found test formation:', testFormation.label, 'ID:', testFormation.id);
           console.log('[P3] confirmP3Override - rule.formation:', rule?.formation);
           console.log('[P3] confirmP3Override - rule.parcoursTitle:', rule?.parcoursTitle);
           
           // Utiliser directement la formation de test pour le test de positionnement
           selectedFormation.value = testFormation;
+          
+          // Stocker l'ID de formation pour le parcours final
+          localStorage.setItem('p3_forced_formation_id', String(testFormation.id));
+          localStorage.setItem('p3_forced_formation_label', testFormation.label);
           
           // Extraire le parcours final depuis chosenLabel
           // Format: "IA GENERATIVE (INKREA) (Excel + IA)" → "IA GENERATIVE (INKREA)"
