@@ -54,6 +54,7 @@ const newRule = ref({
 
 // Dynamic helpers for form building
 const selectedFormationLevels = ref([]);
+const selectedFormationParcours = ref([]); // Parcours disponibles pour la formation sélectionnée
 const conditionLevel = ref("");
 const conditionOperator = ref("=");
 const useLevelCondition = ref(false);
@@ -407,9 +408,10 @@ async function openEditForm(rule) {
   isHiddenResult.value = !!rule.isHiddenResult;
   hiddenResultType.value = rule.hiddenResultType || null;
   
-  // Load levels for the formation
+  // Load levels and parcours for the formation
   if (rule.formation) {
     await fetchLevelsForFormation(rule.formation);
+    await fetchParcoursForFormation(rule.formation);
   }
   
   showForm.value = true;
@@ -418,24 +420,59 @@ async function openEditForm(rule) {
 
 async function fetchLevelsForFormation(formationLabel) {
   try {
+    console.log('[P3 Admin] fetchLevelsForFormation called with:', formationLabel);
     const formation = allFormations.value.find(f => f.label === formationLabel);
-    if (!formation) return;
+    if (!formation) {
+      console.log('[P3 Admin] Formation not found in allFormations:', formationLabel);
+      console.log('[P3 Admin] Available formations:', allFormations.value.map(f => f.label));
+      return;
+    }
     
+    console.log('[P3 Admin] Found formation:', formation.label, 'slug:', formation.slug);
     const res = await axios.get(`${apiBaseUrl}/formations/${formation.slug}/levels`, { 
       headers: { Authorization: `Bearer ${token()}` } 
     });
     selectedFormationLevels.value = (res.data || []).filter(l => l.isActive !== false);
+    console.log('[P3 Admin] Loaded levels:', selectedFormationLevels.value.length);
   } catch (error) {
     console.error("Failed to load levels:", error);
   }
 }
 
+async function fetchParcoursForFormation(formationLabel) {
+  try {
+    console.log('[P3 Admin] fetchParcoursForFormation called with:', formationLabel);
+    const formation = allFormations.value.find(f => f.label === formationLabel);
+    if (!formation) {
+      console.log('[P3 Admin] Formation not found in allFormations:', formationLabel);
+      return;
+    }
+    
+    console.log('[P3 Admin] Found formation:', formation.label, 'slug:', formation.slug);
+    const res = await axios.get(`${apiBaseUrl}/parcours?formation=${formation.slug}`, { 
+      headers: { Authorization: `Bearer ${token()}` } 
+    });
+    selectedFormationParcours.value = (res.data || []).filter(p => p.isActive !== false);
+    console.log('[P3 Admin] Loaded parcours:', selectedFormationParcours.value.length);
+  } catch (error) {
+    console.error("Failed to load parcours:", error);
+  }
+}
+
+function handleParcoursSelection() {
+  // When a parcours is selected, we could auto-fill formation1 and formation2
+  // For now, just log the selection
+  console.log('[P3 Admin] Parcours selected:', newRule.value.parcoursTitle);
+}
+
 watch(currentFormation, async (formation) => {
   if (!formation) {
     selectedFormationLevels.value = [];
+    selectedFormationParcours.value = [];
     return;
   }
   await fetchLevelsForFormation(formation.label);
+  await fetchParcoursForFormation(formation.label);
 });
 
 onMounted(async () => {
@@ -738,6 +775,16 @@ onMounted(async () => {
           <div class="space-y-2">
             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Intitulé du parcours</label>
             <input v-model="newRule.parcoursTitle" placeholder="ex: Parcours Word Avancé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Sélectionner un parcours existant (optionnel)</label>
+            <select v-model="newRule.parcoursTitle" @change="handleParcoursSelection" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all">
+              <option value="">-- Sélectionner un parcours --</option>
+              <option v-for="parcours in selectedFormationParcours" :key="parcours.id" :value="parcours.formation1 || parcours.formation2">
+                {{ parcours.formation1 || parcours.formation2 }} ({{ parcours.condition || 'Sans condition' }})
+              </option>
+            </select>
           </div>
 
           <div class="space-y-2">

@@ -455,14 +455,38 @@ function findMatchingP3OverrideRules(formation = null) {
     .filter((rule) => rule.isActive !== false && p3OverrideRuleMatchesFormation(rule, formation))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+  console.log('[P3] findMatchingP3OverrideRules - All matching rules:', sortedRules.length);
+  console.log('[P3] findMatchingP3OverrideRules - Rules:', sortedRules.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, hasTestFormations: !!r.testFormations })));
+
   const p1p2Matches = sortedRules.filter(
     (rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule),
   );
-  if (p1p2Matches.length) return p1p2Matches;
+  if (p1p2Matches.length) {
+    console.log('[P3] findMatchingP3OverrideRules - P1P2 matches:', p1p2Matches.length);
+    
+    // Prioriser les règles avec testFormations configuré (IA Générative)
+    const rulesWithTestFormations = p1p2Matches.filter(rule => {
+      const tf = rule?.testFormations;
+      if (!tf) return false;
+      if (Array.isArray(tf)) return tf.length > 0;
+      if (typeof tf === 'object') return Object.keys(tf).length > 0;
+      return false;
+    });
+    
+    console.log('[P3] findMatchingP3OverrideRules - Rules with testFormations:', rulesWithTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, testFormations: r.testFormations })));
+    
+    if (rulesWithTestFormations.length > 0) {
+      console.log('[P3] findMatchingP3OverrideRules - Prioritizing rules with testFormations:', rulesWithTestFormations.length);
+      return rulesWithTestFormations;
+    }
+    
+    return p1p2Matches;
+  }
 
   const legacyMatch = sortedRules.find(
     (rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule),
   );
+  console.log('[P3] findMatchingP3OverrideRules - Legacy match:', legacyMatch ? legacyMatch.parcoursTitle : null);
   return legacyMatch ? [legacyMatch] : [];
 }
 
@@ -1805,38 +1829,33 @@ function isSectionActive(section) {
     </div>
 
     <!-- P3 Override Section (Admin-configured forced choices by formation and level) -->
-    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 shadow-2xl z-[70] p-4 md:p-6" :style="{ borderColor: selectedAccent.accent + '40', backgroundColor: selectedAccent.accentBg || '#eff6ff' }">
+    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 shadow-2xl z-[70] p-6" style="border-color: #31526420;">
       <div class="max-w-4xl mx-auto">
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-            <span class="material-icons-outlined text-2xl">auto_awesome</span>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #31526420; color: #315264;">
+            <span class="material-icons-outlined text-xl">auto_awesome</span>
           </div>
-          <div class="flex-1">
-            <p class="text-[10px] font-black uppercase tracking-[0.2em]" :style="{ color: selectedAccent.accent }">3ème Parcours</p>
-            <h3 class="text-lg md:text-xl font-black text-[#0D1B3E]">Choix recommandé</h3>
-          </div>
+          <h3 class="text-lg font-black text-[#0D1B3E]">3ème Parcours - Choix recommandé</h3>
         </div>
         
-        <div class="space-y-3 mb-4">
+        <div class="space-y-2 mb-4">
           <!-- Special UI for testFormations: show large side-by-side choice buttons -->
           <template v-if="p3OverrideMatchedRule?.testFormations && (Array.isArray(p3OverrideMatchedRule.testFormations) ? p3OverrideMatchedRule.testFormations.length > 0 : Object.keys(p3OverrideMatchedRule.testFormations).length > 0)">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <button
                 v-for="option in p3OverrideChoiceOptions"
                 :key="option.label"
                 @click="p3OverrideSelectedChoice = option.label"
-                :class="p3OverrideSelectedChoice === option.label ? 'border-2 shadow-xl transform scale-[1.02]' : 'border-2 hover:shadow-lg hover:scale-[1.01]'"
-                class="p-4 md:p-5 rounded-xl font-black text-sm md:text-base text-[#0d1b3e] flex items-center justify-center gap-3 transition-all bg-white"
+                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                class="p-4 rounded-xl border-2 font-black text-sm text-[#0d1b3e] flex items-center justify-center gap-2 transition-all"
                 :style="{ 
-                  borderColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : selectedAccent.accent + '30',
-                  boxShadow: p3OverrideSelectedChoice === option.label ? `0 10px 30px -5px ${selectedAccent.accent}40` : 'none'
+                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
+                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
+                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
                 }"
               >
-                <span class="material-icons-outlined text-xl md:text-2xl" :style="{ color: selectedAccent.accent }">school</span>
-                <span class="text-center">{{ option.label }}</span>
-                <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-                  <span class="material-icons-outlined text-sm">check</span>
-                </div>
+                <span class="material-icons-outlined text-lg text-[#059669]">school</span>
+                <span>{{ option.label }}</span>
               </button>
             </div>
           </template>
@@ -1844,21 +1863,26 @@ function isSectionActive(section) {
             <label
               v-for="option in p3OverrideChoiceOptions"
               :key="option.label"
-              class="flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all bg-white"
-              :class="p3OverrideSelectedChoice === option.label ? 'border-2 shadow-lg transform scale-[1.01]' : 'border-2 hover:shadow-lg hover:scale-[1.01]'"
+              class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
+              :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
               :style="{ 
-                borderColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : selectedAccent.accent + '30',
-                boxShadow: p3OverrideSelectedChoice === option.label ? `0 10px 30px -5px ${selectedAccent.accent}40` : 'none'
+                borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
+                backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
+                boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
               }"
             >
-              <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0" :style="{ borderColor: selectedAccent.accent, backgroundColor: p3OverrideSelectedChoice === option.label ? selectedAccent.accent : 'white' }">
-                <div v-if="p3OverrideSelectedChoice === option.label" class="w-3 h-3 rounded-full bg-white"></div>
-              </div>
+              <input
+                type="radio"
+                :value="option.label"
+                v-model="p3OverrideSelectedChoice"
+                class="w-4 h-4 border-slate-300 focus:ring-offset-0"
+                :style="{ color: '#315264', accentColor: '#315264' }"
+              />
               <div class="flex-1">
-                <span class="text-sm md:text-base font-black text-[#0d1b3e]">{{ option.label }}</span>
+                <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
               </div>
-              <div v-if="p3OverrideSelectedChoice === option.label" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" :style="{ backgroundColor: selectedAccent.accent, color: 'white' }">
-                <span class="material-icons-outlined text-sm">check</span>
+              <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
+                <span class="material-icons-outlined text-white text-xs">check</span>
               </div>
             </label>
           </template>
