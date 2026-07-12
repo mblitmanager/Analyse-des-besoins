@@ -70,4 +70,26 @@ export class P3OverrideRule {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   parcoursTitle: string;
+
+  /**
+   * Si true : cette règle ne sera jamais affichée à l'apprenant, même si sa condition est atteinte
+   * Utilisé pour les cas "niveau trop avancé" ou "niveau insuffisant"
+   */
+  @Column({ type: 'boolean', default: false })
+  isHiddenResult: boolean;
+
+  /**
+   * Type de résultat masqué : 'too_advanced' ou 'too_weak'
+   * Détermine le message d'alerte affiché
+   */
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  hiddenResultType: string;
+
+  /**
+   * Formations à afficher dans le test de positionnement
+   * Utilisé pour les parcours en saisie libre (ex: IA Générative)
+   * Tableau de labels de formations (ex: ["IA Générative", "Illustrator"])
+   */
+  @Column({ type: 'json', nullable: true })
+  testFormations: string[];
 }

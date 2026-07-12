@@ -48,6 +48,27 @@ const isWordFormation = computed(() => {
   const f = (formationLabel || formationSlug || "").toLowerCase();
   return /word/.test(f) || /word-ia/.test(f) || /word \+ ia/.test(f);
 });
+
+// Helper functions to determine message style based on type
+function getMessageStyleClass() {
+  const msg = String(parcoursRuleMessage.value || '').toLowerCase();
+  if (msg.includes('trop avancé') || msg.includes('niveau supérieur')) {
+    return 'bg-orange-50 border-2 border-orange-200';
+  } else if (msg.includes('insuffisant') || msg.includes('trop faible')) {
+    return 'bg-red-50 border-2 border-red-200';
+  }
+  return 'bg-amber-50 border-2 border-amber-200';
+}
+
+function getMessageTextColor() {
+  const msg = String(parcoursRuleMessage.value || '').toLowerCase();
+  if (msg.includes('trop avancé') || msg.includes('niveau supérieur')) {
+    return 'text-orange-700';
+  } else if (msg.includes('insuffisant') || msg.includes('trop faible')) {
+    return 'text-red-700';
+  }
+  return 'text-slate-700';
+}
 const parcoursTitle = ref("");
 const parcoursChoices = ref([]);
 const p3Redirected = ref(false);
@@ -784,6 +805,7 @@ async function finishTest(overrideSession = null) {
       // - Afficher son explanationMessage comme message principal
       // - Chercher les règles isActive=false (même condition) comme options alternatives
       //   "si le bénéficiaire veut quand même" → proposées comme parcoursChoices
+      // - Si aucune règle masquée ne correspond, fallback vers le parcours avec niveau le plus supérieur
       if (!matchedRule) {
         const hiddenMatchingRule = scoredRules.find(s => {
           if (!s.rule.isHiddenResult) return false;
@@ -795,17 +817,27 @@ async function finishTest(overrideSession = null) {
         if (hiddenMatchingRule) {
           console.debug('[Parcours] Règle masquée correspondante → affichage message de blocage + options alternatives', hiddenMatchingRule.id);
 
+          // Use hiddenResultType to determine the message type
+          const hiddenType = hiddenMatchingRule.hiddenResultType || '';
+          
           // Detect if this hidden rule corresponds to the generic "Niveau trop avancé" case
           const hiddenTitleLower = String(hiddenMatchingRule.parcoursTitle || '').toLowerCase();
           const hiddenMsgLower = String(hiddenMatchingRule.explanationMessage || '').toLowerCase();
-          const isTooAdvancedMsg = hiddenTitleLower.includes('niveau trop avancé') || hiddenMsgLower.includes('niveau trop avancé') || hiddenMsgLower.includes('test qcm révèle un niveau supérieur');
+          const isTooAdvancedMsg = hiddenType === 'too_advanced' || 
+                                  hiddenTitleLower.includes('niveau trop avancé') || 
+                                  hiddenMsgLower.includes('niveau trop avancé') || 
+                                  hiddenMsgLower.includes('test qcm révèle un niveau supérieur');
+          
+          const isTooWeakMsg = hiddenType === 'too_weak';
 
           finalRecommendation.value = "";
           parcoursTitle.value = hiddenMatchingRule.parcoursTitle || "";
-          // Prefer the rule's explanationMessage, but if this is the "too advanced" case
-          // ensure we show the standardized 'Niveau trop avancé' message instead of the generic fallback.
+          
+          // Use the rule's explanationMessage based on hiddenResultType
           if (isTooAdvancedMsg) {
             parcoursRuleMessage.value = hiddenMatchingRule.explanationMessage || "Niveau trop avancé\nLe test QCM révèle un niveau supérieur à cette formation";
+          } else if (isTooWeakMsg) {
+            parcoursRuleMessage.value = hiddenMatchingRule.explanationMessage || "Niveau insuffisant\nVotre niveau est trop faible pour cette formation";
           } else {
             parcoursRuleMessage.value = hiddenMatchingRule.explanationMessage || "Votre niveau ne correspond pas à cette formation. Nous vous invitons à choisir une formation plus adaptée.";
           }
@@ -891,6 +923,36 @@ async function finishTest(overrideSession = null) {
             parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
           });
           return;
+        } else {
+          // Fallback : si aucune règle masquée ne correspond, retourner le parcours avec niveau le plus supérieur
+          console.debug('[Parcours] Aucune règle masquée ne correspond, fallback sur le parcours avec niveau le plus supérieur');
+          
+          // Trouver toutes les règles actives (non masquées, non désactivées)
+          const activeRules = formationRules.filter(r => !r.isHiddenResult && r.isActive !== false);
+          
+          if (activeRules.length > 0) {
+            // Extraire les niveaux des conditions et trouver le niveau le plus supérieur
+            const rulesWithLevelOrder = activeRules.map(rule => {
+              const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
+              const levelLabel = condMatch ? condMatch[2] : "";
+              const levelObj = levels.value.find(l => l.label === levelLabel);
+              return {
+                rule,
+                levelOrder: levelObj ? levelObj.order : -1,
+                levelLabel
+              };
+            });
+            
+            // Trier par levelOrder décroissant (niveau le plus supérieur en premier)
+            rulesWithLevelOrder.sort((a, b) => b.levelOrder - a.levelOrder);
+            
+            // Prendre la règle avec le niveau le plus supérieur
+            matchedRule = rulesWithLevelOrder[0]?.rule || activeRules[0];
+            console.debug('[Parcours] Parcours avec niveau le plus supérieur sélectionné:', matchedRule.id, matchedRule.condition);
+          } else {
+            // Si aucune règle active, prendre la dernière règle disponible
+            matchedRule = formationRules[formationRules.length - 1];
+          }
         }
       }
 
@@ -1093,6 +1155,7 @@ async function finishTest(overrideSession = null) {
 
     if (isMaxLevel || (proposedLevelObj && validatedLevelObj.order >= proposedLevelObj.order)) {
       isHighLevel = true;
+      console.log('[HighLevelAlert] Triggered by dynamic detection:', { isMaxLevel, proposedLevelObj, validatedLevelObj });
     }
 
     // Fallback to legacy admin threshold if it couldn't be detected dynamically
@@ -1122,11 +1185,15 @@ async function finishTest(overrideSession = null) {
       }
 
       // If a maxLevelOrder is set on the formation, use it as a strict threshold
+      // BUT only if isHighLevel is already true from the previous logic
       if (typeof formation.value.maxLevelOrder !== 'undefined' && !isNaN(Number(formation.value.maxLevelOrder))) {
         const maxOrder = Number(formation.value.maxLevelOrder);
         // Only trigger if the formation allows high level alerts (enabled or unspecified)
+        // AND the validated level is at or above the max level
         const enabled = formation.value.enableHighLevelAlert !== false;
-        isHighLevel = enabled && (validatedLevelObj.order >= maxOrder);
+        if (enabled && validatedLevelObj.order >= maxOrder) {
+          isHighLevel = true;
+        }
       }
     }
   }
@@ -1284,8 +1351,10 @@ async function saveAndExit() {
               <h1 class="text-2xl md:text-3xl font-black text-gray-900 leading-tight">
                 Évaluation terminée
               </h1>
-              <div v-if="parcoursRuleMessage" class="max-w-lg mx-auto bg-amber-50 border-2 border-amber-200 rounded-3xl p-6 text-left shadow-sm w-full">
-                <p class="text-sm font-medium text-slate-700 leading-relaxed">{{ parcoursRuleMessage }}</p>
+              <div v-if="parcoursRuleMessage" 
+                   class="max-w-lg mx-auto rounded-3xl p-6 text-left shadow-sm w-full"
+                   :class="getMessageStyleClass()">
+                <p class="text-sm font-medium leading-relaxed" :class="getMessageTextColor()">{{ parcoursRuleMessage }}</p>
               </div>
 
               <div v-else-if="isWordFormation && !parcoursRuleMessage" class="max-w-lg mx-auto text-left mt-4">
