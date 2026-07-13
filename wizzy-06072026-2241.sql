@@ -2,14 +2,13 @@
 -- PostgreSQL database dump
 --
 
-\restrict FcUdcZajQ51jai9i7jymqLjibzlICBEYUSCi43WSAy9jjkFDRSl9qZhFKMZARnn
-
--- Dumped from database version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
+-- Dumped from database version 17.2
+-- Dumped by pg_dump version 17.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -119,7 +118,10 @@ CREATE TABLE public.formations (
     "complementaryQuestionsScope" character varying(12) DEFAULT 'global'::character varying NOT NULL,
     "availabilitiesQuestionsScope" character varying(12) DEFAULT 'global'::character varying NOT NULL,
     "miseANiveauQuestionsScope" character varying(12) DEFAULT 'global'::character varying NOT NULL,
-    "enableLowScoreWarning" boolean DEFAULT true NOT NULL
+    "enableLowScoreWarning" boolean DEFAULT true NOT NULL,
+    "enableP3ManualChoice" boolean DEFAULT false NOT NULL,
+    "enableHighLevelAlert" boolean DEFAULT true NOT NULL,
+    "maxLevelOrder" integer
 );
 
 
@@ -159,7 +161,8 @@ CREATE TABLE public.levels (
     "recommendationLabel" character varying,
     "formationId" integer,
     "isActive" boolean DEFAULT true NOT NULL,
-    consigne text
+    consigne text,
+    "shortName" character varying
 );
 
 
@@ -185,6 +188,41 @@ ALTER SEQUENCE public.levels_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.levels_id_seq OWNED BY public.levels.id;
+
+
+--
+-- Name: migrations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.migrations (
+    id integer NOT NULL,
+    "timestamp" bigint NOT NULL,
+    name character varying NOT NULL
+);
+
+
+ALTER TABLE public.migrations OWNER TO postgres;
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.migrations_id_seq OWNER TO postgres;
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
@@ -225,7 +263,12 @@ CREATE TABLE public.p3_override_rules (
     "explanationMessage" text,
     "parcoursTitle" character varying(255),
     "conditionP1" character varying(255),
-    "conditionP2" character varying(255)
+    "conditionP2" character varying(255),
+    "requireTest" boolean DEFAULT false NOT NULL,
+    "forceChoice" boolean DEFAULT true NOT NULL,
+    "isHiddenResult" boolean DEFAULT false NOT NULL,
+    "hiddenResultType" character varying(50),
+    "testFormations" json
 );
 
 
@@ -273,7 +316,9 @@ CREATE TABLE public.parcours_rules (
     "explanationMessage" text,
     "parcoursTitle" character varying(255),
     "selectionConditions" text,
-    "selectionConditionLogic" character varying(10) DEFAULT 'AND'::character varying NOT NULL
+    "selectionConditionLogic" character varying(10) DEFAULT 'AND'::character varying NOT NULL,
+    "isHiddenResult" boolean DEFAULT false NOT NULL,
+    "hiddenResultType" character varying(20)
 );
 
 
@@ -573,6 +618,13 @@ ALTER TABLE ONLY public.levels ALTER COLUMN id SET DEFAULT nextval('public.level
 
 
 --
+-- Name: migrations id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.migrations_id_seq'::regclass);
+
+
+--
 -- Name: p3_override_rules id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -675,27 +727,27 @@ COPY public.email_templates (id, slug, name, subject, "htmlContent", description
 -- Data for Name: formations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.formations (id, slug, label, "isActive", category, icon, color, objectifs, prequis, "modaliteDuree", "dateEnregistrement", certificateur, programme, "prerequisQuestionsScope", "complementaryQuestionsScope", "availabilitiesQuestionsScope", "miseANiveauQuestionsScope", "enableLowScoreWarning") FROM stdin;
-48	gimp	Gimp	t	Création	\N	\N	\N	\N	\N	\N	\N	\N	both	both	both	both	t
-21	sketchup	SketchUp	t	Création	square	\N	Concevoir des projets d'aménagement intérieur et extérieur en 3D. Modéliser des espaces et des objets.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	ICDL	Séquence 1 : Bases de la modélisation 3D. Séquence 2 : Matériaux et textures. Séquence 3 : Rendu et présentation.	both	both	both	both	t
-20	photoshop	Photoshop	t	Création	draw	\N	Retoucher des images et des photos avec expertise. Découvrir les outils d'IA générative de Photoshop.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h à 12h accompagnement.	18/12/2024	ICDL / TOSA	Séquence 1 : Retouche photo et calques. Séquence 2 : Sélections et masques. Séquence 3 : Filtres et effets. Séquence 4 : IA générative.	both	both	both	both	t
-51	voltaire	Français	t	LANGUES	spellcheck	blue-600	\N	\N	\N	\N	\N	\N	both	both	both	both	f
-4	google-docs	Google Docs	t	Bureautique Google	school	#3B82F6							both	global	both	both	f
-55	Excel-ia	Excel + IA	t	IA	school	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.					Séquence 1 : Fondamentaux de l'IA.\n Séquence 2 : Prompt engineering. \nSéquence 3 : Création de textes et images. \nSéquence 4 : Éthique et limites de l'IA.	both	both	both	both	f
-56	word-ia	Word + IA	t	IA	school	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.					Séquence 1 : Fondamentaux de l'IA.\n Séquence 2 : Prompt engineering. \nSéquence 3 : Création de textes et images. \nSéquence 4 : Éthique et limites de l'IA.	both	both	both	both	f
-54	ppt	PowerPoint	t	Bureautique Microsoft	slide	#3B82F6							both	both	both	both	f
-5	google-sheets	Google Sheets	t	Bureautique Google	school	#3B82F6							both	both	both	both	f
-10	google-slides	Google Slides	t	Bureautique Google	table	#3B82F6			Individuelle à votre rythme. Accès e-learning 1 an + 10h à 20h accompagnement.				both	both	both	both	f
-22	wordpress	WordPress	t	Internet	search	\N	Créer et administrer un site internet sur-mesure. Gérer les thèmes, les extensions et le contenu.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 12h à 14h accompagnement.	18/12/2024	TOSA / ICDL	Séquence 1 : Installation et configuration. Séquence 2 : Création de pages et articles. Séquence 3 : Personnalisation avec thèmes et plugins. Séquence 4 : Sécurité et SEO.	both	both	both	both	t
-44	word	Word	t	Bureautique Microsoft	description	blue-600	\N	\N	\N	\N	\N	\N	both	both	both	both	f
-23	digcomp	Digitales Compétences	t	Internet	\N	\N	Améliorer sa culture numérique globale. Maîtriser les outils informatiques et la sécurité en ligne.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 12h accompagnement.	18/12/2024	DigComp	Séquence 1 : Recherche d'information et veille. Séquence 2 : Communication et collaboration. Séquence 3 : Création de contenu numérique. Séquence 4 : Sécurité et protection des données.	both	both	both	both	f
-25	toeic	Anglais 	t	LANGUES	spellcheck	\N	\N	\N	\N	\N	\N	\N	both	both	both	both	f
-45	excel	Excel	t	Bureautique Microsoft	table_view	green-500	\N	\N	\N	\N	\N	\N	both	both	both	both	f
-19	illustrator	Illustrator	t	Création	\N	\N	Concevoir des illustrations et des logos vectoriels. Maîtriser les outils de dessin et de mise en page.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	TOSA	Séquence 1 : Interface et outils de base.\nSéquence 2 : Dessin vectoriel et formes.\n Séquence 3 : Couleurs et dégradés.\n Séquence 4 : Exportation et impression.	both	both	both	both	t
-43	outils-collaboratifs-google	Outils Collaboratifs Google	t	Internet	\N	\N	\N	\N	\N	\N	\N	\N	both	both	both	both	f
-15	pack-office-outlook	Outlook	t	Bureautique Microsoft	\N	\N	Gérer efficacement sa messagerie, son calendrier et ses tâches. Collaborer avec les outils Outlook.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	TOSA	Séquence 1 : Gestion des mails. Séquence 2 : Calendrier et rendez-vous. Séquence 3 : Gestion des contacts et des tâches.	both	both	both	both	f
-57	microsoft-office	Mixte Microsoft Office (Word + Excel)	t	Bureautique Microsoft	school	#3B82F6							both	both	both	both	f
-24	intelligence-artificielle-générative	Intelligence Artificielle Générative	f	IA	\N	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. 21h dont 12h accompagnement.	18/12/2024	Certification Interne / RS	Séquence 1 : Fondamentaux de l'IA. Séquence 2 : Prompt engineering. Séquence 3 : Création de textes et images. Séquence 4 : Éthique et limites de l'IA.	both	both	both	both	f
+COPY public.formations (id, slug, label, "isActive", category, icon, color, objectifs, prequis, "modaliteDuree", "dateEnregistrement", certificateur, programme, "prerequisQuestionsScope", "complementaryQuestionsScope", "availabilitiesQuestionsScope", "miseANiveauQuestionsScope", "enableLowScoreWarning", "enableP3ManualChoice", "enableHighLevelAlert", "maxLevelOrder") FROM stdin;
+24	intelligence-artificielle-générative	Intelligence Artificielle Générative	f	IA	\N	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. 21h dont 12h accompagnement.	18/12/2024	Certification Interne / RS	Séquence 1 : Fondamentaux de l'IA. Séquence 2 : Prompt engineering. Séquence 3 : Création de textes et images. Séquence 4 : Éthique et limites de l'IA.	both	both	both	both	f	f	t	\N
+57	microsoft-office	Mixte Microsoft Office (Word + Excel)	t	Bureautique Microsoft	school	#3B82F6							both	both	both	both	f	f	t	2
+45	excel	Excel	t	Bureautique Microsoft	table_view	green-500	\N	\N	\N	\N	\N	\N	both	both	both	both	f	f	f	3
+55	Excel-ia	Excel + IA	t	IA	school	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.					Séquence 1 : Fondamentaux de l'IA.\n Séquence 2 : Prompt engineering. \nSéquence 3 : Création de textes et images. \nSéquence 4 : Éthique et limites de l'IA.	both	both	both	both	f	f	f	4
+15	pack-office-outlook	Outlook	t	Bureautique Microsoft	\N	#3B82F6	Gérer efficacement sa messagerie, son calendrier et ses tâches. Collaborer avec les outils Outlook.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	TOSA	Séquence 1 : Gestion des mails. Séquence 2 : Calendrier et rendez-vous. Séquence 3 : Gestion des contacts et des tâches.	both	both	both	both	f	f	t	2
+43	outils-collaboratifs-google	Outils Collaboratifs Google	t	Internet	\N	#3B82F6	\N	\N	\N	\N	\N	\N	both	both	both	both	f	f	t	2
+20	photoshop	Photoshop	t	Création	draw	#3B82F6	Retoucher des images et des photos avec expertise. Découvrir les outils d'IA générative de Photoshop.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h à 12h accompagnement.	18/12/2024	ICDL / TOSA	Séquence 1 : Retouche photo et calques. Séquence 2 : Sélections et masques. Séquence 3 : Filtres et effets. Séquence 4 : IA générative.	both	both	both	both	t	f	t	2
+51	voltaire	Français	t	LANGUES	spellcheck	blue-600	\N	\N	\N	\N	\N	\N	both	both	both	both	f	f	t	2
+54	ppt	PowerPoint	t	Bureautique Microsoft	slide	#3B82F6							both	both	both	both	f	f	t	2
+4	google-docs	Google Docs	t	Bureautique Google	school	#3B82F6							both	global	both	both	f	f	t	2
+21	sketchup	SketchUp	t	Création	square	#3B82F6	Concevoir des projets d'aménagement intérieur et extérieur en 3D. Modéliser des espaces et des objets.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	ICDL	Séquence 1 : Bases de la modélisation 3D. Séquence 2 : Matériaux et textures. Séquence 3 : Rendu et présentation.	both	both	both	both	t	f	t	2
+44	word	Word	t	Bureautique Microsoft	description	blue-600	\N	\N	\N	\N	\N	\N	both	both	both	both	f	f	t	2
+48	gimp	Gimp	t	Création	\N	#3B82F6	\N	\N	\N	\N	\N	\N	both	both	both	both	t	f	t	2
+25	toeic	Anglais 	t	LANGUES	spellcheck	#3B82F6	\N	\N	\N	\N	\N	\N	both	both	both	both	f	t	t	3
+56	word-ia	Word + IA	t	IA	school	#3B82F6	Maîtriser l'usage responsable de l'IA générative pour la création de contenus rédactionnels et visuels.					Séquence 1 : Fondamentaux de l'IA.\n Séquence 2 : Prompt engineering. \nSéquence 3 : Création de textes et images. \nSéquence 4 : Éthique et limites de l'IA.	both	both	both	both	f	f	t	3
+22	wordpress	WordPress	t	Internet	search	#3B82F6	Créer et administrer un site internet sur-mesure. Gérer les thèmes, les extensions et le contenu.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 12h à 14h accompagnement.	18/12/2024	TOSA / ICDL	Séquence 1 : Installation et configuration. Séquence 2 : Création de pages et articles. Séquence 3 : Personnalisation avec thèmes et plugins. Séquence 4 : Sécurité et SEO.	both	both	both	both	t	f	t	2
+10	google-slides	Google Slides	t	Bureautique Google	table	#3B82F6			Individuelle à votre rythme. Accès e-learning 1 an + 10h à 20h accompagnement.				both	both	both	both	f	f	t	2
+5	google-sheets	Google Sheets	t	Bureautique Google	school	#3B82F6							both	both	both	both	f	f	t	2
+23	digcomp	Digitales Compétences	t	Internet	\N	#3B82F6	Améliorer sa culture numérique globale. Maîtriser les outils informatiques et la sécurité en ligne.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 12h accompagnement.	18/12/2024	DigComp	Séquence 1 : Recherche d'information et veille. Séquence 2 : Communication et collaboration. Séquence 3 : Création de contenu numérique. Séquence 4 : Sécurité et protection des données.	both	both	both	both	f	f	t	2
+19	illustrator	Illustrator	t	Création	\N	#3B82F6	Concevoir des illustrations et des logos vectoriels. Maîtriser les outils de dessin et de mise en page.	Formation ouverte à tous niveaux. Disposer du matériel informatique adapté. Accès internet.	Individuelle à votre rythme. Accès e-learning 1 an + 10h accompagnement.	18/12/2024	TOSA	Séquence 1 : Interface et outils de base.\nSéquence 2 : Dessin vectoriel et formes.\n Séquence 3 : Couleurs et dégradés.\n Séquence 4 : Exportation et impression.	both	both	both	both	t	f	t	2
 \.
 
 
@@ -703,94 +755,104 @@ COPY public.formations (id, slug, label, "isActive", category, icon, color, obje
 -- Data for Name: levels; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.levels (id, label, "order", "successThreshold", "recommendationLabel", "formationId", "isActive", consigne) FROM stdin;
-488	Initial	1	3	\N	20	t	\N
-489	Basique	2	4	\N	20	t	\N
-490	Opérationnel 	3	4	\N	20	t	\N
-492	Expert	5	5	\N	20	t	\N
-491	Avancé 	4	4	\N	20	t	\N
-493	Initial	1	3	\N	15	t	\N
-494	Basique	2	4	\N	15	t	\N
-57	Expert	5	5	Parcours Expert	23	t	\N
-217	Avance	4	5	\N	44	t	\N
-495	Opérationnel	3	4	\N	15	t	\N
-201	Basique	2	5	\N	23	t	\N
-191	Basique	2	4	\N	44	t	\N
-292	Initial	1	3	Niveau Débutant - Formation Google Docs recommandée	4	t	\N
-200	Initial	1	3	\N	23	t	\N
-293	Basique	2	4	Niveau Basique - Formation Google Docs recommandée	4	t	\N
-187	Initial	1	3	\N	45	t	\N
-294	Opérationnel	3	4	Niveau Intermédiaire - Formation Google Docs recommandée	4	t	\N
-202	Initial	1	3	\N	48	t	\N
-206	Basique	2	4	\N	21	t	\N
-205	Initial	1	3	\N	21	t	\N
-295	Avancé	4	5	Niveau Avancé - Formation Google Docs recommandée	4	t	\N
-190	Initial	1	3	\N	44	t	\N
-203	Basique	2	3	\N	48	t	\N
-300	Initial	1	3	Niveau Débutant - Formation Google Slides recommandée	10	t	\N
-301	Basique	2	4	Niveau Basique - Formation Google Slides recommandée	10	t	\N
-302	Opérationnel	3	4	Niveau Intermédiaire - Formation Google Slides recommandée	10	t	\N
-303	Avancé	4	5	Niveau Avancé - Formation Google Slides recommandée	10	t	\N
-296	Initial	1	3	Niveau Débutant - Formation Google Sheets recommandée	5	t	\N
-297	Basique	2	4	Niveau Basique - Formation Google Sheets recommandée	5	t	\N
-299	Avancé	4	5	Niveau Avancé - Formation Google Sheets recommandée	5	t	\N
-298	Opérationnel	3	4	Niveau Intermédiaire - Formation Google Sheets recommandée	5	t	\N
-496	Avancé	4	4	\N	15	t	\N
-497	Expert	5	5	\N	15	t	\N
-529	Initial	1	3	\N	54	t	\N
-530	Basique	2	4	\N	54	t	\N
-531	Opérationnel	3	4	\N	54	t	\N
-188	Basique	2	4	\N	45	t	\N
-383	Initial	1	4	\N	19	t	\N
-384	Basique	2	4	\N	19	t	\N
-385	Opérationnel	3	5	\N	19	t	\N
-532	Avancé	4	4	\N	54	t	\N
-210	Opérationnel	3	4	\N	45	t	\N
-216	Opérationnel	3	4	\N	44	t	\N
-208	Opérationnel	3	4	\N	23	t	\N
-212	Opérationnel	3	4	\N	48	t	\N
-213	Avancé	4	5	\N	48	t	\N
-209	Avancé	4	4	\N	23	t	\N
-211	Avancé	4	4	\N	45	t	\N
-215	Avancé	4	5	\N	21	t	\N
-214	Opérationnel	3	4	\N	21	t	\N
-536	IA Générative 	0	3	\N	55	t	\N
-537	Initial	1	3	\N	55	t	\N
-538	Basique	2	4	\N	55	t	\N
-541	IA Générative 	0	3	\N	56	t	\N
-542	Initial	1	3	\N	56	t	\N
-543	Basique	2	4	\N	56	t	\N
-535	Expert	5	4	\N	44	t	\N
-178	Expert	5	4	Parcours Expert	45	t	\N
-534	Expert	5	4	\N	54	t	\N
-539	Avancé	4	4	\N	55	t	\N
-546	Opérationnel	3	4	\N	55	t	\N
-540	Expert	5	4	\N	55	t	\N
-544	Avancé	4	4	\N	56	t	\N
-547	Opérationnel	3	4	\N	56	t	\N
-545	Expert	5	4	\N	56	t	\N
-193	Initial	0	4	\N	22	t	\N
-194	Basique	1	4	\N	22	t	\N
-218	Operationnel	2	4	\N	22	t	\N
-548	Initial	0	3	\N	57	t	\N
-549	Basique	1	4	\N	57	t	\N
-554	Opérationnel	2	4	\N	57	t	\N
-552	Avancé	3	4	\N	57	t	\N
-553	Expert	4	4	\N	57	t	\N
-556	Professionnel	5	4	\N	57	t	\N
-304	Initial	0	3	Niveau Débutant - Formation Outils Collaboratifs Google recommandée	43	t	\N
-305	Basique	1	4	Niveau Basique - Formation Outils Collaboratifs Google recommandée	43	t	\N
-306	Opérationnel	2	4	Niveau Intermédiaire - Formation Outils Collaboratifs Google recommandée	43	t	\N
-307	Avancé	3	5	Niveau Avancé - Formation Outils Collaboratifs Google recommandée	43	t	\N
-308	Découverte	0	4	Niveau Découverte - Formation Français recommandée	51	t	\N
-309	Technique	1	4	Niveau Technique - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 
-310	Professionnel	2	4	Niveau Professionnel - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 
-311	Affaires	3	5	Niveau Affaires - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 
-1	Niveau A1	1	6	Parcours Débutant (A1)	25	t	\N
-2	Niveau A2	2	5	Parcours Elémentaire (A2)	25	t	\N
-3	Niveau B1	3	5	Parcours Intermédiaire (B1)	25	t	\N
-4	Niveau B2	4	5	Parcours Avancé (B2)	25	t	\N
-5	Niveau C1	5	5	Parcours Expert (C1)	25	t	\N
+COPY public.levels (id, label, "order", "successThreshold", "recommendationLabel", "formationId", "isActive", consigne, "shortName") FROM stdin;
+536	IA Générative 	0	3	\N	55	t	\N	\N
+537	Initial	1	3	\N	55	t	\N	\N
+538	Basique	2	4	\N	55	t	\N	\N
+541	IA Générative 	0	3	\N	56	t	\N	\N
+542	Initial	1	3	\N	56	t	\N	\N
+543	Basique	2	4	\N	56	t	\N	\N
+539	Avancé	4	4	\N	55	t	\N	\N
+546	Opérationnel	3	4	\N	55	t	\N	\N
+540	Expert	5	4	\N	55	t	\N	\N
+544	Avancé	4	4	\N	56	t	\N	\N
+547	Opérationnel	3	4	\N	56	t	\N	\N
+545	Expert	5	4	\N	56	t	\N	\N
+193	Initial	0	4	\N	22	t	\N	\N
+194	Basique	1	4	\N	22	t	\N	\N
+218	Operationnel	2	4	\N	22	t	\N	\N
+548	Initial	0	3	\N	57	t	\N	\N
+549	Basique	1	4	\N	57	t	\N	\N
+554	Opérationnel	2	4	\N	57	t	\N	\N
+552	Avancé	3	4	\N	57	t	\N	\N
+553	Expert	4	4	\N	57	t	\N	\N
+556	Professionnel	5	4	\N	57	t	\N	\N
+304	Initial	0	3	Niveau Débutant - Formation Outils Collaboratifs Google recommandée	43	t	\N	\N
+305	Basique	1	4	Niveau Basique - Formation Outils Collaboratifs Google recommandée	43	t	\N	\N
+306	Opérationnel	2	4	Niveau Intermédiaire - Formation Outils Collaboratifs Google recommandée	43	t	\N	\N
+307	Avancé	3	5	Niveau Avancé - Formation Outils Collaboratifs Google recommandée	43	t	\N	\N
+308	Découverte	0	4	Niveau Découverte - Formation Français recommandée	51	t	\N	\N
+309	Technique	1	4	Niveau Technique - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 	\N
+310	Professionnel	2	4	Niveau Professionnel - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 	\N
+311	Affaires	3	5	Niveau Affaires - Formation Français recommandée	51	t	Les phrases ci-dessous sont-elles correctes ou incorrectes : 	\N
+202	Initial	0	3	\N	48	t	\N	\N
+203	Basique	1	3	\N	48	t	\N	\N
+212	Opérationnel	2	4	\N	48	t	\N	\N
+213	Avancé	3	5	\N	48	t	\N	\N
+1	Niveau A1	0	6	Parcours Débutant (A1)	25	t	\N	\N
+2	Niveau A2	1	5	Parcours Elémentaire (A2)	25	t	\N	\N
+3	Niveau B1	2	5	Parcours Intermédiaire (B1)	25	t	\N	\N
+4	Niveau B2	3	5	Parcours Avancé (B2)	25	t	\N	\N
+5	Niveau C1	4	5	Parcours Expert (C1)	25	t	\N	\N
+57	Expert	4	5	Parcours Expert	23	t	\N	\N
+201	Basique	1	5	\N	23	t	\N	\N
+200	Initial	0	3	\N	23	t	\N	\N
+208	Opérationnel	2	4	\N	23	t	\N	\N
+209	Avancé	3	4	\N	23	t	\N	\N
+187	Initial	0	3	\N	45	t	\N	\N
+188	Basique	1	4	\N	45	t	\N	\N
+210	Opérationnel	2	4	\N	45	t	\N	\N
+211	Avancé	3	4	\N	45	t	\N	\N
+178	Expert	4	4	Parcours Expert	45	t	\N	\N
+292	Initial	0	3	Niveau Débutant - Formation Google Docs recommandée	4	t	\N	\N
+293	Basique	1	4	Niveau Basique - Formation Google Docs recommandée	4	t	\N	\N
+294	Opérationnel	2	4	Niveau Intermédiaire - Formation Google Docs recommandée	4	t	\N	\N
+295	Avancé	3	5	Niveau Avancé - Formation Google Docs recommandée	4	t	\N	\N
+296	Initial	0	3	Niveau Débutant - Formation Google Sheets recommandée	5	t	\N	\N
+297	Basique	1	4	Niveau Basique - Formation Google Sheets recommandée	5	t	\N	\N
+299	Avancé	3	5	Niveau Avancé - Formation Google Sheets recommandée	5	t	\N	\N
+298	Opérationnel	2	4	Niveau Intermédiaire - Formation Google Sheets recommandée	5	t	\N	\N
+300	Initial	0	3	Niveau Débutant - Formation Google Slides recommandée	10	t	\N	\N
+301	Basique	1	4	Niveau Basique - Formation Google Slides recommandée	10	t	\N	\N
+302	Opérationnel	2	4	Niveau Intermédiaire - Formation Google Slides recommandée	10	t	\N	\N
+303	Avancé	3	5	Niveau Avancé - Formation Google Slides recommandée	10	t	\N	\N
+383	Initial	0	4	\N	19	t	\N	\N
+384	Basique	1	4	\N	19	t	\N	\N
+385	Opérationnel	2	5	\N	19	t	\N	\N
+493	Initial	0	3	\N	15	t	\N	\N
+494	Basique	1	4	\N	15	t	\N	\N
+495	Opérationnel	2	4	\N	15	t	\N	\N
+496	Avancé	3	4	\N	15	t	\N	\N
+497	Expert	4	5	\N	15	t	\N	\N
+488	Initial	0	3	\N	20	t	\N	\N
+489	Basique	1	4	\N	20	t	\N	\N
+490	Opérationnel 	2	4	\N	20	t	\N	\N
+492	Expert	4	5	\N	20	t	\N	\N
+491	Avancé 	3	4	\N	20	t	\N	\N
+529	Initial	0	3	\N	54	t	\N	\N
+530	Basique	1	4	\N	54	t	\N	\N
+531	Opérationnel	2	4	\N	54	t	\N	\N
+532	Avancé	3	4	\N	54	t	\N	\N
+534	Expert	4	4	\N	54	t	\N	\N
+206	Basique	1	4	\N	21	t	\N	\N
+205	Initial	0	3	\N	21	t	\N	\N
+215	Avancé	3	5	\N	21	t	\N	\N
+214	Opérationnel	2	4	\N	21	t	\N	\N
+217	Avance	3	5	\N	44	t	\N	\N
+191	Basique	1	4	\N	44	t	\N	\N
+190	Initial	0	3	\N	44	t	\N	\N
+216	Opérationnel	2	4	\N	44	t	\N	\N
+535	Expert	4	4	\N	44	t	\N	\N
+\.
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.migrations (id, "timestamp", name) FROM stdin;
+1	20260710000000	AddHighLevelToFormations20260710000000
+2	20260710000001	AddLevelShortName20260710000001
 \.
 
 
@@ -799,28 +861,28 @@ COPY public.levels (id, label, "order", "successThreshold", "recommendationLabel
 --
 
 COPY public.p3_filter_rule (id, name, "sourceCategory", "sourceSlugs", "maxLevelOrder", "filterMode", "targetSlugs", "targetCategories", "isActive", "order", "levelOperator") FROM stdin;
-ef09fcd0-7bcd-490c-b10a-f980d84b7395	IA Générative Word	\N	word-ia	\N	EXCLUDE	word-ia,toeic,voltaire		t	0	lte
-f625fa10-f792-4f87-a0cc-c6acc631c925	IA Générative Excel	\N	excel-ia	\N	EXCLUDE	excel-ia,toeic,voltaire		t	0	lte
-6f73f981-c9a8-4986-a379-e3889ef0732f	Word operationnel	\N	word	3	EXCLUDE	word,voltaire,toeic		t	0	gte
-26e60375-0629-4cb5-bd9d-4f1aa7cfabe4	Excel	\N	excel	2	EXCLUDE	toeic,voltaire		t	0	lte
-7253d199-dab8-48b9-820e-4b0ad28c9448	Excel operationnel	\N	excel	3	EXCLUDE	toeic,voltaire,excel		t	0	gte
-2aefc3f9-7c59-4925-a10e-a5f6277620a3	Power point	\N	ppt	2	EXCLUDE	toeic,voltaire		t	0	lte
-7e659404-f96d-4c44-affc-9bed884942c5	Powerpoint operationnel	\N	ppt	3	EXCLUDE	voltaire,toeic,ppt		t	0	gte
-81641602-2ada-4802-8957-fad622b230e3	Outlook	\N	pack-office-outlook	3	EXCLUDE	toeic,voltaire,pack-office-outlook		t	0	lte
-fbfd5bcf-cec0-4c57-9f81-b31befba3930	Google docs	\N	google-docs	\N	EXCLUDE	voltaire,toeic,google-docs		t	0	lte
-10e5a179-7cf9-4e05-976e-242b78787ccb	Google sheets	\N	google-sheets	\N	EXCLUDE	toeic,voltaire,google-sheets		t	0	lte
-cbd06a12-5145-4e87-850a-e44ef1e8f467	Google slides	\N	google-slides	\N	EXCLUDE	toeic,voltaire,google-slides		t	0	lte
-f3f72c6b-f173-44c0-89ac-9fbe27a2d42d	Photoshop	\N	photoshop	3	EXCLUDE	photoshop,toeic,voltaire		t	0	lte
-59f6988e-09b1-4c11-bf01-e63733454578	Sketchup	\N	sketchup	\N	EXCLUDE	sketchup,toeic,voltaire		t	0	lte
-aa6d99a0-404c-48a0-9f8c-3288fad95a5d	Gimp	\N	gimp	\N	EXCLUDE	gimp,toeic,voltaire		t	0	lte
-5cb01e66-4744-4df7-a785-226ce081de2c	Word	\N	word	2	EXCLUDE	voltaire,toeic		t	0	lte
-052940c6-8793-449d-a581-dd6977f6804a	Wordpress	\N	wordpress	3	EXCLUDE	toeic,voltaire,wordpress		t	0	lte
-20a3d358-fe4a-433f-9d74-82932c9baa8b	Français	\N	voltaire	4	EXCLUDE	voltaire		t	0	gte
-c1345fe2-1246-4d2c-b6ab-94a9f18fd982	Illustrator	\N	illustrator	2	EXCLUDE	illustrator,toeic,voltaire		t	0	gte
-51278665-b619-4b0d-be80-c9abe4942d38	Parcours mixtes bureautiques	\N	microsoft-office	2	EXCLUDE	toeic,voltaire,microsoft-office		t	0	lte
-04db0cc9-96ae-42d5-bfc4-98e53b797558	Anglais	\N	toeic	4	EXCLUDE	toeic		t	0	gte
-d3558176-f860-4699-8f9e-957671960cf1	Google Workspace	\N	outils-collaboratifs-google	\N	EXCLUDE	toeic,voltaire,outils-collaboratifs-google		t	0	lte
-167c0c00-d648-40d6-b872-6881fc941b86	Digital Compétences	\N	digcomp	3	EXCLUDE	toeic,voltaire,digcomp		t	0	gte
+7e659404-f96d-4c44-affc-9bed884942c5	Powerpoint operationnel	\N	ppt	3	EXCLUDE	voltaire,toeic,ppt,microsoft-office		t	0	gte
+81641602-2ada-4802-8957-fad622b230e3	Outlook	\N	pack-office-outlook	3	EXCLUDE	toeic,voltaire,pack-office-outlook,wordpress,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
+fbfd5bcf-cec0-4c57-9f81-b31befba3930	Google docs	\N	google-docs	\N	EXCLUDE	voltaire,toeic,google-docs,microsoft-office		t	0	lte
+10e5a179-7cf9-4e05-976e-242b78787ccb	Google sheets	\N	google-sheets	\N	EXCLUDE	toeic,voltaire,google-sheets,microsoft-office		t	0	lte
+cbd06a12-5145-4e87-850a-e44ef1e8f467	Google slides	\N	google-slides	\N	EXCLUDE	toeic,voltaire,google-slides,microsoft-office		t	0	lte
+f3f72c6b-f173-44c0-89ac-9fbe27a2d42d	Photoshop	\N	photoshop	1	EXCLUDE	photoshop,toeic,voltaire,microsoft-office		t	0	gte
+59f6988e-09b1-4c11-bf01-e63733454578	Sketchup	\N	sketchup	\N	EXCLUDE	sketchup,toeic,voltaire,microsoft-office		t	0	lte
+5cb01e66-4744-4df7-a785-226ce081de2c	Word	\N	word	2	EXCLUDE	voltaire,toeic,microsoft-office		t	0	lte
+052940c6-8793-449d-a581-dd6977f6804a	Wordpress	\N	wordpress	3	EXCLUDE	toeic,voltaire,wordpress,microsoft-office		t	0	lte
+51278665-b619-4b0d-be80-c9abe4942d38	Parcours mixtes bureautiques	\N	microsoft-office	1	EXCLUDE	toeic,voltaire,microsoft-office		t	0	gte
+167c0c00-d648-40d6-b872-6881fc941b86	Digital Compétences	\N	digcomp,microsoft-office	3	EXCLUDE	toeic,voltaire,digcomp		t	0	gte
+f625fa10-f792-4f87-a0cc-c6acc631c925	IA Générative Excel	\N	word-ia	3	EXCLUDE	excel-ia,voltaire,toeic,wordpress,microsoft-office		t	0	lte
+aa6d99a0-404c-48a0-9f8c-3288fad95a5d	Gimp	\N	gimp	\N	EXCLUDE	toeic,voltaire,microsoft-office		t	0	lte
+ef09fcd0-7bcd-490c-b10a-f980d84b7395	IA Générative Word	\N	word-ia	3	EXCLUDE	toeic,voltaire,microsoft-office,wordpress,word-ia,gimp,illustrator,photoshop,sketchup		t	0	lte
+6f73f981-c9a8-4986-a379-e3889ef0732f	Word operationnel	\N	word	3	EXCLUDE	word,voltaire,toeic,microsoft-office		t	0	gte
+26e60375-0629-4cb5-bd9d-4f1aa7cfabe4	Excel	\N	excel	2	EXCLUDE	toeic,voltaire,microsoft-office,gimp,illustrator,photoshop,sketchup,wordpress		t	0	lte
+7253d199-dab8-48b9-820e-4b0ad28c9448	Excel operationnel	\N	excel	3	EXCLUDE	toeic,voltaire,excel,microsoft-office		t	0	gte
+2aefc3f9-7c59-4925-a10e-a5f6277620a3	Power point	\N	ppt	2	EXCLUDE	toeic,voltaire,microsoft-office,gimp,illustrator,photoshop,sketchup,wordpress		t	0	lte
+20a3d358-fe4a-433f-9d74-82932c9baa8b	Français	\N	voltaire	2	EXCLUDE	voltaire,microsoft-office		t	0	gte
+04db0cc9-96ae-42d5-bfc4-98e53b797558	Anglais	\N	toeic	4	EXCLUDE	toeic,microsoft-office		t	0	gte
+c1345fe2-1246-4d2c-b6ab-94a9f18fd982	Illustrator	\N	illustrator	2	EXCLUDE	illustrator,toeic,voltaire,microsoft-office		t	0	gte
+d3558176-f860-4699-8f9e-957671960cf1	Google Workspace	\N	outils-collaboratifs-google	\N	EXCLUDE	toeic,voltaire,outils-collaboratifs-google,microsoft-office		t	0	lte
 \.
 
 
@@ -828,59 +890,89 @@ d3558176-f860-4699-8f9e-957671960cf1	Google Workspace	\N	outils-collaboratifs-go
 -- Data for Name: p3_override_rules; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.p3_override_rules (id, formation, "formationId", condition, formation1, formation2, "order", "isActive", certification, "explanationMessage", "parcoursTitle", "conditionP1", "conditionP2") FROM stdin;
-263	Digitales Compétences	23	Si résultat du test ≤ Basique	PPT Basique (TOSA)		14	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> PPT Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)
-264	Digitales Compétences	23	Si résultat du test ≤ Basique	WORD Basique (TOSA)		15	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> WORD Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)
-265	Digitales Compétences	23	Si résultat du test DIGCOMP = Opérationnel	GOOGLE SHEETS Opérationnel (ICDL)		16	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE SHEETS Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS (ICDL)
-266	Digitales Compétences	23	Si résultat du test DIGCOMP = Opérationnel	GOOGLE DOCS Opérationnel (ICDL)		17	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE DOCS Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS (ICDL)
-267	Digitales Compétences	23	Si résultat du test DIGCOMP = Opérationnel	GOOGLE SLIDES Opérationnel (ICDL)		18	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE SLIDES Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS (ICDL)
-268	Anglais	25	= Niveau B2	Niveau C1 - TOEIC		1	t	\N	Niveau A2 - TOEIC + Niveau B1 - TOEIC -> Niveau C1 - TOEIC	"Renforcement Anglais" (A2 & B1) - TOEIC - P3	Niveau A2 - TOEIC	Niveau B1 - TOEIC
-269	Anglais	25	= Niveau B1	Niveau B2 - TOEIC		2	t	\N	Niveau B1 - TOEIC + Niveau B2 - TOEIC -> Niveau B2 - TOEIC	"Perfectionnement Anglais" : (B1 & B2) - TOEIC - P3	Niveau B1 - TOEIC	Niveau B2 - TOEIC
-270	Outils Collaboratifs Google	43	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	OUTILS COLLABORATIFS Opérationnel (ICDL) + GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL) / Digitales Compétences Opérationnel (TOSA) -> IA GENERATIVE (INKREA)	Google Workspace - P3	OUTILS COLLABORATIFS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL) / Digitales Compétences Opérationnel (TOSA)
-271	Word	44	Si résultat du test = Basique	EXCEL Basique (TOSA)		1	t	\N	WORD Basique (TOSA) + WORD Opérationnel (ICDL) -> EXCEL Basique (TOSA)	Renforcement Word - P3	WORD Basique (TOSA)	WORD Opérationnel (ICDL)
-272	Word	44	Si résultat du test = Basique	PPT Basique (TOSA)		2	t	\N	WORD Basique (TOSA) + WORD Opérationnel (ICDL) -> PPT Basique (TOSA)	Renforcement Word - P3	WORD Basique (TOSA)	WORD Opérationnel (ICDL)
-273	Word	44	Si résultat du test = Basique	OUTLOOK Basique (TOSA)		3	t	\N	WORD Basique (TOSA) + WORD Opérationnel (ICDL) -> OUTLOOK Basique (TOSA)	Renforcement Word - P3	WORD Basique (TOSA)	WORD Opérationnel (ICDL)
-274	Excel	45	Si résultat du test ≤ Basique	WORD Basique (TOSA)		1	t	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> WORD Basique (TOSA)	Renforcement Excel - P3	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)
-275	Excel	45	Si résultat du test ≤ Basique	PPT Basique (TOSA)		2	t	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> PPT Basique (TOSA)	Renforcement Excel - P3	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)
-276	Excel	45	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		3	t	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> OUTLOOK Basique (TOSA)	Renforcement Excel - P3	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)
-277	Excel	45	Si résultat du test EXCEL = Opérationnel	WORD Basique (TOSA)		4	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> WORD Basique (TOSA)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)
-278	Excel	45	Si résultat du test EXCEL = Opérationnel	PPT Basique (TOSA)		5	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> PPT Basique (TOSA)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)
-279	Excel	45	Si résultat du test EXCEL = Opérationnel	OUTLOOK Opérationnel (ICDL)		6	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> OUTLOOK Opérationnel (ICDL)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)
-280	Gimp	48	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	GIMP Opérationnel (ICDL) + ILLUSTRATOR Opérationnel (TOSA) -> IA GENERATIVE (INKREA)	Création graphique - P3	GIMP Opérationnel (ICDL)	ILLUSTRATOR Opérationnel (TOSA)
-281	Gimp	48	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)		2	t	\N	GIMP Opérationnel (ICDL) + ILLUSTRATOR Opérationnel (TOSA) -> SKETCHUP Opérationnel (ICDL)	Création graphique - P3	GIMP Opérationnel (ICDL)	ILLUSTRATOR Opérationnel (TOSA)
-282	Gimp	48	Si résultat du test ≤ Basique	PHOTOSHOP Basique (TOSA)		3	t	\N	GIMP Opérationnel (ICDL) + ILLUSTRATOR Opérationnel (TOSA) -> PHOTOSHOP Basique (TOSA)	Création graphique - P3	GIMP Opérationnel (ICDL)	ILLUSTRATOR Opérationnel (TOSA)
-283	Français	51	Si résultat du test FRANÇAIS = Technique	Français Affaires (VOLTAIRE)		1	t	\N	Français Technique (VOLTAIRE) + Français Professionnel (VOLTAIRE) -> Français Affaires (VOLTAIRE)	Renforcement Français - P3	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)
-284	PowerPoint	54	Si résultat du test ≤ Basique	WORD Basique (TOSA)		1	t	\N	PPT Basique (TOSA) + PPT Opérationnel (ICDL) -> WORD Basique (TOSA)	Renforcement Powerpoint - P3	PPT Basique (TOSA)	PPT Opérationnel (ICDL)
-285	PowerPoint	54	Si résultat du test ≤ Basique	EXCEL Basique (TOSA)		2	t	\N	PPT Basique (TOSA) + PPT Opérationnel (ICDL) -> EXCEL Basique (TOSA)	Renforcement Powerpoint - P3	PPT Basique (TOSA)	PPT Opérationnel (ICDL)
-286	PowerPoint	54	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		3	t	\N	PPT Basique (TOSA) + PPT Opérationnel (ICDL) -> OUTLOOK Basique (TOSA)	Renforcement Powerpoint - P3	PPT Basique (TOSA)	PPT Opérationnel (ICDL)
-287	Mixte Microsoft Office (Word + Excel)	57	Si résultat du test ≤ Basique	PPT Basique (TOSA)		1	t	\N	WORD Basique (TOSA) + EXCEL Basique (TOSA) -> PPT Basique (TOSA)	Essentiels Bureautique - P3	WORD Basique (TOSA)	EXCEL Basique (TOSA)
-288	Mixte Microsoft Office (Word + Excel)	57	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		2	t	\N	WORD Basique (TOSA) + EXCEL Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Bureautique - P3	WORD Basique (TOSA)	EXCEL Basique (TOSA)
-289	Mixte Microsoft Office (Word + Excel)	57	Si résultat du test = Opérationnel	EXCEL Expert (TOSA)		3	t	\N	WORD Opérationnel (ICDL) + EXCEL Opérationnel (ICDL) -> EXCEL Expert (TOSA)	Perfectionnement Bureautique - P3	WORD Opérationnel (ICDL)	EXCEL Opérationnel (ICDL)
-238	Google Docs	4	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	GOOGLE DOCS Opérationnel (ICDL) + GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Bureautique Google (DOCS) - P3	GOOGLE DOCS Opérationnel (ICDL)	GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL)
-239	Google Sheets	5	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	GOOGLE SHEETS Opérationnel (ICDL) + GOOGLE DOCS Opérationnel / GOOGLE SLIDES Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Bureautique Google (SHEETS) - P3	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel / GOOGLE SLIDES Opérationnel (ICDL)
-240	Google Slides	10	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	GOOGLE SLIDES Opérationnel(ICDL) + GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Bureautique Google (SLIDES) - P3	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE DOCS Opérationnel (ICDL) / GOOGLE SHEETS Opérationnel (ICDL)
-241	Illustrator	19	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	ILLUSTRATOR Basique (TOSA) + ILLUSTRATOR Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Illustrator - P3	ILLUSTRATOR Basique (TOSA)	ILLUSTRATOR Opérationnel (ICDL)
-242	Photoshop	20	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Photoshop - P3	PHOTOSHOP basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)
-243	Photoshop	20	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)		2	t	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> SKETCHUP Opérationnel (ICDL)	Renforcement Photoshop - P3	PHOTOSHOP basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)
-244	Photoshop	20	Si résultat du test ≤ Basique	ILLUSTRATOR Basique (TOSA)		3	t	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> ILLUSTRATOR Basique (TOSA)	Renforcement Photoshop - P3	PHOTOSHOP basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)
-245	SketchUp	21	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	SKETCHUP Opérationnel (ICDL) + GIMP Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Création visuels : 3D/Images - P3	SKETCHUP Opérationnel (ICDL)	GIMP Opérationnel (ICDL)
-246	SketchUp	21	Si résultat du test ≤ Basique	ILLUSTRATOR Basique (TOSA)		2	t	\N	SKETCHUP Opérationnel (ICDL) + GIMP Opérationnel (ICDL) -> ILLUSTRATOR Basique (TOSA)	Création visuels : 3D/Images - P3	SKETCHUP Opérationnel (ICDL)	GIMP Opérationnel (ICDL)
-247	WordPress	22	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)		1	t	\N	WORDPRESS Basique (TOSA) + WORDPRESS Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Wordpress - P3	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)
-248	WordPress	22	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)		2	t	\N	WORDPRESS Basique (TOSA) + WORDPRESS Opérationnel (ICDL) -> SKETCHUP Opérationnel (ICDL)	Renforcement Wordpress - P3	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)
-249	WordPress	22	Si résultat du test ≤ Basique	PHOTOSHOP Basique (TOSA)		3	t	\N	WORDPRESS Basique (TOSA) + WORDPRESS Opérationnel (ICDL) -> PHOTOSHOP Basique (TOSA)	Renforcement Wordpress - P3	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)
-250	Digitales Compétences	23	Si résultat du test DIGCOMP ≤ Basique	EXCEL Basique (TOSA)		1	t	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)
-251	Digitales Compétences	23	Si résultat du test DIGCOMP ≤ Basique	PPT Basique (TOSA)		2	t	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> PPT Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)
-252	Digitales Compétences	23	≤ Basique	OUTLOOK Basique (TOSA)		3	t	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)
-253	Digitales Compétences	23	≤ Basique	WORD Opérationnel (ICDL)		4	t	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> WORD Opérationnel (ICDL)	Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)
-254	Digitales Compétences	23	Si résultat du test ≤ Basique	WORD Basique (TOSA)		5	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)
-255	Digitales Compétences	23	Si résultat du test ≤ Basique	PPT Basique (TOSA)		6	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> PPT Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)
-256	Digitales Compétences	23	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		7	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)
-257	Digitales Compétences	23	Si résultat du test ≤ Basique	EXCEL Opérationnel (ICDL)		8	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> EXCEL Opérationnel (ICDL)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)
-258	Digitales Compétences	23	Si résultat du test ≤ Basique	EXCEL Basique (TOSA)		9	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)
-259	Digitales Compétences	23	Si résultat du test ≤ Basique	WORD Basique (TOSA)		10	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)
-260	Digitales Compétences	23	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		11	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)
-261	Digitales Compétences	23	Si résultat du test ≤ Basique	PPT Opérationnel (ICDL)		12	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> PPT Opérationnel (ICDL)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)
-262	Digitales Compétences	23	Si résultat du test ≤ Basique	EXCEL Basique (TOSA)		13	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> EXCEL Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)
+COPY public.p3_override_rules (id, formation, "formationId", condition, formation1, formation2, "order", "isActive", certification, "explanationMessage", "parcoursTitle", "conditionP1", "conditionP2", "requireTest", "forceChoice", "isHiddenResult", "hiddenResultType", "testFormations") FROM stdin;
+276	Excel	45	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)		3	t	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> OUTLOOK Basique (TOSA)	Renforcement Excel - P3	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)	f	t	f	\N	\N
+277	Excel	45	Si résultat du test EXCEL = Opérationnel	WORD Basique (TOSA)		4	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> WORD Basique (TOSA)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	f	t	f	\N	\N
+278	Excel	45	Si résultat du test EXCEL = Opérationnel	PPT Basique (TOSA)		5	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> PPT Basique (TOSA)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	f	t	f	\N	\N
+279	Excel	45	Si résultat du test EXCEL = Opérationnel	OUTLOOK Opérationnel (ICDL)		6	t	\N	EXCEL Opérationnel (ICDL) + EXCEL Expert (TOSA) -> OUTLOOK Opérationnel (ICDL)	Expertise Excel - P3	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	f	t	f	\N	\N
+285	PowerPoint	54	≤ Basique	PowerPoint Opérationnel (ICDL)		2	t	\N		Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	f	t	f	\N	\N
+273	Word	44	= Basique	Outlook Basique (TOSA)		3	t	\N		Renforcement Word - P3	Word Basique (TOSA)	Word Opérationnel (ICDL)	t	t	f	\N	\N
+272	Word	44	Si résultat du test = Basique	PPT Basique (TOSA)		2	f	\N	WORD Basique (TOSA) + WORD Opérationnel (ICDL) -> PPT Basique (TOSA)	Renforcement Word - P3	WORD Basique (TOSA)	WORD Opérationnel (ICDL)	f	t	f	\N	\N
+264	Digitales Compétences	23	≤ Basique	WORD Basique (TOSA)		15	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> WORD Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	t	t	f	\N	\N
+280	Gimp	48		IA GENERATIVE (INKREA)		1	t	\N		Création graphique + IA - P3	Gimp Opérationnel (ICDL)	Illustrator Opérationnel (TOSA)	t	t	f	\N	["Excel + IA","Word + IA"]
+263	Digitales Compétences	23	≤ Basique	PPT Basique (TOSA)		14	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> PPT Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	f	t	f	\N	\N
+271	Word	44	≤ Expert	Excel Basique (TOSA)	PowerPoint Basique (TOSA)	1	t	\N		Renforcement Word - P3	Word Basique (TOSA)	Word Opérationnel (ICDL)	t	t	f	\N	\N
+281	Gimp	48	≤ Basique	SketchUp Opérationnel (ICDL)		2	t	\N		Création visuels 3D - P3	Gimp Opérationnel (ICDL)	Illustrator Opérationnel (TOSA)	t	t	t	too_advanced	[]
+282	Gimp	48	≤ Basique	Photoshop Basique (TOSA)		3	t	\N		Renforcement Photoshop - P3	Gimp Opérationnel (ICDL)	Illustrator Opérationnel (TOSA)	t	t	f	\N	[]
+284	PowerPoint	54	≤ Basique	Word Basique (TOSA)	Excel Basique (TOSA)	1	t	\N		Renforcement Powerpoint - P3	PowerPoint Basique (TOSA)	PowerPoint Opérationnel (ICDL)	t	t	f	\N	\N
+286	PowerPoint	54	≤ Basique	Outlook Basique (TOSA)		3	t	\N		Renforcement Powerpoint - P3	PowerPoint Basique (TOSA)	PowerPoint Opérationnel (ICDL)	t	t	f	\N	\N
+283	Français	51		Français Affaires (VOLTAIRE)		1	f	\N		Renforcement Français - P3	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)	f	t	f	\N	[]
+274	Excel	45		WORD Basique (TOSA)		1	t	\N		Renforcement Excel - P3	Excel Basique (TOSA)	Excel Opérationnel (ICDL)	t	t	f	\N	[]
+287	Mixte Microsoft Office (Word + Excel)	57		PowerPoint Basique (TOSA)	Outlook Basique (TOSA)	1	t	\N		Essentiels Bureautique - P3	Word Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	[]
+275	Excel	45		PowerPoint Basique (TOSA)	Outlook Basique (TOSA)	2	t	\N		Renforcement Excel - P3	Excel Basique (TOSA)	Excel Opérationnel (ICDL)	t	t	f	\N	[]
+268	Anglais	25		Niveau B2 - TOEIC		1	t	\N		"Renforcement Anglais" (A2 & B1) - TOEIC - P3	Niveau A2 - TOEIC	Niveau B1 - TOEIC	f	t	f	\N	[]
+257	Digitales Compétences	23	Si résultat du test ≤ Basique	EXCEL Opérationnel (ICDL)		8	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> EXCEL Opérationnel (ICDL)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	f	t	f	\N	\N
+260	Digitales Compétences	23	≤ Basique	OUTLOOK Basique (TOSA)		11	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	t	f	\N	\N
+289	Mixte Microsoft Office (Word + Excel)	57		EXCEL Expert (TOSA)	Excel Expert (TOSA)	3	t	\N		Perfectionnement Bureautique - P3	Word Opérationnel (ICDL)	Excel Opérationnel (ICDL)	f	t	f	\N	[]
+242	Photoshop	20		IA GENERATIVE (INKREA)		1	t	\N		Renforcement Photoshop - P3	Photoshop Basique (TOSA)	Photoshop Opérationnel  (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+252	Digitales Compétences	23		OUTLOOK Basique (TOSA)		3	t	\N		Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	f	\N	[]
+241	Illustrator	19		IA GENERATIVE (INKREA)		1	t	\N		Renforcement Illustrator - P3	Illustrator Basique (TOSA)	Illustrator Opérationnel (ICDL)	t	t	f	\N	["Word + IA","Excel + IA"]
+255	Digitales Compétences	23	≤ Basique	PPT Basique (TOSA)		6	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> PPT Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	t	f	\N	\N
+256	Digitales Compétences	23	≤ Basique	OUTLOOK Basique (TOSA)		7	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	t	f	\N	\N
+258	Digitales Compétences	23	<= Basique	EXCEL Basique (TOSA)		9	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	t	f	\N	\N
+259	Digitales Compétences	23	≤ Basique	WORD Basique (TOSA)		10	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	t	f	\N	\N
+253	Digitales Compétences	23	≤ Basique	WORD Opérationnel (ICDL)		4	t	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> WORD Opérationnel (ICDL)	Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	f	t	f	\N	\N
+254	Digitales Compétences	23	≤ Basique	WORD Basique (TOSA)		5	t	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	\N
+246	SketchUp	21		ILLUSTRATOR Basique (TOSA)		2	t	\N		Création visuels : 3D/Images - P3	SketchUp Opérationnel (ICDL)	Gimp Opérationnel (ICDL)	t	t	f	\N	[]
+243	Photoshop	20	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)		2	f	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> SKETCHUP Opérationnel (ICDL)	Renforcement Photoshop - P3	PHOTOSHOP Basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)	f	t	f	\N	\N
+245	SketchUp	21	≤ Avancé	IA GENERATIVE (INKREA)		1	t	\N		Création visuels : 3D/Images - P3	SketchUp Opérationnel (ICDL)	Gimp Opérationnel (ICDL)	t	t	t	too_advanced	["Excel + IA","Word + IA"]
+247	WordPress	22		IA GENERATIVE (INKREA)		1	t	\N		Renforcement Wordpress - P3	WordPress Basique (TOSA)	WordPress Operationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA",55,56]
+248	WordPress	22		SKETCHUP Opérationnel (ICDL)		2	t	\N		Renforcement Wordpress - P3	WordPress Basique (TOSA)	WordPress Operationnel (ICDL)	t	t	f	\N	[]
+249	WordPress	22		Photoshop Basique (TOSA)		3	t	\N		Renforcement Wordpress - P3	WordPress Basique (TOSA)	WordPress Operationnel (ICDL)	t	t	f	\N	[]
+251	Digitales Compétences	23	≤ Basique	PowerPoint Basique (TOSA)		2	t	\N		Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	t	too_advanced	[]
+261	Digitales Compétences	23	Si résultat du test ≤ Basique	PPT Opérationnel (ICDL)		12	t	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> PPT Opérationnel (ICDL)	Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)	f	t	f	\N	\N
+262	Digitales Compétences	23	Si résultat du test ≤ Basique	EXCEL Basique (TOSA)		13	t	\N	Digitales Compétences Basique (TOSA) + OUTLOOK Basique (TOSA) -> EXCEL Basique (TOSA)	Renforcement Digital Compétence - P3	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	f	t	f	\N	\N
+238	Google Docs	4		IA GENERATIVE (INKREA)		1	t	\N		Bureautique Google (DOCS) - P3	Google Docs Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+239	Google Sheets	5		Google Slides Opérationnel (ICDL)		1	t	\N		Bureautique Google (SHEETS) - P3	Google Sheets Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	[]
+240	Google Slides	10		IA GENERATIVE (INKREA)		1	t	\N		Bureautique Google (SLIDES) - P3	Google Slides Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+265	Digitales Compétences	23	= Opérationnel	Google Sheets Opérationnel (ICDL)		16	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE SHEETS Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Opérationnel (ICDL)	t	t	f	\N	\N
+269	Anglais	25		Excel Basique (TOSA)	Excel Opérationnel (ICDL)	2	t	\N			Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	t	f	\N	[]
+250	Digitales Compétences	23		EXCEL Basique (TOSA)		1	t	\N		Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	f	\N	[]
+244	Photoshop	20		Illustrator Basique (TOSA)	SketchUp (ICDL)	3	t	\N		Renforcement Photoshop - P3	Photoshop Basique (TOSA)	Photoshop Opérationnel  (ICDL)	t	t	f	\N	[]
+300	Outlook	15		PowerPoint Basique (TOSA)		1	t			Essentiels Digitales Compétences & Outlook - P3	Outlook Basique (TOSA)	Digitales Compétences Basique (TOSA)	t	t	f	\N	\N
+266	Digitales Compétences	23	= Opérationnel	Google Docs Opérationnel (ICDL)		17	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE DOCS Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Opérationnel (ICDL)	t	t	f	\N	\N
+267	Digitales Compétences	23	= Opérationnel	Google Slides Opérationnel (ICDL)		18	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE SLIDES Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Opérationnel (ICDL)	t	t	f	\N	\N
+307	Google Sheets	5		Google Slides Opérationnel (ICDL)		3	t	\N		Bureautique Google (SHEETS) - P3 	Google Sheets Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	[]
+290	Word + IA	56		PowerPoint Basique (TOSA)	Excel Basique (TOSA)	0	t			IA Générative & Word - P3	IA GENERATIVE (INKREA)	Word (TOSA)	t	t	f	\N	\N
+291	Word + IA	56		Word Opérationnel (ICDL)		1	t			IA Générative & Word - P3	IA GENERATIVE (INKREA)	Word (TOSA)	f	t	f	\N	\N
+306	Google Sheets	5		IA GENERATIVE (INKREA)		2	t	\N		Bureautique Google (SHEETS) - P3 	Google Sheets Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+294	Word	44		PowerPoint Basique (TOSA)	Outlook Basique (TOSA)	3	t			Essentiels Bureautique - P3	Word Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	\N
+293	Word	44	≤ Initial	Word Opérationnel (ICDL)		2	t			Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	f	t	f	\N	\N
+295	Word	44		Excel Basique (TOSA)	PowerPoint Basique (TOSA)	4	t			Essentiels Digitales Compétences & WORD - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	f	\N	\N
+296	Word	44		Outlook Basique (TOSA)		5	t			Essentiels Digitales Compétences & WORD - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	f	\N	\N
+292	Word + IA	56		Digitales Compétences Opérationnel (TOSA)	Outlook Basique (TOSA)	2	t			IA Générative & Word - P3	IA GENERATIVE (INKREA)	Word (TOSA)	t	t	f	\N	\N
+297	PowerPoint	54		Outlook Basique (TOSA)		3	t			Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	Photoshop Basique (TOSA)	t	t	f	\N	\N
+298	PowerPoint	54		Word Basique (TOSA)	Excel Basique (TOSA)	4	t			Essentiels Digitales Compétences & PPT - P3	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	t	f	\N	\N
+299	Outlook	15		Word Basique (TOSA)	Excel Basique (TOSA)	0	t			Essentiels Digitales Compétences & Outlook - P3	Outlook Basique (TOSA)	Digitales Compétences Basique (TOSA)	t	t	f	\N	\N
+303	Google Docs	4		IA GENERATIVE (INKREA)		1	t	\N		Bureautique Google (DOCS) - P3	Google Docs Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+304	Google Docs	4		Google Slides Opérationnel (ICDL)		2	t	\N		Bureautique Google (DOCS) - P3	Google Docs Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	[]
+305	Google Docs	4		Google Sheets Opérationnel (ICDL)		3	t	\N		Bureautique Google (DOCS) - P3 	Google Docs Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	t	f	\N	[]
+302	Google Sheets	5		IA GENERATIVE (INKREA)		1	t	\N		Bureautique Google (SHEETS) - P3 	Google Sheets Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+301	Google Slides	10		Google Docs Opérationnel (TOSA)		1	t			Bureautique Google (SLIDES) - P3	Google Slides Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	[]
+270	Outils Collaboratifs Google	43		IA GENERATIVE (INKREA)		1	t	\N		Google Workspace - P3	Outils Collaboratifs Google Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+308	Google Slides	10		IA Générative (INKREA)		2	t			Bureautique Google (SLIDES) - P3	Google Slides Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+309	Google Slides	10		Google Docs Opérationnel (TOSA)		3	t			Bureautique Google (SLIDES) - P3 	Google Slides Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	[]
+313	Outils Collaboratifs Google	43		Google Docs Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	4	t	\N		Google Workspace - P3  	Outils Collaboratifs Google Opérationnel (ICDL)	Digitales Compétences Opérationnel (TOSA)	t	t	f	\N	[]
+310	Outils Collaboratifs Google	43		IA GENERATIVE (INKREA)		1	t	\N		Google Workspace - P3 	Outils Collaboratifs Google Opérationnel (ICDL)	Digitales Compétences Opérationnel (TOSA)	t	t	f	\N	["Excel + IA","Word + IA"]
+311	Outils Collaboratifs Google	43		IA GENERATIVE (INKREA)		2	t	\N		Google Workspace - P3 	Outils Collaboratifs Google Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+312	Outils Collaboratifs Google	43		IA GENERATIVE (INKREA)		3	t	\N		Google Workspace - P3  	Outils Collaboratifs Google Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
+314	Outils Collaboratifs Google	43		Google Docs Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	5	f	\N		Google Workspace - P3   (copie)	Outils Collaboratifs Google Opérationnel (ICDL)	Digitales Compétences Opérationnel (TOSA)	t	t	f	\N	[]
+315	Outils Collaboratifs Google	43		Digitales Compétences Opérationnel (TOSA)		6	t	\N		Google Workspace - P3   	Outils Collaboratifs Google Opérationnel (ICDL)	IA GENERATIVE (INKREA)	t	t	f	\N	[]
+316	Français	51		NIVEAU A2 - TOEIC		1	f				Français Professionnel (VOLTAIRE)	Français Affaires (VOLTAIRE)	t	t	f	\N	["Anglais "]
+317	Excel	45		Word Basique (TOSA)	PowerPoint Basique (TOSA)	6	t			Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	[]
+318	Excel	45		Outils Collaboratifs Google Basique (TOSA)		7	t			Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	[]
+319	Excel	45		Excel Opérationnel (ICDL)		8	t	Essentiels Digitales Compétences & Excel - P3			Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	f	t	f	\N	[]
+320	Anglais 	25		Niveau C1 - TOEIC		2	t				Niveau B1 - TOEIC	Niveau B2 - TOEIC	f	t	f	\N	[]
 \.
 
 
@@ -888,50 +980,53 @@ COPY public.p3_override_rules (id, formation, "formationId", condition, formatio
 -- Data for Name: parcours_rules; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.parcours_rules (id, formation, condition, formation1, formation2, "isActive", "requirePrerequisiteFailure", "order", certification, "prerequisiteConditions", "prerequisiteLogic", "formationId", "explanationMessage", "parcoursTitle", "selectionConditions", "selectionConditionLogic") FROM stdin;
-394	Digitales Compétences	Si résultat du test DIGCOMP ≤ Basique	Digitales Compétences Basique (TOSA)	WORD Basique (TOSA)	t	f	1		[]	OR	23		\tEssentiels Digitales Compétences & Word	[]	AND
-418	Français	Si résultat du test FRANÇAIS = Professionnel	Français Professionnel (VOLTAIRE)	Français Affaires (VOLTAIRE)	t	f	2	\N	\N	OR	51	Professionnel + Affaires	Perfectionnement Français	\N	AND
-435	Word	Si résultat du test ≤ Initial	WORD Basique (TOSA)	Digitales Compétences Basique (TOSA)	t	f	1		[]	OR	44		Essentiels Digitales Compétences & WORD	\N	AND
-431	Word + IA	Si résultat du test ≤ Opérationnel	IA GENERATIVE (INKREA)	WORD (TOSA)	t	f	0		[]	OR	56		IA Générative	\N	AND
-433	Mixte Microsoft Office (Word + Excel)	Si résultat du test ≤ Basique	WORD Basique (TOSA)	EXCEL Basique (TOSA)	t	f	0		[]	OR	57		Essentiels Bureautique	\N	AND
-434	Mixte Microsoft Office (Word + Excel)	Si résultat du test = Opérationnel	WORD Opérationnel (ICDL)	EXCEL Opérationnel (ICDL)	t	f	1		[]	OR	57		Perfectionnement Bureautique	\N	AND
-430	Excel + IA	Si résultat du test ≤ Opérationnel	IA GENERATIVE (INKREA)	EXCEL Opérationnel (TOSA)	t	f	0		[]	OR	55		IA Générative 	\N	AND
-427	Anglais 	Si résultat du test ≤ Niveau A2	Niveau A2 - TOEIC	Niveau B1 - TOEIC	t	f	0		[]	OR	25		"Renforcement Anglais" (A2 & B1) - TOEIC	\N	AND
-428	Anglais 	Si résultat du test = Niveau B1	Niveau B1 - TOEIC	Niveau B2 - TOEIC	t	f	1		[]	OR	25		"Perfectionnement Anglais" : (B1 & B2) - TOEIC	\N	AND
-429	Anglais 	Si résultat du test = Niveau B2	Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	f	2		[]	OR	25		"Expertise Anglais"  : (B2 & C1) - TOEIC	\N	AND
-413	WordPress	Si résultat du test ≤ Basique	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)	t	f	1		[]	OR	22		Renforcement Wordpress	\N	AND
-402	PowerPoint	Si résultat du test ≤ Basique	PPT Basique (TOSA)	PPT Opérationnel (ICDL)	t	f	1		[]	OR	54		Renforcement Powerpoint	\N	AND
-409	Photoshop	Si résultat du test ≤ Basique	PHOTOSHOP basique (TOSA)	PHOTOSHOP Opérationnel (ICDL)	t	f	1		[]	OR	20		Renforcement Photoshop	\N	AND
-432	Outlook	Si résultat du test ≤ Basique	OUTLOOK Basique (TOSA)	OUTLOOK Opérationnel (ICDL)	t	f	0		[]	OR	15		Renforcement Outlook	\N	AND
-404	Outils Collaboratifs Google	Si résultat du test OC = Opérationnel	OUTILS COLLABORATIFS (ICDL)	GOOGLE DOCS (ICDL)	f	f	2	\N	\N	OR	43	OUTILS COLLABORATIFS + GOOGLE DOCS	Google Workspace (OC & DOCS)	\N	AND
-405	Outils Collaboratifs Google	Si résultat du test OC = Opérationnel	OUTILS COLLABORATIFS (ICDL)	GOOGLE SLIDES (ICDL)	f	f	3	\N	\N	OR	43	OUTILS COLLABORATIFS + GOOGLE SLIDES	Google Workspace (OC & SLIDES)	\N	AND
-412	Illustrator	Si résultat du test ≤ Basique	ILLUSTRATOR Basique (TOSA)	ILLUSTRATOR Opérationnel (ICDL)	t	f	1		[]	OR	19		Renforcement Illustrator	\N	AND
-437	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)	t	f	3		[]	OR	23		Essentiels Digitales Compétences & PPT	[]	AND
-411	Gimp	Si résultat du test ≤ Basique	GIMP Opérationnel (ICDL)	ILLUSTRATOR Opérationnel (TOSA)	t	f	1		[]	OR	48		Création graphique	\N	AND
-410	SketchUp	Si résultat du test ≤ Basique	SKETCHUP Opérationnel (ICDL)	GIMP Opérationnel (ICDL)	t	f	1		[]	OR	21		Création visuels : 3D/Images	\N	AND
-438	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	f	2		[]	OR	23		Essentiels Digitales Compétences & Excel	[]	AND
-436	Digitales Compétences	Si résultat du test ≤ Basique	Digitales Compétences Basique (TOSA)	OUTLOOK Basique (TOSA)	t	f	4		[]	OR	23		Renforcement Digital Compétence  & OUTLOOK	[]	AND
-399	Word	Si résultat du test = Basique	WORD Basique (TOSA)	WORD Opérationnel (ICDL)	t	f	3		[]	OR	44		Renforcement Word	[]	AND
-398	Digitales Compétences	Si résultat du test DIGCOMP = Opérationnel	Digitales Compétences Opérationnel (TOSA)	OUTILS COLLABORATIFS Opérationnel (ICDL)	t	f	5		[]	OR	23		Perfectionnement Digitales Compétences & Outils Coll.	[]	AND
-439	Word	Si résultat du test = Basique	WORD Basique (TOSA)	EXCEL Basique (TOSA)	t	f	2		[]	OR	44		Essentiels WORD & EXCEL	[]	AND
-441	Word	Si résultat du test = Opérationnel	WORD Opérationnel (TOSA)	EXCEL Opérationnel (TOSA)	f	f	4		[]	OR	44		Perfectionnement WORD & EXCEL 	[]	AND
-443	Excel	Si résultat du test = Basique	WORD Basique (TOSA)	EXCEL Basique (TOSA)	t	f	3		[]	OR	45		Essentiels WORD & EXCEL	[]	AND
-400	Excel	Si résultat du test = Basique	EXCEL Basique (TOSA)	EXCEL Opérationnel (ICDL)	t	f	2		[]	OR	45		Renforcement Excel	[]	AND
-442	Excel	Si résultat du test ≤ Initial	Digitales Compétences Basique (TOSA)	EXCEL Basique (TOSA)	t	f	1		[]	OR	45		Essentiels Digitales Compétences & EXCEL 	[]	AND
-401	Excel	Si résultat du test EXCEL = Opérationnel	EXCEL Opérationnel (ICDL)	EXCEL Expert (TOSA)	t	f	4		[]	OR	45		Expertise Excel	[]	AND
-444	Excel	Si résultat du test = Opérationnel	WORD Opérationnel (TOSA)	EXCEL Opérationnel (TOSA)	t	f	5		[]	OR	45		Perfectionnement WORD & EXCEL	[]	AND
-445	PowerPoint	Si résultat du test ≤ Initial	Digitales Compétences Basique (TOSA)	PPT Basique (TOSA)	t	f	1		[]	OR	54		Essentiels Digitales Compétences & PPT	[]	AND
-417	Français	Si résultat du test ≤ Technique	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)	t	f	1		[]	OR	51	Technique + Professionnel	Renforcement Français	[]	AND
-406	Google Sheets	Si résultat du test ≤ Basique	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL)	t	f	1		[]	OR	5		Bureautique Google WORKSPACE (SHEETS & DOCS) 	[]	AND
-408	Google Slides	Si résultat du test ≤ Basique	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE DOCS Opérationnel (ICDL) 	t	f	1		[]	OR	10		Bureautique Google WORKSPACE (SLIDES & DOCS)	[]	AND
-407	Google Docs	Si résultat du test ≤ Basique	GOOGLE DOCS Opérationnel (ICDL)	GOOGLE SHEETS Opérationnel (ICDL)	t	f	1		[]	OR	4		Bureautique Google WORKSPACE (DOCS & SHEETS) 	[]	AND
-403	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL)	GOOGLE DOCS Opérationnel (ICDL) 	t	f	1		[]	OR	43		Google WORKSPACE (OC & DOCS)\t	[]	AND
-446	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL) 	GOOGLE DOCS Opérationnel (ICDL)	t	f	2		[]	OR	43		Google WORKSPACE (OC & SHEETS)	[]	AND
-447	Outils Collaboratifs Google	Si résultat du test ≤ Basique	OUTILS COLLABORATIFS Opérationnel (ICDL) 	GOOGLE DOCS Opérationnel (ICDL)	t	f	3		[]	OR	43		Google WORKSPACE (OC & SLIDES)	[]	AND
-448	Outils Collaboratifs Google	Si résultat du test = Opérationnel	Digital Compétence Opérationnel (TOSA)	OUTILS COLLABORATIFS Opérationnel (ICDL)	f	f	4		[]	OR	43		Perfectionnement Digital Compétence + OC 	[]	AND
-449	Google Slides	Si résultat du test ≤ Basique	GOOGLE SLIDES Opérationnel(ICDL)	GOOGLE SHEETS Opérationnel (ICDL)	t	f	2		[]	OR	10		Bureautique Google WORKSPACE (SLIDES & SHEETS) 	[]	AND
-450	Google Sheets	Si résultat du test ≤ Basique	GOOGLE SHEETS Opérationnel (ICDL)	GOOGLE SLIDES Opérationnel (ICDL)	t	f	2		[]	OR	5		Bureautique Google WORKSPACE (SHEETS & SLIDES ) 	[]	AND
-451	Google Docs	Si résultat du test ≤ Basique	GOOGLE DOCS Opérationnel (ICDL) 	GOOGLE SLIDES Opérationnel (ICDL)	t	f	2		[]	OR	4		Bureautique Google WORKSPACE (DOCS & SLIDES) 	[]	AND
+COPY public.parcours_rules (id, formation, condition, formation1, formation2, "isActive", "requirePrerequisiteFailure", "order", certification, "prerequisiteConditions", "prerequisiteLogic", "formationId", "explanationMessage", "parcoursTitle", "selectionConditions", "selectionConditionLogic", "isHiddenResult", "hiddenResultType") FROM stdin;
+430	Excel + IA	Si résultat du test ≤ Opérationnel	IA GENERATIVE (INKREA)	Excel Opérationnel (TOSA)	t	f	0		[]	OR	55		IA Générative 	[]	AND	f	\N
+417	Français	Si résultat du test ≤ Technique	Français Technique (VOLTAIRE)	Français Professionnel (VOLTAIRE)	t	f	1		[]	OR	51		Renforcement Français	[]	AND	f	\N
+438	Digitales Compétences	Si résultat du test DIGCOMP <= Basique	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	f	2		[]	OR	23		Essentiels Digitales Compétences & Excel	[]	AND	f	\N
+436	Digitales Compétences	Si résultat du test DIGCOMP <= Basique	Digitales Compétences Basique (TOSA)	Outlook Opérationnel (TOSA)	t	f	4		[]	OR	23		Renforcement Digital Compétence + OUTLOOK	[]	AND	f	\N
+398	Digitales Compétences	Si résultat du test DIGCOMP = Opérationnel	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Google Opérationnel (ICDL)	t	f	5		[]	OR	23		Perfectionnement Digital Compétence + OC	[]	AND	f	\N
+418	Français	Si résultat du test FRANÇAIS = Professionnel	Français Professionnel (VOLTAIRE)	Français Affaires (VOLTAIRE)	t	f	2		[]	OR	51		Perfectionnement Français	[]	AND	f	\N
+433	Mixte Microsoft Office (Word + Excel)	Si résultat du test ≤ Basique	Word Basique (TOSA)	Excel Basique (TOSA)	t	f	0		[]	OR	57		Essentiels Bureautique	[]	AND	f	\N
+434	Mixte Microsoft Office (Word + Excel)	Si résultat du test = Opérationnel	Word Opérationnel (ICDL)	Excel Opérationnel (ICDL)	t	f	1		[]	OR	57		Perfectionnement Bureautique	[]	AND	f	\N
+487	Outlook	Si résultat du test ≤ Initial	Outlook Basique (TOSA)	Digitales Compétences Opérationnel (TOSA)	t	f	1		[]	OR	15		Essentiels Digitales Compétences & Outlook	[]	AND	f	\N
+432	Outlook	Si résultat du test = Basique	Outlook Basique (TOSA)	Outlook Opérationnel (ICDL)	t	f	2		[]	OR	15		Renforcement Outlook	[]	AND	f	\N
+462	Gimp	Si résultat du test ≤ Basique	Gimp Opérationnel (ICDL)	Illustrator Opérationnel (TOSA)	t	f	1		[]	OR	48		Création Graphique	[]	AND	f	\N
+400	Excel	Si résultat du test = Basique	Excel Basique (TOSA)	Excel Opérationnel (ICDL)	t	f	2		[]	OR	45		Renforcement EXCEL	[]	AND	f	\N
+401	Excel	Si résultat du test = Opérationnel	Excel Opérationnel (ICDL)	Excel Expert (TOSA)	t	f	4		[]	OR	45		Expertise EXCEL	[]	AND	f	\N
+412	Illustrator	Si résultat du test <= Basique	Illustrator Basique (TOSA)	Illustrator Opérationnel (ICDL)	t	f	1		[]	OR	19		Renforcement ILLUSTRATOR	[]	AND	f	\N
+427	Anglais 	Si résultat du test ≤ Niveau A2	Niveau A2 - TOEIC	Niveau B1 - TOEIC	t	f	1		[]	OR	25		"Renforcement Anglais" (A2 & B1) - TOEIC	[]	AND	f	\N
+429	Anglais 	Si résultat du test = Niveau B2	Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	f	3		[]	OR	25		"Expertise Anglais"  : (B2 & C1) - TOEIC	[]	AND	f	\N
+428	Anglais 	Si résultat du test = Niveau B1	Niveau B1 - TOEIC	Niveau B2 - TOEIC	t	f	2		[]	OR	25		"Perfectionnement Anglais" : (B1 & B2) - TOEIC	[]	AND	f	\N
+485	Outils Collaboratifs Google	Si résultat du test <= Basique	Outils Collaboratifs Google Opérationnel (ICDL)	Digitales Compétences Opérationnel (TOSA)	t	f	4		[]	OR	\N		Google WORKSPACE (OC & Digitales Compétences)	[]	AND	f	\N
+486	Outils Collaboratifs Google	Si résultat du test <= Basique	Outils Collaboratifs Google Opérationnel (ICDL)	IA GENERATIVE (INKREA)	t	f	5		[]	OR	\N		Google WORKSPACE (OC & IA Générative)	[]	AND	f	\N
+439	Word	Si résultat du test = Basique	Word Basique (TOSA)	Excel Basique (TOSA)	t	f	3		[]	OR	44		Essentiels WORD & EXCEL	[]	AND	f	\N
+443	Excel	Si résultat du test = Basique	Word Basique (TOSA)	Excel Basique (TOSA)	t	f	3		[]	OR	45		Essentiels WORD & EXCEL	[]	AND	f	\N
+444	Excel	Si résultat du test = Opérationnel	Word Opérationnel (TOSA)	Excel Opérationnel (TOSA)	t	f	5		[]	OR	45		Perfectionnement WORD & EXCEL	[]	AND	f	\N
+448	Outils Collaboratifs Google	Si résultat du test = Opérationnel	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Google Opérationnel (ICDL)	t	f	10		[]	OR	43		Perfectionnement Digital Compétence + OC	[]	AND	t	too_advanced
+403	Outils Collaboratifs Google	Si résultat du test <= Basique	Outils Collaboratifs Google Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	f	1		[]	OR	43		Google WORKSPACE (OC & DOCS)	[]	AND	f	\N
+435	Word	Si résultat du test <= Initial	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	f	1		[]	OR	44		Essentiels Digitales Compétences & WORD	[]	AND	f	\N
+394	Digitales Compétences	Si résultat du test DIGCOMP <= Basique	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	f	1		[]	OR	23		Essentiels Digitales Compétences & Word	[]	AND	f	\N
+437	Digitales Compétences	Si résultat du test DIGCOMP <= Basique	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	f	3		[]	OR	23		Essentiels Digital Compétence & PPT	[]	AND	f	\N
+484	Word	Si résultat du test ≥ Opérationnel	WORD Opérationnel (TOSA)	EXCEL Opérationnel (TOSA)	t	f	6		[]	OR	\N		Perfectionnement WORD + EXCEL	[]	AND	t	too_advanced
+442	Excel	Si résultat du test <= Initial	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	f	1		[]	OR	45		Essentiels Digitales Compétences & EXCEL	[]	AND	f	\N
+445	PowerPoint	Si résultat du test <= Initial	Digitales Compétences Basique (TOSA)	PowerPoint Basique (TOSA)	t	f	1		[]	OR	54		Essentiels Digitales Compétences & PPT	[]	AND	f	\N
+402	PowerPoint	Si résultat du test = Basique	PowerPoint Basique (TOSA)	PowerPoint Opérationnel (ICDL)	t	f	2		[]	OR	54		Renforcement PPT	[]	AND	f	\N
+409	Photoshop	Si résultat du test <= Basique	Photoshop Basique (TOSA)	Photoshop Opérationnel  (ICDL)	t	f	1		[]	OR	20		Renforcement PHOTOSHOP	[]	AND	f	\N
+447	Outils Collaboratifs Google	Si résultat du test <= Basique	Outils Collaboratifs Google Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	f	3		[]	OR	43		Google WORKSPACE (OC & SLIDES)	[]	AND	f	\N
+468	SketchUp	Si résultat du test ≤ Basique	SketchUp Opérationnel (ICDL)	Gimp Opérationnel (ICDL)	t	f	1		[]	OR	21		Création visuels : 3D / Images	[]	AND	f	\N
+446	Outils Collaboratifs Google	Si résultat du test <= Basique	Outils Collaboratifs Google Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	f	2		[]	OR	43		Google WORKSPACE (OC & SHEETS)	[]	AND	f	\N
+407	Google Docs	Si résultat du test <= Basique	Google Docs Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	f	1		[]	OR	4		Google WORKSPACE (DOCS & SHEETS)	[]	AND	f	\N
+451	Google Docs	Si résultat du test <= Basique	Google Docs Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	f	2		[]	OR	4		Google WORKSPACE (DOCS & SLIDES)	[]	AND	f	\N
+483	Word	Si résultat du test ≥ Opérationnel	Word Basique (TOSA)	Word Opérationnel (ICDL)	t	f	5		[]	OR	44		Renforcement WORD	[]	AND	t	too_advanced
+406	Google Sheets	Si résultat du test <= Basique	Google Sheets Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	f	1		[]	OR	5		Google WORKSPACE (SHEETS & DOCS)	[]	AND	f	\N
+450	Google Sheets	Si résultat du test <= Basique	Google Sheets Opérationnel (ICDL)	Google Slides Opérationnel (ICDL)	t	f	2		[]	OR	5		Google WORKSPACE (SHEETS & SLIDES)	[]	AND	f	\N
+408	Google Slides	Si résultat du test <= Basique	Google Slides Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	f	1		[]	OR	10		Google WORKSPACE (SLIDES & DOCS)	[]	AND	f	\N
+449	Google Slides	Si résultat du test <= Basique	Google Slides Opérationnel (ICDL)	Google Sheets Opérationnel (ICDL)	t	f	2		[]	OR	10		Google WORKSPACE (SLIDES & SHEETS)	[]	AND	f	\N
+413	WordPress	Si résultat du test <= Basique	WordPress Basique (TOSA)	WordPress Operationnel (ICDL)	t	f	1		[]	OR	22		Renforcement WORDPRESS	[]	AND	f	\N
+458	WordPress	Si résultat du test = Opérationnel	WORDPRESS Basique (TOSA)	WORDPRESS Opérationnel (ICDL)	f	f	3	\N	\N	OR	\N	\N	Renforcement WORDPRESS	\N	AND	f	\N
+431	Word + IA	Si résultat du test ≤ Basique	IA GENERATIVE (INKREA)	Word (TOSA)	t	f	0		[]	OR	56		IA Générative & Word	[]	AND	f	\N
+399	Word	Si résultat du test = Basique	Word Basique (TOSA)	Word Opérationnel (ICDL)	t	f	2		[]	OR	44		Renforcement WORD	[]	AND	f	\N
 \.
 
 
@@ -940,9 +1035,9 @@ COPY public.parcours_rules (id, formation, condition, formation1, formation2, "i
 --
 
 COPY public.question_rules (id, workflow, formation, "questionId", operator, "expectedValue", "resultType", "resultMessage", "isActive", "order", "createdAt", "updatedAt", "formationId") FROM stdin;
-627b2c89-2885-48b6-bb7d-6da818924df5	prerequis	\N	470	EQUALS	Jamais	CUSTOM_MESSAGE	TOSA Digcomp Initial & TOSA Word Initial / TOSA Excel Initial / TOSA Powerpoint Initial	t	0	2026-03-05 21:35:39.744439	2026-03-23 14:36:15.193041	\N
-2c058caf-dddf-4d05-9c7c-1aa5c88ca7b8	prerequis	\N	477	EQUALS	Non	CUSTOM_MESSAGE	TOSA Digcomp Initial & TOSA Word Initial / TOSA Excel Initial / TOSA Powerpoint Initial	t	1	2026-03-05 21:35:39.76782	2026-03-23 14:36:20.496276	\N
-173df79e-7351-406c-ad52-70e00709eba1	prerequis	\N	2109	EQUALS	Non	CUSTOM_MESSAGE	TOSA Digcomp Initial & TOSA Word Initial / TOSA Excel Initial / TOSA Powerpoint Initial	t	2	2026-03-05 21:35:39.775357	2026-03-23 14:36:25.595232	\N
+627b2c89-2885-48b6-bb7d-6da818924df5	prerequis	\N	470	EQUALS	Jamais	CUSTOM_MESSAGE	Digitales Compétences Basique (TOSA) & Word Basique (TOSA) / Excel Basique (TOSA) / PowerPoint Basique (TOSA) 	t	0	2026-03-05 21:35:39.744439	2026-07-11 11:34:43.898278	\N
+2c058caf-dddf-4d05-9c7c-1aa5c88ca7b8	prerequis	\N	477	EQUALS	Non	CUSTOM_MESSAGE	Digitales Compétences Basique (TOSA) & Word Basique (TOSA) / Excel Basique (TOSA) / PowerPoint Basique (TOSA) 	t	1	2026-03-05 21:35:39.76782	2026-07-11 11:36:59.732792	\N
+173df79e-7351-406c-ad52-70e00709eba1	prerequis	\N	2109	EQUALS	Non	CUSTOM_MESSAGE	Digitales Compétences Basique (TOSA) & Word Basique (TOSA) / Excel Basique (TOSA) / PowerPoint Basique (TOSA) 	t	2	2026-03-05 21:35:39.775357	2026-07-11 11:37:03.821164	\N
 \.
 
 
@@ -1448,6 +1543,122 @@ cb61ade2-cce5-498f-8167-40e2bad81521	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N
 4f8ea524-9025-4fb2-924f-b36b02b2a56f	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N	\N	\N	2026-07-07 13:55:44.794997	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
 10b685fd-eeb2-4a21-ab83-b3335909ff4e	aopia	M.	a	a	06	Herizo Randria	\N	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	\N	\N	\N	2026-07-07 13:56:12.87482	\N	\N	\N	\N	\N	\N	f	\N	test	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
 7e4e8cc4-a594-4f5a-96e7-18db8f4be013	aopia	M.	a	a	0+	Herizo Randria	Digitales Compétences	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Oui","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Initial	Essentiels Digitales Compétences & Word | Essentiels Digitales Compétences & Excel | Essentiels Digitales Compétences & PPT | Renforcement Digital Compétence  & OUTLOOK	2026-07-07 17:01:44.7154	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	kl	["Salarié"]	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":394,"title":"Essentiels Digitales Compétences & Word","recommendations":["Digitales Compétences Basique (TOSA)","WORD Basique (TOSA)"],"explanationMessage":""},{"id":438,"title":"Essentiels Digitales Compétences & Excel","recommendations":["Digitales Compétences Basique (TOSA)","EXCEL Basique (TOSA)"],"explanationMessage":""},{"id":437,"title":"Essentiels Digitales Compétences & PPT","recommendations":["Digitales Compétences Basique (TOSA)","PPT Basique (TOSA)"],"explanationMessage":""},{"id":436,"title":"Renforcement Digital Compétence  & OUTLOOK","recommendations":["Digitales Compétences Basique (TOSA)","OUTLOOK Basique (TOSA)"],"explanationMessage":""}]
+2d24e8a7-a708-48ef-be23-b066fdbcc841	aopia	M.	test	rzqr	06	Herizo Randria	\N	\N	\N	\N	\N	2026-07-08 11:14:00.641092	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+78163583-dfc8-48cc-b98b-2b11a5942ad4	aopia	M.	hg	a	06	Herizo Randria	EXCEL Basique (TOSA)	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	EXCEL Basique (TOSA)	EXCEL Basique (TOSA)	2026-07-08 11:14:51.402346	2026-07-08 11:46:12.299	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	\N
+015c38ee-7433-4b5e-8420-4aa3d4a6ff69	aopia	M.	az	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:51:45.864725	2026-07-12 23:52:07.871	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Générer automatiquement un texte ou une image à partir d’une demande ","2674":"Une IA capable de créer du contenu à partir de données apprises ","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+f2e7452c-10dd-4ab3-9567-a26c84f6f4ad	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{}	\N	\N	2026-07-12 23:04:28.164677	2026-07-12 23:04:52.756	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+c5655178-907a-431a-ac3d-042ee2d6d45a	aopia	M.	aza	a	06	Herizo Randria	Photoshop	\N	{}	\N	\N	2026-07-12 22:10:03.667454	2026-07-12 22:11:58.707	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+57f363ea-ebdf-48da-8f8d-f99e0116d450	aopia	M.	Test	H	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Basique (TOSA) & PPT Basique (TOSA)	2026-07-08 11:56:22.947779	2026-07-08 11:58:00.64	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	Essentiels Digitales Compétences & PPT	\N
+3e2d5845-a015-4829-bb44-69b5316250ec	aopia	M.	te	a	06	Herizo Randria	Niveau C1 - TOEIC	{"470":"Occasionnellement","473":"Quotidiennement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Niveau A1":{"score":3,"total":6,"percentage":50,"requiredCorrect":6,"validated":false}}	Niveau C1 - TOEIC	Niveau C1 - TOEIC	2026-07-08 14:45:31.141942	2026-07-08 14:46:58.476	-1	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Niveau A1":{"2123":"is","2124":"have","2125":"are","2126":"have","2127":"is watching","2128":"is going"}}	test	["Salarié"]	{"2172":"Collège","2173":"Oui","2174":["Clientèle"],"2175":"Régulier","2176":"Oui","2177":["Voyages","Lecture"],"2448":"Ponctuel"}	f	f	t	f					t	\N	1	\N	Niveau A2 - TOEIC + Niveau B1 - TOEIC -> Niveau C1 - TOEIC	"Renforcement Anglais" (A2 & B1) - TOEIC - P3	\N
+62787907-02e1-414a-b217-3a59a1d7665e	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Initial	Essentiels Digitales Compétences & Word | Essentiels Digitales Compétences & Excel | Essentiels Digitales Compétences & PPT | Renforcement Digital Compétence  & OUTLOOK	2026-07-08 14:27:11.952867	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":394,"title":"Essentiels Digitales Compétences & Word","recommendations":["Digitales Compétences Basique (TOSA)","WORD Basique (TOSA)"],"explanationMessage":""},{"id":438,"title":"Essentiels Digitales Compétences & Excel","recommendations":["Digitales Compétences Basique (TOSA)","EXCEL Basique (TOSA)"],"explanationMessage":""},{"id":437,"title":"Essentiels Digitales Compétences & PPT","recommendations":["Digitales Compétences Basique (TOSA)","PPT Basique (TOSA)"],"explanationMessage":""},{"id":436,"title":"Renforcement Digital Compétence  & OUTLOOK","recommendations":["Digitales Compétences Basique (TOSA)","OUTLOOK Basique (TOSA)"],"explanationMessage":""}]
+15ceadbf-da49-445d-b44a-1de8bfc64a3a	aopia	M.	tes	tes	06	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true}}	\N	\N	2026-07-08 14:43:05.341044	\N	\N	\N	\N	\N	Basique	f	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
+937daf33-eeeb-469b-935a-174ddc4413f2	aopia	M.	test	H	06	Herizo Randria	WORD Basique (TOSA)	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	WORD Basique (TOSA)	WORD Basique (TOSA)	2026-07-08 12:06:05.133969	2026-07-08 12:23:36.702	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	\N
+300095b7-3b68-46ad-b659-31626151bbbb	aopia	M.	h	h	06	Herizo Randria	Anglais 	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Quotidiennement","2636":"Oui"}	{"Niveau A1":{"score":4,"total":6,"percentage":66.66666666666666,"requiredCorrect":6,"validated":false}}	Débutant	Niveau A2 - TOEIC & Niveau B1 - TOEIC	2026-07-08 15:00:13.045063	2026-07-08 15:01:30.51	0	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"watches","2128":"is going"}}	z	["Salarié"]	{"2172":"Collège","2173":"Oui","2174":["Collègue"],"2175":"Régulier","2176":"Non","2177":[],"2448":null}	f	f	f	f					f	\N	1	\N		"Renforcement Anglais" (A2 & B1) - TOEIC	\N
+3d140a96-f87d-47cc-a56b-6979d8000ffd	aopia	M.	a	a	06	Herizo Randria	EXCEL Basique (TOSA)	\N	{}	\N	\N	2026-07-09 10:15:38.799924	2026-07-09 10:16:50.993	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	\N	\N	\N
+085bb15a-a592-4e5f-a635-a134e6adf42e	aopia	M.	h	h	h	herizo Randria	EXCEL Basique (TOSA)	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	EXCEL Basique (TOSA)	EXCEL Basique (TOSA)	2026-07-08 21:36:44.807869	2026-07-08 21:37:42.123	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	\N
+eb08f7a3-993e-4362-aaee-7729a6fff279	aopia	M.	a	a	a	Herizo Randria	IA GENERATIVE (INKREA)	\N	{"Initial":{"score":2,"total":4,"percentage":50,"requiredCorrect":4,"validated":false}}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-12 22:20:03.294857	2026-07-12 22:20:48.316	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2519":"Illustrator permet d'agrandir un dessin à l'infini sans perte de qualité. ","2520":"La zone de calque.","2521":"Du dessin vectoriel ","2522":".JPG"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	ILLUSTRATOR Basique (TOSA) + ILLUSTRATOR Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Illustrator - P3	\N
+c14a0ef2-ed12-4982-b1a2-9ab244b324a5	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{}	\N	\N	2026-07-12 23:14:41.203398	2026-07-12 23:15:01.953	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+720f0c9a-28a4-4bd2-b2f0-b658c24bd509	aopia	M.	az	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:55:14.501515	2026-07-12 23:55:35.563	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA qui applique uniquement des règles programmées","2671":"Classer automatiquement des emails par expéditeur","2672":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+0fa0ef8f-4d51-4623-b258-ffd356c8a9cb	aopia	M.	a	a	06	Herizo Randria	Word Opérationnel (ICDL)	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avance":{"score":2,"total":5,"percentage":40,"requiredCorrect":5,"validated":false}}	Word Opérationnel (ICDL)	Word Opérationnel (ICDL)	2026-07-11 12:19:17.765246	2026-07-11 12:20:48.673	-1	\N	{"43":"Après-midi","2641":""}	\N	Opérationnel	t	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"},"Opérationnel":{"2068":"**Accueil** > **Styles**","2069":"**Mise en page** > **Colonnes **","2070":".**DOTX**","2071":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2072":"**Références** > **Tables des matières **"},"Avance":{"2073":"En utilisant le principe du **document maître** et des **sous-documents**","2074":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2075":"À avoir un **historique des différentes versions** du document","2076":"**Fichiers** > **Informations** > **Gérer le document**","2077":"Volet de **navigation**"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Word Basique (TOSA) + Word Opérationnel (ICDL) -> Word Opérationnel (ICDL)	Renforcement Word - P3	\N
+fb604117-be78-4947-be35-32d54f4cac96	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{}	\N	\N	2026-07-10 14:32:38.706311	2026-07-10 14:35:36.62	\N	\N	\N	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+3eb32712-cc06-4b41-9918-562f6dfbcc5f	aopia	M.	A	H	06	Herizo Randria	Outlook	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Avancé":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Avancé	Outlook Basique (TOSA) | Digitales Compétences Opérationnel (TOSA)	2026-07-12 20:58:57.432627	\N	\N	\N	\N	\N	Opérationnel	t	{"Opérationnel":{"2591":"Clic droit sur Boîte de réception → Nouveau dossier ","2592":"Gestionnaire d’absence ","2593":"Envoyer une copie en préservant la confidentialité des adresses ","2594":"Dans les options du message ","2595":"Trier les messages"},"Avancé":{"2596":"Les mails restent synchronisés avec le serveur et accessibles depuis plusieurs appareils ","2597":"Le mettre en brouillon","2598":"Supprimer les emails","2599":"Règles → Créer une règle ","2600":"Depuis Contacts → Nouveau groupe "}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & Outlook	\N
+c47c2987-cfe6-4d5e-9852-830b19ca57df	aopia	M.	a	a	a	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-09 16:28:48.337648	2026-07-09 16:30:00.406	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+1675340c-36a9-4b5d-9655-f187c6333d67	aopia	M.	a	a	06	Herizo Randria	Anglais 	\N	{"Niveau A1":{"score":6,"total":6,"percentage":100,"requiredCorrect":6,"validated":true},"Niveau A2":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true},"Niveau B1":{"score":1,"total":6,"percentage":16.666666666666664,"requiredCorrect":5,"validated":false}}	Niveau A2	Niveau A2 - TOEIC & Niveau B1 - TOEIC	2026-07-13 01:12:55.742575	2026-07-13 01:13:49.32	0	\N	{"43":"Entre 12h et 14h","2641":""}	\N	Niveau A2	t	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"is watching","2128":"goes"},"Niveau A2":{"15":"were","16":"was watching","17":"a few","18":"tallest","19":"as beautiful as","20":"went"},"Niveau B1":{"21":"during","22":"will have","23":"was building","24":"works","25":"had eaten","26":"drank"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		"Renforcement Anglais" (A2 & B1) - TOEIC	\N
+99982f5a-f2b8-4931-9cfa-68fb8468c540	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{}	\N	\N	2026-07-12 23:15:40.924084	2026-07-12 23:16:02.989	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+ee54a3a5-1ff4-48ca-9ce2-20cdc7eb9348	aopia	M.	a	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:34:09.74064	2026-07-13 00:34:35.32	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Classer automatiquement des emails par expéditeur","2674":"Une IA capable de créer du contenu à partir de données apprises ","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+2daa6203-3728-445f-b316-86763770ba6b	aopia	M.	a	a	06	Herizo Randria	Google Docs	\N	{}	\N	\N	2026-07-12 22:25:53.239026	2026-07-12 22:26:22.804	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+b911a207-a065-41b9-a8d4-3a8951fa36a0	aopia	M.	a	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:57:12.440207	2026-07-12 23:57:32.236	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Classer automatiquement des emails par expéditeur","2674":"Une IA qui applique uniquement des règles programmées","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+59576e90-c9a7-492a-9cca-f0364f2a96a5	aopia	M.	Her	test	06	Herizo Randria	WORD Basique (TOSA)	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":2,"total":5,"percentage":40,"requiredCorrect":4,"validated":false}}	WORD Basique (TOSA)	WORD Basique (TOSA)	2026-07-10 11:35:47.12047	2026-07-10 11:36:06.685	-1	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Basique	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"},"Basique":{"1978":"L'icône : **$**","1979":"A **afficher** les valeurs correspondant au filtre","1980":"**SI**()","1981":"Mise en forme **conditionnelle**","1982":"**AUJOURDHUI**()"},"Opérationnel":{"1983":"À **effacer** les valeurs **ne répondant pas** au critère","1984":"De **copier** et/ou **incrémenter** une valeur","1985":"Un **segment**","1986":"Données","1987":"Je **protège** le **classeur**"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> WORD Basique (TOSA)	Renforcement Excel - P3	\N
+38f3e8c1-11f9-45fb-8bc6-9d750912f38b	aopia	M.	a	a	a	Herizo Randria	WordPress	\N	{"Initial":{"score":0,"total":4,"percentage":0,"requiredCorrect":4,"validated":false}}	Débutant	WordPress Basique (TOSA) & WordPress Operationnel (ICDL)	2026-07-13 00:38:31.965548	2026-07-13 00:40:05.383	0	\N	{"43":"Toute la journée","2641":""}	\N	Débutant	t	{"Initial":{"2079":"Un compte Facebook professionnel et une carte de visite avec un QR Code.","2080":"sur Google Play Store ou App Store","2081":"Un hébergeur de site web uniquement.","2082":"À protéger le site contre les attaques de pirates et les malwares."}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Renforcement WORDPRESS	\N
+5947dce9-c2f1-4c00-815a-3e73c9c2f2c6	aopia	M.	a	a	06	Herizo Randria	Outlook	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avancé":{"score":2,"total":5,"percentage":40,"requiredCorrect":4,"validated":false}}	Opérationnel	Outlook Basique (TOSA) & Outlook Opérationnel (ICDL)	2026-07-12 21:15:42.674391	2026-07-12 21:40:00.593	0	\N	{"43":"Entre 12h et 14h","2641":""}	\N	Opérationnel	t	{"Initial":{"2552":"à envoyer des e-mails ","2553":"Courrier, Calendrier et Contacts","2585":"Le dossier Courrier "},"Basique":{"2586":"Nouveau message ","2587":"Vérification orthographique ","2588":"En cliquant sur Accepter / Refuser ","2589":"Depuis le dossier Contacts → Nouveau contact ","2590":"Accueil"},"Opérationnel":{"2591":"Clic droit sur Boîte de réception → Nouveau dossier ","2592":"Gestionnaire d’absence ","2593":"Envoyer une copie en préservant la confidentialité des adresses ","2594":"Dans les options du message ","2595":"Utiliser la barre de recherche "},"Avancé":{"2596":"Les mails restent synchronisés avec le serveur et accessibles depuis plusieurs appareils ","2597":"Options → Différer la livraison ","2598":"Supprimer les emails","2599":"Menu Options","2600":"Depuis Calendrier"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & Outlook	\N
+44d91c44-dac3-44c1-801d-a0ff512692f1	aopia	M.	a	PPT	06	Herizo Randria	PowerPoint Opérationnel (ICDL)	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	PowerPoint Opérationnel (ICDL)	PowerPoint Opérationnel (ICDL)	2026-07-11 12:44:09.117653	2026-07-11 12:55:48.961	-1	\N	{"43":"Après-midi","2641":""}	\N	Initial	t	{"Initial":{"2607":"À créer des **présentations** avec des diapositives ","2609":["Un **tableau** ","Une **image**","Une **forme** "],"2610":"Créer un **diaporama** "},"Basique":{"2611":"**CTRL + D**","2612":"**D’appliquer** une mise en forme **générale** à toute la **présentation **","2613":"Un **espace réservé **","2614":"**Appliquer** un **style** prédéfini","2615":"**Insertion > Images **"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + PowerPoint Basique (TOSA) -> PowerPoint Opérationnel (ICDL)	Essentiels Digitales Compétences & PPT - P3	\N
+d3a04940-76da-4a59-b29f-80de981c9569	aopia	M.	a	a	a	Herizo Randria	IA GENERATIVE (INKREA)	\N	{"Initial":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-10 14:51:58.78366	2026-07-10 14:52:34.492	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2333":"Créer des feuilles de calcul","2334":"Fichier > Enregistrer","2335":"Sur une clé USB"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	GOOGLE DOCS Opérationnel (ICDL) + GOOGLE SHEETS Opérationnel (ICDL) / GOOGLE SLIDES Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Bureautique Google (DOCS) - P3	\N
+59798715-00af-45e2-b587-5e571b728e33	aopia	M.	a	a	06	Herizo Randria	Word Opérationnel (ICDL)	\N	{}	Word Opérationnel (ICDL)	Word Opérationnel (ICDL)	2026-07-13 00:00:10.795941	2026-07-13 00:05:55.464	-1	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	Digitales Compétences Basique (TOSA) + Word Basique (TOSA) -> Word Opérationnel (ICDL)	Essentiels Digitales Compétences & Word - P3	\N
+7a7b2afb-67b7-4b54-b081-ee9d60d386ff	aopia	M.	a	a	06	Herizo Randria	Photoshop	\N	{}	\N	\N	2026-07-12 22:35:37.754279	2026-07-12 22:36:03.75	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+32706a8f-047d-431e-926a-5a383f4f22f9	aopia	M.	a	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:18:11.981741	2026-07-12 23:18:31.141	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Générer automatiquement un texte ou une image à partir d’une demande ","2674":"Une IA qui applique uniquement des règles programmées","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+db31e484-3540-4829-868b-ed6dea993149	aopia	M.	WORD	max	06	Herizo Randria	Word	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Quotidiennement","2636":"Oui"}	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avance":{"score":2,"total":5,"percentage":40,"requiredCorrect":5,"validated":false}}	Avance	TOSA WORD Basique | TOSA EXCEL Basique	2026-07-08 16:28:28.986093	\N	\N	\N	\N	\N	Opérationnel	f	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"},"Opérationnel":{"2068":"**Accueil** > **Styles**","2069":"**Mise en page** > **Colonnes **","2070":".**DOTX**","2071":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2072":"**Références** > **Tables des matières **"},"Avance":{"2073":"En utilisant le principe du **document maître** et des **sous-documents**","2074":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2075":"À avoir un **historique des différentes versions** du document","2076":"**Fichiers** > **Informations** > **Gérer le document**","2077":"Volet de **navigation**"}}	a	["Salarié"]	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
+e217c1df-6de5-4274-b5eb-d19f777d2f63	aopia	M.	h	h	h	herizo Randria	WORD Basique (TOSA)	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	WORD Basique (TOSA)	WORD Basique (TOSA)	2026-07-08 22:13:27.814822	2026-07-08 22:14:16.8	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + EXCEL Basique (TOSA) -> WORD Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	\N
+25d7734e-1ef9-4895-ad08-55c227ff2c27	aopia	M.	a	a	06	BOYÉ Simon	\N	\N	\N	\N	\N	2026-07-13 00:06:12.250515	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+06a35703-7bb7-4004-80b5-b9786c47ca57	aopia	M.	j	j	j	Herizo Randria	IA GENERATIVE (INKREA)	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":1,"total":5,"percentage":20,"requiredCorrect":3,"validated":false}}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-08 16:54:37.029675	2026-07-08 20:08:04.238	-1	\N	{"43":"Après-midi","2641":""}	\N	Initial	t	{"Initial":{"1998":"Éditer des images ","1999":"La plus petite unité d’une image ","2000":"La sauvegarder "},"Basique":{"2001":"Photo compressée ","2002":"Ajouter un texte","2003":"Supprimer une couleur","2004":"Ajouter un filtre","2005":"Il n’y a aucune différence"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	GIMP Opérationnel (ICDL) + ILLUSTRATOR Opérationnel (TOSA) -> IA GENERATIVE (INKREA)	Création graphique - P3	\N
+1dea9ce1-b7d6-489b-98e3-eaa448afe396	aopia	M.	j	a	06	Herizo Randria	Gimp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	ICDL GIMP Opérationnel & TOSA ILLUSTRATOR Opérationnel	2026-07-08 16:52:11.401659	2026-07-08 16:52:51.049	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1998":"Créer des vidéos","1999":"Une couleur automatique","2000":"La sauvegarder "}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Création Graphique	\N
+32d70ad3-51f6-47e9-b59d-aeffff1df63f	aopia	M.	H	h	06	Herizo Randria	PowerPoint	\N	{}	\N	\N	2026-07-08 20:08:20.502102	2026-07-08 20:09:03.452	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+470ba529-ef78-44e6-8c04-e2d2614f94b7	aopia	M.	az	a	06	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avance":{"score":2,"total":5,"percentage":40,"requiredCorrect":5,"validated":false}}	Avance		2026-07-10 14:54:14.793801	\N	\N	\N	\N	\N	Opérationnel	t	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"},"Opérationnel":{"2068":"**Accueil** > **Styles**","2069":"**Mise en page** > **Colonnes **","2070":".**DOTX**","2071":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2072":"**Références** > **Tables des matières **"},"Avance":{"2073":"En utilisant le principe du **document maître** et des **sous-documents**","2074":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2075":"À proposer une **relecture** du document afin de **le vérifier**","2076":"**Fichiers** > **Informations** > **Gérer le document**","2077":"Sélectionner les **objets**"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N	Votre niveau ne correspond pas à cette formation. Nous vous invitons à choisir une formation plus adaptée.	Renforcement WORD	\N
+f7979f8b-3e17-48fb-9575-9dfdd256a23a	aopia	M.	a	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:21:20.933056	2026-07-12 23:21:45.015	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Générer automatiquement un texte ou une image à partir d’une demande ","2674":"Une IA qui applique uniquement des règles programmées","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+cee18b3a-72dc-49b8-aaa3-a19ed7ce5657	aopia	M.	a	a	H	Herizo Randria	SketchUp	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	SketchUp Opérationnel (ICDL) & Gimp Opérationnel (ICDL)	2026-07-12 22:44:49.250512	2026-07-12 22:45:12.583	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Modélisation 3D","2015":"Colorier un objet","2016":"Dessiner une surface plane"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Création visuels : 3D / Images	\N
+214c9ecc-395f-4f72-8a89-d5963e25ed9e	aopia	M.	a	a	06	Herizo Randria	Outils Collaboratifs Google	\N	{"Initial":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	Débutant	Outils Collaboratifs Google Basique (TOSA)	2026-07-13 00:06:17.742961	2026-07-13 00:16:31.149	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2387":"Google Docs","2388":"Google Docs","2389":"Via Google Drive"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Digitales Compétences Basique (TOSA) + Excel Basique (TOSA) -> Outils Collaboratifs Google Basique (TOSA)	Essentiels Digitales Compétences & Excel - P3	\N
+8bc54975-f0ff-4581-97db-eb7c2a4ebcb9	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:16:53.853575	2026-07-13 00:17:12.214	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA qui applique uniquement des règles programmées","2671":"Classer automatiquement des emails par expéditeur","2672":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+7a85d993-e84d-4b55-abc4-9160ea9f1a5d	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Initial	EXCEL Basique (TOSA)	2026-07-10 10:43:51.956572	2026-07-10 10:44:56.819	0	\N	{"43":"Après-midi","2641":""}	\N	Initial	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"},"Basique":{"1978":"L'icône : **$**","1979":"A **ordonner** les valeurs en fonction du filtre","1980":"**SI**()","1981":"Mise en forme **conditionnelle**","1982":"**AUJOURDHUI**()"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	\N
+bbf4a03c-c907-4b3e-b2ee-02a10f6f259c	aopia	M.	a	a	06	Herizo Randria	Outlook	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	OUTLOOK Basique (TOSA)	2026-07-09 13:26:20.712357	2026-07-09 13:34:42.527	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2552":"à créer des tableaux ","2553":"Tâches avancées et Règles automatiques","2585":"Le dossier Courrier "}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> OUTLOOK Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	\N
+e7fd1df1-58c4-441b-8d30-cfdf4835b1ad	aopia	M.	H	h	06	Herizo Randria	EXCEL Basique (TOSA)	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	EXCEL Basique (TOSA)	EXCEL Basique (TOSA)	2026-07-09 11:06:38.42185	2026-07-09 11:07:36.158	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Digitales Compétences Basique (TOSA) + PPT Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & PPT - P3	\N
+118fdf08-1892-4d64-a024-a715dc4e7b6d	aopia	M.	a	a	06	Herizo Randria	EXCEL Basique (TOSA)	\N	{}	\N	\N	2026-07-09 11:22:35.909205	2026-07-09 11:22:58.671	\N	\N	{"43":"Matin","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+f7e1c349-b28d-4a38-b0fa-a9811d4c62a4	aopia	M.	a	a	06	Herizo Randria	SKETCHUP Opérationnel (ICDL)	\N	{}	SKETCHUP Opérationnel (ICDL)	SKETCHUP Opérationnel (ICDL)	2026-07-09 14:34:28.22943	2026-07-09 15:51:12.179	-1	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> SKETCHUP Opérationnel (ICDL)	Renforcement Photoshop - P3	\N
+bade2d0a-c201-43d7-9680-758254f993e3	aopia	M.	a	a	06	Herizo Randria	IA GENERATIVE (INKREA)	\N	{}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-09 15:51:38.91342	2026-07-09 15:53:40.819	-1	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	PHOTOSHOP basique (TOSA) + PHOTOSHOP Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Photoshop - P3	\N
+696bae26-69e3-49a3-a5f9-e9b9fd71570e	aopia	M.	D	d	06	Herizo Randria	Excel	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":2,"total":5,"percentage":40,"requiredCorrect":4,"validated":false}}	Opérationnel	EXCEL Opérationnel (ICDL)	2026-07-09 12:33:43.812788	2026-07-09 12:34:28.784	\N	\N	{"43":"Après-midi","2641":""}	\N	Basique	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"},"Basique":{"1978":"L'icône : **$**","1979":"A **afficher** les valeurs correspondant au filtre","1980":"**SI**()","1981":"Mise en forme **conditionnelle**","1982":"**AUJOURDHUI**()"},"Opérationnel":{"1983":"À **mettre en évidence** les valeurs","1984":"De **copier** et/ou **incrémenter** une valeur","1985":"Un **segment**","1986":"Affichage","1987":"Je **protège** le **classeur**"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N		Renforcement EXCEL	\N
+775f085c-0296-4024-b3df-aa8b840d98e5	aopia	M.	H	a	06	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-09 16:56:53.929742	2026-07-09 16:57:13.006	\N	\N	{"43":"Matin","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+5003c2b1-d7f2-489d-b671-3c6add9ed62d	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-09 15:59:18.998195	2026-07-09 15:59:44.627	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+637699ec-b232-4795-b679-0052a8c89c40	aopia	M.	Z	Z	A	Herizo Randria	Digitales Compétences	\N	{}	\N	\N	2026-07-09 12:18:51.882595	2026-07-09 12:19:34.122	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+d85c4867-c243-4377-9069-0bb25bde0a14	aopia	M.	a	a	06	Herizo Randria	Gimp	\N	{}	\N	\N	2026-07-10 11:01:51.778214	2026-07-10 11:02:44.622	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	{"2517":"Régulièrement ","2518":"Oui"}	f	f	t	f					f	\N	3	\N	\N	\N	\N
+c426cacf-e3ed-49a1-bdab-cb742312f0cf	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-09 16:49:01.879575	2026-07-09 16:54:25.514	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	\N	\N	\N
+b5aae2cf-e2d5-4e86-9e4d-2cd2648be2ab	aopia	M.	a	a	06	Herizo Randria	IA GENERATIVE (INKREA)	\N	{}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-09 16:55:59.827433	2026-07-09 16:56:38.209	-1	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	ILLUSTRATOR Basique (TOSA) + ILLUSTRATOR Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Illustrator - P3	\N
+8a0539b9-3576-42f7-968f-de24181343b0	aopia	M.	H	h	a	Herizo Randria	SketchUp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	SKETCHUP Opérationnel (ICDL)	2026-07-09 17:00:32.65094	2026-07-10 10:25:32.833	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Retouche photo","2015":"Supprimer un fichier","2016":"Dessiner une surface plane"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	GIMP Opérationnel (ICDL) + ILLUSTRATOR Opérationnel (TOSA) -> SKETCHUP Opérationnel (ICDL)	Création visuels 3D - P3	\N
+4080b10a-dfaf-42fc-bdd1-ff42dd573e27	aopia	M.	j	j	j	Herizo Randria	Gimp	\N	{}	\N	\N	2026-07-10 10:46:45.122568	2026-07-10 10:47:07.666	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	{"2517":"Régulièrement ","2518":"Oui"}	f	f	t	f					f	\N	3	\N	\N	\N	\N
+8eaad681-fa64-4243-9af9-502b94a9dcd0	aopia	M.	az	a	06	Herizo Randria	Excel	\N	{}	\N	\N	2026-07-10 11:30:21.810705	\N	\N	\N	\N	\N	\N	f	{}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+75ca7721-5a39-463d-85b9-4d03844c8c02	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Initial	SketchUp (Excel + IA)	2026-07-12 22:52:05.067468	2026-07-12 22:52:32.683	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Retouche photo","2015":"Choisir un élément du modèle","2016":"Mesurer une distance"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	SketchUp Opérationnel (ICDL) + Gimp Opérationnel (ICDL) -> SketchUp (Excel + IA)	Création visuels : 3D/Images - P3	\N
+84cf42a0-50a6-4ee7-88eb-ad5d562158e5	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	SketchUp (ICDL)	2026-07-13 01:01:06.537623	2026-07-13 01:03:25.932	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Montage vidéo","2015":"Colorier un objet","2016":"Dessiner une surface plane"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Photoshop Basique (TOSA) + Photoshop Opérationnel  (ICDL) -> SketchUp (ICDL)	Renforcement Photoshop - P3	\N
+2b951591-4002-48be-85ef-6ec3ab8a6ff2	aopia	M.	Her	test	06	Herizo Randria	WORD Basique (TOSA)	{"470":"Quotidiennement ","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui","2632":"Non","2633":"Occasionnellement","2636":"Oui"}	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":2,"total":5,"percentage":40,"requiredCorrect":4,"validated":false}}	WORD Basique (TOSA)	WORD Basique (TOSA)	2026-07-10 11:32:45.630343	2026-07-10 11:34:17.063	-1	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Basique	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"},"Basique":{"1978":"L'icône : **$**","1979":"A **afficher** les valeurs correspondant au filtre","1980":"**SI**()","1981":"Mise en forme **conditionnelle**","1982":"**AUJOURDHUI**()"},"Opérationnel":{"1983":"À **effacer** les valeurs **ne répondant pas** au critère","1984":"De **copier** et/ou **incrémenter** une valeur","1985":"Un **segment**","1986":"Données","1987":"Je **protège** le **classeur**"}}	test	["Salarié"]	\N	f	f	t	f					t	\N	1	\N	EXCEL Basique (TOSA) + EXCEL Opérationnel (ICDL) -> WORD Basique (TOSA)	Renforcement Excel - P3	\N
+deb947b4-f636-44d1-8d6b-c8445c426126	aopia	M.	Her	test	06	Herizo Randria	\N	{"470":"Quotidiennement ","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui","2632":"Non","2633":"Occasionnellement","2636":"Oui"}	\N	\N	\N	2026-07-10 11:35:47.072835	\N	\N	\N	\N	\N	\N	f	\N	test	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+7ae130c6-4867-446f-9aaf-9d5a30d03a92	aopia	M.	Anglais	B1-Test	06 06 06 06 06		Anglais 	\N	{"Niveau A1":{"score":6,"total":6,"percentage":100,"requiredCorrect":6,"validated":true},"Niveau A2":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true},"Niveau B1":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true}}	\N	\N	2026-07-10 13:07:16.002228	\N	\N	\N	\N	\N	Niveau B1	f	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"is watching","2128":"goes"},"Niveau A2":{"15":"were","16":"was watching","17":"a few","18":"tallest","19":"as beautiful as","20":"went"},"Niveau B1":{"21":"since","22":"had","23":"was built","24":"has worked","25":"had eaten","26":"drank"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	\N
+6c28a208-563a-4c00-b6e4-95015b841f59	aopia	M.	Anglais	a	06	Herizo Randria	Niveau B2 - TOEIC	{"470":"Occasionnellement","473":"Quotidiennement ","477":"Oui","2109":"Oui avec quelques difficultés ","2632":"Oui","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Niveau A1":{"score":3,"total":6,"percentage":50,"requiredCorrect":6,"validated":false}}	Niveau B2 - TOEIC	Niveau B2 - TOEIC	2026-07-10 11:50:20.457924	2026-07-10 12:33:30.997	-1	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Niveau A1":{"2123":"is","2124":"have","2125":"are","2126":"have","2127":"watches","2128":"goes"}}	a	["Salarié"]	{"2172":"Collège","2173":"Oui","2174":["Clientèle"],"2175":"Régulier","2176":"Oui","2177":["Voyages","Lecture"],"2448":"Régulier"}	f	f	t	f					t	\N	1	\N	Niveau A2 - TOEIC + Niveau B1 - TOEIC -> Niveau B2 - TOEIC	"Renforcement Anglais" (A2 & B1) - TOEIC - P3	\N
+596e3c6b-758d-482a-aa5b-dc9d1c2167c0	aopia	M.	Anglais	A2-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:00:10.671262	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+9f20d09c-3e0f-4757-916a-90fd2223dbb4	aopia	M.	Anglais	B1-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:00:10.631394	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+c74b27ef-33e5-4383-a97d-954703c9deca	aopia	M.	Anglais	C1-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:00:10.688394	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+e6b8f2a0-8df5-43d3-b657-8ccf3f212c5c	aopia	M.	Anglais	B2-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:00:10.847544	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+d5bf63cc-15b2-4184-8005-c02922d928e7	aopia	M.	Anglais	A2-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:01:59.475284	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+4ec0335a-ec38-4614-bbf5-6eff640123de	aopia	M.	Anglais	B1-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:02:24.588359	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+565244bc-df14-4d0a-9261-1da8075b0df9	aopia	M.	Anglais	B2-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:02:48.565443	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+8962b45d-a36f-4907-9bd5-0f7e468af84b	aopia	M.	Anglais	C1-Test	06 06 06 06 06		\N	\N	\N	\N	\N	2026-07-10 13:03:12.603936	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+e76cde15-47be-4891-9b8c-455e00ce8661	aopia	M.	az	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:19:04.190929	2026-07-13 00:19:24.169	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Rechercher une information sur Internet","2674":"Une IA qui applique uniquement des règles programmées","2675":"Une base de données"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+e7b7b164-f0fa-4fa7-b127-768317a58683	aopia	M.	Anglais	A2-Test	06 06 06 06 06		Anglais 	\N	{"Niveau A1":{"score":6,"total":6,"percentage":100,"requiredCorrect":6,"validated":true}}	\N	\N	2026-07-10 13:05:43.796509	\N	\N	\N	\N	\N	Niveau A1	f	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"is watching","2128":"goes"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	\N
+8af0a5cf-4b45-4f8b-bcd1-6e105bc93d08	aopia	M.	Anglais	C1-Test	06 06 06 06 06		Anglais 	\N	{"Niveau A1":{"score":6,"total":6,"percentage":100,"requiredCorrect":6,"validated":true},"Niveau A2":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true},"Niveau B1":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true}}	\N	\N	2026-07-10 13:10:17.118314	\N	\N	\N	\N	\N	Niveau B1	f	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"is watching","2128":"goes"},"Niveau A2":{"15":"were","16":"was watching","17":"a few","18":"tallest","19":"as beautiful as","20":"went"},"Niveau B1":{"21":"since","22":"had","23":"was built","24":"has worked","25":"had eaten","26":"drank"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	\N
+27ebee49-5a32-4532-a19c-38396066467e	aopia	M.	Anglais	B2-Test	06 06 06 06 06		Anglais 	\N	{"Niveau A1":{"score":6,"total":6,"percentage":100,"requiredCorrect":6,"validated":true},"Niveau A2":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true},"Niveau B1":{"score":5,"total":6,"percentage":83.33333333333334,"requiredCorrect":5,"validated":true}}	\N	\N	2026-07-10 13:08:45.784446	\N	\N	\N	\N	\N	Niveau B1	f	{"Niveau A1":{"2123":"is","2124":"have","2125":"is","2126":"is","2127":"is watching","2128":"goes"},"Niveau A2":{"15":"were","16":"was watching","17":"a few","18":"tallest","19":"as beautiful as","20":"went"},"Niveau B1":{"21":"since","22":"had","23":"was built","24":"has worked","25":"had eaten","26":"drank"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	\N
+f3ef8b0f-50c6-4fe2-9f74-2e8a79642b3a	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-10 14:46:57.9642	2026-07-10 14:47:19.239	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA qui applique uniquement des règles programmées","2671":"Classer automatiquement des emails par expéditeur","2672":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+7f2daea0-4779-4ca1-9bfc-cb7d8bcb1cb1	aopia	M.	WORD	oa	06	Herizo Randria	Excel	\N	{}	Inconnu	Digitales Compétences Basique (TOSA) & EXCEL Basique (TOSA)	2026-07-10 14:45:09.428946	2026-07-10 14:46:48.874	0	\N	\N	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	Essentiels Digitales Compétences & EXCEL	\N
+f10aa74e-6833-4457-8372-f44993b86817	aopia	M.	a	a	a	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avance":{"score":2,"total":5,"percentage":40,"requiredCorrect":5,"validated":false}}	Avance	Renforcement WORD | Perfectionnement WORD + EXCEL	2026-07-10 15:43:44.321109	\N	\N	\N	\N	\N	Opérationnel	t	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"},"Opérationnel":{"2068":"**Accueil** > **Styles**","2069":"**Mise en page** > **Colonnes **","2070":".**DOTX**","2071":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2072":"**Références** > **Tables des matières **"},"Avance":{"2073":"En utilisant le principe du **document maître** et des **sous-documents**","2074":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2075":"À avoir un **historique des différentes versions** du document","2076":"**Fichiers** > **Informations** > **Gérer le document**","2077":"Volet de **navigation**"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":483,"title":"Renforcement WORD","recommendations":["WORD Basique (TOSA)","WORD Opérationnel (ICDL)"],"explanationMessage":""},{"id":484,"title":"Perfectionnement WORD + EXCEL","recommendations":["WORD Opérationnel (TOSA)","EXCEL Opérationnel (TOSA)"],"explanationMessage":""}]
+58ec2b2e-58c9-43ad-a038-dce0ead0653c	aopia	M.	H	h	a	Herizo Randria	Word	\N	{}	\N	\N	2026-07-10 15:38:47.304786	\N	\N	\N	\N	\N	\N	t	{}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+91abfc20-06e2-4a09-8d09-470c533dabb6	aopia	M.	a	a	06	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":1,"total":5,"percentage":20,"requiredCorrect":4,"validated":false}}	Basique	Digitales Compétences Basique (TOSA) | Word Basique (TOSA)	2026-07-10 16:25:30.48462	\N	\N	\N	\N	\N	Initial	f	{"Basique":{"2063":"CTRL + **E**","2064":"Sélectionner les cellules puis **Accueil** > **Couleur de surlignage**","2065":"Des **espaces**","2066":"**Double clic** dans la partie la plus **haute** de la page puis **Insérer** une image","2067":"Vert"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
+3ad7f458-db39-4b0a-8a64-cb6ad4a58cfd	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Initial":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	Initial	Aucun parcours actif ne correspond à cette progression.	2026-07-13 01:03:34.964333	2026-07-13 01:04:12.242	\N	\N	{"43":"Après-midi","2641":""}	\N	IA Générative 	t	{"IA Générative ":{"2647":"Une IA capable de créer du contenu à partir de données apprises ","2671":"Générer automatiquement un texte ou une image à partir d’une demande ","2672":"La question ou la consigne donnée à l’IA"},"Initial":{"2653":"**=NBVAL()**","2654":"**Graphique Combiné**","2655":"Un **bloc**"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+b480d3c0-2c0a-41df-980d-6b3de25f45d6	aopia	M.	h	hh	h	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Basique	Digitales Compétences Basique (TOSA) | Word Basique (TOSA)	2026-07-10 15:54:02.631615	\N	\N	\N	\N	\N	Initial	t	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"**F7**","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
+8f099588-4fd4-4b0f-91cb-3974924aec7c	aopia	M.	a	a	06	Herizo Randria	Illustrator	\N	{}	\N	\N	2026-07-11 11:19:00.17929	2026-07-11 11:19:40.054	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+e541150f-57c3-4b77-b909-9a24a0a07b6c	aopia	M.	aq	a	06	Herizo Randria	Illustrator	\N	{}	\N	\N	2026-07-12 22:55:31.163168	2026-07-12 22:55:54.163	\N	\N	{"43":"Entre 12h et 14h","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+f129de7d-6e98-484f-b9a6-ce01379462b5	aopia	M.	a	a	a	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:23:03.369012	2026-07-13 00:23:22.709	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Générer automatiquement un texte ou une image à partir d’une demande ","2674":"Une IA capable de créer du contenu à partir de données apprises ","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+66f1dfb4-37a6-4fb3-84a7-005b118be204	aopia	M.	a	a	06	Herizo Randria	WordPress	\N	{"Initial":{"score":4,"total":4,"percentage":100,"requiredCorrect":4,"validated":true},"Basique":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Operationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true}}	Operationnel	Word Basique (TOSA) & Word Opérationnel (ICDL)	2026-07-11 10:39:59.987934	2026-07-11 11:11:42.144	0	\N	{"43":"Après-midi","2641":""}	\N	Operationnel	t	{"Initial":{"2079":"Un nom de domaine (l'adresse du site) et un hébergement (l'espace de stockage sur un serveur).","2080":"Sur site officiel : https://fr.wordpress.org/","2081":"Un outil (CMS) qui permet de créer et gérer un site web sans forcément coder.","2082":"À définir l'apparence visuelle, la mise en page et le design du site."},"Basique":{"2083":"Ajouter des fonctionnalités à WordPress","2084":"Dans la gestion de votre compte via le tableau de bord de WordPress.","2085":"La Page est pour du contenu dit statique (Contact, À propos), l'Article est pour du contenu chronologique (Actualités).","2086":"Dans l'onglet Extensions\\" (Plugins).","2087":"Personnaliser le thème."},"Operationnel":{"2088":"À définir la structure des adresses URL des pages","2089":"L'élément de navigation qui permet aux visiteurs d'accéder aux différentes pages.","2090":"Publier des contenus actualisés qui s'affichent par ordre chronologique, du plus récent au plus ancien.","2091":"wp-include/wp-plugins","2092":"www.mon-site.com/exemple-article"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Renforcement WORDPRESS	\N
+84192182-053f-4daf-a623-5d0cf5de8341	aopia	M.	h	a	06	Herizo Randria	Illustrator	\N	{}	\N	\N	2026-07-11 11:16:01.344652	2026-07-11 11:16:55.106	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+0ddc4d1c-0f1c-40de-ab6f-988215aa079a	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:25:22.883494	2026-07-13 00:25:45.781	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA capable de créer du contenu à partir de données apprises ","2671":"Générer automatiquement un texte ou une image à partir d’une demande ","2672":"Une base de données"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+db6b52bd-2594-42e7-a27d-6abcbb4a58c2	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Excel Basique (TOSA)	2026-07-11 12:12:42.182123	2026-07-11 12:14:32.094	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"**Graphique Combiné**"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Word Basique (TOSA) + Word Opérationnel (ICDL) -> Excel Basique (TOSA)	Renforcement Word - P3	\N
+05dec710-3a65-41e0-ab5a-36eb026f91a4	aopia	M.	a	a	06	Herizo Randria	Google Sheets	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Basique	Google Sheets Opérationnel (ICDL) & Google Docs Opérationnel (ICDL)	2026-07-12 21:43:02.967555	2026-07-12 21:44:58.186	0	\N	{"43":"Après-midi","2641":""}	\N	Basique	t	{"Initial":{"2351":"Une cellule","2352":"Il n’y a rien à faire, l’enregistrement est automatique","2353":"C4"},"Basique":{"2354":"=SOMME(A1:A5)","2355":"À copier ou incrémenter une valeur ou une formule","2356":"Cliquer sur la première cellule puis maintenir Maj et cliquer sur la dernière","2357":"Données > Trier la plage","2358":"AUJOURDHUI()"},"Opérationnel":{"2359":"$","2360":"=SI(A1>=10;”Admis”;”Ajourné”)","2361":"Mise en forme conditionnelle","2362":"Histogramme","2363":"Une division par zéro a été effectuée"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	Google WORKSPACE (SHEETS & DOCS)	\N
+8151a910-72af-4caa-8bb8-70a2cbb6372d	aopia	M.	a	a	06	Herizo Randria	PowerPoint	\N	{}	\N	\N	2026-07-11 11:29:30.626198	2026-07-11 11:29:53.469	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+e48a8240-cf92-4f50-88f4-aea2068ae06c	aopia	M.	a	a	06	Herizo Randria	IA GENERATIVE (INKREA)	\N	{}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-11 12:55:57.891652	2026-07-11 12:57:15.335	-1	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					t	\N	3	\N	ILLUSTRATOR Basique (TOSA) + ILLUSTRATOR Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Illustrator - P3	\N
+8fcbe9a3-d6e8-4693-ae17-72dcdd034fbf	aopia	M.	a	a	06	Herizo Randria	Word + IA	\N	{"IA Générative ":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	IA GENERATIVE (INKREA)	2026-07-13 01:06:13.209871	2026-07-13 01:08:01.49	0	\N	{"43":"Toute la journée","2641":""}	\N	Débutant	t	{"IA Générative ":{"2673":"Classer automatiquement des emails par expéditeur","2674":"Une IA capable de créer du contenu à partir de données apprises ","2675":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N		IA Générative & Word	\N
+2ebe3161-b4ed-4f7c-933d-318913b2cda5	aopia	M.	a	a	06	Herizo Randria	Illustrator	\N	{"Initial":{"score":1,"total":4,"percentage":25,"requiredCorrect":4,"validated":false}}	Initial	IA GENERATIVE (INKREA) (Word + IA)	2026-07-12 23:02:07.766857	2026-07-12 23:02:27.922	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2519":"Illustrator permet d'agrandir un dessin à l'infini sans perte de qualité. ","2520":"Je ne sais pas","2521":"De la retouche photo","2522":".MP4"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Illustrator Basique (TOSA) + Illustrator Opérationnel (ICDL) -> IA GENERATIVE (INKREA) (Word + IA)	Renforcement Illustrator - P3	\N
+c42cfcd8-525f-4bb8-a1b6-d7b95f7afa4d	aopia	M.	a	a	06	GRUAUD Sandrine	\N	\N	\N	\N	\N	2026-07-11 11:56:53.182564	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+2e99521a-e1a0-43dd-9221-13c14a30b954	aopia	M.	H	a	06	Herizo Randria	Word Opérationnel (ICDL)	\N	{"IA Générative ":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Avancé":{"score":2,"total":5,"percentage":40,"requiredCorrect":4,"validated":false}}	Word Opérationnel (ICDL)	Word Opérationnel (ICDL)	2026-07-11 11:30:34.392139	2026-07-11 11:32:27.481	-1	\N	{"43":"Après-midi","2641":""}	\N	Opérationnel	t	{"IA Générative ":{"2673":"Générer automatiquement un texte ou une image à partir d’une demande ","2674":"Une IA capable de créer du contenu à partir de données apprises ","2675":"La question ou la consigne donnée à l’IA"},"Initial":{"9":"**Fichier** > **Enregistrer sous**","10":"**Insertion** > **Images **","11":"A **rédiger** du contenu **traitement de texte**"},"Basique":{"2676":"CTRL + **S **","2677":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2678":"Une **tabulation**","2679":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2680":"Bleu"},"Opérationnel":{"2691":"**Insertion** > **Zone de texte**","2692":".**DOTX**","2693":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2694":"**Accueil** > **Styles**","2695":"**Références** > **Tables des matières **"},"Avancé":{"2681":"En utilisant le principe du **document maître** et des **sous-documents**","2682":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2683":"À avoir un **historique des différentes versions** du document","2684":"**Fichiers** > **Informations** > **Gérer le document**","2685":"Sélectionner les **objets**"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	IA GENERATIVE (INKREA) + Word (TOSA) -> Word Opérationnel (ICDL)	IA Générative & Word - P3	\N
+e0ca0763-343e-4626-b307-28d5b8440051	aopia	M.	a	a	06	herizo Randria	Excel	{"470":"Jamais","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui"}	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true}}	\N	\N	2026-07-11 11:34:58.355572	2026-07-11 11:35:25.878	\N	\N	{"43":"Après-midi","2641":""}	\N	Initial	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"}}	az	["Salarié"]	\N	f	f	t	f					f	\N	3	\N		\N	\N
+52f04085-d795-4c82-b923-e8a96124e1dd	aopia	M.	a	a	06	Herizo Randria	\N	\N	\N	\N	\N	2026-07-11 11:33:09.655997	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+6b78ac22-61f2-45e8-9b59-13dca06b0025	aopia	M.	06	H	a	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Basique (TOSA)	2026-07-11 11:56:59.734947	2026-07-11 12:00:08.089	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	IA GENERATIVE (INKREA) + Word (TOSA) -> Digitales Compétences Basique (TOSA)	IA Générative & Word - P3	\N
+ecd32e3c-c5d0-4f84-9cb6-5c9fa13187f4	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	EXCEL Basique (TOSA)	2026-07-11 11:43:16.958285	2026-07-11 11:44:00.493	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1975":"Une **cellule **","1976":"**=NBVAL()**","1977":"Graphique **Camembert (Secteur) **"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Digitales Compétences Basique (TOSA) + WORD Basique (TOSA) -> EXCEL Basique (TOSA)	Essentiels Digitales Compétences & Word - P3	\N
+da11090e-0ae9-4855-9a10-8443ba032d66	aopia	M.	az	a	06	Herizo Randria	Excel	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Non","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true}}	Initial	Digitales Compétences Basique (TOSA) & Word Basique (TOSA)	2026-07-11 11:37:33.727601	2026-07-11 11:42:08.941	0	\N	{"43":"Après-midi","2641":""}	\N	Initial	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"}}	a	["Salarié"]	\N	f	f	t	f					f	\N	3	\N		\N	\N
+81e17b3e-bc55-4f03-bbbd-15c51e5fc147	aopia	M.	a	a	069	Herizo Randria	TOSA Digcomp Initial & TOSA Word Initial	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Non","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	\N	Inconnu	TOSA Digcomp Initial & TOSA Excel Initial	2026-07-11 11:36:02.234398	2026-07-11 11:36:29.11	0	\N	{"43":"Après-midi","2641":""}	\N	\N	t	\N	a	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+f361e9f6-8ddc-462a-af0c-d044198b9f00	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences Basique (TOSA) & Word Basique (TOSA)	{"470":"Occasionnellement","473":"Occasionnellement ","477":"Oui avec quelques difficultés ","2109":"Non","2632":"Non","2633":"Jamais","2636":"Oui avec quelques difficultés"}	\N	\N	\N	2026-07-11 11:46:32.392087	\N	\N	\N	\N	\N	\N	f	\N	a	["Salarié"]	\N	f	f	f	f					f	\N	1	\N	\N	\N	\N
+2a57e4f6-01c0-412e-923e-993b85cd709a	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{"Initial":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	Débutant	SKETCHUP Opérationnel (ICDL)	2026-07-11 11:50:54.310867	2026-07-11 11:52:45.979	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Retouche photo","2015":"Supprimer un fichier","2016":"Mesurer une distance"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	WordPress Basique (TOSA) + WordPress Operationnel (ICDL) -> SKETCHUP Opérationnel (ICDL)	Renforcement Wordpress - P3	\N
+48a1c86f-5aeb-46e3-b01c-e4c43faf86f3	aopia	M.	z	a	a	Herizo Randria	Illustrator	\N	{"Initial":{"score":3,"total":4,"percentage":75,"requiredCorrect":4,"validated":false}}	Débutant	ILLUSTRATOR Basique (TOSA)	2026-07-11 12:31:09.528447	2026-07-11 12:32:03.764	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2519":"Illustrator permet d'agrandir un dessin à l'infini sans perte de qualité. ","2520":"La feuille de style.","2521":"Du dessin vectoriel ","2522":".AI"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	SKETCHUP Opérationnel (ICDL) + GIMP Opérationnel (ICDL) -> ILLUSTRATOR Basique (TOSA)	Création visuels : 3D/Images - P3	\N
+541b9442-c58c-46c9-afab-c82aab19752c	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	IA GENERATIVE (INKREA)	2026-07-11 12:32:11.559939	2026-07-11 12:33:08.05	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Retouche photo","2015":"Choisir un élément du modèle","2016":"Créer une caméra"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	SketchUp Opérationnel (ICDL) + Gimp Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Création visuels : 3D/Images - P3	\N
+f1b8a8b3-65eb-48ed-b6dc-a85cd9aa7e0d	aopia	M.	A	slides	06	Herizo Randria	Google Sheets	\N	{}	\N	\N	2026-07-12 20:57:25.019713	2026-07-12 20:57:58.929	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+b4e51cd1-b8a6-4291-a99e-3dd6016dadaf	aopia	M.	a	a	06	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-12 21:49:30.291549	2026-07-12 21:49:50.63	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+1e629823-b920-4143-a485-c2fcc21c7180	aopia	M.	az	a	a	Herizo Randria	SketchUp	\N	{}	\N	\N	2026-07-12 22:04:38.11641	2026-07-12 22:05:02.693	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+e7d5cee3-5417-44eb-bc90-1fc507af9f17	aopia	M.	z	a	06	Herizo Randria	SketchUp	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	SketchUp Opérationnel (ICDL)	2026-07-13 01:08:29.552148	2026-07-13 01:09:48.611	0	\N	{"43":"Matin","2641":""}	\N	Débutant	t	{"Initial":{"2014":"Retouche photo","2015":"Choisir un élément du modèle","2016":"Créer une caméra"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Gimp Opérationnel (ICDL) + Illustrator Opérationnel (TOSA) -> SketchUp Opérationnel (ICDL)	Création visuels 3D - P3	\N
+87caf892-1c65-4918-bec7-b3ddd2a3fd23	aopia	M.	a	hj	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Opérationnel (TOSA)	2026-07-12 23:29:42.848447	2026-07-12 23:32:54.153	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Outils Collaboratifs Google Opérationnel (ICDL) + IA GENERATIVE (INKREA) -> Digitales Compétences Opérationnel (TOSA)	Google Workspace - P3	\N
+8dbb4e9e-aa75-4f01-8a39-ced490ac7c79	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:33:00.841317	2026-07-12 23:43:09.562	0	\N	{"43":"Entre 12h et 14h","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+ad889eab-0e7d-40c8-8847-6491a0c55630	aopia	M.	a	a	a	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:30:18.175605	2026-07-13 00:30:39.691	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA spécialisée uniquement dans la reconnaissance vocale","2671":"Copier-coller un texte dans un document","2672":"Une base de données"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 \.
 
 
@@ -1477,8 +1688,13 @@ ADMIN_EMAIL	admin@ns-conseil.com	Email de réception des bilans
 P3_SAME_FORMATION_TEST	true	Autoriser les tests sur la même formation en mode P3
 P3_OTHER_FORMATION_TEST	true	Exiger les tests sur une autre formation avant P3
 P3_OVERRIDE_ENABLED	true	\N
-EMAIL_CC_ADV	admin@ns-conseil.com, alexandre.florek@ns-conseil.com, adv@ns-conseil.com, merryl.thire@ns-conseil.com, cecile.raynal@ns-conseil.com	Adresses emails en copie (CC) pour l'ADV (séparées par des virgules)
-SMTP_PASSWORD	AAd82Y5vIAAr298Wn0K31+UuLFbvtwt/KDfdl/VhvghaRpYH	\N
+EMAIL_CC_ADV	admin@ns-conseil.com	Adresses emails en copie (CC) pour l'ADV (séparées par des virgules)
+SMTP_PASSWORD	QNwYWuF78JSOXd4qWLA/0yty5Nnmn2Hp0XAEiXkOOvGXJRk9	\N
+HIGH_LEVEL_ALERT_BEHAVIOR	modal	Comportement si niveau validÃ© supÃ©rieur au parcours : modal (afficher alerte), auto_change (rediriger formation), ignore (continuer sans alerte)
+HIGH_LEVEL_ALERT_MESSAGE		Message personnalisÃ© affichÃ© dans l'alerte niveau supÃ©rieur (laisser vide pour message par dÃ©faut)
+HIGH_LEVEL_ALERT_FORMATIONS		\N
+HIGH_LEVEL_THRESHOLD_ORDER	2	\N
+P3_OVERRIDE_ALLOW_MANUAL	true	\N
 \.
 
 
@@ -1509,14 +1725,14 @@ COPY public.users (id, email, password, role, "createdAt", name) FROM stdin;
 
 COPY public.workflow_steps (id, code, label, "order", route, "isActive") FROM stdin;
 1	IDENTIFICATION	Identification du bénéficiaire	0	/	t
+3	PREREQUIS	Test informatique prérequis	1	/prerequis	f
 2	FORMATION_SELECTION	Choix de la formation	2	/formations	t
+9	MISE_A_NIVEAU	Mise Ã  niveau	3	/mise-a-niveau	f
 4	POSITIONNEMENT	Test de positionnement	4	/positionnement	t
 5	RESULTATS	Résultat et validation de la formation	5	/resultats	t
-8	VALIDATION	Validation finale	8	/validation	t
+6	COMPLEMENTARY	Questions complémentaires	6	/complementary	f
 7	AVAILABILITIES	Disponibilités	7	/availabilities	t
-3	PREREQUIS	Test informatique prérequis	1	/prerequis	t
-9	MISE_A_NIVEAU	Mise Ã  niveau	3	/mise-a-niveau	t
-6	COMPLEMENTARY	Questions complémentaires	6	/complementary	t
+8	VALIDATION	Validation finale	8	/validation	t
 \.
 
 
@@ -1542,17 +1758,24 @@ SELECT pg_catalog.setval('public.levels_id_seq', 556, true);
 
 
 --
+-- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.migrations_id_seq', 2, true);
+
+
+--
 -- Name: p3_override_rules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.p3_override_rules_id_seq', 289, true);
+SELECT pg_catalog.setval('public.p3_override_rules_id_seq', 352, true);
 
 
 --
 -- Name: parcours_rules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.parcours_rules_id_seq', 451, true);
+SELECT pg_catalog.setval('public.parcours_rules_id_seq', 487, true);
 
 
 --
@@ -1637,6 +1860,14 @@ ALTER TABLE ONLY public.sessions
 
 ALTER TABLE ONLY public.stagiaires
     ADD CONSTRAINT "PK_68ac98bbda6ca0b4ac33578e0ca" PRIMARY KEY (id);
+
+
+--
+-- Name: migrations PK_8c82d7f526340ab734260ea46be; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.migrations
+    ADD CONSTRAINT "PK_8c82d7f526340ab734260ea46be" PRIMARY KEY (id);
 
 
 --
@@ -1910,6 +2141,20 @@ GRANT ALL ON SEQUENCE public.levels_id_seq TO analyse_user;
 
 
 --
+-- Name: TABLE migrations; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.migrations TO analyse_user;
+
+
+--
+-- Name: SEQUENCE migrations_id_seq; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public.migrations_id_seq TO analyse_user;
+
+
+--
 -- Name: TABLE p3_filter_rule; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -2045,6 +2290,4 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES 
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict FcUdcZajQ51jai9i7jymqLjibzlICBEYUSCi43WSAy9jjkFDRSl9qZhFKMZARnn
 
