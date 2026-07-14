@@ -6,6 +6,7 @@ const props = defineProps({
   formation: String,
   level: String,
   customMessage: { type: String, default: '' },
+  suggestedFormations: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['close', 'changeFormation', 'continue']);
@@ -16,8 +17,8 @@ function handleContinue() {
   emit('continue');
 }
 
-function handleChangeFormation() {
-  emit('changeFormation');
+function handleChangeFormation(formation) {
+  emit('changeFormation', formation);
 }
 </script>
 
@@ -43,21 +44,32 @@ function handleChangeFormation() {
             <p class="text-gray-500 text-center leading-relaxed text-lg">
               {{ customMessage || `Vous avez validé le niveau` }} <strong class="text-blue-900">{{ level }}</strong>{{ customMessage ? '' : `, qui est déjà supérieur au niveau cible de notre formation` }} <strong v-if="!customMessage" class="text-blue-900">{{ formation }}</strong>.
             </p>
-            <p class="text-gray-500 text-center leading-relaxed font-medium">
-              Voulez-vous continuer avec le parcours proposé ou changer de formation ?
+            <p v-if="suggestedFormations.length > 0" class="text-gray-500 text-center leading-relaxed font-medium">
+              Choix de parcours disponibles :
             </p>
+          </div>
+          
+          <!-- Suggested Formations -->
+          <div v-if="suggestedFormations.length > 0" class="space-y-3 mb-8">
+            <button
+              v-for="suggestedFormation in suggestedFormations"
+              :key="suggestedFormation.id"
+              @click="handleChangeFormation(suggestedFormation)"
+              class="w-full p-4 bg-gray-50 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300 rounded-2xl transition-all text-left flex items-center gap-4"
+            >
+              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+                <span class="material-icons-outlined text-blue-600">school</span>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-black text-gray-900 text-sm">{{ suggestedFormation.label || suggestedFormation.title }}</h4>
+                <p class="text-xs text-gray-500 mt-1">Niveau adapté à votre profil</p>
+              </div>
+              <span class="material-icons-outlined text-gray-400">arrow_forward</span>
+            </button>
           </div>
           
           <!-- Actions -->
           <div class="flex flex-col gap-4">
-            <button 
-              @click="handleChangeFormation"
-              class="w-full py-4-5 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"
-            >
-              <span class="material-icons-outlined text-lg">grid_view</span>
-              <span>Découvrir d'autres formations</span>
-            </button>
-            
             <button 
               @click="handleContinue"
               class="px-12 py-5 bg-[#ebb872] text-[#305364] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"

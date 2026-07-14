@@ -6,6 +6,7 @@ import { useAppStore } from "../stores/app";
 import SiteHeader from '../components/SiteHeader.vue';
 import SiteFooter from '../components/SiteFooter.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
+import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import { useToastStore } from "../stores/toast";
 import { getSessionParcoursTitle, normalizeParcoursLabel } from "../utils/parcoursLabel";
 
@@ -38,6 +39,11 @@ const p3NoConfiguredParcours = ref(false);
 const p3IsUnselectedChoice = ref(false);
 const p3UnselectedChoicesList = ref([]);
 const p3SelectedRemainingChoice = ref('');
+
+// High level alert
+const showHighLevelAlert = ref(false);
+const highLevelValidated = ref("");
+const highLevelFormations = ref([]);
 const p3AutoParcoursTitle = computed(() => {
   if (p3IsUnselectedChoice.value) return p3SelectedRemainingChoice.value;
   return p3NextParcoursTitle.value || p3NextLevelLabel.value;
@@ -1129,6 +1135,81 @@ async function doSelectFormation() {
     // Update the real workflow path based on the selected formation
     await store.updateActualWorkflow();
     
+    // High level alert detection: check if user has a validated level higher than selected formation's parcours
+    if (currentSession.value && currentSession.value.stopLevelOrder && selectedFormation.value) {
+      const validatedLevelOrder = currentSession.value.stopLevelOrder;
+      const formation = selectedFormation.value;
+      
+      // Check if formation has high level alert enabled
+      const enableHighLevelAlert = formation.enableHighLevelAlert !== false;
+      
+      // Get the max level order from the formation's parcours (not the formation itself)
+      // Find parcours rules for this formation
+      const formationParcoursRules = allParcoursRules.value.filter(rule => {
+        const ruleFormation = normalizeParcoursLabel(rule.formation || '');
+        const selectedFormationLabel = normalizeParcoursLabel(formation.label || '');
+        return ruleFormation === selectedFormationLabel;
+      });
+      
+      // Find the maximum level order among all parcours for this formation
+      let maxLevelOrder = null;
+      if (formation.maxLevelOrder) {
+        maxLevelOrder = Number(formation.maxLevelOrder);
+      } else if (formationParcoursRules.length > 0) {
+        // Extract level orders from parcours conditions
+        const levelOrders = formationParcoursRules.map(rule => {
+          if (rule.condition) {
+            const match = rule.condition.match(/order:\s*(\d+)/i);
+            return match ? Number(match[1]) : null;
+          }
+          return null;
+        }).filter(Boolean);
+        if (levelOrders.length > 0) {
+          maxLevelOrder = Math.max(...levelOrders);
+        }
+      }
+      
+      // Trigger alert if enabled and validated level is at or above max level
+      if (enableHighLevelAlert && maxLevelOrder && validatedLevelOrder >= maxLevelOrder) {
+        // Find higher level formations to suggest
+        const higherFormations = formations.value.filter(f => {
+          if (f.id === formation.id) return false;
+          
+          // Get max level for this formation
+          let fMaxOrder = null;
+          if (f.maxLevelOrder) {
+            fMaxOrder = Number(f.maxLevelOrder);
+          } else {
+            const fParcoursRules = allParcoursRules.value.filter(rule => {
+              const ruleFormation = normalizeParcoursLabel(rule.formation || '');
+              const fLabel = normalizeParcoursLabel(f.label || '');
+              return ruleFormation === fLabel;
+            });
+            const fLevelOrders = fParcoursRules.map(rule => {
+              if (rule.condition) {
+                const match = rule.condition.match(/order:\s*(\d+)/i);
+                return match ? Number(match[1]) : null;
+              }
+              return null;
+            }).filter(Boolean);
+            if (fLevelOrders.length > 0) {
+              fMaxOrder = Math.max(...fLevelOrders);
+            }
+          }
+          
+          return fMaxOrder && fMaxOrder > maxLevelOrder;
+        });
+        
+        if (higherFormations.length > 0) {
+          highLevelValidated.value = currentSession.value.stopLevel || '';
+          highLevelFormations.value = higherFormations;
+          showHighLevelAlert.value = true;
+          submitting.value = false;
+          return;
+        }
+      }
+    }
+    
     const nextRoute = await store.getNextRouteWithQuestions("/formations");
     router.push(nextRoute || "/positionnement");
   } catch (error) {
@@ -1137,6 +1218,23 @@ async function doSelectFormation() {
   } finally {
     submitting.value = false;
   }
+}
+
+function handleHighLevelContinue() {
+  showHighLevelAlert.value = false;
+  // Continue with the originally selected formation
+  const nextRoute = store.getNextRouteWithQuestions("/formations");
+  router.push(nextRoute || "/positionnement");
+}
+
+function handleHighLevelChangeFormation(formation) {
+  showHighLevelAlert.value = false;
+  selectedFormation.value = formation;
+  doSelectFormation();
+}
+
+function handleHighLevelClose() {
+  showHighLevelAlert.value = false;
 }
 
 /**
@@ -1819,6 +1917,16 @@ function isSectionActive(section) {
     </main>
 
     <SiteFooter />
+
+    <HighLevelAlertModal
+      :show="showHighLevelAlert"
+      :formation="selectedFormation?.label"
+      :level="highLevelValidated"
+      :suggestedFormations="highLevelFormations"
+      @continue="handleHighLevelContinue"
+      @changeFormation="handleHighLevelChangeFormation"
+      @close="handleHighLevelClose"
+    />
 
     <!-- Sticky Bottom Bar - apparaît quand la bannière inline sort du viewport -->
     <transition name="sticky-slide">

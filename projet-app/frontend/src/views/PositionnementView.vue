@@ -85,6 +85,10 @@ const alertSettings = ref({
   customMessage: '',
 });
 
+const modalAlertMessage = computed(() => {
+  return parcoursRuleMessage.value || alertSettings.value.customMessage || '';
+});
+
 // Low score warning modal
 const showFormationWarning = ref(false);
 const allowSkip = ref(true); // admin toggle for skipping this step
@@ -852,7 +856,7 @@ async function finishTest(overrideSession = null) {
                                   hiddenMsgLower.includes('test qcm révèle un niveau supérieur');
           
           const isTooWeakMsg = hiddenType === 'too_weak';
-
+          console.debug("test", isTooAdvancedMsg);
           finalRecommendation.value = "";
           parcoursTitle.value = hiddenMatchingRule.parcoursTitle || "";
           
@@ -870,7 +874,9 @@ async function finishTest(overrideSession = null) {
             const candidateRules = formationRules.filter(r => {
               const pt = String(r.parcoursTitle || '').toLowerCase();
               const em = String(r.explanationMessage || '').toLowerCase();
-              return pt.includes('niveau trop avancé') || em.includes('niveau trop avancé') || em.includes('test qcm révèle un niveau supérieur');
+              const textMatches = pt.includes('niveau trop avancé') || em.includes('niveau trop avancé') || em.includes('test qcm révèle un niveau supérieur');
+              const hiddenMatches = r.isHiddenResult && r.isActive !== false && evaluateLevelCondition(r);
+              return textMatches || hiddenMatches;
             });
 
             if (candidateRules.length > 0) {
@@ -933,6 +939,31 @@ async function finishTest(overrideSession = null) {
           }
 
           usedParcoursRule = true;
+          if (isTooAdvancedMsg) {
+            let finalLevelLabel = "Débutant";
+            levels.value.forEach((l) => {
+              if (levelsScores.value[l.label]?.validated) {
+                finalLevelLabel = l.label;
+              }
+            });
+
+            highLevelValidated.value = finalLevelLabel;
+            showHighLevelAlert.value = true;
+            submitting.value = false;
+
+            // Sauvegarder le message en session (non complétée)
+            await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+              levelsScores: levelsScores.value,
+              finalRecommendation: "",
+              stopLevel: levels.value[currentLevelIndex.value]?.label || "",
+              isCompleted: false,
+              explanationMessage: parcoursRuleMessage.value,
+              parcoursTitle: parcoursTitle.value || null,
+              parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+            });
+            return;
+          }
+
           showResults.value = true;
           submitting.value = false;
           // Sauvegarder le message en session
@@ -1296,8 +1327,27 @@ function handleHighLevelContinue() {
   showHighLevelAlert.value = false;
 }
 
-function handleHighLevelChangeFormation() {
-  router.push("/formations");
+async function handleHighLevelChangeFormation(choice) {
+  if (choice && choice.recommendations) {
+    submitting.value = true;
+    try {
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+        finalRecommendation: choice.recommendations.join(" | "),
+        parcoursTitle: choice.title,
+        parcoursChoices: null,
+        isCompleted: true
+      });
+      showHighLevelAlert.value = false;
+      router.push("/resultats");
+    } catch (error) {
+      console.error("Failed to select alternative path:", error);
+      toast.error("Erreur lors de la mise à jour du parcours.");
+    } finally {
+      submitting.value = false;
+    }
+  } else {
+    router.push("/formations");
+  }
 }
 
 function finishStep() {
@@ -1984,7 +2034,8 @@ async function saveAndExit() {
       :show="showHighLevelAlert"
       :formation="formationLabel"
       :level="highLevelValidated"
-      :customMessage="alertSettings.customMessage"
+      :customMessage="modalAlertMessage"
+      :suggestedFormations="parcoursChoices"
       @continue="handleHighLevelContinue"
       @changeFormation="handleHighLevelChangeFormation"
       @close="showHighLevelAlert = false"

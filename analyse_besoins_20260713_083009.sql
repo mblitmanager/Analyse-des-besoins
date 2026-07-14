@@ -2,13 +2,14 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.2
--- Dumped by pg_dump version 17.2
+-- \restrict pY6TRjdELod4Beg3YjhYiWM2yiWaT1Y6ETjcEKpbWaxwz7XBdr6ayNsIzvyLsZP
+
+-- Dumped from database version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -861,28 +862,28 @@ COPY public.migrations (id, "timestamp", name) FROM stdin;
 --
 
 COPY public.p3_filter_rule (id, name, "sourceCategory", "sourceSlugs", "maxLevelOrder", "filterMode", "targetSlugs", "targetCategories", "isActive", "order", "levelOperator") FROM stdin;
-7e659404-f96d-4c44-affc-9bed884942c5	Powerpoint operationnel	\N	ppt	3	EXCLUDE	voltaire,toeic,ppt,microsoft-office		t	0	gte
-81641602-2ada-4802-8957-fad622b230e3	Outlook	\N	pack-office-outlook	3	EXCLUDE	toeic,voltaire,pack-office-outlook,wordpress,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
-fbfd5bcf-cec0-4c57-9f81-b31befba3930	Google docs	\N	google-docs	\N	EXCLUDE	voltaire,toeic,google-docs,microsoft-office		t	0	lte
-10e5a179-7cf9-4e05-976e-242b78787ccb	Google sheets	\N	google-sheets	\N	EXCLUDE	toeic,voltaire,google-sheets,microsoft-office		t	0	lte
-cbd06a12-5145-4e87-850a-e44ef1e8f467	Google slides	\N	google-slides	\N	EXCLUDE	toeic,voltaire,google-slides,microsoft-office		t	0	lte
-f3f72c6b-f173-44c0-89ac-9fbe27a2d42d	Photoshop	\N	photoshop	1	EXCLUDE	photoshop,toeic,voltaire,microsoft-office		t	0	gte
-59f6988e-09b1-4c11-bf01-e63733454578	Sketchup	\N	sketchup	\N	EXCLUDE	sketchup,toeic,voltaire,microsoft-office		t	0	lte
-5cb01e66-4744-4df7-a785-226ce081de2c	Word	\N	word	2	EXCLUDE	voltaire,toeic,microsoft-office		t	0	lte
-052940c6-8793-449d-a581-dd6977f6804a	Wordpress	\N	wordpress	3	EXCLUDE	toeic,voltaire,wordpress,microsoft-office		t	0	lte
-51278665-b619-4b0d-be80-c9abe4942d38	Parcours mixtes bureautiques	\N	microsoft-office	1	EXCLUDE	toeic,voltaire,microsoft-office		t	0	gte
-167c0c00-d648-40d6-b872-6881fc941b86	Digital Compétences	\N	digcomp,microsoft-office	3	EXCLUDE	toeic,voltaire,digcomp		t	0	gte
-f625fa10-f792-4f87-a0cc-c6acc631c925	IA Générative Excel	\N	word-ia	3	EXCLUDE	excel-ia,voltaire,toeic,wordpress,microsoft-office		t	0	lte
-aa6d99a0-404c-48a0-9f8c-3288fad95a5d	Gimp	\N	gimp	\N	EXCLUDE	toeic,voltaire,microsoft-office		t	0	lte
 ef09fcd0-7bcd-490c-b10a-f980d84b7395	IA Générative Word	\N	word-ia	3	EXCLUDE	toeic,voltaire,microsoft-office,wordpress,word-ia,gimp,illustrator,photoshop,sketchup		t	0	lte
-6f73f981-c9a8-4986-a379-e3889ef0732f	Word operationnel	\N	word	3	EXCLUDE	word,voltaire,toeic,microsoft-office		t	0	gte
 26e60375-0629-4cb5-bd9d-4f1aa7cfabe4	Excel	\N	excel	2	EXCLUDE	toeic,voltaire,microsoft-office,gimp,illustrator,photoshop,sketchup,wordpress		t	0	lte
-7253d199-dab8-48b9-820e-4b0ad28c9448	Excel operationnel	\N	excel	3	EXCLUDE	toeic,voltaire,excel,microsoft-office		t	0	gte
 2aefc3f9-7c59-4925-a10e-a5f6277620a3	Power point	\N	ppt	2	EXCLUDE	toeic,voltaire,microsoft-office,gimp,illustrator,photoshop,sketchup,wordpress		t	0	lte
-20a3d358-fe4a-433f-9d74-82932c9baa8b	Français	\N	voltaire	2	EXCLUDE	voltaire,microsoft-office		t	0	gte
-04db0cc9-96ae-42d5-bfc4-98e53b797558	Anglais	\N	toeic	4	EXCLUDE	toeic,microsoft-office		t	0	gte
-c1345fe2-1246-4d2c-b6ab-94a9f18fd982	Illustrator	\N	illustrator	2	EXCLUDE	illustrator,toeic,voltaire,microsoft-office		t	0	gte
-d3558176-f860-4699-8f9e-957671960cf1	Google Workspace	\N	outils-collaboratifs-google	\N	EXCLUDE	toeic,voltaire,outils-collaboratifs-google,microsoft-office		t	0	lte
+04db0cc9-96ae-42d5-bfc4-98e53b797558	Anglais	\N	toeic	4	ALLOW_ONLY	digcomp,outils-collaboratifs-google,excel,pack-office-outlook,ppt,word,excel-ia,word-ia,google-docs,google-sheets,google-slides		t	0	gte
+20a3d358-fe4a-433f-9d74-82932c9baa8b	Français	\N	voltaire	2	EXCLUDE	voltaire,microsoft-office,toeic,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+7e659404-f96d-4c44-affc-9bed884942c5	Powerpoint operationnel	\N	ppt	3	EXCLUDE	voltaire,toeic,ppt,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+81641602-2ada-4802-8957-fad622b230e3	Outlook	\N	pack-office-outlook	3	EXCLUDE	toeic,voltaire,pack-office-outlook,wordpress,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
+fbfd5bcf-cec0-4c57-9f81-b31befba3930	Google docs	\N	google-docs	\N	EXCLUDE	voltaire,toeic,google-docs,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
+10e5a179-7cf9-4e05-976e-242b78787ccb	Google sheets	\N	google-sheets	\N	EXCLUDE	toeic,voltaire,google-sheets,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
+cbd06a12-5145-4e87-850a-e44ef1e8f467	Google slides	\N	google-slides	\N	EXCLUDE	toeic,voltaire,google-slides,microsoft-office,gimp,illustrator,photoshop,sketchup,wordpress		t	0	lte
+f3f72c6b-f173-44c0-89ac-9fbe27a2d42d	Photoshop	\N	photoshop	1	EXCLUDE	photoshop,toeic,voltaire,microsoft-office,wordpress		t	0	gte
+59f6988e-09b1-4c11-bf01-e63733454578	Sketchup	\N	sketchup	\N	EXCLUDE	sketchup,toeic,voltaire,microsoft-office,wordpress		t	0	lte
+5cb01e66-4744-4df7-a785-226ce081de2c	Word	\N	word	2	EXCLUDE	voltaire,toeic,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	lte
+052940c6-8793-449d-a581-dd6977f6804a	Wordpress	\N	wordpress	3	EXCLUDE	toeic,voltaire,wordpress,microsoft-office		t	0	lte
+51278665-b619-4b0d-be80-c9abe4942d38	Parcours mixtes bureautiques	\N	microsoft-office	1	EXCLUDE	toeic,voltaire,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+167c0c00-d648-40d6-b872-6881fc941b86	Digital Compétences	\N	digcomp	3	EXCLUDE	toeic,voltaire,digcomp,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+f625fa10-f792-4f87-a0cc-c6acc631c925	IA Générative Excel	\N	word-ia	3	EXCLUDE	excel-ia,voltaire,toeic,wordpress,microsoft-office,gimp,illustrator,photoshop,sketchup		t	0	lte
+aa6d99a0-404c-48a0-9f8c-3288fad95a5d	Gimp	\N	gimp	\N	EXCLUDE	toeic,voltaire,microsoft-office,wordpress		t	0	lte
+6f73f981-c9a8-4986-a379-e3889ef0732f	Word operationnel	\N	word	3	EXCLUDE	word,voltaire,toeic,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+7253d199-dab8-48b9-820e-4b0ad28c9448	Excel operationnel	\N	excel	3	EXCLUDE	toeic,voltaire,excel,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	gte
+c1345fe2-1246-4d2c-b6ab-94a9f18fd982	Illustrator	\N	illustrator	2	EXCLUDE	illustrator,toeic,voltaire,microsoft-office,wordpress		t	0	gte
+d3558176-f860-4699-8f9e-957671960cf1	Google Workspace	\N	outils-collaboratifs-google	\N	EXCLUDE	toeic,voltaire,outils-collaboratifs-google,microsoft-office,wordpress,gimp,illustrator,photoshop,sketchup		t	0	lte
 \.
 
 
@@ -936,7 +937,6 @@ COPY public.p3_override_rules (id, formation, "formationId", condition, formatio
 239	Google Sheets	5		Google Slides Opérationnel (ICDL)		1	t	\N		Bureautique Google (SHEETS) - P3	Google Sheets Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	[]
 240	Google Slides	10		IA GENERATIVE (INKREA)		1	t	\N		Bureautique Google (SLIDES) - P3	Google Slides Opérationnel (ICDL)	Google Docs Opérationnel (ICDL)	t	t	f	\N	["Excel + IA","Word + IA"]
 265	Digitales Compétences	23	= Opérationnel	Google Sheets Opérationnel (ICDL)		16	t	\N	Digitales Compétences Opérationnel (TOSA) + OUTILS COLLABORATIFS (ICDL) -> GOOGLE SHEETS Opérationnel (ICDL)	Perfectionnement Digitales Compétences & Outils Coll. - P3	Digitales Compétences Opérationnel (TOSA)	Outils Collaboratifs Opérationnel (ICDL)	t	t	f	\N	\N
-269	Anglais	25		Excel Basique (TOSA)	Excel Opérationnel (ICDL)	2	t	\N			Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	t	f	\N	[]
 250	Digitales Compétences	23		EXCEL Basique (TOSA)		1	t	\N		Essentiels Digitales Compétences & Word - P3	Digitales Compétences Basique (TOSA)	Word Basique (TOSA)	t	t	f	\N	[]
 244	Photoshop	20		Illustrator Basique (TOSA)	SketchUp (ICDL)	3	t	\N		Renforcement Photoshop - P3	Photoshop Basique (TOSA)	Photoshop Opérationnel  (ICDL)	t	t	f	\N	[]
 300	Outlook	15		PowerPoint Basique (TOSA)		1	t			Essentiels Digitales Compétences & Outlook - P3	Outlook Basique (TOSA)	Digitales Compétences Basique (TOSA)	t	t	f	\N	\N
@@ -973,6 +973,8 @@ COPY public.p3_override_rules (id, formation, "formationId", condition, formatio
 318	Excel	45		Outils Collaboratifs Google Basique (TOSA)		7	t			Essentiels Digitales Compétences & Excel - P3	Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	t	t	f	\N	[]
 319	Excel	45		Excel Opérationnel (ICDL)		8	t	Essentiels Digitales Compétences & Excel - P3			Digitales Compétences Basique (TOSA)	Excel Basique (TOSA)	f	t	f	\N	[]
 320	Anglais 	25		Niveau C1 - TOEIC		2	t				Niveau B1 - TOEIC	Niveau B2 - TOEIC	f	t	f	\N	[]
+353	Anglais	25		IA GENERATIVE (INKREA)		3	f	\N			Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	t	f	\N	[55,56]
+269	Anglais	25		Excel Basique (TOSA)	Excel Opérationnel (ICDL)	2	f	\N			Niveau B2 - TOEIC	Niveau C1 - TOEIC	t	t	f	\N	[]
 \.
 
 
@@ -1549,6 +1551,7 @@ cb61ade2-cce5-498f-8167-40e2bad81521	aopia	M.	Anglais	A1 KO	0606060606		\N	\N	\N
 f2e7452c-10dd-4ab3-9567-a26c84f6f4ad	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{}	\N	\N	2026-07-12 23:04:28.164677	2026-07-12 23:04:52.756	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 c5655178-907a-431a-ac3d-042ee2d6d45a	aopia	M.	aza	a	06	Herizo Randria	Photoshop	\N	{}	\N	\N	2026-07-12 22:10:03.667454	2026-07-12 22:11:58.707	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 57f363ea-ebdf-48da-8f8d-f99e0116d450	aopia	M.	Test	H	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Basique (TOSA) & PPT Basique (TOSA)	2026-07-08 11:56:22.947779	2026-07-08 11:58:00.64	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N	\N	Essentiels Digitales Compétences & PPT	\N
+97521220-4b7d-4703-8652-350e38a405f9	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	2026-07-13 08:02:12.741479	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	f	f	f	f	\N	\N	\N	\N	f	\N	1	\N	\N	\N	\N
 3e2d5845-a015-4829-bb44-69b5316250ec	aopia	M.	te	a	06	Herizo Randria	Niveau C1 - TOEIC	{"470":"Occasionnellement","473":"Quotidiennement ","477":"Oui avec quelques difficultés ","2109":"Oui avec quelques difficultés ","2632":"Non","2633":"Occasionnellement","2636":"Oui avec quelques difficultés"}	{"Niveau A1":{"score":3,"total":6,"percentage":50,"requiredCorrect":6,"validated":false}}	Niveau C1 - TOEIC	Niveau C1 - TOEIC	2026-07-08 14:45:31.141942	2026-07-08 14:46:58.476	-1	{"40":"Non","41":"Non","42":null,"447":"Je vise un emploi pour lequel de nouvelles compétences me seront utiles"}	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Niveau A1":{"2123":"is","2124":"have","2125":"are","2126":"have","2127":"is watching","2128":"is going"}}	test	["Salarié"]	{"2172":"Collège","2173":"Oui","2174":["Clientèle"],"2175":"Régulier","2176":"Oui","2177":["Voyages","Lecture"],"2448":"Ponctuel"}	f	f	t	f					t	\N	1	\N	Niveau A2 - TOEIC + Niveau B1 - TOEIC -> Niveau C1 - TOEIC	"Renforcement Anglais" (A2 & B1) - TOEIC - P3	\N
 62787907-02e1-414a-b217-3a59a1d7665e	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Initial	Essentiels Digitales Compétences & Word | Essentiels Digitales Compétences & Excel | Essentiels Digitales Compétences & PPT | Renforcement Digital Compétence  & OUTLOOK	2026-07-08 14:27:11.952867	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":394,"title":"Essentiels Digitales Compétences & Word","recommendations":["Digitales Compétences Basique (TOSA)","WORD Basique (TOSA)"],"explanationMessage":""},{"id":438,"title":"Essentiels Digitales Compétences & Excel","recommendations":["Digitales Compétences Basique (TOSA)","EXCEL Basique (TOSA)"],"explanationMessage":""},{"id":437,"title":"Essentiels Digitales Compétences & PPT","recommendations":["Digitales Compétences Basique (TOSA)","PPT Basique (TOSA)"],"explanationMessage":""},{"id":436,"title":"Renforcement Digital Compétence  & OUTLOOK","recommendations":["Digitales Compétences Basique (TOSA)","OUTLOOK Basique (TOSA)"],"explanationMessage":""}]
 15ceadbf-da49-445d-b44a-1de8bfc64a3a	aopia	M.	tes	tes	06	Herizo Randria	Word	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true}}	\N	\N	2026-07-08 14:43:05.341044	\N	\N	\N	\N	\N	Basique	f	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & WORD	\N
@@ -1559,6 +1562,7 @@ c5655178-907a-431a-ac3d-042ee2d6d45a	aopia	M.	aza	a	06	Herizo Randria	Photoshop	
 eb08f7a3-993e-4362-aaee-7729a6fff279	aopia	M.	a	a	a	Herizo Randria	IA GENERATIVE (INKREA)	\N	{"Initial":{"score":2,"total":4,"percentage":50,"requiredCorrect":4,"validated":false}}	IA GENERATIVE (INKREA)	IA GENERATIVE (INKREA)	2026-07-12 22:20:03.294857	2026-07-12 22:20:48.316	-1	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"2519":"Illustrator permet d'agrandir un dessin à l'infini sans perte de qualité. ","2520":"La zone de calque.","2521":"Du dessin vectoriel ","2522":".JPG"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	ILLUSTRATOR Basique (TOSA) + ILLUSTRATOR Opérationnel (ICDL) -> IA GENERATIVE (INKREA)	Renforcement Illustrator - P3	\N
 c14a0ef2-ed12-4982-b1a2-9ab244b324a5	aopia	M.	a	a	06	Herizo Randria	Excel + IA	\N	{}	\N	\N	2026-07-12 23:14:41.203398	2026-07-12 23:15:01.953	\N	\N	{"43":"Après-midi","2641":""}	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 720f0c9a-28a4-4bd2-b2f0-b658c24bd509	aopia	M.	az	a	06	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:55:14.501515	2026-07-12 23:55:35.563	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA qui applique uniquement des règles programmées","2671":"Classer automatiquement des emails par expéditeur","2672":"Le résultat produit par l’IA"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+1026e190-3a38-4fce-9030-90c90c3eb653	aopia	M.	a	a	H	Herizo Randria	Excel	\N	{"Initial":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	Initial	Digitales Compétences Basique (TOSA) | Excel Basique (TOSA)	2026-07-13 08:05:15.819316	\N	\N	\N	\N	\N	Débutant	f	{"Initial":{"1975":"Un **bloc**","1976":"**=NBVAL()**","1977":"**Graphique Combiné**"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & EXCEL	\N
 0fa0ef8f-4d51-4623-b258-ffd356c8a9cb	aopia	M.	a	a	06	Herizo Randria	Word Opérationnel (ICDL)	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":5,"total":5,"percentage":100,"requiredCorrect":4,"validated":true},"Avance":{"score":2,"total":5,"percentage":40,"requiredCorrect":5,"validated":false}}	Word Opérationnel (ICDL)	Word Opérationnel (ICDL)	2026-07-11 12:19:17.765246	2026-07-11 12:20:48.673	-1	\N	{"43":"Après-midi","2641":""}	\N	Opérationnel	t	{"Initial":{"2060":"A **rédiger** du contenu **traitement de texte**","2061":"**Fichier** > **Enregistrer sous**","2062":"**Insertion** > **Images **"},"Basique":{"2063":"CTRL + **S **","2064":"Sélectionner les cellules puis **Création de tableau** > **Styles de tableau **","2065":"Une **tabulation**","2066":"**Insérer** une image > **Clic droit** > Positionner dans **l’en-tête**","2067":"Bleu"},"Opérationnel":{"2068":"**Accueil** > **Styles**","2069":"**Mise en page** > **Colonnes **","2070":".**DOTX**","2071":"**Copier** le tableau dans **Excel** > **Coller** de manière **spéciale** dans **Word **","2072":"**Références** > **Tables des matières **"},"Avance":{"2073":"En utilisant le principe du **document maître** et des **sous-documents**","2074":"La note de bas de page s’affiche **en bas de la page concernée**, tandis que la note de fin est **regroupée à la fin du document** ou d’une section","2075":"À avoir un **historique des différentes versions** du document","2076":"**Fichiers** > **Informations** > **Gérer le document**","2077":"Volet de **navigation**"}}	\N	\N	\N	f	f	t	f					t	\N	1	\N	Word Basique (TOSA) + Word Opérationnel (ICDL) -> Word Opérationnel (ICDL)	Renforcement Word - P3	\N
 fb604117-be78-4947-be35-32d54f4cac96	aopia	M.	a	a	06	Herizo Randria	Excel	\N	{}	\N	\N	2026-07-10 14:32:38.706311	2026-07-10 14:35:36.62	\N	\N	\N	\N	\N	t	{}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 3eb32712-cc06-4b41-9918-562f6dfbcc5f	aopia	M.	A	H	06	Herizo Randria	Outlook	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Opérationnel":{"score":4,"total":5,"percentage":80,"requiredCorrect":4,"validated":true},"Avancé":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Avancé	Outlook Basique (TOSA) | Digitales Compétences Opérationnel (TOSA)	2026-07-12 20:58:57.432627	\N	\N	\N	\N	\N	Opérationnel	t	{"Opérationnel":{"2591":"Clic droit sur Boîte de réception → Nouveau dossier ","2592":"Gestionnaire d’absence ","2593":"Envoyer une copie en préservant la confidentialité des adresses ","2594":"Dans les options du message ","2595":"Trier les messages"},"Avancé":{"2596":"Les mails restent synchronisés avec le serveur et accessibles depuis plusieurs appareils ","2597":"Le mettre en brouillon","2598":"Supprimer les emails","2599":"Règles → Créer une règle ","2600":"Depuis Contacts → Nouveau groupe "}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & Outlook	\N
@@ -1659,6 +1663,8 @@ e7d5cee3-5417-44eb-bc90-1fc507af9f17	aopia	M.	z	a	06	Herizo Randria	SketchUp	\N	
 87caf892-1c65-4918-bec7-b3ddd2a3fd23	aopia	M.	a	hj	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":1,"total":3,"percentage":33.33333333333333,"requiredCorrect":3,"validated":false}}	Débutant	Digitales Compétences Opérationnel (TOSA)	2026-07-12 23:29:42.848447	2026-07-12 23:32:54.153	0	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Excel"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	Outils Collaboratifs Google Opérationnel (ICDL) + IA GENERATIVE (INKREA) -> Digitales Compétences Opérationnel (TOSA)	Google Workspace - P3	\N
 8dbb4e9e-aa75-4f01-8a39-ced490ac7c79	aopia	M.	a	a	06	Herizo Randria	Digitales Compétences	\N	{"Initial":{"score":2,"total":3,"percentage":66.66666666666666,"requiredCorrect":3,"validated":false}}	Débutant	Aucun parcours actif ne correspond à cette progression.	2026-07-12 23:33:00.841317	2026-07-12 23:43:09.562	0	\N	{"43":"Entre 12h et 14h","2641":""}	\N	Débutant	t	{"Initial":{"1952":"Je l’ouvre et je copie le texte","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
 ad889eab-0e7d-40c8-8847-6491a0c55630	aopia	M.	a	a	a	Herizo Randria	Excel + IA	\N	{"IA Générative ":{"score":0,"total":3,"percentage":0,"requiredCorrect":3,"validated":false}}	IA Générative 	Aucun parcours actif ne correspond à cette progression.	2026-07-13 00:30:18.175605	2026-07-13 00:30:39.691	\N	\N	{"43":"Après-midi","2641":""}	\N	Débutant	t	{"IA Générative ":{"2647":"Une IA spécialisée uniquement dans la reconnaissance vocale","2671":"Copier-coller un texte dans un document","2672":"Une base de données"}}	\N	\N	\N	f	f	t	f					f	\N	3	\N	\N	\N	\N
+a8f92256-f5b5-4743-bb97-93282fa1467c	aopia	M.	Ranto	MblDEV	+261347765350	herizo Randria	Excel	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":3,"total":5,"percentage":60,"requiredCorrect":4,"validated":false}}	Initial	Digitales Compétences Basique (TOSA) & Excel Basique (TOSA)	2026-07-13 08:05:18.9671	2026-07-13 08:19:00.203	0	\N	{"43":"Matin","2641":""}	\N	Initial	t	{"Initial":{"1975":"Une **cellule **","1976":"**=SOMME() **","1977":"Graphique **Camembert (Secteur) **"},"Basique":{"1978":"L'icône : **$**","1979":"A **trier** les valeurs","1980":"**SI**()","1981":"Figer les **volets **","1982":"**DATE**()"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		Essentiels Digitales Compétences & EXCEL	\N
+3e855486-37ac-435c-abcc-cb5ed4ca77dc	aopia	M.	test	WORD	00	TEST CECILE	Digitales Compétences	\N	{"Initial":{"score":3,"total":3,"percentage":100,"requiredCorrect":3,"validated":true},"Basique":{"score":1,"total":5,"percentage":20,"requiredCorrect":5,"validated":false}}	Basique	Essentiels Digitales Compétences & Word | Essentiels Digitales Compétences & Excel | Essentiels Digital Compétence & PPT | Renforcement Digital Compétence + OUTLOOK	2026-07-13 08:22:38.314436	\N	\N	\N	\N	\N	Initial	f	{"Initial":{"1952":"Je clique sur Enregistrer sous","1953":"J’utilise l’Identité Numérique La Poste","1954":"J’utilise Teams"},"Basique":{"1955":"Je n’utilise pas Internet pour cela","1956":"Je transfère le mail","1957":"Je ne sais pas faire","1958":"Je ferme un programme","1959":"J’utilise seulement 6 caractères"}}	\N	\N	\N	f	f	f	f					f	\N	1	\N		\N	[{"id":394,"title":"Essentiels Digitales Compétences & Word","recommendations":["Digitales Compétences Basique (TOSA)","Word Basique (TOSA)"],"explanationMessage":""},{"id":438,"title":"Essentiels Digitales Compétences & Excel","recommendations":["Digitales Compétences Basique (TOSA)","Excel Basique (TOSA)"],"explanationMessage":""},{"id":437,"title":"Essentiels Digital Compétence & PPT","recommendations":["Digitales Compétences Basique (TOSA)","PowerPoint Basique (TOSA)"],"explanationMessage":""},{"id":436,"title":"Renforcement Digital Compétence + OUTLOOK","recommendations":["Digitales Compétences Basique (TOSA)","Outlook Opérationnel (TOSA)"],"explanationMessage":""}]
 \.
 
 
@@ -1768,7 +1774,7 @@ SELECT pg_catalog.setval('public.migrations_id_seq', 2, true);
 -- Name: p3_override_rules_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.p3_override_rules_id_seq', 352, true);
+SELECT pg_catalog.setval('public.p3_override_rules_id_seq', 353, true);
 
 
 --
@@ -2290,4 +2296,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES 
 --
 -- PostgreSQL database dump complete
 --
+
+-- \unrestrict pY6TRjdELod4Beg3YjhYiWM2yiWaT1Y6ETjcEKpbWaxwz7XBdr6ayNsIzvyLsZP
 
