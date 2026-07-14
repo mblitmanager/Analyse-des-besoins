@@ -70,6 +70,7 @@ function handleChangeFormation(formation) {
           
           <!-- Actions -->
           <div class="flex flex-col gap-4">
+            
             <button 
               @click="handleContinue"
               class="px-12 py-5 bg-[#ebb872] text-[#305364] rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-[#ebb872]/20 hover:brightness-105 transition-all flex items-center justify-center gap-3 disabled:opacity-30 disabled:translate-y-0 cursor-pointer"
@@ -77,7 +78,15 @@ function handleChangeFormation(formation) {
               <span>Continuer avec {{ formation }}</span>
               <span class="material-icons-outlined text-sm">arrow_forward</span>
             </button>
+            <button
+              @click="handleChangeFormation()"
+              class="w-full py-4-5 bg-brand-primary hover:bg-brand-secondary text-[#428496] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-brand-primary/20 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
+            >
+              <span class="material-icons-outlined text-lg">grid_view</span>
+              <span>Découvrir d'autres formations</span>
+            </button>
           </div>
+          
         </div>
         
         <!-- Footer Info -->
