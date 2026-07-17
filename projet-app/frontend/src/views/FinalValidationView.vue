@@ -55,12 +55,32 @@ const isP3Validation = computed(() => {
 
 const p3RecommendationLabel = computed(() => {
   if (!isP3Validation.value || !session.value) return "";
-  return (
+  const raw = (
     session.value.finalRecommendation ||
     session.value.parcoursTitle ||
     recommendedLabel.value ||
     ""
   ).trim();
+
+  if (!raw) return "";
+
+  // Si le label P3 contient des séparateurs (| ou &), extraire la partie non déjà proposée en P1/P2
+  const p1 = localStorage.getItem("p3_prev_p1") || "";
+  const p2 = localStorage.getItem("p3_prev_p2") || "";
+  const prevRecs = [p1, p2].filter(Boolean).join(" | ");
+
+  const parts = raw.split(/\s*[\|&]\s*/);
+  if (parts.length > 1 && prevRecs) {
+    const newParts = parts.filter(part => {
+      const cleanPart = normalizeParcoursLabel(part);
+      const cleanP1 = normalizeParcoursLabel(p1);
+      const cleanP2 = normalizeParcoursLabel(p2);
+      return cleanPart && cleanPart !== cleanP1 && cleanPart !== cleanP2;
+    });
+    if (newParts.length > 0) return newParts.join(" | ");
+  }
+
+  return raw;
 });
 
 function splitRecommendation(value) {
