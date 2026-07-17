@@ -85,6 +85,10 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         {
+          path: '',
+          redirect: '/admin/dashboard'
+        },
+        {
           path: 'dashboard',
           name: 'admin-dashboard',
           component: () => import('../views/admin/DashboardView.vue')
@@ -166,9 +170,17 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')
+  
+  // Routes admin : accès uniquement avec token ET si la navigation vient d'une URL directe
+  // (from.name === null = navigation directe par URL, pas depuis l'app)
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!token) {
+      // Pas de token → login
       next('/admin/login')
+    } else if (from.name !== null && !from.path.startsWith('/admin')) {
+      // Navigation depuis l'app publique vers l'admin → interdite
+      // L'admin n'est accessible que par saisie directe de l'URL
+      next('/')
     } else {
       next()
     }

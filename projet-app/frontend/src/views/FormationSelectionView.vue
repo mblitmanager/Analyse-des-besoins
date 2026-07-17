@@ -59,6 +59,7 @@ const p3AutoFormationDetail = computed(() => {
 
 // ── P3 OVERRIDE: Admin-configurable forced formations by formation and level ──
 const p3OverrideEnabled = ref(false);
+const p3OverrideSkipped = ref(false);   // true quand l'apprenant a cliqué "Choisir manuellement"
 const p3OverrideRules = ref([]); // Array of P3 override rules
 const showP3OverrideModal = ref(false);
 const p3OverrideAllowManual = ref(true);   // P3_OVERRIDE_ALLOW_MANUAL : afficher "Choisir manuellement"
@@ -379,25 +380,28 @@ function labelsMatch(actual, expected) {
 }
 
 function getP3PreviousItemsForConditions() {
+  // p3_prev_p1/p3_prev_p2 sont stockés dans FinalValidationView.startP3() → source la plus fiable
+  const storedP1 = localStorage.getItem("p3_prev_p1") || "";
+  const storedP2 = localStorage.getItem("p3_prev_p2") || "";
+
+  // Si p3_prev_p1 est disponible, l'utiliser en priorité
+  if (storedP1) {
+    return [storedP1, storedP2 || storedP1];
+  }
+
+  // Fallback : extraire depuis la session courante
   const title = getSessionParcoursTitle(currentSession.value);
   const sessionItems = getFormationItemsFromSession(currentSession.value, title);
-  const fallbackItems = [
-    localStorage.getItem("p3_prev_p1") || "",
-    localStorage.getItem("p3_prev_p2") || "",
-  ];
   const legacyItems = p3PrevRecommendations.value;
 
-  // Si sessionItems[0] est vide, la formation principale (formationChoisie) peut être P1
-  // Ex: session P2 = Digcomp+Excel → formationChoisie = "Digitales Compétences", items = ["EXCEL Basique (TOSA)"]
-  // conditionP1 vérifie la formation principale → on l'ajoute comme fallback P1
   const sessionFormation = currentSession.value?.formationChoisie || "";
   const sessionFormationFull = currentSession.value?.finalRecommendation
     ? currentSession.value.finalRecommendation.split(/\s*[\|&]\s*/)[0] || sessionFormation
     : sessionFormation;
 
   return [
-    sessionItems[0] || fallbackItems[0] || legacyItems[0] || sessionFormationFull || "",
-    sessionItems[1] || sessionItems[0] || fallbackItems[1] || legacyItems[1] || sessionFormationFull || "",
+    sessionItems[0] || legacyItems[0] || sessionFormationFull || "",
+    sessionItems[1] || sessionItems[0] || legacyItems[1] || sessionFormationFull || "",
   ];
 }
 
@@ -896,10 +900,17 @@ async function confirmP3Override() {
 
 function skipP3Override() {
   // User wants to proceed with normal formation selection instead
+  showP3OverrideModal.value = false;
   p3OverrideEnabled.value = false;
+  p3OverrideSkipped.value = true;  // Empêche le modal de réapparaître
   p3OverrideMatchedRule.value = null;
   p3OverrideMatchedRules.value = [];
   p3OverrideSelectedChoice.value = "";
+  // Nettoyer les clés de parcours forcé pour éviter d'afficher un résultat incorrect
+  localStorage.removeItem('p3_forced_recommendation');
+  localStorage.removeItem('p3_forced_parcours_title');
+  localStorage.removeItem('p3_forced_explanation');
+  localStorage.removeItem('p3_forced_force_choice');
 }
 
 onMounted(async () => {
@@ -999,9 +1010,13 @@ async function selectFormation() {
     if (p3OverrideRules.value.length === 0) {
       await loadP3OverrideRules();
     }
-    
-    // ── Vérifier si la règle matchante a testFormations configurés ──
-    // Ceci est paramétrable via l'admin, pas hardcoded
+
+    // ── Si l'apprenant a cliqué "Choisir manuellement", on bypass le modal P3 override ──
+    if (p3OverrideSkipped.value) {
+      p3OverrideSkipped.value = false; // Reset pour la prochaine fois
+      await doSelectFormation();
+      return;
+    }
     const matchingOverrideRules = findMatchingP3OverrideRules(selectedFormation.value);
     if (matchingOverrideRules.length > 0) {
       // Filtrer les règles qui ont testFormations configurés
@@ -1021,15 +1036,10 @@ async function selectFormation() {
       }
       
       // ── Priorité absolue : vérifier P3 override en premier ──
-      // Si une règle override matche avec requireTest=true, on lance le test
-      // directement sans vérifier si c'est la même formation que P1/P2
-      // Vérifier si au moins une règle matchante a requireTest=true
-      const hasRequireTest = matchingOverrideRules.some(r => r.requireTest);
-      if (hasRequireTest) {
-        // Afficher le modal P3 override — confirmP3Override gérera le test
-        if (showP3OverrideForRules(matchingOverrideRules)) {
-          return;
-        }
+      // Afficher le modal si des règles matchent (requireTest ou non)
+      // confirmP3Override gérera le test (requireTest=true) ou la finalisation directe (requireTest=false)
+      if (showP3OverrideForRules(matchingOverrideRules)) {
+        return;
       }
     }
 
@@ -1121,7 +1131,8 @@ async function doSelectFormation() {
     // final sera toujours celui imposé ici (indépendant du résultat du QCM).
     if (store.isP3Mode) {
       const computedResult = computeNextLevel();
-      if (computedResult.finalRecommendation || computedResult.label) {
+      // Ne stocker que si c'est un vrai parcours (pas un message d'erreur noConfiguredParcours)
+      if (!computedResult.noConfiguredParcours && (computedResult.finalRecommendation || computedResult.label)) {
         localStorage.setItem('p3_forced_recommendation', computedResult.finalRecommendation || computedResult.label);
         localStorage.setItem('p3_forced_parcours_title', computedResult.parcoursTitle || '');
         localStorage.setItem('p3_forced_explanation', computedResult.explanationMessage || '');

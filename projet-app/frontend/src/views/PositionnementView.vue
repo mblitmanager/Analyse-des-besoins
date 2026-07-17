@@ -1089,40 +1089,37 @@ async function finishTest(overrideSession = null) {
           const f2 = matchedRule.formation2 || "";
           
           if (store.isP3Mode) {
-              // P3 Mode: Skip history duplicates
+              // P3 Mode : ne proposer que les certifications NON déjà proposées en P1/P2
+              // Car un parcours P3 ne doit contenir qu'1 seul certif (la partie nouvelle)
               const prevRecs = localStorage.getItem('p3_prev_recommendations') || "";
-              const cleanS = (s) => (s || '').toLowerCase().replace(/^(niveau|tosa|icdl|digcomp|anglais|français|francais)\s+/i, '').trim();
+              const cleanS = (s) => (s || '').toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/^(niveau|tosa|icdl|digcomp|anglais|francais)\s+/i, '').trim();
               const recs = prevRecs.split(/\s*&\s*|\s*\/\s*|\s*\|\s*/).map(r => r.trim()).filter(Boolean);
               
-              const isProposed = (val) => {
-                  const vClean = cleanS(val);
-                  return recs.some(r => {
-                      const rClean = cleanS(r);
-                      const rWords = rClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                      const vWords = vClean.split(/[\s\-\']+/).filter(w => w.length > 1);
-                      return vWords.some(vw => rWords.includes(vw));
-                  });
+              const isAlreadyProposed = (val) => {
+                const vClean = cleanS(val);
+                if (!vClean) return false;
+                return recs.some(r => {
+                  const rClean = cleanS(r);
+                  const rWords = rClean.split(/[\s\-]+/).filter(w => w.length > 1);
+                  const vWords = vClean.split(/[\s\-]+/).filter(w => w.length > 1);
+                  return vWords.length > 0 && vWords.some(vw => rWords.includes(vw));
+                });
               };
 
-              if (isProposed(f1) && f2) {
-                  finalRecommendation.value = f2;
-                  p3Redirected.value = true;
-              } else if (isProposed(f1) && !f2) {
-                  // f1 is a duplicate but no f2 alternative exists in the rule.
-                  // Try to bump to the next level for this formation.
-                  const sortedLvls = [...(levels.value || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
-                  const currentLvlClean = cleanS(f1);
-                  const matchedIdx = sortedLvls.findIndex(l => currentLvlClean.includes(cleanS(l.label)));
-                  if (matchedIdx !== -1 && matchedIdx < sortedLvls.length - 1) {
-                      const nextLvl = sortedLvls[matchedIdx + 1];
-                      finalRecommendation.value = `${formationLabel} ${nextLvl.label}`.trim();
-                      p3Redirected.value = true;
-                  } else {
-                      // Already at max level or can't determine — keep f1 as fallback
-                      finalRecommendation.value = f1;
-                  }
+              // Filtrer les certifs déjà proposées
+              const allCertifs = [f1, f2].filter(Boolean);
+              const newCertifs = allCertifs.filter(c => !isAlreadyProposed(c));
+              
+              if (newCertifs.length > 0) {
+                finalRecommendation.value = newCertifs[0]; // En P3, 1 seul certif
+                if (newCertifs.length !== allCertifs.length) {
+                  p3Redirected.value = true; // Certains certifs filtrés → message info
+                }
               } else {
-                  finalRecommendation.value = f1;
+                // Tous déjà proposés → garder f1 par défaut
+                finalRecommendation.value = f1;
               }
           } else {
               if (f2 && f1 !== f2) {
