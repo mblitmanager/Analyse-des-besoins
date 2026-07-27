@@ -542,90 +542,91 @@ function toggleExpandedLevel(level) {
 
 <template>
   <div class="space-y-8 animate-fade-in font-outfit">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- Header with Selectors -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Gestion des Sessions</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           {{ filteredSessions.length }} session(s) • Monitoring en temps réel des dossiers candidats
         </p>
       </div>
-      <div class="flex items-center gap-3">
-        <button
-          @click="exportToExcel"
-          class="px-5 py-2.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2"
-        >
-          <span class="material-icons-outlined text-sm">file_download</span>
-          Excel
-        </button>
-        <button 
-          v-if="selectedSessionIds.size > 0"
-          @click="exportSelectedToPdf"
-          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
-        >
-          <span class="material-icons-outlined text-sm">picture_as_pdf</span>
-          Exporter PDF ({{ selectedSessionIds.size }})
-        </button>
-        <button 
-          v-else-if="filteredSessions.length > 0"
-          @click="exportAllToPdf"
-          class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
-        >
-          <span class="material-icons-outlined text-sm">picture_as_pdf</span>
-          Tout en PDF ({{ filteredSessions.length }})
-        </button>
-        <button 
-          v-if="selectedSessionIds.size > 0"
-          @click="deleteSelectedSessions"
-          class="px-5 py-2.5 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center gap-2 shadow-sm"
-        >
-          <span class="material-icons-outlined text-sm">delete_sweep</span>
-          Supprimer
-        </button>
-      </div>
-    </div>
 
-    <!-- Filters Bar -->
-    <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex flex-col lg:flex-row lg:items-center gap-4">
-      <div class="flex p-1 bg-slate-50 rounded-xl overflow-hidden shrink-0">
-        <button
-          v-for="tab in [
-            { id: 'all', label: 'Toutes' },
-            { id: 'pending', label: 'En cours' },
-            { id: 'completed', label: 'Terminées' }
-          ]"
-          :key="tab.id"
-          @click="activeTab = tab.id"
-          class="px-5 py-2 text-[10px] font-black uppercase tracking-widest transition-all rounded-lg"
-          :class="activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
-        >
-          {{ tab.label }}
-        </button>
-      </div>
-
-      <div class="flex-1 flex flex-col sm:flex-row gap-4">
-        <div class="relative flex-1 group">
-          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Rechercher par nom, email..."
-            class="w-full pl-11 pr-6 py-3 bg-slate-50 border-none outline-none rounded-xl text-xs font-bold transition-all focus:ring-2 focus:ring-brand-primary/20"
-          />
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex p-1 bg-slate-50 rounded-xl overflow-hidden shrink-0">
+          <button
+            v-for="tab in [
+              { id: 'all', label: 'Toutes' },
+              { id: 'pending', label: 'En cours' },
+              { id: 'completed', label: 'Terminées' }
+            ]"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            class="px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all rounded-lg"
+            :class="activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+          >
+            {{ tab.label }}
+          </button>
         </div>
 
+        <div class="h-6 w-px bg-slate-100"></div>
+
         <div class="relative min-w-[200px]">
-          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">school</span>
-          <select 
+          <select
             v-model="formationFilter"
-            class="w-full pl-11 pr-10 py-3 bg-slate-50 border-none outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all cursor-pointer focus:ring-2 focus:ring-brand-primary/20"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option value="all">Toutes les formations</option>
             <option v-for="form in uniqueFormations" :key="form" :value="form">{{ form }}</option>
           </select>
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
       </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="relative flex-1 min-w-[200px] max-w-md group">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher par nom, email..."
+          class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm"
+        />
+      </div>
+
+      <button
+        @click="exportToExcel"
+        class="px-5 py-3 bg-slate-100 text-slate-700 border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2 shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">file_download</span>
+        Excel
+      </button>
+      <button
+        v-if="selectedSessionIds.size > 0"
+        @click="exportSelectedToPdf"
+        class="px-5 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">picture_as_pdf</span>
+        Exporter PDF ({{ selectedSessionIds.size }})
+      </button>
+      <button
+        v-else-if="filteredSessions.length > 0"
+        @click="exportAllToPdf"
+        class="px-5 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">picture_as_pdf</span>
+        Tout en PDF ({{ filteredSessions.length }})
+      </button>
+      <button
+        v-if="selectedSessionIds.size > 0"
+        @click="deleteSelectedSessions"
+        class="px-5 py-3 bg-rose-50 text-rose-600 border border-rose-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-all flex items-center gap-2 shadow-sm shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">delete_sweep</span>
+        Supprimer
+      </button>
     </div>
 
     <!-- Table Section -->
