@@ -77,9 +77,11 @@ const p3RecommendationLabel = computed(() => {
       const cleanP2 = normalizeParcoursLabel(p2);
       return cleanPart && cleanPart !== cleanP1 && cleanPart !== cleanP2;
     });
+    // Si après filtrage il n'y a qu'une seule partie, la retourner seule
     if (newParts.length > 0) return newParts.join(" | ");
   }
 
+  // Si pas de séparateurs ou après filtrage aucune nouvelle partie, retourner le label original
   return raw;
 });
 
