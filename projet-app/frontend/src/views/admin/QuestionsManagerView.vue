@@ -539,81 +539,81 @@ const groupedQuestions = computed(() => {
 
 <template>
   <div class="space-y-8 animate-fade-in font-outfit">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- Header with Selectors -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Banque de Questions</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Gérez votre contenu pédagogique et vos quiz de positionnement
         </p>
       </div>
-      <button
-        @click="openAddModal"
-        class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95"
-      >
-        <span class="material-icons-outlined text-sm">add_circle</span>
-        Nouvelle Question
-      </button>
-    </div>
 
-    <!-- Filters Section -->
-    <div class="space-y-4">
-      <!-- Row 1: Type Pills -->
-      <div class="flex items-center gap-2 p-1 bg-slate-100 rounded-xl w-fit">
-        <button
-          v-for="t in visibleTypes"
-          :key="t.value"
-          @click="filterType = t.value; fetchQuestions();"
-          class="px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all"
-          :class="filterType === t.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
-        >
-          {{ t.label }}
-        </button>
-      </div>
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[140px]">
+          <select
+            v-model="filterType"
+            @change="fetchQuestions()"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option v-for="t in visibleTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
 
-      <!-- Row 2: Selects & Search -->
-      <div class="flex flex-wrap items-center gap-3">
+        <div class="h-6 w-px bg-slate-100"></div>
+
         <div class="relative min-w-[200px]">
-          <span class="material-icons-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">school</span>
           <select
             v-model="formationFilter"
             @change="() => { levelFilter = ''; fetchQuestions(); }"
-            class="w-full pl-10 pr-8 py-2.5 bg-white border border-slate-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all shadow-sm"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option value="">Toutes les formations</option>
             <option v-for="f in formations" :key="f.id" :value="f.slug">{{ f.label }}</option>
           </select>
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
 
+        <div class="h-6 w-px bg-slate-100"></div>
+
         <div class="relative min-w-[150px]">
-           <span class="material-icons-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">layers</span>
-           <select
+          <select
             v-model="levelFilter"
-            class="w-full pl-10 pr-8 py-2.5 bg-white border border-slate-200 focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all shadow-sm"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option value="">Tous niveaux</option>
             <option v-for="lvl in levelFilterOptions" :key="lvl" :value="lvl">{{ lvl }}</option>
           </select>
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
-        </div>
-
-        <div class="relative flex-1 group">
-          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
-          <input
-            v-model="searchTerm"
-            type="search"
-            placeholder="Rechercher une question..."
-            class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-brand-primary outline-none rounded-xl text-xs font-bold transition-all shadow-sm"
-          />
-        </div>
-        
-        <div class="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl">
-          <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">
-            {{ totalFilteredCount }} questions
-          </span>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
       </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="relative flex-1 min-w-[200px] max-w-md group">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+        <input
+          v-model="searchTerm"
+          type="search"
+          placeholder="Rechercher une question..."
+          class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm"
+        />
+      </div>
+
+      <div class="px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl">
+        <span class="text-[9px] font-black uppercase tracking-widest text-slate-400">
+          {{ totalFilteredCount }} questions
+        </span>
+      </div>
+
+      <button
+        @click="openAddModal"
+        class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">add</span> Nouvelle Question
+      </button>
     </div>
 
     <!-- Questions Grouped List -->
