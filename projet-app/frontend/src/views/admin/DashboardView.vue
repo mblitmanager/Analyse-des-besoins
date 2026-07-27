@@ -235,41 +235,51 @@ function formatDate(date) {
       <div
         v-for="stat in stats"
         :key="stat.label"
-        class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
+        class="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
       >
-        <div class="flex items-start justify-between mb-4">
-          <div :class="`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`" :style="`background-color: var(--${stat.color}-50); color: var(--${stat.color}-600);`" class="stat-icon-container">
+        <div class="flex items-start justify-between mb-6">
+          <div :class="`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg`" :style="`background-color: var(--${stat.color}-50); color: var(--${stat.color}-600);`">
             <span class="material-icons-outlined text-2xl">{{ stat.icon }}</span>
           </div>
-          <div class="flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter" :class="stat.trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'">
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tighter border" :class="stat.trendUp ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'">
             <span class="material-icons-outlined text-[12px]">{{ stat.trendUp ? 'trending_up' : 'trending_down' }}</span>
             {{ stat.trend }}
           </div>
         </div>
-        <div class="space-y-0.5">
-          <p class="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
+        <div class="space-y-1">
+          <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
             {{ stat.label }}
           </p>
-          <p class="text-3xl font-black text-slate-900">{{ stat.value }}</p>
+          <p class="text-4xl font-black text-slate-900">{{ stat.value }}</p>
         </div>
       </div>
     </div>
 
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+      <div class="lg:col-span-2 bg-white rounded-[40px] border border-slate-100 shadow-sm p-8">
         <div class="flex items-center justify-between mb-8">
-          <h3 class="text-lg font-black text-slate-900">Activité hebdomadaire</h3>
-          <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Sessions / jour</span>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">Activité hebdomadaire</h3>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Sessions / jour</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
+            <span class="material-icons-outlined text-slate-300">bar_chart</span>
+          </div>
         </div>
         <div class="h-[280px]">
           <Bar :data="scoresTrend" :options="chartOptions" />
         </div>
       </div>
-      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+      <div class="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8">
         <div class="flex items-center justify-between mb-8">
-          <h3 class="text-lg font-black text-slate-900">Répartition</h3>
-          <span class="material-icons-outlined text-slate-300">pie_chart</span>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">Répartition</h3>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Par formation</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
+            <span class="material-icons-outlined text-slate-300">pie_chart</span>
+          </div>
         </div>
         <div class="h-[280px]">
           <Pie :data="formationDistribution" :options="pieOptions" />
@@ -278,12 +288,15 @@ function formatDate(date) {
     </div>
 
     <!-- Recent Activity Section -->
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
       <div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
-        <h3 class="text-lg font-black text-slate-900">Sessions Récentes</h3>
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Sessions Récentes</h3>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Dernières activités</p>
+        </div>
         <router-link
           to="/admin/sessions"
-          class="text-brand-primary font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-all"
+          class="px-4 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2"
         >
           Voir tout <span class="material-icons-outlined text-sm">east</span>
         </router-link>
@@ -292,17 +305,17 @@ function formatDate(date) {
       <div class="overflow-x-auto">
         <table class="w-full text-left">
           <thead>
-            <tr class="bg-slate-50/50">
-              <th class="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Utilisateur</th>
-              <th class="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Formation</th>
-              <th class="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-              <th class="px-8 py-4 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Progress</th>
+            <tr class="bg-slate-50/50 border-b border-slate-50">
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Utilisateur</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Formation</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Progression</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
             <template v-if="loading">
               <tr v-for="i in 3" :key="i">
-                <td colspan="4" class="px-8 py-6"><div class="h-6 bg-slate-50 animate-pulse rounded-lg"></div></td>
+                <td colspan="4" class="px-8 py-6"><div class="h-6 bg-slate-50 animate-pulse rounded-xl"></div></td>
               </tr>
             </template>
             <tr
@@ -311,9 +324,9 @@ function formatDate(date) {
               :key="session.id"
               class="group hover:bg-slate-50/70 transition-all"
             >
-              <td class="px-8 py-5">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black text-[10px] shadow-lg shadow-slate-200">
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-slate-200">
                     {{ (session.stagiaire?.prenom?.[0] || 'U') }}{{ (session.stagiaire?.nom?.[0] || '') }}
                   </div>
                   <div class="min-w-0">
