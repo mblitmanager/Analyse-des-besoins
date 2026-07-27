@@ -137,30 +137,29 @@ onMounted(fetchSettings);
 </script>
 
 <template>
-  <div class="space-y-6 font-outfit">
+  <div class="space-y-8 animate-fade-in font-outfit">
     <!-- Header -->
-    <div class="flex items-start justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
-        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Configuration Système</h2>
-        <p class="text-slate-500 text-sm">
-          Ajustez les paramètres globaux de la plateforme, les automatisations et les comportements généraux.
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Configuration Système</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Ajustez les paramètres globaux de la plateforme et les automatisations
         </p>
       </div>
     </div>
 
-    <div class="space-y-8">
-      <!-- Search Bar -->
-      <div class="max-w-md">
-        <div class="relative group">
-          <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors">search</span>
-          <input 
-            v-model="searchQuery"
-            type="text" 
-            placeholder="Rechercher un paramètre..."
-            class="w-full pl-11 pr-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-slate-400 shadow-sm transition-all"
-          >
-        </div>
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="relative flex-1 min-w-[200px] max-w-md group">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Rechercher un paramètre..."
+          class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm"
+        >
       </div>
+    </div>
 
       <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="i in 6" :key="i" class="h-44 bg-slate-50 border border-slate-100 rounded-2xl animate-pulse"></div>
