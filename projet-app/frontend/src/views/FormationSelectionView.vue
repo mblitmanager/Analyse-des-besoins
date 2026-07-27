@@ -118,6 +118,21 @@ const p3OverrideChoiceOptions = computed(() => {
     });
   });
 
+  // Sort options: Excel, PowerPoint, Word first, then alphabetically
+  const priorityOrder = ['Excel', 'PowerPoint', 'Word'];
+  options.sort((a, b) => {
+    const aPriority = priorityOrder.findIndex(p => a.label?.toLowerCase().includes(p.toLowerCase()));
+    const bPriority = priorityOrder.findIndex(p => b.label?.toLowerCase().includes(p.toLowerCase()));
+    
+    if (aPriority !== -1 && bPriority !== -1) {
+      return aPriority - bPriority;
+    }
+    if (aPriority !== -1) return -1;
+    if (bPriority !== -1) return 1;
+    
+    return a.label.localeCompare(b.label, 'fr');
+  });
+
   return options;
 });
 
@@ -2087,9 +2102,9 @@ function isSectionActive(section) {
         </div>
         
         <div class="space-y-2 mb-4">
-          <!-- Special UI for testFormations: show large side-by-side choice buttons -->
+          <!-- Special UI for testFormations: show large vertical choice buttons -->
           <template v-if="p3OverrideMatchedRule?.testFormations && (Array.isArray(p3OverrideMatchedRule.testFormations) ? p3OverrideMatchedRule.testFormations.length > 0 : Object.keys(p3OverrideMatchedRule.testFormations).length > 0)">
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 gap-3">
               <button
                 v-for="option in p3OverrideChoiceOptions"
                 :key="option.label"
@@ -2108,11 +2123,11 @@ function isSectionActive(section) {
             </div>
           </template>
           <template v-else>
-            <div class="flex justify-center">
+            <div class="flex flex-col items-center gap-3">
               <label
                 v-for="option in p3OverrideChoiceOptions"
                 :key="option.label"
-                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-fit"
+                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-full"
                 :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
                 :style="{
                   borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
