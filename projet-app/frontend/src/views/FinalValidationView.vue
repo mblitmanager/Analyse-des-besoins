@@ -165,9 +165,11 @@ const p3ValidationParcoursItems = computed(() => {
   }));
 
   if (p3RecommendationLabel.value) {
+    // Si le label contient des séparateurs, prendre seulement la première partie pour P3
+    const p3Label = p3RecommendationLabel.value.split(/\s*[\|&]\s*/)[0].trim();
     rows.push({
       badge: "P3",
-      label: p3RecommendationLabel.value,
+      label: p3Label || p3RecommendationLabel.value,
       className: "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]",
     });
   }
