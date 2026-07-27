@@ -120,22 +120,34 @@ onMounted(fetchWorkflowSteps);
 </script>
 
 <template>
-  <div class="space-y-6 font-outfit">
+  <div class="space-y-8 animate-fade-in font-outfit">
     <!-- Header -->
-    <div class="flex items-start justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
-        <h2 class="text-2xl font-black text-slate-800 tracking-tight">Workflow Automate</h2>
-        <p class="text-slate-500 text-sm">
-          Gérez l'ordre des étapes du parcours candidat, injectez des étapes personnalisées et activez/désactivez des modules.
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Workflow Automate</h2>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+          Gérez l'ordre des étapes du parcours candidat et activez/désactivez des modules
         </p>
       </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <button
+        @click="saveWorkflowOrder"
+        :disabled="savingWorkflow"
+        class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0 disabled:opacity-50"
+      >
+        <span class="material-icons-outlined text-sm">{{ savingWorkflow ? 'autorenew' : 'save' }}</span>
+        Enregistrer l'ordre
+      </button>
     </div>
 
     <!-- Workflow Section -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <!-- Step Creator -->
       <div class="lg:col-span-4 space-y-6">
-        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-5 sticky top-8">
+        <div class="bg-white rounded-[40px] p-6 border border-slate-100 shadow-sm space-y-5 sticky top-8">
           <div>
             <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Injecter une étape</h3>
             <p class="text-xs text-slate-400 mt-1">Créez une nouvelle étape de parcours personnalisée</p>
@@ -167,11 +179,11 @@ onMounted(fetchWorkflowSteps);
               />
             </div>
             
-            <button 
-              @click="createWorkflowStep" 
-              class="w-full py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            <button
+              @click="createWorkflowStep"
+              class="w-full py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span class="material-icons-outlined text-sm">add_circle</span>
+              <span class="material-icons-outlined text-sm">add</span>
               Ajouter au pool
             </button>
           </div>
