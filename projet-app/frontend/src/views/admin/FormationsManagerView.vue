@@ -528,61 +528,62 @@ onMounted(() => {
 
 <template>
   <div class="space-y-8 animate-fade-in font-outfit">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- Header with Category Selector -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Catalogue de Formations</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Gérez vos programmes, paliers de compétences et parcours automatisés
         </p>
       </div>
-      <button
-        @click="openAddModal"
-        class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95"
-      >
-        <span class="material-icons-outlined text-sm">add_circle</span>
-        Nouvelle Formation
-      </button>
-    </div>
 
-    <!-- Toolbar -->
-    <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm flex flex-col lg:flex-row lg:items-center gap-4">
-      <div class="relative flex-1 group">
-        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
-        <input
-          v-model="searchTerm"
-          type="search"
-          placeholder="Rechercher par titre, catégorie ou slug..."
-          class="w-full pl-11 pr-6 py-3 bg-slate-50 border-2 border-transparent focus:border-brand-primary outline-none rounded-xl text-xs font-bold transition-all shadow-inner"
-        />
-      </div>
-      
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="relative min-w-[180px]">
-          <span class="material-icons-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">category</span>
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[140px]">
           <select
             v-model="categoryFilter"
-            class="w-full pl-10 pr-8 py-2.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all cursor-pointer"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
-            <option value="">Toutes catégories</option>
+            <option value="">Toutes</option>
             <option v-for="cat in uniqueCategories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
 
+        <div class="h-6 w-px bg-slate-100"></div>
+
         <div class="relative min-w-[150px]">
-          <span class="material-icons-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">toggle_on</span>
           <select
             v-model="statusFilter"
-            class="w-full pl-10 pr-8 py-2.5 bg-slate-50 border-2 border-transparent focus:border-brand-primary outline-none rounded-xl text-[10px] font-black uppercase tracking-widest appearance-none transition-all cursor-pointer"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option value="all">Tous statuts</option>
             <option value="active">Actives</option>
             <option value="draft">Brouillons</option>
           </select>
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none">expand_more</span>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
       </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="relative flex-1 min-w-[200px] max-w-md group">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+        <input
+          v-model="searchTerm"
+          type="search"
+          placeholder="Rechercher par titre, catégorie ou slug..."
+          class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm"
+        />
+      </div>
+
+      <button
+        @click="openAddModal"
+        class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
+      >
+        <span class="material-icons-outlined text-sm">add</span> Nouvelle Formation
+      </button>
     </div>
 
     <!-- Cards Grid -->
