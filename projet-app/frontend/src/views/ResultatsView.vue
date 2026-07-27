@@ -87,8 +87,14 @@ const parcoursChoices = computed(() => {
 });
 
 const hasParcoursChoices = computed(() => {
-  // En P3, permettre le choix même s'il n'y a qu'une seule option
-  if (store.isP3Mode) return parcoursChoices.value.length > 0;
+  // En P3, permettre le choix seulement s'il n'y a pas de recommandation finale (choix manuel)
+  if (store.isP3Mode) {
+    const hasRecommendation = session.value?.finalRecommendation || session.value?.parcoursTitle;
+    // Si pas de recommandation finale et qu'il y a des choix, permettre le choix manuel
+    if (!hasRecommendation && parcoursChoices.value.length > 0) return true;
+    // Sinon, utiliser la logique normale (> 1 options)
+    return parcoursChoices.value.length > 1;
+  }
   return parcoursChoices.value.length > 1;
 });
 
