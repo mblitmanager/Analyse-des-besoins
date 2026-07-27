@@ -833,11 +833,12 @@ async function finishTest(overrideSession = null) {
       // - Chercher les règles isActive=false (même condition) comme options alternatives
       //   "si le bénéficiaire veut quand même" → proposées comme parcoursChoices
       // - Si aucune règle masquée ne correspond, fallback vers le parcours avec niveau le plus supérieur
+      // En P3 : ignorer toutes les règles hiddenResult pour permettre le choix manuel
       if (!matchedRule) {
         const hiddenMatchingRule = scoredRules.find(s => {
           if (!s.rule.isHiddenResult) return false;
-          // En P3 : ignorer les règles "niveau insuffisant"
-          if (store.isP3Mode && s.rule.hiddenResultType === 'too_weak') return false;
+          // En P3 : ignorer TOUTES les règles hiddenResult
+          if (store.isP3Mode) return false;
           return evaluateLevelCondition(s.rule);
         })?.rule || null;
 
@@ -978,8 +979,33 @@ async function finishTest(overrideSession = null) {
           });
           return;
         } else {
-          // Fallback : si aucune règle masquée ne correspond, retourner le parcours avec niveau le plus supérieur
-          console.debug('[Parcours] Aucune règle masquée ne correspond, fallback sur le parcours avec niveau le plus supérieur');
+          // Fallback : si aucune règle masquée ne correspond
+          console.debug('[Parcours] Aucune règle masquée ne correspond');
+          
+          // En P3 : permettre le choix manuel complet (pas de parcours forcé)
+          if (store.isP3Mode) {
+            console.debug('[Parcours] P3 mode - aucun parcours forcé, choix manuel activé');
+            finalRecommendation.value = "";
+            parcoursChoices.value = [];
+            parcoursTitle.value = "";
+            parcoursRuleMessage.value = "";
+            showResults.value = true;
+            submitting.value = false;
+            // Sauvegarder la session sans recommandation pour permettre le choix manuel
+            await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+              levelsScores: levelsScores.value,
+              finalRecommendation: "",
+              stopLevel: levels.value[currentLevelIndex.value]?.label || "",
+              isCompleted: true,
+              explanationMessage: "",
+              parcoursTitle: null,
+              parcoursChoices: null,
+            });
+            return;
+          }
+          
+          // En P1/P2 : retourner le parcours avec niveau le plus supérieur
+          console.debug('[Parcours] Fallback sur le parcours avec niveau le plus supérieur');
           
           // Trouver toutes les règles actives (non masquées, non désactivées)
           const activeRules = formationRules.filter(r => !r.isHiddenResult && r.isActive !== false);

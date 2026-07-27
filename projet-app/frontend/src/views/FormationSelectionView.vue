@@ -2078,8 +2078,8 @@ function isSectionActive(section) {
         <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
         
-        <div class="relative z-10">
-        <div class="flex items-center gap-3 mb-4">
+        <div class="relative z-10 text-center">
+        <div class="flex items-center justify-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #31526420; color: #315264;">
             <span class="material-icons-outlined text-xl">auto_awesome</span>
           </div>
@@ -2136,14 +2136,14 @@ function isSectionActive(section) {
           </template>
         </div>
         
-        <div class="flex gap-3">
+        <div class="flex gap-3 justify-center">
           <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="py-3 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all">
             Choisir manuellement
           </button>
-          <button 
-            @click="confirmP3Override" 
+          <button
+            @click="confirmP3Override"
             :disabled="!p3OverrideSelectedChoice || submitting"
-            class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-lg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50"
+            class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-lg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50 text-center"
           >
             {{ submitting ? 'Validation...' : 'Valider ce choix' }}
           </button>
