@@ -861,7 +861,7 @@ onMounted(async () => {
               <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-2 bg-white rounded-xl border border-slate-100">
                 <label v-for="formation in allFormations" :key="formation.id" 
                   class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-all"
-                  :class="newRule.testFormations.includes(formation.id) ? 'bg-blue-50 border border-blue-200' : ''">
+                  :class="newRule.testFormations.map(String).includes(String(formation.id)) ? 'bg-blue-50 border border-blue-200' : ''">
                   <input type="checkbox" 
                     :value="formation.id" 
                     v-model="newRule.testFormations"

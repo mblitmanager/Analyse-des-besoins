@@ -389,10 +389,6 @@ function confirmStartP3() {
                 <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Bénéficiaire</span>
                 <span class="text-sm font-black text-[#0d1b3e]">{{ session.prenom }} {{ session.nom }}</span>
               </div>
-              <div v-if="session.formationChoisie && !isFormationSameAsRecommendation" class="flex justify-between items-center bg-white/50 p-3 rounded-xl border border-white">
-                <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Formation visée</span>
-                <span class="text-sm font-black text-blue-600">{{ session.formationChoisie }}</span>
-              </div>
               <div class="flex justify-between items-start mt-2 pt-2 border-t border-gray-200" v-if="recommendedLabel && isP3Validation">
                 <span class="text-xs text-gray-500 font-bold"
                   >Parcours recommandé</span
