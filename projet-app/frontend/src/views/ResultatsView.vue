@@ -86,7 +86,11 @@ const parcoursChoices = computed(() => {
     .filter((choice) => choice.recommendations.length > 0);
 });
 
-const hasParcoursChoices = computed(() => parcoursChoices.value.length > 1);
+const hasParcoursChoices = computed(() => {
+  // En P3, permettre le choix même s'il n'y a qu'une seule option
+  if (store.isP3Mode) return parcoursChoices.value.length > 0;
+  return parcoursChoices.value.length > 1;
+});
 
 const selectedParcoursChoice = computed(() => {
   if (!hasParcoursChoices.value) return parcoursChoices.value[0] || null;
