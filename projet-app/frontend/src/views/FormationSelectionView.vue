@@ -2108,31 +2108,31 @@ function isSectionActive(section) {
             </div>
           </template>
           <template v-else>
-            <label
-              v-for="option in p3OverrideChoiceOptions"
-              :key="option.label"
-              class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
-              :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-              :style="{ 
-                borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
-                backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
-                boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
-              }"
-            >
-              <input
-                type="radio"
-                :value="option.label"
-                v-model="p3OverrideSelectedChoice"
-                class="w-4 h-4 border-slate-300 focus:ring-offset-0"
-                :style="{ color: '#315264', accentColor: '#315264' }"
-              />
-              <div class="flex-1">
+            <div class="flex justify-center">
+              <label
+                v-for="option in p3OverrideChoiceOptions"
+                :key="option.label"
+                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-fit"
+                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                :style="{
+                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
+                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
+                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
+                }"
+              >
+                <input
+                  type="radio"
+                  :value="option.label"
+                  v-model="p3OverrideSelectedChoice"
+                  class="w-4 h-4 border-slate-300 focus:ring-offset-0"
+                  :style="{ color: '#315264', accentColor: '#315264' }"
+                />
                 <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
-              </div>
-              <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
-                <span class="material-icons-outlined text-white text-xs">check</span>
-              </div>
-            </label>
+                <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
+                  <span class="material-icons-outlined text-white text-xs">check</span>
+                </div>
+              </label>
+            </div>
           </template>
         </div>
         
