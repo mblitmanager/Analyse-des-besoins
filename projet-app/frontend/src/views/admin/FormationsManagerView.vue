@@ -586,107 +586,116 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-if="loading" v-for="i in 3" :key="i" class="h-64 bg-slate-50 rounded-[32px] animate-pulse"></div>
+    <!-- Table Section -->
+    <div v-if="loading" class="py-24 flex justify-center"><div class="w-8 h-8 rounded-full border-2 border-slate-200 border-t-brand-primary animate-spin"></div></div>
 
-      <div
-        v-else-if="filteredFormations.length === 0"
-        class="col-span-full py-24 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center text-slate-300"
-      >
-        <span class="material-icons-outlined text-6xl mb-4 opacity-10">school</span>
-        <p class="text-xs font-black uppercase tracking-widest">Aucune formation trouvée</p>
-      </div>
-
-      <div
-        v-else
-        v-for="f in filteredFormations"
-        :key="f.id"
-        class="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group relative"
-      >
-        <!-- Icon & Status -->
-        <div class="flex items-start justify-between mb-6">
-          <div
-            class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
-            :style="{ backgroundColor: f.color + '15', color: f.color }"
-          >
-            <span class="material-icons-outlined text-2xl font-bold">{{ f.icon || "school" }}</span>
-          </div>
-          <div class="flex flex-col items-end gap-2">
-            <button
-              @click.stop="toggleStatus(f)"
-              class="px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 shadow-sm transition-all hover:scale-105 active:scale-95 border"
-              :class="f.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'"
-              :title="f.isActive ? 'Désactiver la formation' : 'Activer la formation'"
-            >
-              <span class="w-1 h-1 rounded-full bg-current"></span>
-              {{ f.isActive ? "En ligne" : "Brouillon" }}
-            </button>
-            <button
-              @click.stop="toggleLowScoreWarning(f)"
-              class="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border transition-all hover:scale-105 active:scale-95 shadow-sm"
-              :class="f.enableLowScoreWarning ? 'text-amber-600 bg-amber-50 border-amber-100' : 'text-slate-300 bg-slate-50 border-slate-100'"
-              :title="f.enableLowScoreWarning ? 'Désactiver l\'alerte' : 'Activer l\'alerte'"
-            >
-               <span class="material-icons-outlined text-[10px]">{{ f.enableLowScoreWarning ? 'warning' : 'notifications_off' }}</span>
-               Alerte
-            </button>
-
-            <button
-              @click.stop="toggleHighLevelAlert(f)"
-              class="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg border transition-all hover:scale-105 active:scale-95 shadow-sm ml-1"
-              :class="f.enableHighLevelAlert ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-300 bg-slate-50 border-slate-100'"
-              :title="f.enableHighLevelAlert ? 'Désactiver l\'alerte niveau élevé' : 'Activer l\'alerte niveau élevé'"
-            >
-               <span class="material-icons-outlined text-[10px]">trending_up</span>
-               Haut niveau
-            </button>
-          </div>
-        </div>
-
-        <!-- Content -->
-        <div class="space-y-4">
-          <div class="space-y-1">
-            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ f.category || 'Non classée' }}</p>
-            <h3 class="text-xl font-black text-slate-900 leading-tight group-hover:text-brand-primary transition-colors">
-              {{ f.label }}
-            </h3>
-          </div>
-          
-          <div class="flex items-center gap-4 text-slate-400">
-            <div class="flex items-center gap-1">
-              <span class="material-icons-outlined text-sm">layers</span>
-              <span class="text-[10px] font-black uppercase tracking-widest">{{ f.levels?.length || 0 }} paliers</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="material-icons-outlined text-sm">route</span>
-              <span class="text-[10px] font-black uppercase tracking-widest">Parcours actif</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hover Actions -->
-        <div class="mt-8 flex items-center gap-2">
-           <button
-            @click="openEditModal(f, 'details')"
-            class="flex-1 px-4 py-2.5 bg-slate-50 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm"
-          >
-            Modifier
-          </button>
-          <button
-            @click="openEditModal(f, 'rules')"
-            class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all shadow-sm"
-            title="Règles de parcours"
-          >
-            <span class="material-icons-outlined text-[18px]">route</span>
-          </button>
-          <button
-            @click="deleteFormation(f.id)"
-            class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-          >
-            <span class="material-icons-outlined text-[18px]">delete_outline</span>
-          </button>
-        </div>
+    <div v-else class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="bg-slate-50/50 border-b border-slate-50">
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Formation</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Catégorie</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paliers</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alertes</th>
+              <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr v-for="f in filteredFormations" :key="f.id" class="group hover:bg-slate-50/50 transition-all" :class="!f.isActive ? 'opacity-40 grayscale' : ''">
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
+                    :style="{ backgroundColor: f.color + '15', color: f.color }"
+                  >
+                    <span class="material-icons-outlined text-xl font-bold">{{ f.icon || "school" }}</span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-black text-slate-900 leading-tight">{{ f.label }}</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ f.slug }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-8 py-6">
+                <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-lg">{{ f.category || 'Non classée' }}</span>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-1">
+                  <span class="material-icons-outlined text-sm text-slate-400">layers</span>
+                  <span class="text-xs font-black text-slate-900">{{ f.levels?.length || 0 }} paliers</span>
+                </div>
+              </td>
+              <td class="px-8 py-6">
+                <button
+                  @click="toggleStatus(f)"
+                  class="px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest inline-flex items-center gap-1.5 shadow-sm transition-all hover:scale-105 active:scale-95 border"
+                  :class="f.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'"
+                  :title="f.isActive ? 'Désactiver la formation' : 'Activer la formation'"
+                >
+                  <span class="w-1 h-1 rounded-full bg-current"></span>
+                  {{ f.isActive ? "En ligne" : "Brouillon" }}
+                </button>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="toggleLowScoreWarning(f)"
+                    class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    :class="f.enableLowScoreWarning ? 'text-amber-600 bg-amber-50 border-amber-100' : 'text-slate-300 bg-slate-50 border-slate-100'"
+                    :title="f.enableLowScoreWarning ? 'Désactiver l\'alerte' : 'Activer l\'alerte'"
+                  >
+                    <span class="material-icons-outlined text-[10px]">{{ f.enableLowScoreWarning ? 'warning' : 'notifications_off' }}</span>
+                    Alerte
+                  </button>
+                  <button
+                    @click="toggleHighLevelAlert(f)"
+                    class="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border transition-all hover:scale-105 active:scale-95 shadow-sm"
+                    :class="f.enableHighLevelAlert ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-300 bg-slate-50 border-slate-100'"
+                    :title="f.enableHighLevelAlert ? 'Désactiver l\'alerte niveau élevé' : 'Activer l\'alerte niveau élevé'"
+                  >
+                    <span class="material-icons-outlined text-[10px]">trending_up</span>
+                    Haut niveau
+                  </button>
+                </div>
+              </td>
+              <td class="px-8 py-6">
+                <div class="flex items-center justify-end gap-2 shrink-0">
+                  <button
+                    @click="openEditModal(f, 'details')"
+                    class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-brand-primary hover:bg-white transition-all flex items-center justify-center"
+                    title="Modifier"
+                  >
+                    <span class="material-icons-outlined text-sm">edit</span>
+                  </button>
+                  <button
+                    @click="openEditModal(f, 'rules')"
+                    class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-brand-primary hover:bg-white transition-all flex items-center justify-center"
+                    title="Règles de parcours"
+                  >
+                    <span class="material-icons-outlined text-sm">route</span>
+                  </button>
+                  <button
+                    @click="deleteFormation(f.id)"
+                    class="w-9 h-9 rounded-xl border border-slate-100 text-slate-300 hover:text-rose-600 hover:bg-white transition-all flex items-center justify-center"
+                    title="Supprimer"
+                  >
+                    <span class="material-icons-outlined text-sm">delete_outline</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredFormations.length === 0">
+              <td colspan="6" class="py-24 text-center">
+                <div class="flex flex-col items-center justify-center text-slate-300">
+                  <span class="material-icons-outlined text-6xl mb-4 opacity-10">school</span>
+                  <p class="text-xs font-black uppercase tracking-widest">Aucune formation trouvée</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
