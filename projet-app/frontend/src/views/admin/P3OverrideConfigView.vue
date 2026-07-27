@@ -763,25 +763,29 @@ onMounted(async () => {
               Cette règle ne sera <strong>jamais affichée</strong> à l'apprenant, même si sa condition de niveau est atteinte.
             </p>
             <div class="flex flex-col gap-2">
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
-                :class="!isHiddenResult ? 'bg-white shadow-sm' : ''">
+              <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/50 transition-all cursor-pointer"
+                :class="!isHiddenResult ? 'bg-white shadow-sm' : ''"
+                @click="hiddenResultType = null; isHiddenResult = false">
                 <input type="radio" :value="null" v-model="hiddenResultType"
                   @change="isHiddenResult = false"
+                  @click.stop
                   class="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
-                <div class="flex-1">
+                <div class="flex-1 pt-0.5">
                   <span class="text-xs font-bold text-slate-700 block">Affiché normalement</span>
                 </div>
-              </label>
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
-                :class="isHiddenResult && hiddenResultType === 'too_advanced' ? 'bg-white shadow-sm' : ''">
+              </div>
+              <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-white/50 transition-all cursor-pointer"
+                :class="isHiddenResult && hiddenResultType === 'too_advanced' ? 'bg-white shadow-sm' : ''"
+                @click="hiddenResultType = 'too_advanced'; isHiddenResult = true">
                 <input type="radio" :value="'too_advanced'" v-model="hiddenResultType"
                   @change="isHiddenResult = true"
+                  @click.stop
                   class="w-4 h-4 text-orange-500 mt-0.5 shrink-0" />
-                <div class="flex-1">
+                <div class="flex-1 pt-0.5">
                   <span class="text-xs font-bold text-slate-700 block">Niveau trop avancé</span>
                   <p class="text-[10px] text-slate-400 mt-0.5">Le test QCM révèle un niveau supérieur à cette formation</p>
                 </div>
-              </label>
+              </div>
             </div>
           </div>
 
