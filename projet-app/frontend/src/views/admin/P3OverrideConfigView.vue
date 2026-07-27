@@ -785,8 +785,8 @@ onMounted(async () => {
 
           <div class="grid grid-cols-1 gap-6">
             <div class="space-y-2">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
-                Formation P3 proposée (Cible 1)
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between w-full">
+                <span>Formation P3 proposée (Cible 1)</span>
                 <button type="button" @click="f1Manual = !f1Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f1Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
                   <span class="material-icons-outlined text-[14px]">{{ f1Manual ? 'settings_suggest' : 'edit_note' }}</span>
                 </button>
@@ -814,8 +814,8 @@ onMounted(async () => {
             </div>
 
             <div class="space-y-2">
-              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
-                Formation alternative (Cible 2 — optionnel)
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between w-full">
+                <span>Formation alternative (Cible 2 — optionnel)</span>
                 <button type="button" @click="f2Manual = !f2Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f2Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
                   <span class="material-icons-outlined text-[14px]">{{ f2Manual ? 'settings_suggest' : 'edit_note' }}</span>
                 </button>
