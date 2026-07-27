@@ -204,21 +204,26 @@ function formatDate(date) {
 </script>
 
 <template>
-  <div class="space-y-8 animate-fade-in">
+  <div class="space-y-8 animate-fade-in font-outfit">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Bonjour, Admin 👋</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Voici l'état actuel de votre plateforme aujourd'hui
         </p>
       </div>
-      <div class="flex gap-2">
-        <button class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2">
+
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <button class="px-5 py-2 bg-slate-50 text-slate-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2">
           <span class="material-icons-outlined text-sm">calendar_today</span>
           Derniers 30 jours
         </button>
-        <button class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2">
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
+        <button class="px-5 py-2 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2">
           <span class="material-icons-outlined text-sm">download</span>
           Rapport
         </button>
