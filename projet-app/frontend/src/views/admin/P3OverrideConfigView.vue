@@ -85,6 +85,7 @@ const parcoursConditionOptions = computed(() => {
 const currentFormation = ref(null);
 const showInactiveRules = ref(true);
 const selectedCategory = ref("all");
+const selectedLevel = ref(null);
 
 const categories = computed(() => {
   const cats = new Set(allFormations.value.map(f => f.category).filter(Boolean));
@@ -96,13 +97,28 @@ const filteredFormations = computed(() => {
   return allFormations.value.filter(f => f.category === selectedCategory.value);
 });
 
+const availableLevels = computed(() => {
+  if (!currentFormation.value) return [];
+  return currentFormation.value.levels || [];
+});
+
 const filteredRules = computed(() => {
-  const allFilteredRules = allRules.value.filter(r => {
+  let allFilteredRules = allRules.value.filter(r => {
     if (!currentFormation.value) return true;
     // Priorité absolue à l'ID de formation
     return (r.formationId && Number(r.formationId) === Number(currentFormation.value.id)) ||
            r.formation === currentFormation.value.label;
   });
+
+  // Filter by selected level
+  if (selectedLevel.value) {
+    allFilteredRules = allFilteredRules.filter(r => {
+      const condition = r.condition || "";
+      // Check if the condition contains the selected level
+      return condition.includes(selectedLevel.value.label);
+    });
+  }
+
   if (showInactiveRules.value) return allFilteredRules;
   return allFilteredRules.filter(r => r.isActive !== false);
 });
@@ -525,6 +541,20 @@ onMounted(async () => {
           >
             <option :value="null">Toutes les formations</option>
             <option v-for="form in filteredFormations" :key="form.id" :value="form">{{ form.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
+        <div class="relative min-w-[150px]">
+          <select
+            v-model="selectedLevel"
+            :disabled="!currentFormation"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary disabled:opacity-50"
+          >
+            <option :value="null">Tous niveaux</option>
+            <option v-for="level in availableLevels" :key="level.id" :value="level">{{ level.label }}</option>
           </select>
           <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
