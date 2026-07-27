@@ -97,14 +97,12 @@ const p3OverrideChoiceOptions = computed(() => {
           found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
         }
         if (found) {
-          // Format: "Formation P3 proposée (Cible 1) (Formation de test)"
-          // Utiliser formation1 (Cible 1) comme nom du parcours
+          // Afficher uniquement le nom du parcours sans la formation de test
           const parcoursName = rule.formation1 || rule.formation || 'Formation';
-          const combinedLabel = `${parcoursName} (${found.label})`;
-          const clean = normalizeParcoursLabel(combinedLabel);
+          const clean = normalizeParcoursLabel(parcoursName);
           if (!seen.has(clean)) {
             seen.add(clean);
-            options.push({ label: combinedLabel, rule, formationId: found.id });
+            options.push({ label: parcoursName, rule, formationId: found.id });
           }
         }
       });
@@ -2074,9 +2072,13 @@ function isSectionActive(section) {
       </div>
     </div>
 
-    <!-- P3 Override Section (Admin-configured forced choices by formation and level) -->
-    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 shadow-2xl z-[70] p-6" style="border-color: #31526420;">
-      <div class="max-w-4xl mx-auto">
+    <!-- P3 Override Section (Admin-configurable forced choices by formation and level) -->
+    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 border border-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        
+        <div class="relative z-10">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #31526420; color: #315264;">
             <span class="material-icons-outlined text-xl">auto_awesome</span>
@@ -2145,6 +2147,7 @@ function isSectionActive(section) {
           >
             {{ submitting ? 'Validation...' : 'Valider ce choix' }}
           </button>
+        </div>
         </div>
       </div>
     </div>
