@@ -396,17 +396,15 @@ const selectedCategory = ref("all");
 const filteredRules = computed(() => {
   let list = rules.value || [];
 
-  // 1. Filter by selected formation (slug or category)
+  // 1. Filter by selected formation (slug or category) - only source
   if (currentFormation.value) {
     const slug = (currentFormation.value.slug || "").toLowerCase().trim();
     const category = (currentFormation.value.category || "").toLowerCase().trim();
 
     list = list.filter((rule) => {
       const sourceSlugMatch = (rule.sourceSlugs || []).some(s => String(s).toLowerCase() === slug);
-      const targetSlugMatch = (rule.targetSlugs || []).some(s => String(s).toLowerCase() === slug);
       const sourceCatMatch = category && String(rule.sourceCategory || "").toLowerCase() === category;
-      const targetCatMatch = category && (rule.targetCategories || []).some(c => String(c).toLowerCase() === category);
-      return sourceSlugMatch || targetSlugMatch || sourceCatMatch || targetCatMatch;
+      return sourceSlugMatch || sourceCatMatch;
     });
   }
 
