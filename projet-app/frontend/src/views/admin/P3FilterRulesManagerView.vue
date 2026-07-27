@@ -392,6 +392,12 @@ const currentFormation = ref(null);
 const searchQuery = ref("");
 const showInactiveRules = ref(true);
 const selectedCategory = ref("all");
+const selectedLevel = ref(null);
+
+const availableLevels = computed(() => {
+  if (!currentFormation.value) return [];
+  return currentFormation.value.levels || [];
+});
 
 const filteredRules = computed(() => {
   let list = rules.value || [];
@@ -408,7 +414,15 @@ const filteredRules = computed(() => {
     });
   }
 
-  // 2. Filter by search query text
+  // 2. Filter by selected level
+  if (selectedLevel.value) {
+    list = list.filter((rule) => {
+      const condition = rule.condition || "";
+      return condition.includes(selectedLevel.value.label);
+    });
+  }
+
+  // 3. Filter by search query text
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim();
     list = list.filter((rule) => {
@@ -421,7 +435,7 @@ const filteredRules = computed(() => {
     });
   }
 
-  // 3. Optionally hide inactive rules
+  // 4. Optionally hide inactive rules
   if (!showInactiveRules.value) {
     list = list.filter(r => r.isActive !== false);
   }
@@ -463,6 +477,20 @@ const filteredRules = computed(() => {
           >
             <option :value="null">Toutes les formations</option>
             <option v-for="form in filteredFormations" :key="form.id" :value="form">{{ form.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
+        <div class="relative min-w-[150px]">
+          <select
+            v-model="selectedLevel"
+            :disabled="!currentFormation"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary disabled:opacity-50"
+          >
+            <option :value="null">Tous niveaux</option>
+            <option v-for="level in availableLevels" :key="level.id" :value="level">{{ level.label }}</option>
           </select>
           <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
