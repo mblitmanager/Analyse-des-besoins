@@ -14,6 +14,26 @@ const workflows = ref([]);
 const questions = ref([]);
 const formations = ref([]);
 const loading = ref(true);
+const selectedCategory = ref("all");
+const selectedFormation = ref(null);
+
+const categories = computed(() => {
+  const cats = new Set(formations.value.map(f => f.category).filter(Boolean));
+  return Array.from(cats).sort();
+});
+
+const filteredFormations = computed(() => {
+  if (selectedCategory.value === "all") return formations.value;
+  return formations.value.filter(f => f.category === selectedCategory.value);
+});
+
+const filteredRules = computed(() => {
+  let list = rules.value;
+  if (selectedFormation.value) {
+    list = list.filter(r => r.formationId === selectedFormation.value.id || r.formation === selectedFormation.value.label);
+  }
+  return list;
+});
 
 onMounted(async () => {
   await Promise.all([fetchRules(), fetchWorkflows(), fetchQuestions(), fetchFormations()]);
@@ -152,20 +172,50 @@ function getQuestionText(id) {
 
 <template>
   <div class="space-y-8 animate-fade-in font-outfit">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- Header with Formation Selector -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">Règles Conditionnelles</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Personnalisez l'expérience utilisateur selon les réponses aux questions
         </p>
       </div>
+
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[140px]">
+          <select
+            v-model="selectedCategory"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option value="all">Toutes</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
+        <div class="relative min-w-[200px]">
+          <select
+            v-model="selectedFormation"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option :value="null">Toutes les formations</option>
+            <option v-for="form in filteredFormations" :key="form.id" :value="form">{{ form.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
       <button
         @click="openAddModal"
-        class="px-6 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform active:scale-95"
+        class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
       >
-        <span class="material-icons-outlined text-sm">add_circle</span>
-        Nouvelle Règle
+        <span class="material-icons-outlined text-sm">add</span> Nouvelle Règle
       </button>
     </div>
 
@@ -186,7 +236,7 @@ function getQuestionText(id) {
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
-            <tr v-for="rule in rules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="!rule.isActive ? 'opacity-40 grayscale' : ''">
+            <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="!rule.isActive ? 'opacity-40 grayscale' : ''">
               <td class="px-8 py-6">
                 <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order }}</div>
               </td>
