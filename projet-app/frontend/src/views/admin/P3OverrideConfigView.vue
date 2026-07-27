@@ -774,19 +774,18 @@ onMounted(async () => {
               </button>
             </label>
             <div v-if="!f1Manual" class="space-y-2">
-              <!-- Ligne 1 : Formation + Niveau -->
-              <div class="grid grid-cols-2 gap-3">
-                <select v-model="f1Formation" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
-                  <option value="">Formation...</option>
-                  <option value="Parcours Libre">Parcours Libre</option>
-                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
-                </select>
-                <select v-model="f1Level" :disabled="!f1Formation || f1Formation === 'Parcours Libre'" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
-                  <option value="">Parcours...</option>
-                  <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
-                </select>
-              </div>
-              <!-- Ligne 2 : Certification -->
+              <!-- Ligne 1 : Formation -->
+              <select v-model="f1Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                <option value="">Formation...</option>
+                <option value="Parcours Libre">Parcours Libre</option>
+                <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+              </select>
+              <!-- Ligne 2 : Niveau -->
+              <select v-model="f1Level" :disabled="!f1Formation || f1Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
+                <option value="">Parcours...</option>
+                <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
+              </select>
+              <!-- Ligne 3 : Certification -->
               <input v-model="f1Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
               <!-- Aperçu -->
               <p v-if="newRule.formation1" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation1 }}</span></p>
@@ -804,18 +803,20 @@ onMounted(async () => {
               </button>
             </label>
             <div v-if="!f2Manual" class="space-y-2">
-              <div class="grid grid-cols-2 gap-3">
-                <select v-model="f2Formation" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
-                  <option value="">Formation...</option>
-                  <option value="Parcours Libre">Parcours Libre</option>
-                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
-                </select>
-                <select v-model="f2Level" :disabled="!f2Formation || f2Formation === 'Parcours Libre'" class="px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
-                  <option value="">Parcours...</option>
-                  <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
-                </select>
-              </div>
+              <!-- Ligne 1 : Formation -->
+              <select v-model="f2Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                <option value="">Formation...</option>
+                <option value="Parcours Libre">Parcours Libre</option>
+                <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+              </select>
+              <!-- Ligne 2 : Niveau -->
+              <select v-model="f2Level" :disabled="!f2Formation || f2Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
+                <option value="">Parcours...</option>
+                <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
+              </select>
+              <!-- Ligne 3 : Certification -->
               <input v-model="f2Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              <!-- Aperçu -->
               <p v-if="newRule.formation2" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation2 }}</span></p>
             </div>
             <div v-else class="space-y-4">
