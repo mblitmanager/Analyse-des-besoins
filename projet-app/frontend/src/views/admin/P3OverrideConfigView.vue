@@ -4,7 +4,6 @@ import axios from "axios";
 import { useAppStore } from "../../stores/app";
 import { useToastStore } from "../../stores/toast";
 import RuleCard from "../../components/RuleCard.vue";
-import FormationSelector from "../../components/FormationSelector.vue";
 
 const appStore = useAppStore();
 const toast = useToastStore();
@@ -85,6 +84,17 @@ const parcoursConditionOptions = computed(() => {
 // Filter rules by selected formation
 const currentFormation = ref(null);
 const showInactiveRules = ref(true);
+const selectedCategory = ref("all");
+
+const categories = computed(() => {
+  const cats = new Set(allFormations.value.map(f => f.category).filter(Boolean));
+  return Array.from(cats).sort();
+});
+
+const filteredFormations = computed(() => {
+  if (selectedCategory.value === "all") return allFormations.value;
+  return allFormations.value.filter(f => f.category === selectedCategory.value);
+});
 
 const filteredRules = computed(() => {
   const allFilteredRules = allRules.value.filter(r => {
@@ -483,14 +493,41 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-10 animate-fade-in font-outfit">
-    <!-- Header -->
-    <div class="flex items-start justify-between">
+  <div class="space-y-8 animate-fade-in font-outfit">
+    <!-- Header with Formation Selector -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
         <h2 class="text-3xl font-black text-slate-900 tracking-tight">P3 Override — Règles par Formation</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Configurer les formations proposées en P3 selon le niveau validé
         </p>
+      </div>
+
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[140px]">
+          <select
+            v-model="selectedCategory"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option value="all">Toutes</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
+        <div class="relative min-w-[200px]">
+          <select
+            v-model="currentFormation"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option :value="null">Toutes les formations</option>
+            <option v-for="form in filteredFormations" :key="form.id" :value="form">{{ form.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
       </div>
     </div>
 
@@ -525,24 +562,8 @@ onMounted(async () => {
 
     <!-- Configuration Panel -->
     <div v-else class="space-y-8">
-      <!-- Formation Selector -->
-      <div class="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <span class="material-icons-outlined text-sm">school</span>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-900">Sélectionner une formation</h3>
-            <p class="text-[10px] text-slate-400">Afficher les règles P3 override pour cette formation</p>
-          </div>
-        </div>
-        <div>
-          <FormationSelector :formations="allFormations" mode="single" :selected-id="currentFormation?.id" @update:selectedId="(id) => { currentFormation = allFormations.find(f => f.id === id) }" @select="(f) => { currentFormation = f }" />
-        </div>
-      </div>
-
       <!-- Rules Table -->
-      <div v-if="currentFormation" class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+      <div v-if="currentFormation" class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
@@ -556,7 +577,7 @@ onMounted(async () => {
           <div class="flex items-center gap-3">
             <button
               @click="showInactiveRules = !showInactiveRules"
-              class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-1.5 shrink-0"
+              class="px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shrink-0"
               :class="showInactiveRules
                 ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                 : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'"
@@ -564,12 +585,11 @@ onMounted(async () => {
               <span class="material-icons-outlined text-sm">{{ showInactiveRules ? 'visibility_off' : 'visibility' }}</span>
               {{ showInactiveRules ? 'Masquer inactifs' : 'Voir inactifs' }}
             </button>
-            <button 
+            <button
               @click="openNewForm"
-              class="px-4 py-2 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-500/20"
+              class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0"
             >
-              <span class="material-icons-outlined text-sm">add</span>
-              Nouvelle règle
+              <span class="material-icons-outlined text-sm">add</span> Nouvelle Règle
             </button>
           </div>
         </div>
