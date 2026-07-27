@@ -763,18 +763,18 @@ onMounted(async () => {
               Cette règle ne sera <strong>jamais affichée</strong> à l'apprenant, même si sa condition de niveau est atteinte.
             </p>
             <div class="flex flex-col gap-2">
-              <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
                 :class="!isHiddenResult ? 'bg-white shadow-sm' : ''">
                 <input type="radio" :value="null" v-model="hiddenResultType"
                   @change="isHiddenResult = false"
-                  class="w-4 h-4 text-slate-500" />
+                  class="w-4 h-4 text-slate-500 mt-0.5" />
                 <span class="text-xs font-bold text-slate-700">Affiché normalement</span>
               </label>
-              <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-xl hover:bg-white/50 transition-all"
                 :class="isHiddenResult && hiddenResultType === 'too_advanced' ? 'bg-white shadow-sm' : ''">
                 <input type="radio" :value="'too_advanced'" v-model="hiddenResultType"
                   @change="isHiddenResult = true"
-                  class="w-4 h-4 text-orange-500" />
+                  class="w-4 h-4 text-orange-500 mt-0.5" />
                 <div>
                   <span class="text-xs font-bold text-slate-700">Niveau trop avancé</span>
                   <p class="text-[10px] text-slate-400">Le test QCM révèle un niveau supérieur à cette formation</p>
