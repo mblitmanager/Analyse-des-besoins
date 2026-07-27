@@ -125,10 +125,27 @@ const filteredRules = computed(() => {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { 
-      headers: { Authorization: `Bearer ${token()}` } 
+    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, {
+      headers: { Authorization: `Bearer ${token()}` }
     });
-    allFormations.value = (res.data || []).filter(f => f.isActive !== false);
+    const formations = (res.data || []).filter(f => f.isActive !== false);
+    
+    // Sort formations: Excel, PowerPoint, Word first, then alphabetically
+    const priorityOrder = ['Excel', 'PowerPoint', 'Word'];
+    formations.sort((a, b) => {
+      const aPriority = priorityOrder.findIndex(p => a.label?.toLowerCase().includes(p.toLowerCase()));
+      const bPriority = priorityOrder.findIndex(p => b.label?.toLowerCase().includes(p.toLowerCase()));
+      
+      if (aPriority !== -1 && bPriority !== -1) {
+        return aPriority - bPriority;
+      }
+      if (aPriority !== -1) return -1;
+      if (bPriority !== -1) return 1;
+      
+      return (a.label || '').localeCompare(b.label || '', 'fr');
+    });
+    
+    allFormations.value = formations;
     if (allFormations.value.length > 0) {
       currentFormation.value = allFormations.value[0];
     }
@@ -766,61 +783,63 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
-              Formation P3 proposée (Cible 1)
-              <button type="button" @click="f1Manual = !f1Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f1Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
-                <span class="material-icons-outlined text-[14px]">{{ f1Manual ? 'settings_suggest' : 'edit_note' }}</span>
-              </button>
-            </label>
-            <div v-if="!f1Manual" class="space-y-2">
-              <!-- Ligne 1 : Formation -->
-              <select v-model="f1Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
-                <option value="">Formation...</option>
-                <option value="Parcours Libre">Parcours Libre</option>
-                <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
-              </select>
-              <!-- Ligne 2 : Niveau -->
-              <select v-model="f1Level" :disabled="!f1Formation || f1Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
-                <option value="">Parcours...</option>
-                <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
-              </select>
-              <!-- Ligne 3 : Certification -->
-              <input v-model="f1Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
-              <!-- Aperçu -->
-              <p v-if="newRule.formation1" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation1 }}</span></p>
+          <div class="grid grid-cols-1 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
+                Formation P3 proposée (Cible 1)
+                <button type="button" @click="f1Manual = !f1Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f1Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
+                  <span class="material-icons-outlined text-[14px]">{{ f1Manual ? 'settings_suggest' : 'edit_note' }}</span>
+                </button>
+              </label>
+              <div v-if="!f1Manual" class="space-y-2">
+                <!-- Ligne 1 : Formation -->
+                <select v-model="f1Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                  <option value="">Formation...</option>
+                  <option value="Parcours Libre">Parcours Libre</option>
+                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                </select>
+                <!-- Ligne 2 : Niveau -->
+                <select v-model="f1Level" :disabled="!f1Formation || f1Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
+                  <option value="">Parcours...</option>
+                  <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
+                </select>
+                <!-- Ligne 3 : Certification -->
+                <input v-model="f1Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+                <!-- Aperçu -->
+                <p v-if="newRule.formation1" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation1 }}</span></p>
+              </div>
+              <div v-else class="space-y-4">
+                <input v-model="newRule.formation1" placeholder="ex: Parcours personnalisé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              </div>
             </div>
-            <div v-else class="space-y-4">
-              <input v-model="newRule.formation1" placeholder="ex: Parcours personnalisé" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
-            </div>
-          </div>
 
-          <div class="space-y-2">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
-              Formation alternative (Cible 2 — optionnel)
-              <button type="button" @click="f2Manual = !f2Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f2Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
-                <span class="material-icons-outlined text-[14px]">{{ f2Manual ? 'settings_suggest' : 'edit_note' }}</span>
-              </button>
-            </label>
-            <div v-if="!f2Manual" class="space-y-2">
-              <!-- Ligne 1 : Formation -->
-              <select v-model="f2Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
-                <option value="">Formation...</option>
-                <option value="Parcours Libre">Parcours Libre</option>
-                <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
-              </select>
-              <!-- Ligne 2 : Niveau -->
-              <select v-model="f2Level" :disabled="!f2Formation || f2Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
-                <option value="">Parcours...</option>
-                <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
-              </select>
-              <!-- Ligne 3 : Certification -->
-              <input v-model="f2Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
-              <!-- Aperçu -->
-              <p v-if="newRule.formation2" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation2 }}</span></p>
-            </div>
-            <div v-else class="space-y-4">
-              <input v-model="newRule.formation2" placeholder="ex: Parcours alternative" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1 flex items-center justify-between">
+                Formation alternative (Cible 2 — optionnel)
+                <button type="button" @click="f2Manual = !f2Manual" class="text-slate-300 hover:text-indigo-500 transition-all p-1" :title="f2Manual ? 'Passer en sélection assistée' : 'Passer en édition libre'">
+                  <span class="material-icons-outlined text-[14px]">{{ f2Manual ? 'settings_suggest' : 'edit_note' }}</span>
+                </button>
+              </label>
+              <div v-if="!f2Manual" class="space-y-2">
+                <!-- Ligne 1 : Formation -->
+                <select v-model="f2Formation" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500">
+                  <option value="">Formation...</option>
+                  <option value="Parcours Libre">Parcours Libre</option>
+                  <option v-for="f in allFormations" :key="f.id" :value="f.label">{{ f.label }}</option>
+                </select>
+                <!-- Ligne 2 : Niveau -->
+                <select v-model="f2Level" :disabled="!f2Formation || f2Formation === 'Parcours Libre'" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 disabled:opacity-30">
+                  <option value="">Parcours...</option>
+                  <option v-for="lv in selectedFormationLevels" :key="lv.id" :value="lv.label">{{ lv.label }}</option>
+                </select>
+                <!-- Ligne 3 : Certification -->
+                <input v-model="f2Certification" placeholder="Certification (ex: TOSA, ICDL, VOLTAIRE...)" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+                <!-- Aperçu -->
+                <p v-if="newRule.formation2" class="text-[10px] text-slate-400 font-bold px-1">→ <span class="text-slate-700">{{ newRule.formation2 }}</span></p>
+              </div>
+              <div v-else class="space-y-4">
+                <input v-model="newRule.formation2" placeholder="ex: Parcours alternative" class="w-full px-5 py-3 bg-slate-50 border-2 border-transparent rounded-xl text-sm font-bold outline-none focus:bg-white focus:border-indigo-500 transition-all" />
+              </div>
             </div>
           </div>
 
