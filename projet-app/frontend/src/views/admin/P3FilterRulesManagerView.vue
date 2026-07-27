@@ -427,14 +427,28 @@ const filteredRules = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex items-start justify-between">
+  <div class="space-y-8 animate-fade-in font-outfit">
+    <!-- Header with Formation Selector -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
       <div class="space-y-1">
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Règles de filtrage P3</h1>
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Règles de Filtrage P3</h2>
         <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
           Configurez le filtrage des formations selon la formation et le niveau précédemment validés.
         </p>
+      </div>
+
+      <!-- Compact Selectors -->
+      <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[200px]">
+          <select
+            v-model="currentFormation"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option :value="null">Toutes les formations</option>
+            <option v-for="form in formations" :key="form.id" :value="form">{{ form.label }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
       </div>
     </div>
 
@@ -472,33 +486,28 @@ const filteredRules = computed(() => {
       </div>
     </div>
 
-    <!-- Formation Selector (same pattern as P3Override) -->
-    <div v-if="!loading" class="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <span class="material-icons-outlined text-sm">school</span>
-        </div>
-        <div>
-          <h3 class="text-sm font-black text-slate-900">Filtrer par formation source</h3>
-          <p class="text-[10px] text-slate-400">Afficher uniquement les règles P3 applicables à cette formation</p>
-        </div>
+    <!-- Controls -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="relative flex-1 min-w-[200px] max-w-md group">
+        <span class="material-icons-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors text-sm">search</span>
+        <input v-model="searchQuery" type="search" placeholder="Rechercher une règle..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-100 focus:border-brand-primary outline-none rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm" />
       </div>
-      <FormationSelector
-        :formations="formations"
-        mode="single"
-        :selected-id="currentFormation?.id"
-        @update:selectedId="(id) => { currentFormation = id ? formations.find(f => f.id === id) : null }"
-        @select="(f) => { currentFormation = f }"
-      />
-      <div v-if="currentFormation" class="mt-3 flex items-center justify-between">
-        <p class="text-[11px] text-slate-500 font-semibold">
-          {{ filteredRules.length }} règle(s) pour <span class="font-black text-slate-900">{{ currentFormation.label }}</span>
-        </p>
-        <button @click="currentFormation = null" class="text-[11px] text-slate-400 hover:text-slate-600 font-bold flex items-center gap-1 transition-colors">
-          <span class="material-icons-outlined text-sm">close</span>
-          Voir toutes
-        </button>
-      </div>
+
+      <!-- Toggle inactive -->
+      <button
+        @click="showInactiveRules = !showInactiveRules"
+        class="relative px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 shrink-0"
+        :class="showInactiveRules
+          ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+          : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'"
+      >
+        <span class="material-icons-outlined text-sm">{{ showInactiveRules ? 'visibility_off' : 'visibility' }}</span>
+        <span>{{ showInactiveRules ? 'Masquer inactifs' : 'Voir inactifs' }}</span>
+      </button>
+
+      <button @click="openModal()" class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center gap-2 shrink-0">
+        <span class="material-icons-outlined text-sm">add</span> Nouvelle Règle
+      </button>
     </div>
 
     <!-- Loading -->
@@ -525,224 +534,136 @@ const filteredRules = computed(() => {
       </button>
     </div>
 
-    <!-- Rules panel (same card pattern as P3Override) -->
-    <div v-else class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-      <!-- Panel header -->
-      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-            <span class="material-icons-outlined text-sm">rule</span>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-900">
-              {{ currentFormation ? `Règles P3 — ${currentFormation.label}` : 'Toutes les règles P3' }}
-            </h3>
-            <p class="text-[10px] text-slate-400">{{ filteredRules.length }} règle(s) affichée(s)</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <!-- Search bar -->
-          <div class="relative hidden md:block">
-            <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
-            <input
-              v-model="searchQuery"
-              class="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-[11px] font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none w-48"
-              placeholder="Rechercher..."
-            />
-          </div>
-          <!-- Toggle inactive -->
-          <button
-            @click="showInactiveRules = !showInactiveRules"
-            class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-1.5 shrink-0"
-            :class="showInactiveRules
-              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-              : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'"
-          >
-            <span class="material-icons-outlined text-sm">{{ showInactiveRules ? 'visibility_off' : 'visibility' }}</span>
-            {{ showInactiveRules ? 'Masquer inactifs' : 'Voir inactifs' }}
-          </button>
-          <!-- New rule -->
-          <button
-            @click="openModal()"
-            class="px-4 py-2 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-500/20"
-          >
-            <span class="material-icons-outlined text-sm">add</span>
-            Nouvelle règle
-          </button>
-        </div>
-      </div>
+    <!-- Empty filtered results -->
+    <div v-else-if="filteredRules.length === 0" class="py-24 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col items-center justify-center text-slate-300">
+      <span class="material-icons-outlined text-6xl mb-4 opacity-10">search_off</span>
+      <p class="text-xs font-black uppercase tracking-widest">
+        {{ currentFormation ? `Aucune règle définie pour ${currentFormation.label}` : 'Aucun résultat' }}
+      </p>
+      <button
+        v-if="searchQuery || currentFormation"
+        type="button"
+        @click="searchQuery = ''; currentFormation = null"
+        class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors text-sm"
+      >
+        <span class="material-icons-outlined text-sm">clear_all</span>
+        Réinitialiser les filtres
+      </button>
+    </div>
 
-      <!-- Empty filtered results -->
-      <div v-if="filteredRules.length === 0" class="py-24 bg-white flex flex-col items-center justify-center text-slate-300">
-        <span class="material-icons-outlined text-6xl mb-4 opacity-10">search_off</span>
-        <p class="text-xs font-black uppercase tracking-widest">
-          {{ currentFormation ? `Aucune règle définie pour ${currentFormation.label}` : 'Aucun résultat' }}
-        </p>
-        <button
-          v-if="searchQuery || currentFormation"
-          type="button"
-          @click="searchQuery = ''; currentFormation = null"
-          class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors text-sm"
-        >
-          <span class="material-icons-outlined text-sm">clear_all</span>
-          Réinitialiser les filtres
-        </button>
-      </div>
-
-      <!-- Rules list -->
-      <div v-else class="p-6 space-y-4">
-        <div
-          v-for="rule in filteredRules"
-          :key="rule.id"
-          class="bg-white rounded-2xl shadow-sm border transition-all duration-200"
-          :class="rule.isActive ? 'border-slate-100 hover:border-slate-200' : 'border-slate-100 opacity-60'"
-        >
-          <!-- Rule card header -->
-          <div class="flex items-center gap-4 p-4 border-b border-slate-50">
-            <!-- Priority badge -->
-            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-              <span class="text-xs font-black text-slate-500">#{{ rule.order }}</span>
-            </div>
-
-            <!-- Name & status -->
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="font-black text-slate-800 truncate">{{ rule.name }}</h3>
-                <span
-                  class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full"
-                  :class="rule.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'"
-                >
-                  {{ rule.isActive ? "Actif" : "Inactif" }}
-                </span>
-                <span
-                  class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full border"
-                  :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'"
-                >
-                  {{ rule.filterMode === "ALLOW_ONLY" ? "ALLOW ONLY" : "EXCLUDE" }}
+    <!-- Rules table -->
+    <div v-else class="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-slate-50/50 border-b border-slate-50">
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ordre</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nom</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Mode</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Source</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Niveau Max</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Cible</th>
+            <th class="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id" class="group hover:bg-slate-50/50 transition-all" :class="rule.isActive === false ? 'opacity-50 bg-slate-50/30' : ''">
+            <td class="px-8 py-6">
+              <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-400">{{ rule.order ?? 0 }}</div>
+            </td>
+            <td class="px-8 py-6">
+              <div class="flex flex-col gap-1">
+                <span class="text-xs font-black text-slate-900">{{ rule.name }}</span>
+                <span v-if="rule.isActive === false" class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-200 text-slate-500 rounded-full text-[8px] font-black uppercase tracking-widest w-fit">
+                  <span class="material-icons-outlined text-[10px]">visibility_off</span>
+                  Désactivée
                 </span>
               </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-1 flex-shrink-0">
-              <button
-                @click="toggleActive(rule)"
-                class="p-2 rounded-lg transition-colors"
-                :class="rule.isActive ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-50'"
-                :title="rule.isActive ? 'Désactiver' : 'Activer'"
+            </td>
+            <td class="px-8 py-6">
+              <span
+                class="px-2 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border"
+                :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'"
               >
-                <span class="material-icons-outlined text-xl">{{ rule.isActive ? "toggle_on" : "toggle_off" }}</span>
-              </button>
-              <button @click="openModal(rule)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Modifier">
-                <span class="material-icons-outlined text-sm">edit</span>
-              </button>
-              <button @click="deleteRule(rule.id)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
-                <span class="material-icons-outlined text-sm">delete</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Rule body: condition → action -->
-          <div class="p-4 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-center">
-            <!-- Source condition -->
-            <div class="bg-blue-50/60 rounded-xl p-3 border border-blue-100">
-              <p class="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2">SI le candidat vient de...</p>
-              <div class="space-y-1.5">
-                <!-- Source category -->
+                {{ rule.filterMode === "ALLOW_ONLY" ? "ALLOW ONLY" : "EXCLUDE" }}
+              </span>
+            </td>
+            <td class="px-8 py-6">
+              <div class="space-y-1">
                 <div v-if="rule.sourceCategory" class="flex items-center gap-2">
                   <span class="material-icons-outlined text-blue-400 text-sm">category</span>
-                  <span class="text-xs font-bold text-blue-900">Catégorie: <span class="capitalize">{{ rule.sourceCategory }}</span></span>
+                  <span class="text-xs font-bold text-slate-700 capitalize">{{ rule.sourceCategory }}</span>
                 </div>
-                <!-- Source slugs -->
-                <div v-if="rule.sourceSlugs?.length" class="flex flex-wrap gap-1 mt-1">
+                <div v-if="rule.sourceSlugs?.length" class="flex flex-wrap gap-1">
                   <div
-                    v-for="slug in rule.sourceSlugs"
+                    v-for="slug in rule.sourceSlugs.slice(0, 2)"
                     :key="slug"
-                    class="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-blue-100 shadow-sm"
+                    class="flex items-center gap-1 px-2 py-0.5 bg-slate-50 rounded-lg border border-slate-100"
                   >
                     <span class="material-icons-outlined text-xs" :style="{ color: getFormationColor(slug) }">
                       {{ getFormationIcon(slug) || 'school' }}
                     </span>
-                    <span class="text-[11px] font-bold text-slate-700">{{ getFormationLabel(slug) }}</span>
+                    <span class="text-[10px] font-bold text-slate-600">{{ getFormationLabel(slug) }}</span>
                   </div>
-                </div>
-                <!-- Level condition -->
-                <div v-if="rule.maxLevelOrder != null" class="flex items-center gap-1.5 mt-1">
-                  <span class="material-icons-outlined text-blue-400 text-sm">trending_flat</span>
-                  <span class="text-xs text-blue-800">
-                    Niveau
-                    <span class="font-black">{{ rule.levelOperator === "gte" ? "≥" : "≤" }}</span>
-                    <span class="inline-flex items-center gap-1 ml-1 px-2 py-0.5 bg-white rounded-md border border-blue-100 font-bold text-blue-900 text-[11px] whitespace-normal">
-                      {{ getExactLevelLabel(rule.maxLevelOrder, rule.sourceSlugs, rule.sourceCategory) }}
-                      <span class="text-slate-400">({{ rule.maxLevelOrder }})</span>
-                    </span>
-                  </span>
-                </div>
-                <div v-if="!rule.sourceCategory && !rule.sourceSlugs?.length" class="text-xs text-slate-400 italic">
-                  Aucune condition source définie
+                  <span v-if="rule.sourceSlugs.length > 2" class="text-[10px] text-slate-400">+{{ rule.sourceSlugs.length - 2 }}</span>
                 </div>
               </div>
-            </div>
-
-            <!-- Arrow -->
-            <div class="flex flex-col items-center gap-1">
-              <div
-                class="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-                :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-600 text-white' : 'bg-red-500 text-white'"
-              >
-                <span class="material-icons-outlined text-base">{{ rule.filterMode === 'ALLOW_ONLY' ? 'done_all' : 'block' }}</span>
-              </div>
-              <span class="text-[9px] font-black uppercase tracking-widest" :class="rule.filterMode === 'ALLOW_ONLY' ? 'text-blue-600' : 'text-red-500'">
-                {{ rule.filterMode === 'ALLOW_ONLY' ? 'Afficher' : 'Exclure' }}
+            </td>
+            <td class="px-8 py-6">
+              <span v-if="rule.maxLevelOrder != null" class="text-xs font-black text-slate-900">
+                {{ rule.levelOperator === "gte" ? "≥" : "≤" }} {{ rule.maxLevelOrder }}
               </span>
-            </div>
-
-            <!-- Target -->
-            <div
-              class="rounded-xl p-3 border"
-              :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-50/40 border-blue-100' : 'bg-red-50/40 border-red-100'"
-            >
-              <p
-                class="text-[10px] font-black uppercase tracking-widest mb-2"
-                :class="rule.filterMode === 'ALLOW_ONLY' ? 'text-blue-500' : 'text-red-500'"
-              >
-                {{ rule.filterMode === 'ALLOW_ONLY' ? 'UNIQUEMENT ces formations...' : 'Ces formations cachées...' }}
-              </p>
-              <div class="space-y-1.5">
-                <!-- Target categories -->
+              <span v-else class="text-xs text-slate-400 italic">-</span>
+            </td>
+            <td class="px-8 py-6">
+              <div class="space-y-1">
                 <div v-if="rule.targetCategories?.length" class="flex flex-wrap gap-1">
                   <div
-                    v-for="cat in rule.targetCategories"
+                    v-for="cat in rule.targetCategories.slice(0, 2)"
                     :key="cat"
-                    class="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold border"
-                    :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-red-100 text-red-800 border-red-200'"
+                    class="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold border"
+                    :class="rule.filterMode === 'ALLOW_ONLY' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-red-50 text-red-700 border-red-200'"
                   >
                     <span class="material-icons-outlined text-xs">category</span>
                     <span class="capitalize">{{ cat }}</span>
                   </div>
+                  <span v-if="rule.targetCategories.length > 2" class="text-[10px] text-slate-400">+{{ rule.targetCategories.length - 2 }}</span>
                 </div>
-                <!-- Target slugs -->
                 <div v-if="rule.targetSlugs?.length" class="flex flex-wrap gap-1">
                   <div
-                    v-for="slug in rule.targetSlugs"
+                    v-for="slug in rule.targetSlugs.slice(0, 2)"
                     :key="slug"
-                    class="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border shadow-sm"
-                    :class="rule.filterMode === 'ALLOW_ONLY' ? 'border-blue-100' : 'border-red-100'"
+                    class="flex items-center gap-1 px-2 py-0.5 bg-slate-50 rounded-lg border border-slate-100"
                   >
                     <span class="material-icons-outlined text-xs" :style="{ color: getFormationColor(slug) }">
                       {{ getFormationIcon(slug) || 'school' }}
                     </span>
-                    <span class="text-[11px] font-bold text-slate-700">{{ getFormationLabel(slug) }}</span>
+                    <span class="text-[10px] font-bold text-slate-600">{{ getFormationLabel(slug) }}</span>
                   </div>
-                </div>
-                <div v-if="!rule.targetCategories?.length && !rule.targetSlugs?.length" class="text-xs text-slate-400 italic">
-                  Aucune cible définie
+                  <span v-if="rule.targetSlugs.length > 2" class="text-[10px] text-slate-400">+{{ rule.targetSlugs.length - 2 }}</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </td>
+            <td class="px-8 py-6 text-right">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  @click="toggleActive(rule)"
+                  class="p-2 rounded-lg transition-colors"
+                  :class="rule.isActive ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-50'"
+                  :title="rule.isActive ? 'Désactiver' : 'Activer'"
+                >
+                  <span class="material-icons-outlined text-lg">{{ rule.isActive ? "toggle_on" : "toggle_off" }}</span>
+                </button>
+                <button @click="openModal(rule)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Modifier">
+                  <span class="material-icons-outlined text-sm">edit</span>
+                </button>
+                <button @click="deleteRule(rule.id)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                  <span class="material-icons-outlined text-sm">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- ── MODAL ─────────────────────────────────────────────────────────────── -->
