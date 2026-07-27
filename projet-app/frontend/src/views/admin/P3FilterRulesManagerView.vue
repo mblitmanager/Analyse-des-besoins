@@ -82,6 +82,11 @@ const categoryOptions = computed(() =>
   Array.from(new Set((formations.value || []).map((f) => String(f.category || "").trim().toLowerCase()).filter(Boolean))).sort()
 );
 
+const filteredFormations = computed(() => {
+  if (selectedCategory.value === "all") return formations.value;
+  return formations.value.filter(f => f.category?.toLowerCase() === selectedCategory.value);
+});
+
 const slugOptions = computed(() =>
   Array.from(new Set((formations.value || []).map((f) => String(f.slug || "").trim().toLowerCase()).filter(Boolean))).sort()
 );
@@ -386,6 +391,7 @@ const excludeCount = computed(() => rules.value.filter((r) => r.filterMode === "
 const currentFormation = ref(null);
 const searchQuery = ref("");
 const showInactiveRules = ref(true);
+const selectedCategory = ref("all");
 
 const filteredRules = computed(() => {
   let list = rules.value || [];
@@ -439,13 +445,26 @@ const filteredRules = computed(() => {
 
       <!-- Compact Selectors -->
       <div class="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div class="relative min-w-[140px]">
+          <select
+            v-model="selectedCategory"
+            class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
+          >
+            <option value="all">Toutes</option>
+            <option v-for="cat in categoryOptions" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+          <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
+        </div>
+
+        <div class="h-6 w-px bg-slate-100"></div>
+
         <div class="relative min-w-[200px]">
           <select
             v-model="currentFormation"
             class="w-full px-4 py-2 bg-slate-50 border-none rounded-xl text-[9px] font-black uppercase tracking-widest appearance-none outline-none focus:ring-1 focus:ring-brand-primary"
           >
             <option :value="null">Toutes les formations</option>
-            <option v-for="form in formations" :key="form.id" :value="form">{{ form.label }}</option>
+            <option v-for="form in filteredFormations" :key="form.id" :value="form">{{ form.label }}</option>
           </select>
           <span class="material-icons-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-300 text-[14px]">expand_more</span>
         </div>
