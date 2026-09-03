@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:session": "playwright test tests/session-complete.api.spec.ts tests/session-complete.ui.spec.ts"
   },
   "dependencies": {
     "@tiptap/extension-image": "^3.26.0",

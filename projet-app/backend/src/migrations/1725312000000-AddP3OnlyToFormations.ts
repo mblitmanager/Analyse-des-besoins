@@ -1,19 +1,19 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddEnableP3ManualChoiceToFormations20260709 implements MigrationInterface {
-  name = 'AddEnableP3ManualChoiceToFormations20260709';
+export class AddP3OnlyToFormations1725312000000 implements MigrationInterface {
+  name = 'AddP3OnlyToFormations1725312000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "formations"
-      ADD COLUMN IF NOT EXISTS "enableP3ManualChoice" boolean NOT NULL DEFAULT false;
+      ADD COLUMN IF NOT EXISTS "p3Only" boolean NOT NULL DEFAULT false;
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "formations"
-      DROP COLUMN IF EXISTS "enableP3ManualChoice";
+      DROP COLUMN IF EXISTS "p3Only";
     `);
   }
 }

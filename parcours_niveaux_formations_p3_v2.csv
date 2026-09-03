@@ -1,0 +1,93 @@
+Parcours;Niveau;Formation;Formation Slug;P1;P2;P3 Possible;Valeur P3;Demande
+Anglais ;Niveau A1 - TOEIC;Anglais ;toeic;;;;NON;;
+Anglais ;Niveau A2 - TOEIC;Anglais ;toeic;Niveau A2 - TOEIC;Niveau B1 - TOEIC;OUI;Niveau B2 - TOEIC;Renforcement Anglais - P3
+Anglais ;Niveau B1 - TOEIC;Anglais ;toeic;Niveau A2 - TOEIC;Niveau B1 - TOEIC;OUI;Niveau B2 - TOEIC;Renforcement Anglais - P3
+Anglais ;Niveau B1 - TOEIC;Anglais ;toeic;Niveau B1 - TOEIC;Niveau B2 - TOEIC;OUI;Niveau C1 - TOEIC;Perfectionnement Anglais - P3
+Anglais ;Niveau B2 - TOEIC;Anglais ;toeic;Niveau A2 - TOEIC;Niveau B1 - TOEIC;OUI;Niveau B2 - TOEIC;Renforcement Anglais - P3
+Anglais ;Niveau B2 - TOEIC;Anglais ;toeic;Niveau B1 - TOEIC;Niveau B2 - TOEIC;OUI;Niveau C1 - TOEIC;Perfectionnement Anglais - P3
+Anglais ;Niveau B2 - TOEIC;Anglais ;toeic;Niveau B2 - TOEIC;Niveau C1 - TOEIC;OUI;;Expertise Anglais - P3
+Anglais ;Niveau C1 - TOEIC;Anglais ;toeic;Niveau B1 - TOEIC;Niveau B2 - TOEIC;OUI;Niveau C1 - TOEIC;Perfectionnement Anglais - P3
+Anglais ;Niveau C1 - TOEIC;Anglais ;toeic;Niveau B2 - TOEIC;Niveau C1 - TOEIC;OUI;;Expertise Anglais - P3
+Digitales Compétences;Initial;Digitales Compétences;digcomp;;;;NON;;
+Digitales Compétences;Basique;Digitales Compétences;digcomp;;;;NON;;
+Digitales Compétences;Opérationnel;Digitales Compétences;digcomp;;;;NON;;
+Digitales Compétences;Avancé;Digitales Compétences;digcomp;;;;NON;;
+Digitales Compétences;Expert;Digitales Compétences;digcomp;;;;NON;;
+Excel;Initial;Excel;excel;;;;NON;;
+Excel;Basique;Excel;excel;;;;NON;;
+Excel;Opérationnel;Excel;excel;;;;NON;;
+Excel;Avancé;Excel;excel;;;;NON;;
+Excel;Expert;Excel;excel;;;;NON;;
+Excel + IA;IA Générative ;Excel + IA;Excel-ia;;;;NON;;
+Excel + IA;Initial;Excel + IA;Excel-ia;;;;NON;;
+Excel + IA;Basique;Excel + IA;Excel-ia;;;;NON;;
+Excel + IA;Opérationnel;Excel + IA;Excel-ia;;;;NON;;
+Excel + IA;Avancé;Excel + IA;Excel-ia;;;;NON;;
+Excel + IA;Expert;Excel + IA;Excel-ia;;;;NON;;
+Français;Découverte;Français;voltaire;;;;NON;;
+Français;Technique;Français;voltaire;;;;NON;;
+Français;Professionnel;Français;voltaire;;;;NON;;
+Français;Affaires;Français;voltaire;;;;NON;;
+Gimp;Initial;Gimp;gimp;;;;NON;;
+Gimp;Basique;Gimp;gimp;;;;NON;;
+Gimp;Opérationnel;Gimp;gimp;;;;NON;;
+Gimp;Avancé;Gimp;gimp;;;;NON;;
+Google Docs;Initial;Google Docs;google-docs;;;;NON;;
+Google Docs;Basique;Google Docs;google-docs;;;;NON;;
+Google Docs;Opérationnel;Google Docs;google-docs;;;;NON;;
+Google Docs;Avancé;Google Docs;google-docs;;;;NON;;
+Google Sheets;Initial;Google Sheets;google-sheets;;;;NON;;
+Google Sheets;Basique;Google Sheets;google-sheets;;;;NON;;
+Google Sheets;Opérationnel;Google Sheets;google-sheets;;;;NON;;
+Google Sheets;Avancé;Google Sheets;google-sheets;;;;NON;;
+Google Slides;Initial;Google Slides;google-slides;;;;NON;;
+Google Slides;Basique;Google Slides;google-slides;;;;NON;;
+Google Slides;Opérationnel;Google Slides;google-slides;;;;NON;;
+Google Slides;Avancé;Google Slides;google-slides;;;;NON;;
+Illustrator;Initial;Illustrator;illustrator;;;;NON;;
+Illustrator;Basique;Illustrator;illustrator;;;;NON;;
+Illustrator;Opérationnel;Illustrator;illustrator;;;;NON;;
+Intelligence Artificielle Générative;IA Générative ;Intelligence Artificielle Générative;intelligence-artificielle-générative;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Initial;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Basique;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Opérationnel;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Avancé;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Expert;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Mixte Microsoft Office (Word + Excel);Professionnel;Mixte Microsoft Office (Word + Excel);microsoft-office;;;;NON;;
+Outils Collaboratifs Google;Initial;Outils Collaboratifs Google;outils-collaboratifs-google;;;;NON;;
+Outils Collaboratifs Google;Basique;Outils Collaboratifs Google;outils-collaboratifs-google;;;;NON;;
+Outils Collaboratifs Google;Opérationnel;Outils Collaboratifs Google;outils-collaboratifs-google;;;;NON;;
+Outils Collaboratifs Google;Avancé;Outils Collaboratifs Google;outils-collaboratifs-google;;;;NON;;
+Outlook;Initial;Outlook;pack-office-outlook;;;;NON;;
+Outlook;Basique;Outlook;pack-office-outlook;;;;NON;;
+Outlook;Opérationnel;Outlook;pack-office-outlook;;;;NON;;
+Outlook;Avancé;Outlook;pack-office-outlook;;;;NON;;
+Outlook;Expert;Outlook;pack-office-outlook;;;;NON;;
+Photoshop;Initial;Photoshop;photoshop;;;;NON;;
+Photoshop;Basique;Photoshop;photoshop;;;;NON;;
+Photoshop;Opérationnel ;Photoshop;photoshop;;;;NON;;
+Photoshop;Avancé ;Photoshop;photoshop;;;;NON;;
+Photoshop;Expert;Photoshop;photoshop;;;;NON;;
+PowerPoint;Initial;PowerPoint;ppt;;;;NON;;
+PowerPoint;Basique;PowerPoint;ppt;;;;NON;;
+PowerPoint;Opérationnel;PowerPoint;ppt;;;;NON;;
+PowerPoint;Avancé;PowerPoint;ppt;;;;NON;;
+PowerPoint;Expert;PowerPoint;ppt;;;;NON;;
+SketchUp;Initial;SketchUp;sketchup;;;;NON;;
+SketchUp;Basique;SketchUp;sketchup;;;;NON;;
+SketchUp;Opérationnel;SketchUp;sketchup;;;;NON;;
+SketchUp;Avancé;SketchUp;sketchup;;;;NON;;
+Word;Initial;Word;word;;;;NON;;
+Word;Basique;Word;word;;;;NON;;
+Word;Opérationnel;Word;word;;;;NON;;
+Word;Avance;Word;word;;;;NON;;
+Word;Expert;Word;word;;;;NON;;
+Word + IA;IA Générative ;Word + IA;word-ia;;;;NON;;
+Word + IA;Initial;Word + IA;word-ia;;;;NON;;
+Word + IA;Basique;Word + IA;word-ia;;;;NON;;
+Word + IA;Opérationnel;Word + IA;word-ia;;;;NON;;
+Word + IA;Avancé;Word + IA;word-ia;;;;NON;;
+Word + IA;Expert;Word + IA;word-ia;;;;NON;;
+WordPress;Initial;WordPress;wordpress;;;;NON;;
+WordPress;Basique;WordPress;wordpress;;;;NON;;
+WordPress;Operationnel;WordPress;wordpress;;;;NON;;

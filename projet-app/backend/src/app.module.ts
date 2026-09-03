@@ -44,6 +44,10 @@ import { MailConfigModule } from './mail-config/mail-config.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL');
+        // Schema changes must be explicit and versioned through migrations.
+        // Keep synchronization opt-in for disposable local databases only.
+        const synchronize =
+          configService.get<string>('TYPEORM_SYNCHRONIZE', 'false') === 'true';
 
         if (databaseUrl) {
           return {
@@ -65,7 +69,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
               P3OverrideRule,
               EmailTemplate,
             ],
-            synchronize: true,
+            synchronize,
           };
         }
 
@@ -93,7 +97,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
             P3OverrideRule,
             EmailTemplate,
           ],
-          synchronize: true,
+          synchronize,
         };
       },
       inject: [ConfigService],

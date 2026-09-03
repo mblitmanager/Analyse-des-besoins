@@ -318,7 +318,8 @@ async function fetchFormations() {
       formations.value = res.data;
     } else {
       const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
-      formations.value = res.data;
+      // Filter out formations that are only available in P3 mode
+      formations.value = res.data.filter(f => !f.p3Only);
     }
     
     // Once formations are loaded, compute level order if in P3 mode
@@ -329,7 +330,7 @@ async function fetchFormations() {
     try {
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
       const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
-      formations.value = res.data;
+      formations.value = res.data.filter(f => !f.p3Only);
     } catch (fallbackError) {
       console.error("Fallback formation fetch also failed:", fallbackError);
     }
@@ -2127,7 +2128,7 @@ function isSectionActive(section) {
               <label
                 v-for="option in p3OverrideChoiceOptions"
                 :key="option.label"
-                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-full"
+                class="flex items-center justify-start gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-full"
                 :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
                 :style="{
                   borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',

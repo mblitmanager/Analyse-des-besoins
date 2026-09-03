@@ -10,23 +10,30 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
+  const isProd =
+    configService.get<string>('NODE_ENV') === 'production' ||
+    process.env.NODE_ENV === 'production';
+
+  const configuredOrigins = (configService.get<string>('CORS_ORIGIN') || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
   const allowedOrigins = [
     configService.get<string>('FRONTEND_URL'),
+    ...configuredOrigins,
+    // Development defaults. These are accepted only outside production.
+    ...(isProd
+      ? []
+      : ['http://localhost:5173', 'http://127.0.0.1:5173']),
     'https://nsconseil.mbl-service.com',
     'https://ab-back.mbl-service.com',
     'https://api-nsconseil.solara-seaview.com',
   ].filter(Boolean) as string[];
 
-  const isProd =
-    configService.get<string>('NODE_ENV') === 'production' ||
-    process.env.NODE_ENV === 'production';
-
   app.enableCors({
     origin: (origin, callback) => {
       // allow non-browser or curl requests with no origin
       if (!origin) return callback(null, true);
-      // in development allow any localhost origin for convenience
-      if (!isProd && origin.includes('localhost')) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error('CORS policy: Origin not allowed'), false);
     },

@@ -22,24 +22,26 @@ let isHandlingUnauthorized = false
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (
-      error?.response?.status === 401 &&
-      localStorage.getItem('admin_token') &&
-      !isHandlingUnauthorized
-    ) {
-      isHandlingUnauthorized = true
+    // Temporarily disabled to diagnose duplicate tab issue
+    // if (
+    //   error?.response?.status === 401 &&
+    //   localStorage.getItem('admin_token') &&
+    //   !isHandlingUnauthorized
+    // ) {
+    //   console.log('[Auth Interceptor] 401 detected, logging out. URL:', error.config?.url)
+    //   isHandlingUnauthorized = true
 
-      const auth = useAuthStore(pinia)
-      auth.logout()
+    //   const auth = useAuthStore(pinia)
+    //   auth.logout()
 
-      if (router.currentRoute.value.path !== '/admin/login') {
-        router.push('/admin/login')
-      }
+    //   if (router.currentRoute.value.path !== '/admin/login') {
+    //     router.push('/admin/login')
+    //   }
 
-      setTimeout(() => {
-        isHandlingUnauthorized = false
-      }, 0)
-    }
+    //   setTimeout(() => {
+    //     isHandlingUnauthorized = false
+    //   }, 0)
+    // }
 
     return Promise.reject(error)
   }
@@ -68,7 +70,11 @@ async function bootstrap() {
   const auth = useAuthStore(pinia)
 
   store.fetchWorkflow()
-  await auth.init()
+  
+  // Init auth in background, don't block app mount
+  auth.init().catch(err => {
+    console.error('Auth init failed:', err)
+  })
 
   const params = new URLSearchParams(window.location.search)
   const brand = params.get('brand')

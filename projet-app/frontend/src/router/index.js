@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -171,17 +172,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('admin_token')
   
-  // Routes admin : accès uniquement avec token ET si la navigation vient d'une URL directe
-  // (from.name === null = navigation directe par URL, pas depuis l'app)
+  console.log('[Router Guard] Navigation to:', to.path, 'from:', from.path, 'has token:', !!token)
+  
+  // Routes admin : accès uniquement avec token
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!token) {
-      // Pas de token → login
+      console.log('[Router Guard] No token, redirecting to login')
       next('/admin/login')
-    } else if (from.name !== null && !from.path.startsWith('/admin')) {
-      // Navigation depuis l'app publique vers l'admin → interdite
-      // L'admin n'est accessible que par saisie directe de l'URL
-      next('/')
     } else {
+      console.log('[Router Guard] Token present, allowing access')
       next()
     }
   } else {

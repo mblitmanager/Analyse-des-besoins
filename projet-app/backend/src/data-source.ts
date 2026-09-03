@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 // refer to the compiled JS files.
 
 const databaseUrl = process.env.DATABASE_URL;
+const isSslRequired = databaseUrl?.includes('sslmode=require') || process.env.DB_SSL === 'true';
 
 export const AppDataSource = new DataSource(
   databaseUrl
@@ -16,7 +17,7 @@ export const AppDataSource = new DataSource(
         entities: ['dist/**/*.entity.js'],
         migrations: ['dist/migrations/*.js'],
         synchronize: false,
-        ssl: true,
+        ...(isSslRequired ? { ssl: { rejectUnauthorized: false } } : {}),
       }
     : {
         type: 'postgres',

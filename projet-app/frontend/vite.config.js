@@ -8,4 +8,15 @@ export default defineConfig({
     vue(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          excel: ['exceljs'],
+          charts: ['chart.js', 'vue-chartjs'],
+          pdf: ['jspdf', 'html2canvas']
+        }
+      }
+    }
+  }
 })

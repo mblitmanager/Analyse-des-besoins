@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddLevelShortName20260710000003 implements MigrationInterface {
-  name = 'AddLevelShortName20260710000003';
+export class AddLevelShortName1720588800000 implements MigrationInterface {
+  name = 'AddLevelShortName1720588800000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`

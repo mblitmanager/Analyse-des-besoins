@@ -227,7 +227,6 @@ onMounted(fetchSettings);
           </div>
         </div>
       </div>
-    </div>
   </div>
 </template>
 

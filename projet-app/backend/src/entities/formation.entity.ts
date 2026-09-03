@@ -70,6 +70,10 @@ export class Formation {
   @Column({ type: 'boolean', default: false })
   enableP3ManualChoice: boolean;
 
+  // Whether this formation is available ONLY in P3 mode
+  @Column({ type: 'boolean', default: false })
+  p3Only: boolean;
+
   @OneToMany(() => Level, (level) => level.formation, { cascade: true })
   levels: Level[];
 

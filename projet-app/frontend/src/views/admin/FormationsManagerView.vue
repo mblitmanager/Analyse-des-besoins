@@ -87,6 +87,8 @@ const form = ref({
   enableLowScoreWarning: true,
   // Permettre le choix manuel pour le 3ème parcours (P3)
   enableP3ManualChoice: false,
+  // Disponible uniquement en mode P3
+  p3Only: false,
   // High level alert defaults
   enableHighLevelAlert: true,
   maxLevelOrder: null,
@@ -130,6 +132,8 @@ function openAddModal() {
     enableLowScoreWarning: true,
     // Permettre le choix manuel pour le 3ème parcours (P3)
     enableP3ManualChoice: false,
+    // Disponible uniquement en mode P3
+    p3Only: false,
     // High level alert settings per formation (admin configurable)
     enableHighLevelAlert: true,
     maxLevelOrder: null,
@@ -798,6 +802,13 @@ onMounted(() => {
                      <label class="relative inline-flex items-center cursor-pointer" :title="'Autoriser l\'utilisateur à choisir manuellement sa formation pour le 3ème parcours (P3)'">
                         <input type="checkbox" v-model="form.enableP3ManualChoice" class="sr-only peer">
                         <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-primary"></div>
+                     </label>
+                   </div>
+                   <div class="flex items-center justify-between group/toggle">
+                     <span class="text-[9px] font-black text-slate-500 uppercase">Disponible uniquement en P3</span>
+                     <label class="relative inline-flex items-center cursor-pointer" :title="'Cette formation ne sera disponible que lors du 3ème parcours (P3)'">
+                        <input type="checkbox" v-model="form.p3Only" class="sr-only peer">
+                        <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-purple-500"></div>
                      </label>
                    </div>
                    <div class="flex items-center justify-between group/toggle">
