@@ -10,6 +10,3 @@ dist/
 /backend/.env
 /frontend/.env
 *.sqlite
-projet-app/backend/node_modules
-projet-app/backend/node_modules
-projet-app/backend/node_modules

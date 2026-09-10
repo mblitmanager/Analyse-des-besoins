@@ -44,6 +44,9 @@ export class Formation {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  availableInP3Only: boolean;
+
   @Column({ type: 'varchar', length: 12, default: 'global' })
   prerequisQuestionsScope: 'global' | 'formation' | 'both';
 

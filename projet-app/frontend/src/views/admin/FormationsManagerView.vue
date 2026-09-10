@@ -80,6 +80,7 @@ const form = ref({
   certificateur: "",
   programme: "",
   isActive: true,
+  availableInP3Only: false,
   prerequisQuestionsScope: "both",
   complementaryQuestionsScope: "both",
   availabilitiesQuestionsScope: "both",
@@ -123,6 +124,7 @@ function openAddModal() {
     certificateur: "",
     programme: "",
     isActive: true,
+    availableInP3Only: false,
     prerequisQuestionsScope: "both",
     complementaryQuestionsScope: "both",
     availabilitiesQuestionsScope: "both",
@@ -784,6 +786,13 @@ onMounted(() => {
                      <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="form.isActive" class="sr-only peer">
                         <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                     </label>
+                   </div>
+                   <div class="flex items-center justify-between group/toggle">
+                     <span class="text-[9px] font-black text-slate-500 uppercase">Disponible uniquement en P3</span>
+                     <label class="relative inline-flex items-center cursor-pointer" title="Masquer cette formation en P1 et P2">
+                        <input type="checkbox" v-model="form.availableInP3Only" class="sr-only peer">
+                        <div class="w-11 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-brand-primary"></div>
                      </label>
                    </div>
                    <div class="flex items-center justify-between group/toggle">
