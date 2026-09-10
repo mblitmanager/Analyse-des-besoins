@@ -18,7 +18,9 @@ export class FormationsService {
   ) {}
 
   findAll(activeOnly: boolean = false) {
-    const whereCondition = activeOnly ? { isActive: true } : {};
+    const whereCondition = activeOnly
+      ? { isActive: true, availableInP3Only: false }
+      : {};
     return this.formationRepo.find({
       where: whereCondition,
       order: { label: 'ASC' },

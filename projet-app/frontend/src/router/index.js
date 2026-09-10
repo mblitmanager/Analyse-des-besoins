@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
@@ -81,7 +82,7 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      component: () => import('../views/admin/AdminLayout.vue'), // I will create this
+      component: () => import('../views/admin/AdminLayout.vue'),
       meta: { requiresAuth: true },
       children: [
         {
@@ -168,25 +169,35 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('admin_token')
-  
-  // Routes admin : accès uniquement avec token ET si la navigation vient d'une URL directe
-  // (from.name === null = navigation directe par URL, pas depuis l'app)
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!token) {
-      // Pas de token → login
-      next('/admin/login')
-    } else if (from.name !== null && !from.path.startsWith('/admin')) {
-      // Navigation depuis l'app publique vers l'admin → interdite
-      // L'admin n'est accessible que par saisie directe de l'URL
-      next('/')
-    } else {
-      next()
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore()
+
+  if (to.name === 'admin-login') {
+    if (auth.token) {
+      const hasValidSession = await auth.init()
+      if (hasValidSession && auth.user?.role === 'admin') {
+        return next('/admin/dashboard')
+      }
+      auth.logout()
     }
-  } else {
-    next()
+    return next()
   }
+
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!auth.token) {
+      return next('/admin/login')
+    }
+
+    const hasValidSession = await auth.init()
+    if (!hasValidSession || !auth.isAuthenticated || auth.user?.role !== 'admin') {
+      auth.logout()
+      return next('/admin/login')
+    }
+
+    return next()
+  }
+
+  return next()
 })
 
 export default router

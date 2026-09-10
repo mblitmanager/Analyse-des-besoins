@@ -85,7 +85,7 @@ const p3OverrideChoiceOptions = computed(() => {
         ? rule.testFormations 
         : Object.values(rule.testFormations || {});
       
-      // Utiliser les formations configurées dans testFormations (par ID ou label)
+      // Résoudre uniquement les formations configurées dans testFormations (par ID ou label).
       testFormationsArray.forEach((formationIdentifier) => {
         // Essayer d'abord par ID, puis par label
         let found = null;
@@ -97,12 +97,13 @@ const p3OverrideChoiceOptions = computed(() => {
           found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
         }
         if (found) {
-          // Afficher uniquement le nom du parcours sans la formation de test
+          // Chaque option correspond exactement à une valeur validée en base.
           const parcoursName = rule.formation1 || rule.formation || 'Formation';
-          const clean = normalizeParcoursLabel(parcoursName);
+          const label = `${parcoursName} (${found.label})`;
+          const clean = normalizeParcoursLabel(label);
           if (!seen.has(clean)) {
             seen.add(clean);
-            options.push({ label: parcoursName, rule, formationId: found.id });
+            options.push({ label, rule, formationId: found.id });
           }
         }
       });

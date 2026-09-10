@@ -3,13 +3,22 @@ import axios from 'axios'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
+function safeReadAdminUser() {
+  try {
+    const raw = localStorage.getItem('admin_user')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('admin_token') || null,
-    user: JSON.parse(localStorage.getItem('admin_user') || 'null'),
+    user: safeReadAdminUser(),
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token,
+    isAuthenticated: (state) => !!state.token && !!state.user,
     isAdmin: (state) => state.user?.role === 'admin',
   },
   actions: {
@@ -17,11 +26,11 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await axios.post(`${apiBaseUrl}/auth/login`, { email, password })
         this.token = response.data.access_token
-        this.user = response.data.user
-        
+        this.user = response.data.user || response.data
+
         localStorage.setItem('admin_token', this.token)
         localStorage.setItem('admin_user', JSON.stringify(this.user))
-        
+
         axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
         return true
       } catch (error) {
@@ -47,7 +56,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await axios.get(`${apiBaseUrl}/auth/me`)
         this.user = response.data
         localStorage.setItem('admin_user', JSON.stringify(this.user))
-        return true
+        return !!this.user
       } catch (error) {
         this.logout()
         return false

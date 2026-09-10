@@ -228,7 +228,6 @@ onMounted(fetchSettings);
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <style scoped>
