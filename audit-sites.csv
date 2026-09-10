@@ -1,0 +1,383 @@
+﻿#;domaine;statut;diagnostic;anomalie;ecart;code;ip;serveur;cms;ecommerce;indices_ecommerce;derniere_maj;source_maj;titre;nom;prenom;organisme;mise_en_ligne
+1;boucherievieyres.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;RATIE;Sandrine;LIKE FORMATION;7/19/2026
+2;csegalliancemoncoutant.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;MAZEAU;Ludovic;LIKE FORMATION;7/13/2026
+3;trainscoutie.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;HUVET;Gilles;LIKE FORMATION;07/05/2026
+4;entreprisesafari.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LION;Florine;LIKE FORMATION;06/01/2026
+5;revelsprinterclub.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;MAIRE;Martine;LIKE FORMATION;5/25/2026
+6;vouhe79.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;Commune de VOUHE;Admin;1FSA;5/16/2026
+7;janesbookstore.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOUAUD;Claire;LIKE FORMATION;05/03/2026
+8;passerellehypnose.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PERRAN;Jean-Marc;LIKE FORMATION;05/03/2026
+9;secretsdehautegironde.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;AMAN;Sylvie;LIKE FORMATION;05/03/2026
+10;csegrundfoswt.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LEVEUGLE;Jean-Sébastien;LIKE FORMATION;4/19/2026
+11;legrenierdemimi.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;HOUPERT;Michel;LIKE FORMATION;4/19/2026
+12;pierrekayak.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LE MARC;Pierre;LIKE FORMATION;4/19/2026
+13;wilfriedgobertart.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;GOBERT;Wilfried;LIKE FORMATION;04/12/2026
+14;c-line-magnetisme.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;THURLOY;Celine;LIKE FORMATION;04/06/2026
+15;leplacardauxjeux.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;GIREAU;Aurelien;LIKE FORMATION;04/06/2026
+16;l-atelier-deco-et-creations-d-audrey.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;MERLOT;Audrey;LIKE FORMATION;3/15/2026
+17;pcehabitat86.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;ROERO;Alexandre;LIKE FORMATION;03/08/2026
+18;berceaudelerdre.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BAZOT;David;LIKE FORMATION;03/04/2026
+19;compagnie-ladislas.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;CAILLEAU;Theodore;LIKE FORMATION;03/04/2026
+20;asgvo.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;OLIVERI;Enzo;LIKE FORMATION;2/23/2026
+21;just-pizza-86.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;FILLON;Nathalie;LIKE FORMATION;2/23/2026
+22;sublimstyle.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;GUERRERO;Soizic;LIKE FORMATION;2/16/2026
+23;aloelaetitia.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BEALU;Alexandrine;LIKE FORMATION;02/09/2026
+24;myriambegel-dietetique.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BEGEL;Myriam;LIKE FORMATION;02/02/2026
+25;vue-du-fort.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PROUVOST;Cecile;LIKE FORMATION;02/02/2026
+26;app-jhoulette.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;HOULETTE;Julie;LIKE FORMATION;1/25/2026
+27;perfectiso33.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;KOI;Raphael;LIKE FORMATION;1/25/2026
+28;taboiteabijoux.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;OUARRICHE;Kadija;LIKE FORMATION;01/06/2026
+29;dj-86.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOUTIN;Jacky;LIKE FORMATION;12/21/2025
+30;lmup.fr;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;05/07/2023;wp-json;Erreur de la base de données;WEISSANBACHER;Fabien;1FSA;12/18/2025
+31;jumelage-grenade-istrana.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOURBON;Philippe;LIKE FORMATION;12/14/2025
+32;chevalier-family.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;CHEVALIER;Jean-Yves;LIKE FORMATION;11/23/2025
+33;nocesdorient.fr;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;Fri, 04 Sep 2026 09:02:04 GMT;header;Server Error;FELD;Stéphane;LIKE FORMATION;11/16/2025
+34;coach-health.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GRIGNON;Jérémy;1FS;11/05/2025
+35;couespelgautier-tp.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GAUTIER;Maelle;LIKE FORMATION;10/15/2025
+36;lorensoi86.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;RIVIERE;Laurent;LIKE FORMATION;10/12/2025
+37;eirashop.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;MULLER;Alain;LIKE FORMATION;10/07/2025
+38;corinhome.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BAHIER;Corinne;LIKE FORMATION;10/05/2025
+39;dog-zen.fr;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BAILLEUL;Laurent;LIKE FORMATION;9/28/2025
+40;maplantemasante.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;OULDELHADOUCHIA;Khaldia;LIKE FORMATION;9/22/2025
+41;skidgame.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;REBEYROL;Nathalie;LIKE FORMATION;9/22/2025
+42;pro-carrosserie.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;FRIEDRICH;Gilles;LIKE FORMATION;9/14/2025
+43;clubdepargneconcorde.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BODO;Frederic;LIKE FORMATION;8/31/2025
+44;usaulnayfootball17.fr;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GEOFFROY;Julien;LIKE FORMATION;7/30/2025
+45;floartform.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BOUTOULLE;Florence;LIKE FORMATION;7/15/2025
+46;lrvcommunity.fr;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;MORAND;Patrick;LIKE FORMATION;07/03/2025
+47;douceuretelegance.fr;IN;OK;;FAUX NEGATIF;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;;;Accueil - Espace bien-être - Douceur & Elégance;MOREAU;Bastien;LIKE FORMATION;6/30/2025
+48;princessebadass.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;NON;;26/04/2026;schema;ACCUEIL - Récits du quotidien - Princesse Badass;GOBIN;Sandra;LIKE FORMATION;6/30/2025
+49;atelierdestwins.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;THOREL;Sophie;LIKE FORMATION;6/21/2025
+50;leschambresdumeteil.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GOURDON;Aurelie;LIKE FORMATION;6/21/2025
+51;lemoulindeoyeplage.com;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;07/05/2026;sitemap;Erreur de la base de données;MAGNIER;Isabelle;LIKE FORMATION;6/16/2025
+52;anjels-studio.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;LE SAUSSE;Anne-Joelle;LIKE FORMATION;06/05/2025
+53;ludoautomobile79.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;PAUTROT;Geraldine;LIKE FORMATION;06/04/2025
+54;blog.humanuture.net;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;DEGOIS;Guillaume;1FS;06/02/2025
+55;roeroservices.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;ROERO;Alexandre;Like Formation;05/04/2025
+56;brocanpuce.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;DESAIZE;Pascal;Like Formation;04/07/2025
+57;bushido-saintxandre.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;29/10/2025;schema;Club de judo SAINT-XANDRE;LEGERON;Nicolas;Like Formation;3/24/2025
+58;13marsbylu.com;IN;OK;;FAUX NEGATIF;200;217.160.99.146;Serveur 6;WordPress;OUI;Checkout, Panier, WooCommerce;;;Accueil - Accessoires personnalisés faits main - 13 Mars by Lu';NEVEU;Lucinda;Like Formation;03/10/2025
+59;cse-knprahecq.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;VALLET;David;AOPIA;03/10/2025
+60;parentssolosdesmauges.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;CROUZET;Christelle;Like Formation;03/10/2025
+61;sub-evok.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BAUMLIN;Jonathan;Like Formation;03/10/2025
+62;artmonys.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GOURICHON;Thomas;AOPIA;2/24/2025
+63;petitpointcreation.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;CHAUVIN;Patricia;Like Formation;2/17/2025
+64;plumeartistepeintre.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;COUPARD;Jean-Yves;Like Formation;2/17/2025
+65;fabrikabijoux.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BOUKHRAIS;Olivia;Like Formation;2/13/2025
+66;laevabijoux.com;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;11/11/2025;schema;Database Error;GOUZIT;Evanne;Like Formation;2/13/2025
+67;lamalleauxcartes.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;PAINDAVOINE;Sebastien;Like Formation;2/13/2025
+68;le-clos-de-bajardan.fr;OUT;Erreur HTTP 500;;;500;217.160.99.146;Serveur 6;;NON;;;;WordPress > Erreur;NEVEU;Catherine;Like Formation;2/13/2025
+69;sandelice.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;07/10/2025;schema;Sandélice - Sandélice;COSSARD;Sandrine;Like Formation;2/13/2025
+70;smp-menuiserie.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;DELAIDDE;Priscilla;Like Formation;2/13/2025
+71;traductioninterprete.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GAVREA;MariaMona;Like Formation;2/13/2025
+72;humanuture.net;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;DEGOIS;Guillaume;1FS;1/21/2025
+73;lesclesdesoi.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GRIMONPREZ;Nathalie;AOPIA;1/20/2025
+74;cles54.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;TSCHEILLER;Jean-Marc;Like Formation;1/13/2025
+75;lejardindelamanne.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;OLIVIER;Patrick;Like Formation;1/13/2025
+76;ycmoto.com;OUT;Erreur HTTP 500;Erreur base de données;FAUX POSITIF;500;217.160.99.146;Serveur 6;;NON;;15/07/2026;schema;Database Error;RAPPELLI;Charlotte;Like Formation;1/13/2025
+77;bienetrepartages.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GRIGNON;Jeremy;1FS;01/07/2025
+78;pakihi.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;WEISSENBACHER;Fabien;1FS;12/20/2024
+79;decarboneco.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GRIGNON;Jeremy;1FS;12/16/2024
+80;be-eventsplus.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;BRUN;Eric;AOPIA;12/09/2024
+81;la-douce-heure.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;DUFOUR;Sylvie;Like Formation;12/09/2024
+82;tonydsevents.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;DOS SANTOS;Tony;Like Formation;12/09/2024
+83;le-potager-laville.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;Panier, WooCommerce;14/07/2026;schema;Vente directe producteur de légumes et fraises à Bordeaux - Le Potager à Laville;LAVILLE;Floriane;1FS;12/05/2024
+84;photodrone65.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;LASSALLE;Ludovic;Like Formation;12/04/2024
+85;sophrologuelisedumas.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;DUMAS;Lise;AOPIA;12/04/2024
+86;julie-urios.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;URIOS;Julie;AOPIA;11/25/2024
+87;jolielibellule.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;JAMARD;Helene;AOPIA;11/12/2024
+88;ns-conseil.com;IN;OK;;;200;54.36.91.62;Serveur 6;WordPress;NON;;27/11/2024;wp-json;Ns conseil – Ns conseil;GRIGNON;Jeremy;1FS;11/05/2024
+89;campingcarenvadrouille.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;LEDOUX;Franck;AOPIA;10/22/2024
+90;couverture-mathieuneuville.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;NEUVILLE;Mathieu;Like Formation;10/14/2024
+91;lesdesmontsdujeu.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;DELEBASSEE;Vincent;AOPIA;10/14/2024
+92;lasourcereiki.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;BOIS;Rodolphe;AOPIA;9/19/2024
+93;histoiredenana.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;SYLLA;Anna;AOPIA;09/02/2024
+94;monsafariphoto.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GONNET;Olivier;AOPIA;09/02/2024
+95;louloucandle.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;HUNT;Grace;AOPIA;8/20/2024
+96;votrere-naissance.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;MESNIL;Stephanie;Like Formation;8/20/2024
+97;preprod.aopia-prevention.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;CZORNYJ;Beatrice;AOPIA;7/24/2024
+98;santeetbienetre976.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;TOUMBOU;Moustadirani;AOPIA;7/22/2024
+99;cse-nord.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;RICHARD;Severine;AOPIA;7/19/2024
+100;collectionminerauxetgemmes.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;DUFOUR;Benjamin;AOPIA;7/15/2024
+101;guerissoeur.fr;PARTIEL;OK;Page parking / en vente + Maintenance;FAUX POSITIF;200;217.160.99.146;Serveur 6;WordPress;NON;;Tue, 01 Sep 2026 10:38:06 GMT;header;Site actuellement en maintenance;MOCUDE;Tina;AOPIA;7/15/2024
+102;ambiance-fossettes.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;PORET;Fanny;Like Formation;07/09/2024
+103;mosazik.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GUILLLON;Gaetan;AOPIA;07/09/2024
+104;rudgycw.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;SALOMON;Benoit;AOPIA;07/09/2024
+105;upr33gironde.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;TENDERO;Cyril;AOPIA;07/09/2024
+106;ngpiscine.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GIBAULT;Nathalie;Like Formation;07/01/2024
+107;stefguivarch-auteur.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GUIVARC'H;Stephane;Like Formation;07/01/2024
+108;1formatservices-latelier.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GRIGNON;Jeremy;1FS;6/26/2024
+109;djoelmartial.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;BERGOGNAT;Joel;AOPIA;6/19/2024
+110;eclat2fragance.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;MVULUBUNDU;Wasukama;AOPIA;6/19/2024
+111;comportement-chat-41.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;23/01/2025;schema;Comportementaliste Félin loir et cher;LONQUEU;Tony;Like Formation;6/17/2024
+112;little-kech.com;IN;OK;;;200;109.234.167.154;Serveur 6;WordPress;OUI;Ajouter au panier, Boutique, Panier, WooCommerce;2026-07;medias;Little Kech – vente de sacs-mules cuir-accessoires-vaisselle ceramique-décoration artisanat marocain;PRIEUR;Katia;AOPIA;6/17/2024
+113;aopia-prevention.fr;IN;OK;;;200;5.135.83.20;Serveur 6;WordPress;NON;;03/09/2026;sitemap;Audit formation risques professionnels | AOPIA Prévention;CZORNYJ;Beatrice;AOPIA;06/10/2024
+114;giteslavalleeducher.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;DE JESUS SANTOS;Maria;AOPIA;06/10/2024
+115;lejardindescoons.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;CARPENTIER;Benoit;Like Formation;06/10/2024
+116;isabellebienetre.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;LIEVRE;Isabelle;AOPIA;06/03/2024
+117;lerelaisdumardelon.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GIRARD;Manon;AOPIA;06/03/2024
+118;laurenceserenite.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;BEDU;Prescilia;AOPIA;5/28/2024
+119;msiteprso.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;GILLET;Denis;AOPIA;5/28/2024
+120;pattyart.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;PICARD;Chantal;LIKE FORMATION;5/28/2024
+121;esthersavatier-naturopathe.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;SAVATIER;Esther;AOPIA;5/21/2024
+122;hugomonteurvideo.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;COFFRE-GROSBOIS;Christelle;AOPIA;5/21/2024
+123;lespetitsblancs.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;JULLY;Carolle;AOPIA;5/21/2024
+124;jeanphi-photo.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;CARLIER;Jean Philippe;Like Formation;05/06/2024
+125;sylbienetre.fr;PARTIEL;OK;Page parking / en vente;FAUX POSITIF;200;188.114.97.2;Serveur 6;;NON;;;;sylbienetre.fr - Domain For Sale;DESCHAMPS;Sylvanie;AOPIA;05/06/2024
+126;apneasso.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;ALLAERT;Alexandre;AOPIA;4/29/2024
+127;art34.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;COLAS;Jeremy;AOPIA;4/29/2024
+128;cotibroc.fr;OUT;Erreur HTTP 520;;;520;188.114.96.2;Serveur 6;;NON;;;;cotibroc.fr | 520: Web server is returning an unknown error;ANGILERI;Thierry;Like Formation;4/29/2024
+129;creagelyne.com;IN;OK;;FAUX NEGATIF;200;217.160.99.146;Serveur 6;WordPress;OUI;Panier, WooCommerce;;;Bijou artisanal - Accueil - Créagelyne;GELE;Lynda;AOPIA;4/29/2024
+130;lamascottelisieux.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;GUYOT;Stephane;Like Formation;4/29/2024
+131;loveandrage.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;11/06/2026;schema;Groupe de reprise des standards Rock Love and Rage;DEFOLIE;Johan;AOPIA;4/29/2024
+132;titan-events.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;CLEENEWERCK;Titouan;AOPIA;4/29/2024
+133;jeremreprog.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;TURLURE;Michel;Like Formation;4/15/2024
+134;carolineebert-sophrologue.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;TRANAIN;Magaly;Like Formation;04/08/2024
+135;kbdomcreations.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GENTER;Dominique;AOPIA;04/08/2024
+136;lesmouettesrieuses17.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;NON;;03/01/2026;schema;Aéromodélisme St-Vivien - Accueil - les mouettes rieuses 17;MARCOUUILLIER;Jessie;AOPIA;04/02/2024
+137;partsheritage.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;FLEURY;Franck;Like Formation;04/02/2024
+138;aahypnose.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;ROSSARD;Catherine;;3/19/2024
+139;danseursdebal.fr;OUT;Erreur HTTP 500;;;500;217.160.99.146;Serveur 6;;NON;;;;WordPress > Erreur;BOISSEE;Olivier;Like Formation;3/19/2024
+140;edendevero.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;PRIEUR;Veronique;Like Formation;3/18/2024
+141;evasiondanslenordpasdecalais.fr;OUT;Erreur HTTP 520;;;520;188.114.97.2;Serveur 6;;NON;;;;evasiondanslenordpasdecalais.fr | 520: Web server is returning an unknown error;DESCAMPS;Dominique;Like Formation;3/18/2024
+142;latigital.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;AMMAR;Youssra;AOPIA;03/11/2024
+143;leslouchebems.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;BRULAVOINE;Valentin;Like Formation;03/04/2024
+144;eglise-notre-dame-ouilly-le-vicomte.org;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;BAREAU;Hubert;Like Formation;2/26/2024
+145;lafermedestoher.fr;OUT;Erreur HTTP 500;;;500;217.160.99.146;Serveur 6;;NON;;;;WordPress > Erreur;BOURDIER;Mathieu;AOPIA;2/19/2024
+146;byebyepoux.com;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;DARRAZI;Nadia;AOPIA;2/14/2024
+147;jsln-lashes.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;NKODIA;Gontran;AOPIA;2/14/2024
+148;memisa.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;MEMETEAU;Isabelle;AOPIA;02/12/2024
+149;veroniquecaumartin.com;OUT;Erreur HTTP 500;;;500;217.160.99.146;Serveur 6;;NON;;;;WordPress > Erreur;CAUMARTIN;Veronique;AOPIA;02/12/2024
+150;lablousotte.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;LAMOTTE;Charlotte;AOPIA;02/08/2024
+151;opalerenovation.fr;IN;OK;;;200;217.160.99.146;Serveur 6;WordPress;OUI;WooCommerce;30/10/2024;schema;Opale Rénovation - Accueil;DELABI;Cedric;AOPIA;02/08/2024
+152;v-nextconsulting.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;LORIETTE;Evelyne;AOPIA;02/08/2024
+153;ats-secretariat79.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;TEYTAUD;Agathe;AOPIA;1/29/2024
+154;judoclubsaintcyrduronceray.fr;OUT;Erreur HTTP 404;Page vide;;404;172.67.190.197;Serveur 6;;NON;;;;404 Not Found;LECOMTE;Cedric;Like Formation;1/29/2024
+155;lesgitesdelodie.fr;OUT;Erreur HTTP 500;;;500;217.160.99.146;Serveur 6;;NON;;;;WordPress > Erreur;MOREAU;Elodie;AOPIA;1/29/2024
+156;magalipoissonnet.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;POISSONNET;Magali;AOPIA;1/29/2024
+157;agentourix.org;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;DUTKA;Bernard;Like Formation;1/23/2024
+158;lesvillasdhelena.com;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GAUTIER;Helene;AOPIA;1/23/2024
+159;mathildeherault.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;HERAULT;Mathilde;AOPIA;1/23/2024
+160;mgtautomobile.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GOERGEN;Aline admin;Like Formation;1/23/2024
+161;romainfrasi.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Erreur de la base de données;GEAY;Romain;AOPIA;1/23/2024
+162;silathe.fr;OUT;DNS ne resout pas;;;;;Serveur 6;;NON;;;;;PELTIER;Estelle;AOPIA;12/14/2023
+163;partenaires.likeformation.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;jeremy.grignon@1for;1FS-Tech79!;Like Formation;11/30/2023
+164;preprod.likeformation.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;2024;m7d4G3CtXig4E7;Like Formation;11/30/2023
+165;luniversdebrigitte.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;ZYDE;Brigitte;AOPIA;11/27/2023
+166;soutiencovidlonggironde.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LEVEAUX;Laetitia;AOPIA;11/20/2023
+167;marjorie-energetique-chinoise.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;NOËL;Marjorie;Like Formation;11/14/2023
+168;copietout-romorantin.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;ROBIN;Valerie;Like Formation;11/03/2023
+169;lecturecreative-annie.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 6;;NON;;;;Database Error;GAZEAU;Anne;Like Formation;11/03/2023
+170;appli.likeformation.com;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;jeremy.grignon@1for;1FS-Tech79!;Like Formation;10/11/2023
+171;laplumedekimcha.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;REBIERE GUERIN;Clemence;AOPIA;10/03/2023
+172;coeursurlamain.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;VANDEMBULCKE;Olivier;AOPIA;09/08/2023
+173;deponte.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;DE PONTE;Francois;AOPIA;09/08/2023
+174;mon-petit-web.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;AWAD;Sohaib;Like Formation;08/09/2023
+175;soniacalve.aopia-digital.fr;IN;OK;;;200;212.227.27.196;Serveur 3;WordPress;OUI;WooCommerce;04/09/2026;sitemap;Home - Mon site test;Le Calve;Sonia;Like Formation;7/25/2023
+176;florian-thorel-paysage.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;THOREL;Sophie;Like Formation;7/17/2023
+177;programme.all-in-formation.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 4;;NON;;;;;VERBEKE/MOREAU;Syriac_Bahia;Like Formation;7/17/2023
+178;le-fil-d-aline.fr;OUT;Pas de reponse (timeout navigateur);;;;217.160.0.129;Serveur 1;;NON;;;;;PITOIS;Aline;Like Formation;7/13/2023
+179;instafabrik.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;GOIS;Jean-Louis;AOPIA;07/06/2023
+180;michelrobichon.fr;OUT;OK;;;200;217.160.0.73;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;ROBICHON;Michel;AOPIA;07/06/2023
+181;nadinerobichon.fr;OUT;OK;;;200;217.160.0.101;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;ROBICHON;Nadine;AOPIA;07/06/2023
+182;lesgitesdalice.fr;OUT;OK;;;200;217.160.0.180;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;GODDET;Damien;AOPIA;6/30/2023
+183;leszartsbleus.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BRUNET;Marie-Helene;AOPIA;6/30/2023
+184;cat-puccino.fr;OUT;OK;;;200;217.160.0.252;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;DROGUERES;Jeremy;Like Formation;6/23/2023
+185;abo-formation.fr;OUT;OK;;;200;217.160.0.5;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;formation;Abo;Like Formation;6/19/2023
+186;coachugo.fr;OUT;OK;;;200;217.160.0.181;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;Coach;Hugo;Like Formation;6/19/2023
+187;franckcastello.fr;OUT;OK;;;200;217.160.0.121;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;LOPEZ;Frederic;Like Formation;6/16/2023
+188;freddyguerendelpoker.fr;OUT;OK;;;200;217.160.0.27;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;GUERENDEL;Freddy;Like Formation;6/16/2023
+189;magicwords.fr;PARTIEL;OK;Page parking / en vente;FAUX POSITIF;200;88.198.116.121;Serveur 5;;NON;;;;Dovendi - magicwords.fr est maintenant à vendre;BARDOU;Lissandra;AOPIA;6/16/2023
+190;missalbee.fr;OUT;OK;;;200;217.160.0.171;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;PERDRIAU;Michelle;Like Formation;6/16/2023
+191;parisculturtour.fr;OUT;Erreur HTTP 404;Page vide;;404;188.114.97.2;Serveur 7;;NON;;;;404 Not Found;DELARCHE;Sandra;Like Formation;6/16/2023
+192;thys-plats-sandwich.fr;OUT;OK;;;200;217.160.0.183;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;PHAN VAN HO;Gaston;AOPIA;6/16/2023
+193;franvdb.fr;OUT;OK;;;200;217.160.0.11;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;VANDENBROUCKE;Francois;Like Formation;06/09/2023
+194;geraldvoyages.fr;OUT;OK;;;200;217.160.0.148;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;MENZAGHI;Gerald;AOPIA;06/09/2023
+195;latabledemag.fr;OUT;OK;;;200;217.160.0.237;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;TRIOUX;Magalie;Like Formation;06/09/2023
+196;letainstitut.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 3;;NON;;;;Database Error;GORIN;Alexandra;Like Formation;06/09/2023
+197;123nousvoila.fr;OUT;OK;;;200;217.160.0.57;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;HERARD;Catherine;Like Formation;06/05/2023
+198;pizzas-jb.fr;OUT;OK;;;200;217.160.0.39;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;BIGET;Jonathan;Like Formation;06/05/2023
+199;antre-pris.me;OUT;DNS ne resout pas;;;;;Serveur 5;;NON;;;;;RICHARD;Christian;AOPIA;5/30/2023
+200;carp-boat-location.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 5;;NON;;;;Database Error;CLERTE;Christopher;AOPIA;5/30/2023
+201;duffab.fr;OUT;DNS ne resout pas;;;;;Serveur 5;;NON;;;;;DUFFOURC;Fabien;Like Formation;5/30/2023
+202;sebastienloiseau.fr;PARTIEL;OK;Page parking / en vente;FAUX POSITIF;200;88.198.116.121;Serveur 5;;NON;;;;Dovendi - sebastienloiseau.fr est maintenant à vendre;LOISEAU;Sebastien;Like Formation;5/30/2023
+203;patissdelice.fr;OUT;OK;;;200;217.160.0.222;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;N'DIAYE;Philippe;Like Formation;5/15/2023
+204;associationadoptanimaux.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;NELIAT;Julie;AOPIA;05/09/2023
+205;adherentsamblainvillecfdt.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;JEANROY;Sebastien;Like Formation;4/27/2023
+206;lebureaudemilie.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;CHARPENTIER;Emilie;AOPIA;4/27/2023
+207;broc-en-stock.fr;OUT;OK;;;200;217.160.0.102;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;CALACIURA;Philippe;Like Formation;4/24/2023
+208;chasseassos.fr;OUT;OK;;;200;217.160.0.83;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;MAYEUR;Denis;AOPIA;4/24/2023
+209;itma-mg.com;OUT;OK;;;200;217.160.0.206;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;RABEMIHOATRA;Arthur-Noely;Like Formation;4/24/2023
+210;lescreationsdesylvie28.com;OUT;OK;;;200;217.160.0.165;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;ESNAULT;Sylvie;Like Formation;4/24/2023
+211;loreeduperche.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PHILIPPE;Eric;Like Formation;4/24/2023
+212;4beersplease.fr;OUT;OK;;;200;217.160.0.66;Serveur 5;IONOS;PEUT-ETRE;Checkout;;;;DOISY;Geoffray;AOPIA;3/17/2023
+213;acrpaysage.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;ROBERT;Alice;AOPIA;3/17/2023
+214;cd79rugby.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;FOURNIER;Dany;AOPIA;3/17/2023
+215;cgtdeuxsevres.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;WEINBERG;Stephane;AOPIA;3/17/2023
+216;fleixloisirs.org;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;GALBOIS;Thierry;Like Formation;3/17/2023
+217;lesptitsdoudousdupoitou.org;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;HEIT;Cecile;AOPIA;3/17/2023
+218;ruchersmuller.com;OUT;OK;;;200;217.160.0.178;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;MULLER;Raphael;Like Formation;3/17/2023
+219;sapia86.fr;OUT;OK;;;200;217.160.0.199;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;ROBERT;Vincent;AOPIA;3/17/2023
+220;www.cgtberner.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;FAUCHER;Nathalie;AOPIA;2/22/2023
+221;maison-serrault-communication.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;QUINIOU;Yannick;Like Formation;02/10/2023
+222;douceurbeautedecharlene.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;BOUVARD;Alexandre;Like Formation;02/01/2023
+223;sebden.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;DENECHEAU;Sébastien;Like Formation;1/25/2023
+224;anatiprp.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;FLEURY;Nathalie;Like Formation;1/18/2023
+225;le-blog-de-nassim.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;MESSAFRI;Nassim;Like Formation;1/18/2023
+226;lesecuriesdenbry.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;TABARY;Laure;Like Formation;1/18/2023
+227;cgt-otorbretagne.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BENOIT;Patricia;Like Formation;01/11/2023
+228;mionnetplomberie.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;MIONNET;Amaury;Like Formation;01/11/2023
+229;veralouisapastels.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;DOMANCHIN;Isabelle;AOPIA;01/11/2023
+230;centreculturelchasseneuil.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PARISOT HOYAU;Laure;AOPIA;12/21/2022
+231;flotarot.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;GOSLIN;Florence Marie-;Like Formation;12/19/2022
+232;fo-stellantis-vesoul.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;PETITGUILLAUME;Nicolas;Like Formation;12/19/2022
+233;des-habits-et-moi.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;BEAUGEOIS;Florence;Like Formation;12/07/2022
+234;le-blog-de-christophe.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;GUILLARME;Christophe;Like Formation;12/07/2022
+235;mathildepichery.com;OUT;Pas de reponse (timeout navigateur);;;;217.160.0.46;Serveur 7;;NON;;;;;PICHERY;Mathilde;Like Formation;12/07/2022
+236;mathildepichery.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PICHERY;Mathilde;Like Formation;12/07/2022
+237;ebs41.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;jgrignon;ebs41@orange.fr;Like Formation;11/30/2022
+238;lameenreiki.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;MIMART;Yveline;Like Formation;11/30/2022
+239;lefildaline.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PITOIS;Aline;Like Formation;11/30/2022
+240;vms-creaweb.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;MICHAS;Vanessa;AOPIA;11/30/2022
+241;benel-david.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;BENEL;David;Like Formation;11/23/2022
+242;casadelaeti.com;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;MENDES;Laetitia;AOPIA;11/23/2022
+243;eme-photographie.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;PENARD;Emeline;AOPIA;11/23/2022
+244;cgt-wurthfrance.fr;OUT;OK;;;200;217.160.0.220;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;ANTOINE;Benjamin;AOPIA;11/09/2022
+245;lacgtwurthfrance.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;CUNIN;Mickael;AOPIA;11/09/2022
+246;marie-france-creations.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;LEGRIX;Marie-France;Like Formation;11/09/2022
+247;demenastuce.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LAMBERT;Cyrille;AOPIA;10/19/2022
+248;formationsyndicalfnvccgt.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;DELATTRE;Herve;AOPIA;10/19/2022
+249;le-lutin-du-ventoux.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;BLANC;Jean-Christophe;Like Formation;10/19/2022
+250;giedelapetitedime.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 2;;NON;;;;Erreur de la base de données;LAURENTIN;Marie;AOPIA;10/12/2022
+251;mapausereflexo.bzh;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;MAINGUY;Thérèse;AOPIA;9/30/2022
+252;laurence-etoile.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;MANDON;Laurence;Like Formation;9/26/2022
+253;perle-de-beaute.fr;OUT;OK;;;200;193.247.200.54;Serveur 2;;NON;;04/09/2026;sitemap;PERLE DE BEAUTÉ – Prothésiste ongulaire à Auvers-sur-Oise;MARTIN;Florian;Like Formation;9/26/2022
+254;kamache.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;PERSAUD;Kumari;AOPIA;9/26/2022
+255;transportsmichelcheret.com;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;CHERET;Karine;Like Formation;9/26/2022
+256;lessencedesmaux.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;SENARD;Marie-Christine;AOPIA;09/09/2022
+257;dossenheim-kochersberg.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;AROCA FIX;Audrey;Like Formation;09/05/2022
+258;les-pyrogravures-de-doty.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;LOISON;Dorothée;AOPIA;09/01/2022
+259;keuraneya.com;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;CAILLERET;Vincent;AOPIA;08/12/2022
+260;msmotopieces.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;MAHJOUB;Mehdi;Like Formation;08/10/2022
+261;location-rody.com;OUT;Pas de reponse (timeout navigateur);;;;193.23.245.29;Serveur 3;;NON;;;;;MANTSA NGAMBOU;Rod Berman;Like Formation;08/05/2022
+262;fortyeightbar.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;OGEREAU;Jérôme;AOPIA;7/22/2022
+263;dansmabulle86170.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;RIPOCHE;Celine;AOPIA;07/12/2022
+264;fosodexo-bco.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOYARD;Loïc;Like Formation;07/06/2022
+265;location-lepouldu.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LE LAY;Emilie;Like Formation;07/06/2022
+266;tpefosarthe.org;OUT;OK;;;200;217.160.0.155;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;BOULARD;Isabelle;Like Formation;07/06/2022
+267;ctlink.fr;OUT;OK;;;200;217.160.0.71;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;PETINGER;Jeanmarc;Like Formation;07/01/2022
+268;lajulienne.fr;OUT;OK;;;200;217.160.0.175;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;QUANDALLE;Nathalie;Like Formation;6/27/2022
+269;cfdt-transportsrhonealpessudest.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOYRIVEN;Jeanluc;Like Formation;6/24/2022
+270;support-qse.fr;IN;OK;;;200;109.234.166.131;Serveur 2;WordPress;NON;;29/07/2026;sitemap;Audit Qualité & HSE – Consultant QHSE | Marc ROTTIER;ROTTIER;Marc;Like Formation;6/24/2022
+271;2pacanet.com;OUT;OK;;;200;217.160.0.33;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;TORRENT;Marie-Dominique;Like Formation;6/14/2022
+272;lancelin-secretariat-gestion.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;LANCELIN;Nathalie;Like Formation;06/08/2022
+273;cantine-scolaire-la-vraie-croix.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;FROEHLY;Jessy;Like Formation;5/30/2022
+274;urban-fantasy-fantastiques.fr;OUT;OK;;;200;217.160.0.244;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;MICHAUD;Marie-Claire;Like Formation;5/30/2022
+275;dlococo.fr;OUT;OK;;;200;217.160.0.217;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;VILO;Jean-Luc;AOPIA;5/27/2022
+276;atraverslemonde.fr;OUT;OK;;;200;217.160.0.63;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;PIERRON;Eva;AOPIA;5/23/2022
+277;christelle-guignard-sophrologue.fr;OUT;OK;;;200;217.160.0.242;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;GUIGNARD;Véronique;AOPIA;5/23/2022
+278;yveline-mimart.fr;OUT;OK;;;200;217.160.0.235;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;MIMART;Yveline;Like Formation;5/19/2022
+279;abidjanlocajeep.com;OUT;OK;;;200;217.160.0.246;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;NIANKOURI;Demba;Like Formation;5/16/2022
+280;saveursbio-lozere.fr;OUT;OK;;;200;217.160.0.241;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;DAUDET;Maxime;Like Formation;05/09/2022
+281;natsyofficiel.fr;OUT;OK;;;200;217.160.0.123;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;MEUNIER;Johanne;AOPIA;05/06/2022
+282;tony-meca.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOULENGER;Tony;Like Formation;05/05/2022
+283;microgat-informatique.fr;OUT;OK;;;200;217.160.0.164;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;GEFFARD;Nathalie;Like Formation;05/04/2022
+284;baladins-taillebourg.fr;OUT;OK;;;200;217.160.0.51;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;GARCIA;Jean-Emmanuel;Like Formation;4/29/2022
+285;philasin.fr;OUT;OK;;;200;217.160.0.111;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;CHARLES;Cathy;AOPIA;4/22/2022
+286;la-gueusaille.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;MOLLIER;Dominique;Like Formation;04/11/2022
+287;lacavernedetitieteva.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;BIRBA;Thierry;AOPIA;04/08/2022
+288;carpcaux.fr;OUT;OK;;;200;217.160.0.120;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;VARIN;Nicolas;Like Formation;04/05/2022
+289;football-club-cormoz-st-nizier.fr;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 2;;NON;;;;Database Error;PRABEL;Cédric;Like Formation;3/31/2022
+290;nath-animal.fr;OUT;OK;;;200;217.160.0.87;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;CADAUGADE;Nathalie;Like Formation;3/31/2022
+291;cgt-cmds.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BODIN;Carole;AOPIA;3/28/2022
+292;epn-ifad.fr;OUT;OK;;;200;217.160.0.29;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;BESSIERE;Yoakim;Like Formation;3/28/2022
+293;entre-reves-et-illusions.fr;OUT;OK;;;200;217.160.0.49;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;CARON;Xavier;Like Formation;3/24/2022
+294;lesgitesderaphael.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BRETOUR;Raphael;Like Formation;3/22/2022
+295;metalfuria.fr;OUT;OK;;;200;217.160.0.200;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;BERTHE;Laurent;AOPIA;3/22/2022
+296;charcuteriecatalane.fr;OUT;OK;;;200;217.160.0.121;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;BERTHIAUME;Sylvie;Like Formation;3/17/2022
+297;saintonge-espaces-verts.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;THOMAS;Nadia;Like Formation;3/15/2022
+298;aperosdumonde.com;OUT;OK;;;200;217.160.0.194;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;ZOUROUDIS;Eric;Like Formation;3/14/2022
+299;ledroitauquotidien.fr;OUT;OK;;;200;217.160.0.83;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;DIEZ;Alicia;AOPIA;03/11/2022
+300;rvjus.fr;OUT;OK;;;200;217.160.0.122;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;LINVAL;Anicet Hervé;AOPIA;03/11/2022
+301;giraphe.org;OUT;Erreur HTTP 500;Erreur base de données;;500;217.160.99.146;Serveur 4;;NON;;;;Erreur de la base de données;VAILLANT;Christophe;Like Formation;03/10/2022
+302;boutique-fan.fr;OUT;OK;;;200;217.160.0.163;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;DELPIERRE;Maxime;Like Formation;2/25/2022
+303;benoitcportraits.fr;OUT;OK;;;200;217.160.0.38;Serveur 2;IONOS;PEUT-ETRE;Checkout;;;;CESBRON;Benoit;Like Formation;2/24/2022
+304;benoitillustrationportraits.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;CESBRON;Benoit;Like Formation;2/24/2022
+305;amenagements-lachere.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;LACHERE;Jérôme;Like Formation;2/23/2022
+306;boxerpassionenfamille.co;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;JOUANNEAU;Ludovic;AOPIA;2/23/2022
+307;unepausesouslestropiques.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;MONATLIK VIGUIER;Aurore;AOPIA;2/19/2022
+308;maison-clermont.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;NGUY;Stéphane;Like Formation;2/18/2022
+309;villasherwood.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;AYME;Dominique;Like Formation;2/18/2022
+310;cabbassou.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;DUPONT;Aurelie;Like Formation;2/17/2022
+311;ja-secretariat.com;OUT;OK;;;200;217.160.0.44;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;ANTUNES;Jocelyne;AOPIA;2/17/2022
+312;brocanteopassesimple.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;GOLFIER;Béatrice;AOPIA;2/14/2022
+313;cselarocheauto.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;Michelet;Marianne;Like Formation;2/14/2022
+314;serreslanson.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;SARRAZIN;Nathan;AOPIA;2/14/2022
+315;lecatproductions.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;LECAT;Guillaume;Like Formation;02/11/2022
+316;dsi-informatique.fr;OUT;OK;;;200;217.160.0.25;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;COULLOUETTE;Pascal;AOPIA;02/07/2022
+317;les2ames.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;GACON;Francis;AOPIA;02/07/2022
+318;giteduvergerdepreures.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;CADET;Valerie;Like Formation;02/04/2022
+319;aideeducative.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;NOUVION;Anne;Like Formation;02/03/2022
+320;theraformsaintmalo.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;HUREL;Françoise;Like Formation;02/03/2022
+321;elisabeth-stolarz-lucas.net;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 4;;NON;;;;;LUCAS;Etienne;Like Formation;1/21/2022
+322;cse-ecfcerca.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;BAILLY;Nathalie;Like Formation;1/21/2022
+323;maribe-viau.fr;OUT;OK;;;200;217.160.0.29;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;VIAU;Marie-Bernadette;Like Formation;1/21/2022
+324;nounou-sabou.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;DEVILLECHABROLLE;Sabrina;Like Formation;1/13/2022
+325;poitiersfuneraire.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;LAMY;Stéphane;AOPIA;1/13/2022
+326;caajaccio.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;MASCLET;Thierry;Like Formation;01/10/2022
+327;kti-celeste.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;SENLECQUE;Cathie;Like Formation;01/10/2022
+328;sophrologie-valenciennes.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;LEGRAND;Jean-François;Like Formation;12/28/2021
+329;3petitschas.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;VERNEAU;Guylène;Like Formation;12/23/2021
+330;aati-condette.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;CONDETTE;Logan;Like Formation;12/22/2021
+331;blmariage.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;BENYAMINA;Lamri;Like Formation;12/21/2021
+332;pasta-salsa-e-basta.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;GUEDES TOMASINO;Anne;Like Formation;12/16/2021
+333;fraglax.com;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;COUSIN;Frédéric;Like Formation;12/14/2021
+334;ellipse-trevoux.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;NASRI;Yamina;Like Formation;12/14/2021
+335;eminsat-tsa.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;DAOUDI;Nassifa;Like Formation;12/14/2021
+336;boismm.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;MARTIN;Suzie;AOPIA;12/13/2021
+337;conceptudes.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;COLLAS;Corine;AOPIA;12/13/2021
+338;lerelaisfleuri-vendee.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;GENDRON;Freddy;Like Formation;12/13/2021
+339;kallisteperle.fr;OUT;Pas de reponse (timeout navigateur);;FAUX POSITIF;;217.160.0.222;Serveur 3;;NON;;;;;ROCCHI;Carole;Like Formation;11/30/2021
+340;montravelplanner.com;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;DONIUS;Magali;Like Formation;11/29/2021
+341;agri-vassal.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;VASSEUR;Philippe;Like Formation;11/26/2021
+342;spar-avignon.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;ROUX;Olivier;Like Formation;11/26/2021
+343;pecheursdelawarenne.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;LOUASSE;David;Like Formation;11/26/2021
+344;pleine-sante-vivante.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;LE BOUC;Karine;Like Formation;11/17/2021
+345;cotedivoireshopping.fr;OUT;DNS ne resout pas;;;;;Serveur 1;;NON;;;;;LINA;Daniel;AOPIA;11/15/2021
+346;creacyncouturepositive.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;BELLAN;Cynthia;AOPIA;11/15/2021
+347;nurses-dead-bodies.com;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;SOBCZAK;Laurent;Like Formation;11/10/2021
+348;jolie-charentaise.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;VATINELLE;Isabelle;Like Formation;11/10/2021
+349;rallye-cartes-postales.com;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;DECUBBER;Sabrina;Like Formation;11/08/2021
+350;sonicservices59.com;IN;OK;;;200;217.160.0.137;Serveur 3;WordPress;NON;;24/03/2026;sitemap;Accueil - SONIC SERVICES 59;VASSEUR;Nicolas;Like Formation;11/08/2021
+351;lebasloquin.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;DUSAUTOIR;Vinciane;Like Formation;11/04/2021
+352;dgmetal.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;RASSE;Vanessa;Like Formation;10/27/2021
+353;sante-soin-beaute-aloevera.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;RIGUIDEL;Florence;Like Formation;10/27/2021
+354;cafe-vertido.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;RENOUX;Melissa;Like Formation;10/26/2021
+355;gas-edition.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;PISSON LAVIGNE;Michel;Like Formation;10/26/2021
+356;latribudeschoupinoux.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;COLLAS;Corine;AOPIA;10/26/2021
+357;hypnose-morbihan-bretagne.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;CADIO;Christian;Like Formation;10/22/2021
+358;elodie-affiches-naissance.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;HELL;Gaetan;Like Formation;10/20/2021
+359;lacannenormande.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BOUHANS;Luc;AOPIA;10/19/2021
+360;atelier-des-possibles-86.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;BLANCHET;Gael;Like Formation;10/13/2021
+361;h-ensemble.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;DUHAMEL;Hélène;Like Formation;10/13/2021
+362;pecherie-st-germain.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;FAUX;Loic;AOPIA;10/13/2021
+363;theatredespepites.fr;IN;OK;;;200;178.32.151.192;Serveur 3;;NON;;;;Théâtre des Pépites - Association Culturelle - RENNES;PAPILLON;Dominique;Like Formation;10/13/2021
+364;caverenaudin.fr;OUT;OK;Page vide;;200;188.114.96.2;Serveur 3;;NON;;04/09/2026;sitemap;;BOURDEAU;Corinne;Like Formation;10/11/2021
+365;bonaparte-empire.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;DELAIGUE;Philippe;Like Formation;10/11/2021
+366;climconseil.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;TOILLON;Sylvain;Like Formation;10/11/2021
+367;librairie-occitania.fr;IN;OK;;;200;109.234.164.42;Serveur 7;WordPress;OUI;Boutique, Checkout, Panier, WooCommerce;01/09/2026;sitemap;Accueil - Librairie Occitania;THOUREL;Isabelle;Like Formation;10/11/2021
+368;homeburgersetaples.fr;OUT;DNS ne resout pas;;;;;Serveur 2;;NON;;;;;MAQUINGHEN;Celine;Like Formation;10/07/2021
+369;nailstudiobykarlane.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;LAMOUREUX;Karlane;AOPIA;9/20/2021
+370;sarlsogep.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;SEZER;Kezban;AOPIA;9/20/2021
+371;reiki-reflexo79.fr;OUT;DNS ne resout pas;;;;;Serveur 3;;NON;;;;;BIGOT;Céline;Like Formation;9/16/2021
+372;joenpra.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;BONNET;Ludivine;Like Formation;7/16/2021
+373;dietplus-niort.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;ROUSSEAU;Carine;AOPIA;07/07/2021
+374;lemondedulivre.com;OUT;OK;;;200;217.160.0.105;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;TREIBER;Carole;AOPIA;6/29/2021
+375;ssky.fr;OUT;Pas de reponse (timeout navigateur);;;;213.165.95.114;Serveur 7;;NON;;;;;ESCAYG DE LA SAUZAY;Katia;AOPIA;6/28/2021
+376;emiwebetcom.fr;OUT;OK;;;200;217.160.0.36;Serveur 4;IONOS;PEUT-ETRE;Checkout;;;;CONSTANT;Emilie;AOPIA;06/11/2021
+377;poneyclubdesretrouvailles.fr;OUT;Erreur HTTP 500;Page vide;;500;54.36.91.62;Serveur 3;;NON;;;;;NAFFRECHOUX;Elizabeth;AOPIA;05/10/2021
+378;lafabriquedesteph.fr;OUT;OK;;;200;217.160.0.101;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;DUVAULT;Stéphanie;AOPIA;4/26/2021
+379;osantenergie.fr;OUT;DNS ne resout pas;;;;;Serveur 4;;NON;;;;;PIOGER;Cyrille;Like Formation;4/23/2021
+380;matieres-indus.fr;OUT;OK;;;200;217.160.0.189;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;ARNAULT;Laurent;AOPIA;3/13/2021
+381;selvasoul.com;OUT;OK;;;200;217.160.0.82;Serveur 3;IONOS;PEUT-ETRE;Checkout;;;;VASLIN;Benoit;AOPIA;02/12/2021
+382;mrassurance.fr;OUT;OK;;;200;217.160.0.101;Serveur 1;IONOS;PEUT-ETRE;Checkout;;;;RAIZER;Mr;Like Formation;01/01/2021
