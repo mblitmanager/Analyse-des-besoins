@@ -17,9 +17,11 @@ export class FormationsService {
     private p3FilterRulesApplicationService: P3FilterRulesApplicationService,
   ) {}
 
-  findAll(activeOnly: boolean = false) {
+  findAll(activeOnly: boolean = false, includeP3Only: boolean = false) {
     const whereCondition = activeOnly
-      ? { isActive: true, availableInP3Only: false }
+      ? includeP3Only
+        ? { isActive: true }
+        : { isActive: true, availableInP3Only: false }
       : {};
     return this.formationRepo.find({
       where: whereCondition,
@@ -154,7 +156,7 @@ export class FormationsService {
     activeOnly: boolean = true,
   ): Promise<Formation[]> {
     // Get all active formations
-    const formations = await this.findAll(activeOnly);
+    const formations = await this.findAll(activeOnly, true);
 
     // Apply P3 filter rules
     return this.p3FilterRulesApplicationService.applyP3Rules(

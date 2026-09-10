@@ -103,7 +103,7 @@ const p3OverrideChoiceOptions = computed(() => {
           const clean = normalizeParcoursLabel(label);
           if (!seen.has(clean)) {
             seen.add(clean);
-            options.push({ label, rule, formationId: found.id });
+            options.push({ label, displayLabel: parcoursName, rule, formationId: found.id });
           }
         }
       });
@@ -764,14 +764,14 @@ async function confirmP3Override() {
           localStorage.setItem('p3_forced_formation_id', String(testFormation.id));
           localStorage.setItem('p3_forced_formation_label', testFormation.label);
           
-          // Extraire le parcours final depuis chosenLabel
-          // Format: "IA GENERATIVE (INKREA) (Excel + IA)" → "IA GENERATIVE (INKREA)"
-          const parcoursMatch = chosenLabel.match(/^(.+?)\s*\([^)]+\)$/);
-          const finalParcoursLabel = parcoursMatch ? parcoursMatch[1].trim() : chosenLabel;
-          console.log('[P3] confirmP3Override - finalParcoursLabel extracted from chosenLabel:', finalParcoursLabel);
+          // Les valeurs de la règle P3 Override sont la source de vérité.
+          // formation1 = cible P3, parcoursTitle = intitulé affiché du parcours.
+          const finalParcoursLabel = String(rule?.formation1 || chosenLabel).trim();
+          const finalParcoursTitle = String(rule?.parcoursTitle || '').trim();
+          console.log('[P3] confirmP3Override - rule target/title:', finalParcoursLabel, finalParcoursTitle);
           
           localStorage.setItem('p3_forced_recommendation', finalParcoursLabel);
-          localStorage.setItem('p3_forced_parcours_title', finalParcoursLabel);
+          localStorage.setItem('p3_forced_parcours_title', finalParcoursTitle);
           const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
           localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
           localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
@@ -803,11 +803,12 @@ async function confirmP3Override() {
         const match = chosenLabel.match(/\(([^)]+)\)$/);
         const testFormationLabel = match ? match[1] : chosenLabel.split(' + ')[0].trim();
         
-        // Le parcours final est toujours la formation originale de la règle (IA Générative)
-        const finalParcoursLabel = rule?.formation || 'IA GENERATIVE (INKREA)';
+        // Utiliser exactement les valeurs configurées dans la règle P3 Override.
+        const finalParcoursLabel = String(rule?.formation1 || chosenLabel).trim();
+        const finalParcoursTitle = String(rule?.parcoursTitle || '').trim();
         
         localStorage.setItem('p3_forced_recommendation', finalParcoursLabel);
-        localStorage.setItem('p3_forced_parcours_title', rule?.parcoursTitle || '');
+        localStorage.setItem('p3_forced_parcours_title', finalParcoursTitle);
         const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
         localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
         localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
@@ -2119,7 +2120,7 @@ function isSectionActive(section) {
                 }"
               >
                 <span class="material-icons-outlined text-lg text-[#059669]">school</span>
-                <span>{{ option.label }}</span>
+                <span>{{ option.displayLabel || option.label }}</span>
               </button>
             </div>
           </template>
@@ -2143,7 +2144,7 @@ function isSectionActive(section) {
                   class="w-4 h-4 border-slate-300 focus:ring-offset-0"
                   :style="{ color: '#315264', accentColor: '#315264' }"
                 />
-                <span class="text-sm font-black text-slate-900">{{ option.label }}</span>
+                <span class="text-sm font-black text-slate-900">{{ option.displayLabel || option.label }}</span>
                 <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
                   <span class="material-icons-outlined text-white text-xs">check</span>
                 </div>
