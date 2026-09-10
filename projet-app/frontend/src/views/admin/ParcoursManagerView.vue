@@ -395,7 +395,7 @@ async function duplicateRule(rule) {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, { headers: getAuthHeaders() });
+    const res = await axios.get(`${apiBaseUrl}/formations`, { headers: getAuthHeaders() });
     formationsList.value = (res.data || []).filter(formation => formation.isActive !== false);
     if (formationsList.value.length > 0 && !activeFormationId.value) {
       const savedId = localStorage.getItem('admin_parcours_activeFormationId');

@@ -125,7 +125,7 @@ const filteredRules = computed(() => {
 
 async function fetchFormations() {
   try {
-    const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`, {
+    const res = await axios.get(`${apiBaseUrl}/formations`, {
       headers: { Authorization: `Bearer ${token()}` }
     });
     const formations = (res.data || []).filter(f => f.isActive !== false);
@@ -152,6 +152,22 @@ async function fetchFormations() {
   } catch (error) {
     console.error("Failed to load formations:", error);
   }
+}
+
+function normalizeTestFormationIds(values) {
+  const source = Array.isArray(values) ? values : [];
+  return Array.from(new Set(source.map((value) => {
+    const numericId = Number(value);
+    if (Number.isFinite(numericId) && allFormations.value.some((formation) => formation.id === numericId)) {
+      return numericId;
+    }
+
+    const normalizedValue = String(value || '').trim().toLowerCase();
+    const formation = allFormations.value.find(
+      (item) => String(item.label || '').trim().toLowerCase() === normalizedValue,
+    );
+    return formation?.id ?? null;
+  }).filter((id) => id !== null)));
 }
 
 async function fetchRules() {
@@ -198,6 +214,7 @@ async function saveRule() {
   try {
     const headers = { Authorization: `Bearer ${token()}` };
     const payload = { ...newRule.value };
+    payload.testFormations = normalizeTestFormationIds(payload.testFormations);
     
     // Build condition string from operator and level only if level condition is enabled
     if (useLevelCondition.value && conditionLevel.value) {
@@ -397,7 +414,7 @@ async function openEditForm(rule) {
     forceChoice: rule.forceChoice !== false,
     isHiddenResult: !!rule.isHiddenResult,
     hiddenResultType: rule.hiddenResultType || null,
-    testFormations: rule.testFormations || [],
+    testFormations: normalizeTestFormationIds(rule.testFormations),
   };
 
   // Parser formation1 et formation2 en 3 parties : FORMATION + Parcours + (Certification)
