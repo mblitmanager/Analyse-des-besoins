@@ -1,0 +1,106 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - heading "Bravo OK !" [level=1] [ref=e7]
+      - paragraph [ref=e8]: Félicitations, vous avez franchi la première étape vers votre nouvelle carrière. Nous avons analysé votre profil pour vous construire un parcours sur-mesure, simple et efficace.
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: route
+          - text: P1 & P2 - INITIAL & COMPLÉMENTAIRE
+        - generic [ref=e12]:
+          - generic [ref=e13]: calendar_today
+          - text: Bilan du 9 sept. 2026
+        - generic [ref=e14]:
+          - generic [ref=e15]: verified
+          - text: Évaluation complétée
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]: person_search
+        - heading "Votre Profil" [level=2] [ref=e19]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - paragraph [ref=e22]: Métier / Poste
+          - paragraph [ref=e23]: DigComp
+        - generic [ref=e24]:
+          - paragraph [ref=e25]: Situation
+          - generic [ref=e27]: Reconversion
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]: fact_check
+        - heading "Analyse de vos acquis" [level=2] [ref=e39]
+      - generic [ref=e41]:
+        - heading "Bases Informatiques" [level=3] [ref=e42]
+        - paragraph [ref=e43]: Certaines compétences de base sont insuffisantes. Le parcours choisi vous aidera à les renforcer avant de poursuivre.
+    - generic [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]: map
+        - heading "Le parcours personnalisé que nous vous proposons" [level=2] [ref=e47]
+      - generic [ref=e48]:
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e54]: "1"
+              - generic [ref=e57]:
+                - generic [ref=e59]: school
+                - generic [ref=e60]: Digitales Compétences Basique (TOSA)
+            - generic [ref=e61]:
+              - generic [ref=e62]: "2"
+              - generic [ref=e63]:
+                - generic [ref=e64]:
+                  - generic [ref=e65]:
+                    - generic [ref=e67]: school
+                    - generic [ref=e68]: Word Basique (TOSA)
+                  - paragraph [ref=e69]: Traitement de texte standard pour la rédaction de documents.
+                - generic [ref=e70]: ou
+                - generic [ref=e71]:
+                  - generic [ref=e72]:
+                    - generic [ref=e74]: school
+                    - generic [ref=e75]: Excel Basique (TOSA)
+                  - paragraph [ref=e76]: Tableur incontournable pour la gestion de données et le calcul.
+                - generic [ref=e77]: ou
+                - generic [ref=e78]:
+                  - generic [ref=e79]:
+                    - generic [ref=e81]: school
+                    - generic [ref=e82]: PowerPoint Basique (TOSA)
+                  - paragraph [ref=e83]: Outil de présentation pour vos supports visuels.
+          - generic [ref=e84]:
+            - generic [ref=e85]: info
+            - paragraph [ref=e86]: Ce parcours est optimisé selon vos résultats au test de positionnement pour vous garantir une progression efficace.
+        - generic [ref=e91]:
+          - paragraph [ref=e92]: "Veuillez choisir votre spécialité pour cette étape :"
+          - generic [ref=e93]:
+            - button "Word Basique (TOSA)" [ref=e94] [cursor=pointer]:
+              - generic [ref=e95]: Word Basique (TOSA)
+            - button "Excel Basique (TOSA)" [ref=e96] [cursor=pointer]:
+              - generic [ref=e97]: Excel Basique (TOSA)
+            - button "PowerPoint Basique (TOSA)" [ref=e98] [cursor=pointer]:
+              - generic [ref=e99]: PowerPoint Basique (TOSA)
+      - generic [ref=e100]:
+        - generic [ref=e102]:
+          - paragraph [ref=e103]: Ce parcours vous semble idéal ? Cliquez sur le bouton ci-dessous pour le valider.
+          - button "Valider ce parcours et continuer arrow_forward" [disabled] [ref=e104]:
+            - generic [ref=e105]: Valider ce parcours et continuer
+            - generic [ref=e106]: arrow_forward
+        - paragraph [ref=e107]: C'est gratuit et sans engagement de votre part à ce stade.
+  - contentinfo [ref=e108]:
+    - generic [ref=e109]:
+      - navigation [ref=e110]:
+        - link "Règlement intérieur" [ref=e111] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e112] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e113] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e114] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e115] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e117]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e118] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e119]: © 2026 NS Conseil. Tous droits réservés.
+```
