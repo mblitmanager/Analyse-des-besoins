@@ -69,6 +69,10 @@ async function confirmDuplicate() {
       ids: duplicateIds.value,
       targetFormationId: dupFormationId.value ? Number(dupFormationId.value) : null,
       targetLevelId: dupLevelId.value ? Number(dupLevelId.value) : null,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('admin_token')}`,
+      },
     });
     showDuplicateModal.value = false;
     selectedIds.value.clear();
@@ -76,7 +80,8 @@ async function confirmDuplicate() {
     await fetchQuestions();
   } catch (error) {
     console.error("Duplicate failed:", error);
-    toast.error("Erreur lors de la duplication");
+    const message = error?.response?.data?.message || error?.message || "Erreur lors de la duplication";
+    toast.error(message);
   } finally {
     duplicating.value = false;
   }

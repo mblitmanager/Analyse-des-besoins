@@ -91,10 +91,12 @@ const p3OverrideChoiceOptions = computed(() => {
         let found = null;
         const idNum = Number(formationIdentifier);
         if (!isNaN(idNum) && idNum > 0) {
-          found = formations.value.find(f => f.id === idNum);
+          found = formations.value.find(f => f.id === idNum) ||
+            allActiveFormations.value.find(f => f.id === idNum);
         }
         if (!found) {
-          found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
+          found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase())) ||
+            allActiveFormations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
         }
         if (found) {
           // Chaque option correspond exactement à une valeur validée en base.
@@ -154,6 +156,11 @@ const p3UnselectedChoicesListWithOrder = computed(() => {
 });
 
 const formations = ref([]);
+// Le catalogue P3 est volontairement filtré selon l'historique. Les règles
+// Override peuvent toutefois désigner une formation P3-only comme formation de
+// test ; on conserve donc le catalogue actif complet pour la seule résolution
+// de `testFormations`.
+const allActiveFormations = ref([]);
 const currentSession = ref(null);
 const p3Rules = ref([]);
 const allParcoursRules = ref([]);
@@ -321,6 +328,14 @@ async function fetchFormations() {
       const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
       formations.value = res.data;
     }
+
+    // Les formations P3-only ne sont pas forcément renvoyées par l'endpoint
+    // filtré. Elles restent nécessaires quand une règle Override les référence
+    // explicitement dans `testFormations` (ex. IA Générative / INKREA).
+    // `activeOnly=true` masque précisément les formations P3-only côté API.
+    // On charge donc le catalogue complet et ne conserve que les actives ici.
+    const allRes = await axios.get(`${apiBaseUrl}/formations`);
+    allActiveFormations.value = (allRes.data || []).filter((formation) => formation.isActive !== false);
     
     // Once formations are loaded, compute level order if in P3 mode
     computeAndStorePrevLevelOrder();
@@ -476,8 +491,10 @@ function matchesLegacyP3Override(rule) {
 
 function p3OverrideRuleMatchesFormation(rule, formation) {
   if (!formation) return true;
-  // Utiliser UNIQUEMENT l'ID de formation - pas de fallback sur label
-  return rule.formationId && Number(rule.formationId) === Number(formation.id);
+  if (rule.formationId) {
+    return Number(rule.formationId) === Number(formation.id);
+  }
+  return labelsMatch(rule.formation, formation.label);
 }
 
 function findMatchingP3OverrideRules(formation = null) {
@@ -734,12 +751,13 @@ async function confirmP3Override() {
         let testFormation = null;
         const testFormationId = selectedOption?.formationId;
         if (testFormationId) {
-          testFormation = formations.value.find(f => f.id === testFormationId);
+          testFormation = formations.value.find(f => f.id === testFormationId) ||
+            allActiveFormations.value.find(f => f.id === testFormationId);
         }
         
         // Fallback : trouver par label si l'ID n'est pas disponible
         if (!testFormation) {
-          testFormation = formations.value.find(f => {
+          testFormation = [...formations.value, ...allActiveFormations.value].find(f => {
             const fl = f.label.toLowerCase();
             const tl = testFormationLabel.toLowerCase();
             // Correspondance exacte d'abord
@@ -775,6 +793,27 @@ async function confirmP3Override() {
           const overrideSummaryGroup = [overrideP1, overrideP2].filter(Boolean).join(" + ");
           localStorage.setItem('p3_forced_explanation', rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : ''));
           localStorage.setItem('p3_forced_force_choice', rule?.forceChoice === false ? 'false' : 'true');
+
+          // Persister la décision Override avant de lancer le test. Le test porte
+          // sur `testFormation`, mais ne doit jamais remplacer la cible ni le
+          // titre configurés par l'administrateur dans la règle P3.
+          await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
+            formationChoisie: testFormation.label,
+            isP3Mode: true,
+            parcoursNumber: 3,
+            skipFormationReset: true,
+            // La cible P3 reste dans localStorage jusqu'à la fin du quiz.
+            // La renseigner ici ferait croire à PositionnementView que le test
+            // est déjà terminé (finalRecommendation + stopLevel).
+            finalRecommendation: null,
+            parcoursTitle: finalParcoursTitle || null,
+            explanationMessage: rule?.explanationMessage || (overrideSummaryGroup ? `${overrideSummaryGroup} -> ${finalParcoursLabel}` : null),
+            parcoursChoices: null,
+            levelsScores: {},
+            positionnementAnswers: {},
+            stopLevel: null,
+            lastValidatedLevel: null,
+          });
           
           if (overrideP1) localStorage.setItem("p3_prev_p1", overrideP1);
           if (overrideP2) localStorage.setItem("p3_prev_p2", overrideP2);
@@ -1117,11 +1156,18 @@ async function doSelectFormation() {
   try {
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const hasP3Override = store.isP3Mode && Boolean(
+      localStorage.getItem('p3_forced_recommendation') ||
+      localStorage.getItem('p3_forced_parcours_title'),
+    );
     const payload = {
       formationChoisie: selectedFormation.value.label,
       isP3Mode: store.isP3Mode,
       parcoursNumber: store.isP3Mode ? 3 : 1,
     };
+    // En P3 Override, la formation sélectionnée est celle du test. Elle ne
+    // doit pas déclencher la remise à zéro du titre/cible déjà imposés.
+    if (hasP3Override) payload.skipFormationReset = true;
     if ((selectedFormation.value.category || '').toLowerCase() === 'bureautique') {
       payload.bureautiqueSuite = selectedSuite.value;
     }
@@ -1145,13 +1191,16 @@ async function doSelectFormation() {
     // Le test de positionnement sera fait pour évaluer le niveau, mais le parcours
     // final sera toujours celui imposé ici (indépendant du résultat du QCM).
     if (store.isP3Mode) {
+      // `confirmP3Override()` peut déjà avoir enregistré une cible et un titre
+      // administrés. Ne pas les remplacer par `computeNextLevel()`, qui ne
+      // connaît que les règles génériques de parcours.
       const computedResult = computeNextLevel();
       // Ne stocker que si c'est un vrai parcours (pas un message d'erreur noConfiguredParcours)
-      if (!computedResult.noConfiguredParcours && (computedResult.finalRecommendation || computedResult.label)) {
+      if (!hasP3Override && !computedResult.noConfiguredParcours && (computedResult.finalRecommendation || computedResult.label)) {
         localStorage.setItem('p3_forced_recommendation', computedResult.finalRecommendation || computedResult.label);
         localStorage.setItem('p3_forced_parcours_title', computedResult.parcoursTitle || '');
         localStorage.setItem('p3_forced_explanation', computedResult.explanationMessage || '');
-      } else {
+      } else if (!hasP3Override) {
         localStorage.removeItem('p3_forced_recommendation');
         localStorage.removeItem('p3_forced_parcours_title');
         localStorage.removeItem('p3_forced_explanation');
