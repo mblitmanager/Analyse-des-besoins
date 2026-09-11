@@ -75,6 +75,22 @@ tests/formations/
 
 ## 🧪 Exécuter les Tests
 
+### Catalogue complet (formations et parcours actifs)
+```bash
+npm run test:formations-parcours
+```
+
+Ce scénario s'appuie sur l'API locale : il vérifie chaque formation active dans
+l'interface et chaque règle de parcours active. Il crée une unique session de
+test nommée « Playwright Catalogue » pour accéder au catalogue. Une capture
+plein écran est jointe au rapport et sauvegardée dans
+`test-results/screenshots/catalogue-formation-<id>.png` pour chaque formation
+sélectionnée. Les formations marquées « P3 uniquement » (dont Outlook) sont
+vérifiées comme absentes du catalogue standard. Chaque sélection standard est
+ensuite poursuivie jusqu'à la première étape du parcours (mise à niveau ou
+positionnement), capturée dans
+`test-results/screenshots/parcours-formation-<id>-<etape>.png`.
+
 ### Tous les tests de formation
 ```bash
 npx playwright test tests/formations/

@@ -19,6 +19,10 @@ function displayLevel(label) {
   return label;
 }
 
+function displayScoreLevel(label) {
+  return String(label || '').replace(/^Niveau\s+/i, '').trim();
+}
+
 const store = useAppStore();
 const router = useRouter();
 const toast = useToastStore();
@@ -585,7 +589,7 @@ async function finishTest(overrideSession = null) {
   }
 
   // ── Cas P3 avec parcours forcé (requireTest = true sur la règle override) ──
-  const p3ForcedRec = store.isP3Mode ? localStorage.getItem('p3_forced_recommendation') : null;
+  const p3ForcedRec = localStorage.getItem('p3_forced_recommendation');
   const p3ForcedFormationId = localStorage.getItem('p3_forced_formation_id');
   const p3ForcedFormationLabel = localStorage.getItem('p3_forced_formation_label');
   console.log('[P3] PositionnementView - p3ForcedRec:', p3ForcedRec);
@@ -613,9 +617,14 @@ async function finishTest(overrideSession = null) {
       // ── Option activée : imposer le choix P3 peu importe le résultat ──
       console.debug('[P3] Force choice activé → parcours imposé :', p3ForcedRec);
       finalRecommendation.value = p3ForcedRec;
-      parcoursTitle.value = p3ForcedTitle;
+      parcoursTitle.value = p3ForcedTitle || p3ForcedRec;
       parcoursRuleMessage.value = p3ForcedExplanation;
       parcoursChoices.value = [];
+
+      // P3 override rule values are authoritative for the displayed title and proposed formation.
+      if (p3ForcedFormationLabel) {
+        localStorage.setItem('selected_formation_label', p3ForcedFormationLabel);
+      }
       
       // Utiliser l'ID de formation si disponible
       if (p3ForcedFormationId) {
@@ -665,6 +674,7 @@ async function finishTest(overrideSession = null) {
 
   // ── Try to use active parcours rules for the recommendation ──
   let usedParcoursRule = false;
+  let fallbackParcoursTitle = '';
   try {
     const rulesRes = await axios.get(`${apiBaseUrl}/parcours?activeOnly=true`);
     const allRules = rulesRes.data || [];
@@ -681,6 +691,15 @@ async function finishTest(overrideSession = null) {
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     if (formationRules.length > 0) {
+      // Certaines formations, notamment TOEIC, n'ont pas de règle explicite
+      // pour le dernier niveau (C1). Le dernier parcours configuré est alors
+      // le libellé de repli à conserver plutôt qu'une carte de titre vide.
+      fallbackParcoursTitle = getRuleParcoursTitle(
+        [...formationRules]
+          .filter((rule) => rule.isActive !== false && !rule.isHiddenResult)
+          .sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
+          .at(-1)?.parcoursTitle,
+      );
       const stopLabel = currentLevel.label.toUpperCase();
       const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
 
@@ -1174,7 +1193,7 @@ async function finishTest(overrideSession = null) {
   // ── Fallback: logic if no parcours rules matched ──
   if (!usedParcoursRule) {
     let l1 = formationLabel || 'Parcours personnalisé';
-    parcoursTitle.value = "";
+    parcoursTitle.value = fallbackParcoursTitle;
     parcoursChoices.value = [];
     
     // Si on a des niveaux on tente de proposer le niveau validé ou le focus actuel
@@ -1597,7 +1616,7 @@ async function saveAndExit() {
                   : 'bg-gray-50 border-gray-100 text-gray-400 opacity-60'
               "
             >
-              <span class="font-bold">Niveau {{ level }}</span>
+              <span class="font-bold">Niveau {{ displayScoreLevel(level) }}</span>
               <div class="flex items-center gap-2 font-black">
                 <span>{{ score.score }}/{{ score.total }}</span>
                 <span class="material-icons-outlined text-xl">{{

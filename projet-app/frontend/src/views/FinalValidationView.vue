@@ -253,6 +253,20 @@ onMounted(async () => {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
     const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = await response.json();
+
+    const forcedParcoursTitle = String(localStorage.getItem('p3_forced_parcours_title') || '').trim();
+    const forcedFormation = String(localStorage.getItem('p3_forced_formation_label') || localStorage.getItem('p3_forced_recommendation') || '').trim();
+
+    // P3 override rules are authoritative: they define both the displayed parcours title and the formation proposed.
+    if (store.isP3Mode || session.value?.isP3Mode) {
+      if (forcedParcoursTitle) {
+        session.value.parcoursTitle = forcedParcoursTitle;
+      }
+      if (forcedFormation) {
+        session.value.formationChoisie = forcedFormation;
+        session.value.finalRecommendation = forcedFormation;
+      }
+    }
     
     // Automatically trigger submission/email if not already completed
     if (!session.value.isCompleted && !session.value.emailSentAt) {

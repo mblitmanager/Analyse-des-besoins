@@ -459,12 +459,17 @@ export class QuestionsService {
     targetLevelId: number | null,
   ) {
     if (!ids || ids.length === 0) return { success: false, count: 0 };
-    await this.resetSequence();
 
     const sources = await this.questionRepo.find({
       where: { id: In(ids) },
       relations: ['formation', 'level'],
     });
+
+    if (!sources.length) {
+      return { success: false, count: 0 };
+    }
+
+    await this.resetSequence();
 
     // Compute the next order value in the target scope once
     const whereForOrder: FindOptionsWhere<Question> = {};
@@ -510,9 +515,16 @@ export class QuestionsService {
           showIfRules: null,
           showIfOperator: 'OR',
         } as unknown as DeepPartial<Question>);
-        created.push(await this.questionRepo.save(clone));
+
+        const saved = await this.questionRepo.save(clone);
+        created.push(saved);
       } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Erreur inconnue lors de la duplication';
         console.error(`Failed to duplicate question ${src.id}:`, err);
+        throw new BadRequestException(
+          `La duplication a échoué pour la question #${src.id}: ${message}`,
+        );
       }
     }
 

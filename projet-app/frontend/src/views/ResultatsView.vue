@@ -342,6 +342,20 @@ async function loadResultats() {
   try {
     const response = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = response.data;
+
+    const forcedParcoursTitle = String(localStorage.getItem('p3_forced_parcours_title') || '').trim();
+    const forcedFormation = String(localStorage.getItem('p3_forced_formation_label') || localStorage.getItem('p3_forced_recommendation') || '').trim();
+
+    // In P3 override mode, the admin rule is the source of truth for the displayed title and proposed formation.
+    if (store.isP3Mode || session.value?.isP3Mode) {
+      if (forcedParcoursTitle) {
+        session.value.parcoursTitle = forcedParcoursTitle;
+      }
+      if (forcedFormation) {
+        session.value.formationChoisie = forcedFormation;
+        session.value.finalRecommendation = forcedFormation;
+      }
+    }
     
     // Restaurer l'intitulé du parcours et le message explicatif depuis la session
     parcoursTitle.value = getSessionParcoursTitle(session.value);
