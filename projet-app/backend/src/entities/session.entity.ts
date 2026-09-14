@@ -129,6 +129,6 @@ export class Session {
     explanationMessage?: string | null;
   }> | null;
 
-  @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions)
-  stagiaire: Stagiaire;
+  @ManyToOne(() => Stagiaire, (stagiaire) => stagiaire.sessions, { nullable: true })
+  stagiaire?: Stagiaire;
 }
