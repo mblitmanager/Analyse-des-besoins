@@ -15,6 +15,8 @@ async function bootstrap() {
     'https://nsconseil.mbl-service.com',
     'https://ab-back.mbl-service.com',
     'https://api-nsconseil.solara-seaview.com',
+    'https://ns-conseil-ab.mbl-service.com',
+    'http://51.75.251.135:8081',
   ].filter(Boolean) as string[];
 
   const isProd =

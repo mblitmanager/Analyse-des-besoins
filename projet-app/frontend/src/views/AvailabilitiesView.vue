@@ -19,7 +19,7 @@ const responses = ref({});
 const session = ref(null);
 const loading = ref(true);
 const submitting = ref(false);
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
 const recommendedLabel = computed(() => {
   if (!session.value) return "";
@@ -58,7 +58,7 @@ onMounted(async () => {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const formationSlug = localStorage.getItem("selected_formation_slug");
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/availabilities`,
@@ -112,7 +112,7 @@ async function nextStep() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     // Clear responses for questions that are currently hidden before saving
     clearHiddenResponses(questions.value, responses.value);

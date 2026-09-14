@@ -11,7 +11,7 @@ const workflowSteps = ref([]);
 const loading = ref(true);
 const savingWorkflow = ref(false);
 const newStep = ref({ code: '', label: '', route: '' });
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
 async function fetchWorkflowSteps() {
   loading.value = true;

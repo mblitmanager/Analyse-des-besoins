@@ -63,7 +63,7 @@ onMounted(async () => {
 
   // Fetch conseillers from contacts
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const res = await fetch(`${apiBaseUrl}/contacts`);
     if (res.ok) {
       const data = await res.json();
@@ -101,7 +101,7 @@ async function startTest() {
     ['p3_prev_formation', 'p3_prev_recommendations', 'p3_prev_p1', 'p3_prev_p2', 'p3_prev_stop_level', 'p3_prev_level_order', 'p3_unselected_choices', 'p3_prev_formation_slug'].forEach(k => localStorage.removeItem(k));
     
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const response = await fetch(`${apiBaseUrl}/sessions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -134,7 +134,7 @@ async function testDbConnection() {
   testingDb.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const response = await fetch(`${apiBaseUrl}/health/db`);
     const data = await response.json();
     if (data.status === "ok") {

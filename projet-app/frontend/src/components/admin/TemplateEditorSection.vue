@@ -16,7 +16,7 @@ import {
 } from "./tiptap/TemplatePlaceholderExtension.js";
 
 const toast = useToastStore();
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 const token = () => localStorage.getItem("admin_token");
 const getAuthHeaders = () => ({ headers: { Authorization: `Bearer ${token()}` } });
 

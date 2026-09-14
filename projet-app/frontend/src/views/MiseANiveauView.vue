@@ -75,7 +75,7 @@ onMounted(async () => {
   }
 
   // load skip setting
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
   try {
     const res = await axios.get(`${apiBaseUrl}/settings/AUTO_SKIP_MISE_A_NIVEAU`);
     allowSkip.value = res.data?.value === 'true';
@@ -85,7 +85,7 @@ onMounted(async () => {
   }
 
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const formationSlug = localStorage.getItem("selected_formation_slug");
     
     // Fetch mise_à_niveau questions:
@@ -155,7 +155,7 @@ async function proceedToNextStep() {
   submitting.value = true;
   showLanguageWarning.value = false;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     // Clear responses for questions that are currently hidden before saving
     clearHiddenResponses(questions.value, responses.value);

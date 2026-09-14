@@ -36,6 +36,7 @@ export class EmailService {
 
       await this.mailerService.sendMail({
         to,
+        from: "Analyse des besoins <" + (process.env.MAIL_FROM || process.env.MAIL_USERNAME || process.env.SMTP_USERNAME) + ">",
         cc: finalCc !== '' ? finalCc : undefined,
         subject,
         html: content,

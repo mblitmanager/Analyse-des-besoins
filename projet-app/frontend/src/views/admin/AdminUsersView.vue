@@ -10,7 +10,7 @@ const filterRole = ref("");
 const page = ref(1);
 const pageSize = ref(10);
 const newUser = ref({ email: "", password: "" });
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 const toast = useToastStore();
 
 const uniqueRoles = computed(() => {

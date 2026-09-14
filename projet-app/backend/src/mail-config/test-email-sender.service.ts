@@ -15,6 +15,7 @@ export class TestEmailSender {
     try {
       await this.mailerService.sendMail({
         to,
+        from: "Analyse des besoins <" + (process.env.MAIL_FROM || process.env.MAIL_USERNAME || process.env.SMTP_USERNAME) + ">",
         subject: '[AB] Email de test',
         html: '<p>Ceci est un email de test envoyé depuis le back-office Analyses des Besoins.</p>',
       });
