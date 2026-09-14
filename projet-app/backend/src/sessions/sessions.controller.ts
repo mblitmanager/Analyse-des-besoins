@@ -22,8 +22,11 @@ export class CreateSessionDto {
   prenom: string;
   telephone: string;
   // conseiller is now optional; backend will accept null/undefined
-  conseiller?: string | null;
-  formationChoisie: string;
+  conseiller?: string;
+  // formationChoisie is optional on initial session creation; selected later in workflow
+  formationChoisie?: string;
+  // email is optional; stagiaire linking is deferred if not provided
+  email?: string;
 }
 
 export class UpdateSessionDto {

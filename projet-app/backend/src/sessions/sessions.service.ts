@@ -60,7 +60,13 @@ export class SessionsService {
       ...data,
       stagiaire: stagiaire || undefined,
     });
-    return this.sessionRepo.save(session);
+    const savedSession = await this.sessionRepo.save(session);
+    
+    if (!savedSession.id) {
+      throw new Error('Failed to generate session ID');
+    }
+    
+    return savedSession;
   }
 
   /**
