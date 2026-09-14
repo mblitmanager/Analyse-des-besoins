@@ -101,7 +101,7 @@ const lastScoreDetails = ref({ correctCount: 0, total: 0 });
 const skipFormationWarning = ref(false);
 const formation = ref(null);
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
 function getRuleParcoursTitle(ruleTitle) {
   const title = String(ruleTitle || "").trim();
@@ -528,7 +528,7 @@ async function nextStep() {
     });
 
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const patchRes = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
       lastValidatedLevel: finalLevel,
@@ -1412,7 +1412,7 @@ async function saveAndExit() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
       levelsScores: levelsScores.value,
 	      positionnementAnswers: positionnementAnswers.value,

@@ -29,7 +29,7 @@ export const useAppStore = defineStore('app', () => {
 
   async function fetchWorkflow() {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002/api';
       const response = await axios.get(`${apiBaseUrl}/workflow`);
       const allSteps = response.data;
       // only keep active steps for navigation/progress
@@ -74,7 +74,7 @@ export const useAppStore = defineStore('app', () => {
     const forceRefresh = options?.force === true;
     if (!forceRefresh && settings.value[key] !== undefined) return settings.value[key];
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002/api';
       const res = await axios.get(`${apiBaseUrl}/settings/${key}`);
       const data = res.data;
       if (!data || data === 'null') {
@@ -107,7 +107,7 @@ export const useAppStore = defineStore('app', () => {
     }
 
     let next = getNextRoute(currentPath);
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002/api';
     const formationSlug = localStorage.getItem('selected_formation_slug');
     while (next) {
       const step = workflowSteps.value.find(s => s.route === next);
@@ -199,7 +199,7 @@ export const useAppStore = defineStore('app', () => {
     }
     
     isUpdatingWorkflow.value = true;
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002/api';
     const formationSlug = localStorage.getItem('selected_formation_slug');
     const actual = [];
 

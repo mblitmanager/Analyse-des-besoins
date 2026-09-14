@@ -37,7 +37,7 @@ const form = ref({
 async function fetchRules() {
   loading.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const res = await axios.get(`${apiBaseUrl}/p3-filter-rules`);
     rules.value = res.data;
   } catch (err) {
@@ -50,7 +50,7 @@ async function fetchRules() {
 
 async function fetchFormations() {
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
     formations.value = res.data || [];
   } catch (err) {
@@ -327,7 +327,7 @@ async function saveRule() {
   formError.value = "";
   saving.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const token = localStorage.getItem("admin_token");
     if (!token) throw new Error("Session admin expirée. Reconnectez-vous.");
     const headers = { Authorization: `Bearer ${token}` };
@@ -353,7 +353,7 @@ async function saveRule() {
 async function deleteRule(id) {
   if (!confirm("Voulez-vous vraiment supprimer cette règle ?")) return;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const token = localStorage.getItem("admin_token");
     const headers = { Authorization: `Bearer ${token}` };
     await axios.delete(`${apiBaseUrl}/p3-filter-rules/${id}`, { headers });
@@ -367,7 +367,7 @@ async function deleteRule(id) {
 
 async function toggleActive(rule) {
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const token = localStorage.getItem("admin_token");
     await axios.patch(
       `${apiBaseUrl}/p3-filter-rules/${rule.id}`,

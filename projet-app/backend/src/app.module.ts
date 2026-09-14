@@ -65,7 +65,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
               P3OverrideRule,
               EmailTemplate,
             ],
-            synchronize: true,
+            synchronize: false,
           };
         }
 

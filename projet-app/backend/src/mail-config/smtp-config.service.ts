@@ -54,7 +54,7 @@ export class SmtpConfigService implements OnModuleInit {
    * Decrypts the password before returning.
    */
   async getConfig(): Promise<SmtpConfigDto> {
-    const [host, port, username, encryptedPassword, encryption] =
+    let [host, port, username, encryptedPassword, encryption] =
       await Promise.all([
         this.settingsService.getValue(this.SMTP_KEYS.host, ''),
         this.settingsService.getValue(this.SMTP_KEYS.port, '587'),
@@ -64,15 +64,28 @@ export class SmtpConfigService implements OnModuleInit {
       ]);
 
     let password = '';
+    let decryptFailed = false;
     if (encryptedPassword) {
       try {
         password = this.cryptoUtil.decrypt(encryptedPassword);
       } catch {
         // If decryption fails, return empty password
         password = '';
+        decryptFailed = true;
       }
     }
 
+    if (decryptFailed) {
+      const envPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASSWORD || '';
+      if (envPassword) {
+        host = process.env.MAIL_HOST || process.env.SMTP_HOST || host;
+        port = String(parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || String(port), 10) || parseInt(port, 10) || 587);
+        username = process.env.MAIL_USERNAME || process.env.SMTP_USERNAME || username;
+        encryption = process.env.MAIL_ENCRYPTION || process.env.SMTP_ENCRYPTION || encryption;
+        password = envPassword;
+        this.logger.warn('SMTP database password could not be decrypted; using MAIL_PASSWORD fallback');
+      }
+    }
     const config = new SmtpConfigDto();
     config.host = host;
     config.port = parseInt(port, 10) || 587;
@@ -88,7 +101,7 @@ export class SmtpConfigService implements OnModuleInit {
    * The password is masked with bullet characters.
    */
   async getConfigForDisplay(): Promise<SmtpDisplayDto> {
-    const [host, port, username, encryptedPassword, encryption] =
+    let [host, port, username, encryptedPassword, encryption] =
       await Promise.all([
         this.settingsService.getValue(this.SMTP_KEYS.host, ''),
         this.settingsService.getValue(this.SMTP_KEYS.port, '587'),

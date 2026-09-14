@@ -28,7 +28,7 @@ onMounted(async () => {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const formationSlug = localStorage.getItem("selected_formation_slug");
     const res = await axios.get(
       `${apiBaseUrl}/questions/workflow/complementary`,
@@ -72,7 +72,7 @@ async function nextStep() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     // Clear responses for questions that are currently hidden before saving
     clearHiddenResponses(questions.value, responses.value);

@@ -11,7 +11,7 @@ export class QuestionRule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   workflow: string; // e.g. "prerequis", "mise_a_niveau", "availabilities"
 
   @Column({ type: 'varchar', nullable: true })

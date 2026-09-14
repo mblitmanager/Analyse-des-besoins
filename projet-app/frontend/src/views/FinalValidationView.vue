@@ -250,7 +250,7 @@ onMounted(async () => {
 
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}`);
     session.value = await response.json();
 
@@ -282,7 +282,7 @@ onMounted(async () => {
 async function validate(options = {}) {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     await fetch(`${apiBaseUrl}/sessions/${sessionId}/submit`, {
       method: "POST",
     });

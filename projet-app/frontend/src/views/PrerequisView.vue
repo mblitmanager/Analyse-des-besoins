@@ -49,7 +49,7 @@ onMounted(async () => {
   }
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const session = sessionRes.data;
     const formationSlug = localStorage.getItem("selected_formation_slug");
@@ -115,7 +115,7 @@ async function submitPrerequis(force = false) {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     // Clear responses for questions that are currently hidden before saving
     clearHiddenResponses(questions.value, responses.value);
@@ -165,7 +165,7 @@ async function acceptProposal() {
   // Save the recommended formation as formationChoisie before navigating
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     // Use the real formation label from the backend recommendation
     // Fall back to the parsed proposal message if backend didn't provide it
     let formationLabel = proposalFormationLabel.value || recommendedFormations.value.join(" & ");

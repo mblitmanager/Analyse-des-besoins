@@ -288,7 +288,7 @@ const p3ParcoursItems = computed(() => {
 async function fetchPreviousSessions() {
   if (!store.isP3Mode || !currentSession.value?.stagiaire?.id) return;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const res = await axios.get(`${apiBaseUrl}/sessions?stagiaireId=${currentSession.value.stagiaire.id}`);
     const sessions = (res.data || [])
       .filter(s => s.isCompleted && s.id !== sessionId)
@@ -317,7 +317,7 @@ async function fetchPreviousSessions() {
 async function fetchFormations() {
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
     if (store.isP3Mode && sessionId) {
       // In P3 mode, use the server-side filtered endpoint which applies P3 rules
@@ -343,7 +343,7 @@ async function fetchFormations() {
     console.error("Failed to fetch formations:", error);
     // Fallback to all formations
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
       const res = await axios.get(`${apiBaseUrl}/formations?activeOnly=true`);
       formations.value = res.data;
     } catch (fallbackError) {
@@ -384,7 +384,7 @@ function computeAndStorePrevLevelOrder() {
 async function fetchP3Rules() {
   if (!store.isP3Mode) return;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const [p3Res, parcoursRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/p3-filter-rules?activeOnly=true`),
       axios.get(`${apiBaseUrl}/parcours?activeOnly=true`)
@@ -682,7 +682,7 @@ async function loadP3OverrideRules() {
   try {
     const enabled = await store.fetchSetting('P3_OVERRIDE_ENABLED');
     if (enabled !== 'true') { p3OverrideRules.value = []; return; }
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const rulesRes = await axios.get(`${apiBaseUrl}/p3-override?activeOnly=true`);
     p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
 
@@ -699,7 +699,7 @@ async function confirmP3Override() {
   p3OverrideEnabled.value = false;
   submitting.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     const selectedOption = p3OverrideChoiceOptions.value.find(
       (option) => option.label === p3OverrideSelectedChoice.value,
@@ -979,7 +979,7 @@ onMounted(async () => {
     p3Keys.forEach(k => localStorage.removeItem(k));
   }
   
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
   try {
     const res = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     currentSession.value = res.data;
@@ -1155,7 +1155,7 @@ async function doSelectFormation() {
   submitting.value = true;
   try {
     const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const hasP3Override = store.isP3Mode && Boolean(
       localStorage.getItem('p3_forced_recommendation') ||
       localStorage.getItem('p3_forced_parcours_title'),
@@ -1320,7 +1320,7 @@ function handleHighLevelClose() {
 async function doSelectFormationWithoutTest() {
   submitting.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
     const computedResult = computeNextLevel();
     const finalRec = computedResult.finalRecommendation || computedResult.label || selectedFormation.value.label;
@@ -1565,7 +1565,7 @@ async function confirmP3SameFormation() {
   showP3SameFormationModal.value = false;
   submitting.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     let finalRec = p3NextFinalRecommendation.value || p3NextLevelLabel.value;
     let finalStopLevel = p3NextLevelLabelRaw.value;

@@ -9,7 +9,7 @@ const toast = useToastStore();
 const settings = ref([]);
 const loading = ref(true);
 const saving = ref(false);
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
 
 const searchQuery = ref('');
 

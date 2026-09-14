@@ -46,7 +46,7 @@ onMounted(async () => {
   // Reload session to get previous answers
   let previousAnswers = {};
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     const sessionRes = await axios.get(`${apiBaseUrl}/sessions/${sessionId}`);
     const positionnementAnswers = sessionRes.data.positionnementAnswers || {};
     // Extract answers for this specific step (using route name as key)
@@ -56,7 +56,7 @@ onMounted(async () => {
   }
 
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     // route.name is the step code (e.g. 'identification')
     const params = formationSlug ? { formation: formationSlug, scope: "auto" } : { scope: "global" };
     
@@ -103,7 +103,7 @@ async function submitResponses() {
 
   submitting.value = true;
   try {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
     
     // Clear responses for hidden questions
     clearHiddenResponses(questions.value, responses.value);
