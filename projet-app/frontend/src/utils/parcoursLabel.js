@@ -9,6 +9,14 @@ export function normalizeParcoursLabel(value) {
     .toLowerCase();
 }
 
+/** Remove decorative parentheses from P3 Override parcours titles. */
+export function formatParcoursTitle(value) {
+  return String(value || "")
+    .replace(/[()]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function isMeaningfulParcoursTitle(title, formationLabel) {
   const cleanTitle = normalizeParcoursLabel(title);
   if (!cleanTitle) return false;
@@ -19,14 +27,12 @@ export function isMeaningfulParcoursTitle(title, formationLabel) {
   ) {
     return false;
   }
-
   const cleanFormation = normalizeParcoursLabel(formationLabel);
   return !cleanFormation || cleanTitle !== cleanFormation;
 }
-
 export function getSessionParcoursTitle(session, fallbackFormationLabel = "") {
   if (!session) return "";
   const title = String(session.parcoursTitle || "").trim();
   const formationLabel = fallbackFormationLabel || session.formationChoisie || "";
-  return isMeaningfulParcoursTitle(title, formationLabel) ? title : "";
+  return isMeaningfulParcoursTitle(title, formationLabel) ? formatParcoursTitle(title) : "";
 }
