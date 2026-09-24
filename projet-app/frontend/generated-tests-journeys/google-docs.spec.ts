@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('Excel - Full User Journey', async ({ page }) => {
+test('Google Docs - Full User Journey', async ({ page }) => {
   // ===== STEP 1: INTAKE FORM =====
   await page.goto('http://localhost:5173/');
   
@@ -46,7 +46,7 @@ test('Excel - Full User Journey', async ({ page }) => {
   
   // ===== STEP 5: FORMATION SELECTION =====
   // Click formation description
-  await page.getByRole('button', { name: 'description Excel' }).click();
+  await page.getByRole('button', { name: 'description Google Docs' }).click();
   await page.waitForLoadState('networkidle');
   
   // Click continue to start course
