@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Word - Full User Journey', async ({ page }) => {
   // ===== STEP 1: INTAKE FORM =====
-  await page.goto('http://localhost:5173/');
+  await page.goto('https://ns-conseil-ab.mbl-service.com/');
   
   // Fill in personal info
   await page.getByRole('textbox', { name: 'Nom', exact: true }).click();
@@ -114,7 +114,7 @@ test('Word - Full User Journey', async ({ page }) => {
   
   // ===== STEP 10: FINAL VALIDATION =====
   // Navigate to validation page
-  await page.goto('http://localhost:5173/validation');
+  await page.goto('https://ns-conseil-ab.mbl-service.com/validation');
   await page.waitForLoadState('networkidle');
   
   // Confirm final choice
