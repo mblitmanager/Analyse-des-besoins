@@ -1,0 +1,679 @@
+{
+  "metadata": {
+    "source": "01.07.2026-Parcours formations MAJ-01072026-V2.xlsx",
+    "extraction_date": "2026-09-24",
+    "description": "Liste complète des parcours par formation, niveau et valeurs P3 (Module 3) possibles",
+    "price": "3 300€ par parcours"
+  },
+  "formations_par_niveau": {
+    "DIGCOMP": {
+      "Basique": [
+        {
+          "parcours": "Essentiels Digitales Compétences & Word",
+          "code": "T2CN26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Essentiels Digitales Compétences & Excel",
+          "code": "T2CN26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Essentiels Digitales Compétences & PPT",
+          "code": "T2CN26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Essentiels Digitales Compétences 1 Outlook",
+          "code": "T2CN26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Perfectionnement Digitales Compétences & Outils Coll.",
+          "code": "T3CN26",
+          "certificateur": "TOSA"
+        }
+      ]
+    },
+    "WORD": {
+      "Basique": [
+        {
+          "parcours": "Essentiels Digitales Compétences & Word",
+          "code": "T2WD26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Renforcement Word",
+          "code": "T2WD26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Essentiels Bureautique",
+          "code": "T2WD26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Renforcement Word",
+          "code": "P2DOCS26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Perfectionnement Bureautique",
+          "code": "P2DOCS26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "EXCEL": {
+      "Basique": [
+        {
+          "parcours": "Essentiels Digitales Compétences & Excel",
+          "code": "T2EX26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Renforcement Excel",
+          "code": "T2EX26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Essentiels Bureautique",
+          "code": "T2EX26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Renforcement Excel",
+          "code": "P3SHT26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Expertise Excel",
+          "code": "P3SHT26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Perfectionnement Bureautique",
+          "code": "P3SHT26",
+          "certificateur": "ICDL"
+        }
+      ],
+      "Expert": [
+        {
+          "parcours": "Expertise Excel",
+          "code": "T5EX26",
+          "certificateur": "TOSA"
+        }
+      ]
+    },
+    "PPT": {
+      "Basique": [
+        {
+          "parcours": "Essentiels Digitales Compétences & PPT",
+          "code": "T2PPT26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Renforcement Powerpoint",
+          "code": "T2PPT26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Renforcement Powerpoint",
+          "code": "P3SLID26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "OUTLOOK": {
+      "Basique": [
+        {
+          "parcours": "Essentiels Digitales Compétences 1 Outlook",
+          "code": "T2TLK26",
+          "certificateur": "TOSA"
+        }
+      ]
+    },
+    "OUTILS COLLABORATIFS": {
+      "COLLABORATIFS": [
+        {
+          "parcours": "Perfectionnement Digitales Compétences & Outils Coll.",
+          "code": "P3GW26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Google Workspace",
+          "code": "P3GW26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "GOOGLE SHEETS": {
+      "SHEETS": [
+        {
+          "parcours": "Google Workspace",
+          "code": "P3SHTS26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Bureautique Google",
+          "code": "P3SHTS26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "GOOGLE DOCS": {
+      "DOCS": [
+        {
+          "parcours": "Google Workspace",
+          "code": "P2DOCS26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Bureautique Google",
+          "code": "P2DOCS26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "GOOGLE SLIDES": {
+      "SLIDES": [
+        {
+          "parcours": "Google Workspace",
+          "code": "P3SLID26",
+          "certificateur": "ICDL"
+        },
+        {
+          "parcours": "Bureautique Google",
+          "code": "P3SLID26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "ANGLAIS": {
+      "A2": [
+        {
+          "parcours": "Renforcement Anglais",
+          "code": "2ANG26",
+          "certificateur": "ETS"
+        }
+      ],
+      "B1": [
+        {
+          "parcours": "Renforcement Anglais",
+          "code": "3ANG26",
+          "certificateur": "ETS"
+        },
+        {
+          "parcours": "Perfectionnement Anglais",
+          "code": "3ANG26",
+          "certificateur": "ETS"
+        }
+      ],
+      "B2": [
+        {
+          "parcours": "Perfectionnement Anglais",
+          "code": "4ANG26",
+          "certificateur": "ETS"
+        },
+        {
+          "parcours": "Expertise Anglais",
+          "code": "4ANG26",
+          "certificateur": "ETS"
+        }
+      ],
+      "C1": [
+        {
+          "parcours": "Expertise Anglais",
+          "code": "5ANG25",
+          "certificateur": "ETS"
+        }
+      ]
+    },
+    "VOLTAIRE": {
+      "Technique": [
+        {
+          "parcours": "Renforcement Français",
+          "code": "2VOLT26",
+          "certificateur": "VOLTAIRE"
+        }
+      ],
+      "Professionnel": [
+        {
+          "parcours": "Renforcement Français",
+          "code": "3VOLT26",
+          "certificateur": "VOLTAIRE"
+        },
+        {
+          "parcours": "Perfectionnement Français",
+          "code": "3VOLT26",
+          "certificateur": "VOLTAIRE"
+        }
+      ],
+      "Affaires": [
+        {
+          "parcours": "Perfectionnement Français",
+          "code": "4VOLT26",
+          "certificateur": "VOLTAIRE"
+        }
+      ]
+    },
+    "PHOTOSHOP": {
+      "Basique": [
+        {
+          "parcours": "Renforcement Photoshop",
+          "code": "T2PS26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Renforcement Photoshop",
+          "code": "P3GIMP26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "SKETCHUP": {
+      "SKETCHUP": [
+        {
+          "parcours": "Création visuels : 3D/Images",
+          "code": "P1SKET26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "GIMP": {
+      "GIMP": [
+        {
+          "parcours": "Création graphique",
+          "code": "P3GIMP26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "ILLUSTRATOR": {
+      "Basique": [
+        {
+          "parcours": "Renforcement Illustrator",
+          "code": "T2ILL26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Création graphique",
+          "code": "T3ILL26",
+          "certificateur": "TOSA"
+        },
+        {
+          "parcours": "Renforcement Illustrator",
+          "code": "P3GIMP26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "WORDPRESS": {
+      "Basique": [
+        {
+          "parcours": "Renforcement Wordpress (découverte woo commerce)",
+          "code": "T2WP26",
+          "certificateur": "TOSA"
+        }
+      ],
+      "Opérationnel": [
+        {
+          "parcours": "Renforcement Wordpress (découverte woo commerce)",
+          "code": "P4WP26",
+          "certificateur": "ICDL"
+        }
+      ]
+    },
+    "IA GENERATIVE": {
+      "IA GENERATIVE": [
+        {
+          "parcours": "IA Générative & Excel",
+          "code": "1IAG26",
+          "certificateur": "INKREA"
+        },
+        {
+          "parcours": "IA Générative & Word",
+          "code": "1IAG26",
+          "certificateur": "INKREA"
+        }
+      ]
+    }
+  },
+  "module3_possibles": {
+    "DIGCOMP:Basique": [
+      "TOSA Excel/PPT/Outlook basique",
+      "ICDL word opérationnel",
+      "TOSA Word/PPT/Outlook basique",
+      "TOSA Excel/Word/Outlook basique",
+      "TOSA Excel/PPT/Word basique"
+    ],
+    "WORD:Basique": [
+      "TOSA Excel/PPT/Outlook basique",
+      "ICDL word opérationnel",
+      "TOSA PPT/Outlook basique"
+    ],
+    "EXCEL:Basique": [
+      "TOSA Word/PPT/Outlook basique",
+      "ICDL Excel opérationnel",
+      "TOSA PPT/Outlook basique"
+    ],
+    "PPT:Basique": [
+      "TOSA Excel/Word/Outlook basique",
+      "ICDL PPT opérationnel",
+      "TOSA Word/Excel/Outlook basique"
+    ],
+    "OUTLOOK:Basique": [
+      "TOSA Excel/PPT/Word basique"
+    ],
+    "DIGCOMP:Opérationnel": [
+      "ICDL Google sheets/docs/slides"
+    ],
+    "OUTILS COLLABORATIFS:COLLABORATIFS": [
+      "ICDL Google sheets/docs/slides",
+      "IA GENERATIVE"
+    ],
+    "WORD:Opérationnel": [
+      "TOSA Excel/PPT/Outlook basique",
+      "TOSA Excel expert"
+    ],
+    "EXCEL:Opérationnel": [
+      "TOSA Word/PPT/Outlook basique",
+      "TOSA Word/PPT/Outlook opérationnel",
+      "TOSA Excel expert"
+    ],
+    "EXCEL:Expert": [
+      "TOSA Word/PPT/Outlook opérationnel"
+    ],
+    "PPT:Opérationnel": [
+      "TOSA Word/Excel/Outlook basique"
+    ],
+    "GOOGLE SHEETS:SHEETS": [
+      "IA GENERATIVE"
+    ],
+    "GOOGLE DOCS:DOCS": [
+      "IA GENERATIVE"
+    ],
+    "GOOGLE SLIDES:SLIDES": [
+      "IA GENERATIVE"
+    ],
+    "ANGLAIS:A2": [
+      "ANGLAIS B2"
+    ],
+    "ANGLAIS:B1": [
+      "ANGLAIS B2",
+      "ANGLAIS C1"
+    ],
+    "ANGLAIS:B2": [
+      "ANGLAIS C1"
+    ],
+    "VOLTAIRE:Technique": [
+      "Voltaire Affaires"
+    ],
+    "VOLTAIRE:Professionnel": [
+      "Voltaire Affaires"
+    ],
+    "PHOTOSHOP:Basique": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Illustrator basique"
+    ],
+    "PHOTOSHOP:Opérationnel": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Illustrator basique"
+    ],
+    "SKETCHUP:SKETCHUP": [
+      "IA GENERATIVE",
+      "TOSA Illustrator basique"
+    ],
+    "GIMP:GIMP": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Photoshop basique"
+    ],
+    "ILLUSTRATOR:Basique": [
+      "IA GENERATIVE"
+    ],
+    "ILLUSTRATOR:Opérationnel": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Photoshop basique"
+    ],
+    "WORDPRESS:Basique": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Photoshop basique"
+    ],
+    "WORDPRESS:Opérationnel": [
+      "IA GENERATIVE",
+      "ICDL Sketchup",
+      "TOSA Photoshop basique"
+    ]
+  },
+  "parcours_complets_resume": [
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Essentiels Digitales Compétences & Word",
+      "module1": "DIGCOMP Basique",
+      "module2": "WORD Basique",
+      "module3_options": ["TOSA Excel/PPT/Outlook basique", "ICDL word opérationnel"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Essentiels Digitales Compétences & Excel",
+      "module1": "DIGCOMP Basique",
+      "module2": "EXCEL Basique",
+      "module3_options": ["TOSA Word/PPT/Outlook basique", "ICDL Excel opérationnel"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Essentiels Digitales Compétences & PPT",
+      "module1": "DIGCOMP Basique",
+      "module2": "PPT Basique",
+      "module3_options": ["TOSA Excel/Word/Outlook basique", "ICDL PPT opérationnel"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Essentiels Digitales Compétences 1 Outlook",
+      "module1": "DIGCOMP Basique",
+      "module2": "OUTLOOK Basique",
+      "module3_options": ["TOSA Excel/PPT/Word basique"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Perfectionnement Digitales Compétences & Outils Coll.",
+      "module1": "DIGCOMP Opérationnel",
+      "module2": "OUTILS COLLABORATIFS",
+      "module3_options": ["ICDL Google sheets/docs/slides"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Renforcement Word",
+      "module1": "WORD Basique",
+      "module2": "WORD Opérationnel",
+      "module3_options": ["TOSA Excel/PPT/Outlook basique"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Renforcement Excel",
+      "module1": "EXCEL Basique",
+      "module2": "EXCEL Opérationnel",
+      "module3_options": ["TOSA Word/PPT/Outlook basique"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Expertise Excel",
+      "module1": "EXCEL Opérationnel",
+      "module2": "EXCEL Expert",
+      "module3_options": ["TOSA Word/PPT/Outlook opérationnel"]
+    },
+    {
+      "categorie": "PARCOURS BUREAUTIQUE",
+      "parcours": "Renforcement Powerpoint",
+      "module1": "PPT Basique",
+      "module2": "PPT Opérationnel",
+      "module3_options": ["TOSA Word/Excel/Outlook basique"]
+    },
+    {
+      "categorie": "PARCOURS MIXTES BUREAUTIQUE",
+      "parcours": "Essentiels Bureautique",
+      "module1": "WORD Basique",
+      "module2": "EXCEL Basique",
+      "module3_options": ["TOSA PPT/Outlook basique"]
+    },
+    {
+      "categorie": "PARCOURS MIXTES BUREAUTIQUE",
+      "parcours": "Perfectionnement Bureautique",
+      "module1": "WORD Opérationnel",
+      "module2": "EXCEL Opérationnel",
+      "module3_options": ["TOSA Excel expert"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Google Workspace (Sheets + Docs)",
+      "module1": "OUTILS COLLABORATIFS",
+      "module2": "GOOGLE SHEETS",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Google Workspace (Docs + Sheets)",
+      "module1": "OUTILS COLLABORATIFS",
+      "module2": "GOOGLE DOCS",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Google Workspace (Slides + Sheets)",
+      "module1": "OUTILS COLLABORATIFS",
+      "module2": "GOOGLE SLIDES",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Bureautique Google - Sheets & Docs/Slides",
+      "module1": "GOOGLE SHEETS",
+      "module2": "GOOGLE DOCS / SLIDES",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Bureautique Google - Docs & Sheets/Slides",
+      "module1": "GOOGLE DOCS",
+      "module2": "GOOGLE SHEETS / SLIDES",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS GOOGLE",
+      "parcours": "Bureautique Google - Slides & Docs/Sheets",
+      "module1": "GOOGLE SLIDES",
+      "module2": "GOOGLE DOCS / SHEETS",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS LANGUE",
+      "parcours": "Renforcement Anglais",
+      "module1": "A2",
+      "module2": "B1",
+      "module3_options": ["ANGLAIS B2"]
+    },
+    {
+      "categorie": "PARCOURS LANGUE",
+      "parcours": "Perfectionnement Anglais",
+      "module1": "B1",
+      "module2": "B2",
+      "module3_options": ["ANGLAIS C1"]
+    },
+    {
+      "categorie": "PARCOURS LANGUE",
+      "parcours": "Expertise Anglais",
+      "module1": "B2",
+      "module2": "C1",
+      "module3_options": []
+    },
+    {
+      "categorie": "PARCOURS LANGUE",
+      "parcours": "Renforcement Français",
+      "module1": "VOLTAIRE Technique",
+      "module2": "VOLTAIRE Professionnel",
+      "module3_options": ["Voltaire Affaires"]
+    },
+    {
+      "categorie": "PARCOURS LANGUE",
+      "parcours": "Perfectionnement Français",
+      "module1": "VOLTAIRE Professionnel",
+      "module2": "VOLTAIRE Affaires",
+      "module3_options": []
+    },
+    {
+      "categorie": "PARCOURS CREATION",
+      "parcours": "Renforcement Photoshop",
+      "module1": "PHOTOSHOP Basique",
+      "module2": "PHOTOSHOP Opérationnel",
+      "module3_options": ["IA GENERATIVE", "ICDL Sketchup", "TOSA Illustrator basique"]
+    },
+    {
+      "categorie": "PARCOURS CREATION",
+      "parcours": "Création visuels : 3D/Images",
+      "module1": "SKETCHUP",
+      "module2": "ICDL GIMP",
+      "module3_options": ["IA GENERATIVE", "TOSA Illustrator basique"]
+    },
+    {
+      "categorie": "PARCOURS CREATION",
+      "parcours": "Création graphique",
+      "module1": "GIMP",
+      "module2": "ILLUSTRATOR Opérationnel",
+      "module3_options": ["IA GENERATIVE", "ICDL Sketchup", "TOSA Photoshop basique"]
+    },
+    {
+      "categorie": "PARCOURS CREATION",
+      "parcours": "Renforcement Illustrator",
+      "module1": "ILLUSTRATOR Basique",
+      "module2": "ILLUSTRATOR Opérationnel",
+      "module3_options": ["IA GENERATIVE"]
+    },
+    {
+      "categorie": "PARCOURS SITE - IA",
+      "parcours": "Renforcement Wordpress",
+      "module1": "WORDPRESS Basique",
+      "module2": "WORDPRESS Opérationnel",
+      "module3_options": ["IA GENERATIVE", "ICDL Sketchup", "TOSA Photoshop basique"]
+    },
+    {
+      "categorie": "PARCOURS SITE - IA",
+      "parcours": "IA Générative & Excel",
+      "module1": "EXCEL Opérationnel",
+      "module2": "IA GENERATIVE",
+      "module3_options": []
+    },
+    {
+      "categorie": "PARCOURS SITE - IA",
+      "parcours": "IA Générative & Word",
+      "module1": "WORD",
+      "module2": "IA GENERATIVE",
+      "module3_options": []
+    }
+  ],
+  "notes_importantes": [
+    "Prix du parcours: 3 300€",
+    "Pour les bénéficiaires déclarés à France Travail: tarif réduit à 1 500€ avec suppression d'1h d'e-learning",
+    "IA Générative peut être proposée comme module 3 avec tous les parcours sauf elle-même",
+    "Les parcours Google avec 'Bureautique Google' ont des combinaisons flexibles de Docs/Sheets/Slides",
+    "Heures de formation: 14h formateur + 6h e-learning (sauf IA Générative: 14h + 17h)",
+    "Certificateurs principaux: TOSA, ICDL, ETS, VOLTAIRE, INKREA",
+    "L'analyse des besoins détermine le parcours à proposer au bénéficiaire"
+  ]
+}

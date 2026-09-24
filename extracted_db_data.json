@@ -1,0 +1,2544 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-24T08:22:55.331Z",
+    "database": "wizzylearn"
+  },
+  "summary": {
+    "formations": 19,
+    "niveaux": 88,
+    "parcoursRules": 40,
+    "p3FilterRules": 22
+  },
+  "data": {
+    "formations": [
+      {
+        "id": 4,
+        "slug": "google-docs",
+        "label": "Google Docs",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 5,
+        "slug": "google-sheets",
+        "label": "Google Sheets",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 10,
+        "slug": "google-slides",
+        "label": "Google Slides",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 45,
+        "slug": "excel",
+        "label": "Excel",
+        "category": "Bureautique Microsoft",
+        "certificateur": null,
+        "isActive": true
+      },
+      {
+        "id": 57,
+        "slug": "microsoft-office",
+        "label": "Mixte Microsoft Office (Word + Excel)",
+        "category": "Bureautique Microsoft",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 15,
+        "slug": "pack-office-outlook",
+        "label": "Outlook",
+        "category": "Bureautique Microsoft",
+        "certificateur": "TOSA",
+        "isActive": true
+      },
+      {
+        "id": 54,
+        "slug": "ppt",
+        "label": "PowerPoint",
+        "category": "Bureautique Microsoft",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 44,
+        "slug": "word",
+        "label": "Word",
+        "category": "Bureautique Microsoft",
+        "certificateur": null,
+        "isActive": true
+      },
+      {
+        "id": 48,
+        "slug": "gimp",
+        "label": "Gimp",
+        "category": "Création",
+        "certificateur": null,
+        "isActive": true
+      },
+      {
+        "id": 19,
+        "slug": "illustrator",
+        "label": "Illustrator",
+        "category": "Création",
+        "certificateur": "TOSA",
+        "isActive": true
+      },
+      {
+        "id": 20,
+        "slug": "photoshop",
+        "label": "Photoshop",
+        "category": "Création",
+        "certificateur": "ICDL / TOSA",
+        "isActive": true
+      },
+      {
+        "id": 21,
+        "slug": "sketchup",
+        "label": "SketchUp",
+        "category": "Création",
+        "certificateur": "ICDL",
+        "isActive": true
+      },
+      {
+        "id": 55,
+        "slug": "Excel-ia",
+        "label": "Excel + IA",
+        "category": "IA",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 56,
+        "slug": "word-ia",
+        "label": "Word + IA",
+        "category": "IA",
+        "certificateur": "",
+        "isActive": true
+      },
+      {
+        "id": 23,
+        "slug": "digcomp",
+        "label": "Digitales Compétences",
+        "category": "Internet",
+        "certificateur": "DigComp",
+        "isActive": true
+      },
+      {
+        "id": 43,
+        "slug": "outils-collaboratifs-google",
+        "label": "Outils Collaboratifs Google",
+        "category": "Internet",
+        "certificateur": null,
+        "isActive": true
+      },
+      {
+        "id": 22,
+        "slug": "wordpress",
+        "label": "WordPress",
+        "category": "Internet",
+        "certificateur": "TOSA / ICDL",
+        "isActive": true
+      },
+      {
+        "id": 25,
+        "slug": "toeic",
+        "label": "Anglais ",
+        "category": "LANGUES",
+        "certificateur": null,
+        "isActive": true
+      },
+      {
+        "id": 51,
+        "slug": "voltaire",
+        "label": "Français",
+        "category": "LANGUES",
+        "certificateur": null,
+        "isActive": true
+      }
+    ],
+    "levels": [
+      {
+        "id": 292,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 4,
+        "isActive": true
+      },
+      {
+        "id": 293,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 4,
+        "isActive": true
+      },
+      {
+        "id": 294,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 4,
+        "isActive": true
+      },
+      {
+        "id": 295,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 4,
+        "isActive": true
+      },
+      {
+        "id": 296,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 5,
+        "isActive": true
+      },
+      {
+        "id": 297,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 5,
+        "isActive": true
+      },
+      {
+        "id": 298,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 5,
+        "isActive": true
+      },
+      {
+        "id": 299,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 5,
+        "isActive": true
+      },
+      {
+        "id": 300,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 10,
+        "isActive": true
+      },
+      {
+        "id": 301,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 10,
+        "isActive": true
+      },
+      {
+        "id": 302,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 10,
+        "isActive": true
+      },
+      {
+        "id": 303,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 10,
+        "isActive": true
+      },
+      {
+        "id": 493,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 15,
+        "isActive": true
+      },
+      {
+        "id": 494,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 15,
+        "isActive": true
+      },
+      {
+        "id": 495,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 15,
+        "isActive": true
+      },
+      {
+        "id": 496,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 15,
+        "isActive": true
+      },
+      {
+        "id": 497,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 5,
+        "formationId": 15,
+        "isActive": true
+      },
+      {
+        "id": 383,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 4,
+        "formationId": 19,
+        "isActive": true
+      },
+      {
+        "id": 384,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 19,
+        "isActive": true
+      },
+      {
+        "id": 385,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 5,
+        "formationId": 19,
+        "isActive": true
+      },
+      {
+        "id": 488,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 20,
+        "isActive": true
+      },
+      {
+        "id": 489,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 20,
+        "isActive": true
+      },
+      {
+        "id": 490,
+        "label": "Opérationnel ",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 20,
+        "isActive": true
+      },
+      {
+        "id": 491,
+        "label": "Avancé ",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 20,
+        "isActive": true
+      },
+      {
+        "id": 492,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 5,
+        "formationId": 20,
+        "isActive": true
+      },
+      {
+        "id": 205,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 21,
+        "isActive": true
+      },
+      {
+        "id": 206,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 21,
+        "isActive": true
+      },
+      {
+        "id": 214,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 21,
+        "isActive": true
+      },
+      {
+        "id": 215,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 21,
+        "isActive": true
+      },
+      {
+        "id": 193,
+        "label": "Initial",
+        "order": 0,
+        "successThreshold": 4,
+        "formationId": 22,
+        "isActive": true
+      },
+      {
+        "id": 194,
+        "label": "Basique",
+        "order": 1,
+        "successThreshold": 4,
+        "formationId": 22,
+        "isActive": true
+      },
+      {
+        "id": 218,
+        "label": "Operationnel",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 22,
+        "isActive": true
+      },
+      {
+        "id": 200,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 23,
+        "isActive": true
+      },
+      {
+        "id": 201,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 5,
+        "formationId": 23,
+        "isActive": true
+      },
+      {
+        "id": 208,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 23,
+        "isActive": true
+      },
+      {
+        "id": 209,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 23,
+        "isActive": true
+      },
+      {
+        "id": 57,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 5,
+        "formationId": 23,
+        "isActive": true
+      },
+      {
+        "id": 533,
+        "label": "Initial",
+        "order": 0,
+        "successThreshold": 3,
+        "formationId": 24,
+        "isActive": true
+      },
+      {
+        "id": 1,
+        "label": "A1 - Revoir les bases",
+        "order": 1,
+        "successThreshold": 6,
+        "formationId": 25,
+        "isActive": true
+      },
+      {
+        "id": 2,
+        "label": "A2 - Consolider les bases",
+        "order": 2,
+        "successThreshold": 5,
+        "formationId": 25,
+        "isActive": true
+      },
+      {
+        "id": 3,
+        "label": "B1 - Développer l'autonomie",
+        "order": 3,
+        "successThreshold": 5,
+        "formationId": 25,
+        "isActive": true
+      },
+      {
+        "id": 4,
+        "label": "B2 -  Renforcer les compétences",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 25,
+        "isActive": true
+      },
+      {
+        "id": 5,
+        "label": "C1 - Se perfectionner",
+        "order": 5,
+        "successThreshold": 5,
+        "formationId": 25,
+        "isActive": true
+      },
+      {
+        "id": 304,
+        "label": "Initial",
+        "order": 0,
+        "successThreshold": 3,
+        "formationId": 43,
+        "isActive": true
+      },
+      {
+        "id": 305,
+        "label": "Basique",
+        "order": 1,
+        "successThreshold": 4,
+        "formationId": 43,
+        "isActive": true
+      },
+      {
+        "id": 306,
+        "label": "Opérationnel",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 43,
+        "isActive": true
+      },
+      {
+        "id": 307,
+        "label": "Avancé",
+        "order": 3,
+        "successThreshold": 5,
+        "formationId": 43,
+        "isActive": true
+      },
+      {
+        "id": 190,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 44,
+        "isActive": true
+      },
+      {
+        "id": 191,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 44,
+        "isActive": true
+      },
+      {
+        "id": 216,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 44,
+        "isActive": true
+      },
+      {
+        "id": 217,
+        "label": "Avance",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 44,
+        "isActive": true
+      },
+      {
+        "id": 535,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 44,
+        "isActive": true
+      },
+      {
+        "id": 187,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 45,
+        "isActive": true
+      },
+      {
+        "id": 188,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 45,
+        "isActive": true
+      },
+      {
+        "id": 210,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 45,
+        "isActive": true
+      },
+      {
+        "id": 211,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 45,
+        "isActive": true
+      },
+      {
+        "id": 178,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 45,
+        "isActive": true
+      },
+      {
+        "id": 202,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 48,
+        "isActive": true
+      },
+      {
+        "id": 203,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 3,
+        "formationId": 48,
+        "isActive": true
+      },
+      {
+        "id": 212,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 48,
+        "isActive": true
+      },
+      {
+        "id": 213,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 5,
+        "formationId": 48,
+        "isActive": true
+      },
+      {
+        "id": 308,
+        "label": "Découverte",
+        "order": 0,
+        "successThreshold": 4,
+        "formationId": 51,
+        "isActive": true
+      },
+      {
+        "id": 309,
+        "label": "Technique",
+        "order": 1,
+        "successThreshold": 4,
+        "formationId": 51,
+        "isActive": true
+      },
+      {
+        "id": 310,
+        "label": "Professionnel",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 51,
+        "isActive": true
+      },
+      {
+        "id": 311,
+        "label": "Affaires",
+        "order": 3,
+        "successThreshold": 5,
+        "formationId": 51,
+        "isActive": true
+      },
+      {
+        "id": 529,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 54,
+        "isActive": true
+      },
+      {
+        "id": 530,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 54,
+        "isActive": true
+      },
+      {
+        "id": 531,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 54,
+        "isActive": true
+      },
+      {
+        "id": 532,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 54,
+        "isActive": true
+      },
+      {
+        "id": 534,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 54,
+        "isActive": true
+      },
+      {
+        "id": 536,
+        "label": "IA Générative ",
+        "order": 0,
+        "successThreshold": 3,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 537,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 538,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 546,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 539,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 540,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 55,
+        "isActive": true
+      },
+      {
+        "id": 541,
+        "label": "IA Générative ",
+        "order": 0,
+        "successThreshold": 3,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 542,
+        "label": "Initial",
+        "order": 1,
+        "successThreshold": 3,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 543,
+        "label": "Basique",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 547,
+        "label": "Opérationnel",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 544,
+        "label": "Avancé",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 545,
+        "label": "Expert",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 56,
+        "isActive": true
+      },
+      {
+        "id": 548,
+        "label": "Initial",
+        "order": 0,
+        "successThreshold": 3,
+        "formationId": 57,
+        "isActive": true
+      },
+      {
+        "id": 549,
+        "label": "Basique",
+        "order": 1,
+        "successThreshold": 4,
+        "formationId": 57,
+        "isActive": true
+      },
+      {
+        "id": 554,
+        "label": "Opérationnel",
+        "order": 2,
+        "successThreshold": 4,
+        "formationId": 57,
+        "isActive": true
+      },
+      {
+        "id": 552,
+        "label": "Avancé",
+        "order": 3,
+        "successThreshold": 4,
+        "formationId": 57,
+        "isActive": true
+      },
+      {
+        "id": 553,
+        "label": "Expert",
+        "order": 4,
+        "successThreshold": 4,
+        "formationId": 57,
+        "isActive": true
+      },
+      {
+        "id": 556,
+        "label": "Professionnel",
+        "order": 5,
+        "successThreshold": 4,
+        "formationId": 57,
+        "isActive": true
+      }
+    ],
+    "parcoursRules": [
+      {
+        "id": 64,
+        "formation": "Anglais ",
+        "condition": "Si résultat du test = C1 - Se perfectionner",
+        "formation1": "Anglais  Renforcer les compétences - TOEIC",
+        "formation2": "Anglais  Se perfectionner - TOEIC",
+        "order": 0,
+        "isActive": true,
+        "formationId": 25
+      },
+      {
+        "id": 63,
+        "formation": "Anglais ",
+        "condition": "Si résultat du test = B2 -  Renforcer les compétences",
+        "formation1": "Anglais  Développer l'autonomie  - TOEIC",
+        "formation2": "Anglais  Renforcer les compétences - TOEIC",
+        "order": 1,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 62,
+        "formation": "Anglais ",
+        "condition": "Si résultat du test = B1 - Développer l'autonomie",
+        "formation1": "Anglais  Consolider les bases - TOEIC",
+        "formation2": "Anglais  Développer l'autonomie - TOEIC",
+        "order": 2,
+        "isActive": true,
+        "formationId": 25
+      },
+      {
+        "id": 89,
+        "formation": "Anglais ",
+        "condition": "Si résultat du test = A1 - Revoir les bases",
+        "formation1": "Anglais  Consolider les bases - TOEIC",
+        "formation2": "Anglais  Développer l'autonomie - TOEIC",
+        "order": 3,
+        "isActive": true,
+        "formationId": 25
+      },
+      {
+        "id": 90,
+        "formation": "Anglais ",
+        "condition": "Si résultat du test = A2 - Consolider les bases",
+        "formation1": "Anglais  Consolider les bases - TOEIC",
+        "formation2": "Anglais  Développer l'autonomie - TOEIC",
+        "order": 4,
+        "isActive": true,
+        "formationId": 25
+      },
+      {
+        "id": 75,
+        "formation": "Digitales Compétences",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Digitales Compétences Initial (TOSA)",
+        "formation2": "Digitales Compétences Basique (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 23
+      },
+      {
+        "id": 78,
+        "formation": "Digitales Compétences",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "Digitales Compétences Basique (TOSA)",
+        "formation2": "Digitales Compétences Opérationnel (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 7,
+        "formation": "Excel",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Digcomp Initial (TOSA)",
+        "formation2": "Excel Initial (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 45
+      },
+      {
+        "id": 82,
+        "formation": "Excel",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Excel Initial (TOSA)",
+        "formation2": "Excel basique (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": 45
+      },
+      {
+        "id": 83,
+        "formation": "Excel",
+        "condition": "Si résultat du test = Avancé",
+        "formation1": "Excel Opérationnel (TOSA)",
+        "formation2": "Excel Avancé (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": 45
+      },
+      {
+        "id": 84,
+        "formation": "Excel",
+        "condition": "Si résultat du test > Avancé",
+        "formation1": "Excel Avancé (TOSA)",
+        "formation2": "Excel Expert (TOSA)",
+        "order": 3,
+        "isActive": true,
+        "formationId": 45
+      },
+      {
+        "id": 86,
+        "formation": "Excel",
+        "condition": "Si résultat du test = Opérationnel",
+        "formation1": "Excel basique (TOSA)",
+        "formation2": "Excel Opérationnel (TOSA)",
+        "order": 5,
+        "isActive": true,
+        "formationId": 45
+      },
+      {
+        "id": 97,
+        "formation": "Excel + IA",
+        "condition": "Si résultat du test ≤ Opérationnel",
+        "formation1": "Excel (TOSA)",
+        "formation2": "IA GENERATIVE (INKREA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 55
+      },
+      {
+        "id": 36,
+        "formation": "Français",
+        "condition": "Si résultat du test = Affaires",
+        "formation1": "Français Professionnel - Voltaire",
+        "formation2": "Français Affaires - Voltaire",
+        "order": 0,
+        "isActive": true,
+        "formationId": 51
+      },
+      {
+        "id": 35,
+        "formation": "Français",
+        "condition": "Si résultat du test = Professionnel",
+        "formation1": "Français Technique - Voltaire",
+        "formation2": "Français Professionnel - Voltaire",
+        "order": 1,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 34,
+        "formation": "Français",
+        "condition": "Si résultat du test ≤ Technique",
+        "formation1": "Français Découverte - Voltaire",
+        "formation2": "Français Technique - Voltaire",
+        "order": 2,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 88,
+        "formation": "Gimp",
+        "condition": "",
+        "formation1": "GIMP (ICDL)",
+        "formation2": "ILLUSTRATOR opérationnel (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 48
+      },
+      {
+        "id": 95,
+        "formation": "Google Docs",
+        "condition": "Si résultat du test ≥ Initial",
+        "formation1": "Google Docs (ICDL)",
+        "formation2": "Google Sheets (ICDL) / Google Slides (ICDL)",
+        "order": 3,
+        "isActive": true,
+        "formationId": 4
+      },
+      {
+        "id": 69,
+        "formation": "Google Sheets",
+        "condition": "Si résultat du test ≥ Initial",
+        "formation1": "Google Sheets (ICDL)",
+        "formation2": "Google Docs (ICDL) / Google Slides (ICDL)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 5
+      },
+      {
+        "id": 70,
+        "formation": "Google Slides",
+        "condition": "Si résultat du test ≥ Initial",
+        "formation1": "Google Slides (ICDL)",
+        "formation2": "Google Docs (ICDL) / Google Sheets (ICDL)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 10
+      },
+      {
+        "id": 55,
+        "formation": "Illustrator",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Illustrator initial (TOSA)",
+        "formation2": "Illustrator basique (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 56,
+        "formation": "Illustrator",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "Illustrator basique (TOSA)",
+        "formation2": "illustrator opérationnel (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 92,
+        "formation": "Intelligence Artificielle Générative",
+        "condition": "Si résultat du test ≤ Initial",
+        "formation1": "IA (INKREA)",
+        "formation2": "",
+        "order": 0,
+        "isActive": true,
+        "formationId": 24
+      },
+      {
+        "id": 100,
+        "formation": "Mixte Microsoft Office ",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "TOSA Word Initial",
+        "formation2": "TOSA Excel Initial",
+        "order": 0,
+        "isActive": true,
+        "formationId": 57
+      },
+      {
+        "id": 101,
+        "formation": "Mixte Microsoft Office ",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "TOSA Word Basique",
+        "formation2": "TOSA Excel Basique",
+        "order": 1,
+        "isActive": true,
+        "formationId": 57
+      },
+      {
+        "id": 50,
+        "formation": "Outils Collaboratifs Google",
+        "condition": "Si résultat du test ≥ Initial",
+        "formation1": "Outils Collaboratifs Google (ICDL)",
+        "formation2": "Google Docs (ICDL) /Google Sheets (ICDL) / Google Slides (ICDL)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 43
+      },
+      {
+        "id": 39,
+        "formation": "Outlook",
+        "condition": "Si résultat du test < Opérationnel",
+        "formation1": "Outlook Basique (TOSA)",
+        "formation2": "Outlook Opérationnel (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 43,
+        "formation": "Photoshop",
+        "condition": "Si résultat du test > basique",
+        "formation1": "Photoshop basique (TOSA)",
+        "formation2": "Photoshop opérationnel (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": 20
+      },
+      {
+        "id": 42,
+        "formation": "Photoshop",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Photoshop initial (TOSA)",
+        "formation2": "Photoshop basique (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": 20
+      },
+      {
+        "id": 19,
+        "formation": "PowerPoint",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Digcomp Initial (TOSA)",
+        "formation2": "PowerPoint Initial (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 54
+      },
+      {
+        "id": 20,
+        "formation": "PowerPoint",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "PowerPoint Initial (TOSA)",
+        "formation2": "PowerPoint Basique (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 21,
+        "formation": "PowerPoint",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "PowerPoint Basique (TOSA)",
+        "formation2": "PowerPoint Opérationnel (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 87,
+        "formation": "Sketchup",
+        "condition": "",
+        "formation1": "ICDL SketchUp",
+        "formation2": "",
+        "order": 0,
+        "isActive": true,
+        "formationId": 21
+      },
+      {
+        "id": 91,
+        "formation": "SketchUp",
+        "condition": "",
+        "formation1": "SketchUp (ICDL)",
+        "formation2": "GIMP (ICDL)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 21
+      },
+      {
+        "id": 3,
+        "formation": "Word",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Word initial (TOSA)",
+        "formation2": "Word basique (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": 44
+      },
+      {
+        "id": 1,
+        "formation": "Word",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "Digcomp Initial (TOSA)",
+        "formation2": "Word Initial (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 4,
+        "formation": "Word",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "Word Basique (TOSA)",
+        "formation2": "Word Opérationnel (TOSA)",
+        "order": 2,
+        "isActive": true,
+        "formationId": null
+      },
+      {
+        "id": 102,
+        "formation": "Word + IA",
+        "condition": "Si résultat du test ≤ Opérationnel",
+        "formation1": "Word (TOSA)",
+        "formation2": "IA GENERATIVE (INKREA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 56
+      },
+      {
+        "id": 29,
+        "formation": "WordPress",
+        "condition": "Si résultat du test ≤ Basique",
+        "formation1": "WordPress Initial (TOSA)",
+        "formation2": "WordPress Basique (TOSA)",
+        "order": 0,
+        "isActive": true,
+        "formationId": 22
+      },
+      {
+        "id": 99,
+        "formation": "WordPress",
+        "condition": "Si résultat du test > Basique",
+        "formation1": "Wordpress Basique (TOSA)",
+        "formation2": "Wordpress Opérationnel (TOSA)",
+        "order": 1,
+        "isActive": true,
+        "formationId": 22
+      }
+    ],
+    "p3FilterRules": [
+      {
+        "id": "ef09fcd0-7bcd-490c-b10a-f980d84b7395",
+        "name": "IA Générative Word",
+        "sourceCategory": null,
+        "sourceSlugs": "word-ia",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "word-ia,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "f625fa10-f792-4f87-a0cc-c6acc631c925",
+        "name": "IA Générative Excel",
+        "sourceCategory": null,
+        "sourceSlugs": "excel-ia",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "excel-ia,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "04db0cc9-96ae-42d5-bfc4-98e53b797558",
+        "name": "Anglais",
+        "sourceCategory": null,
+        "sourceSlugs": "toeic",
+        "maxLevelOrder": 4,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "f3f72c6b-f173-44c0-89ac-9fbe27a2d42d",
+        "name": "Photoshop",
+        "sourceCategory": null,
+        "sourceSlugs": "photoshop",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "photoshop,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "167c0c00-d648-40d6-b872-6881fc941b86",
+        "name": "Digital Compétences",
+        "sourceCategory": null,
+        "sourceSlugs": "digcomp",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,digcomp",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "052940c6-8793-449d-a581-dd6977f6804a",
+        "name": "Wordpress",
+        "sourceCategory": null,
+        "sourceSlugs": "wordpress",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,wordpress",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "c1345fe2-1246-4d2c-b6ab-94a9f18fd982",
+        "name": "Illustrator",
+        "sourceCategory": null,
+        "sourceSlugs": "illustrator",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "illustrator,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "81641602-2ada-4802-8957-fad622b230e3",
+        "name": "Outlook",
+        "sourceCategory": null,
+        "sourceSlugs": "pack-office-outlook",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,pack-office-outlook",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "20a3d358-fe4a-433f-9d74-82932c9baa8b",
+        "name": "Français",
+        "sourceCategory": null,
+        "sourceSlugs": "voltaire",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "6f73f981-c9a8-4986-a379-e3889ef0732f",
+        "name": "Word operationnel",
+        "sourceCategory": null,
+        "sourceSlugs": "word",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "word,voltaire,toeic",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "26e60375-0629-4cb5-bd9d-4f1aa7cfabe4",
+        "name": "Excel",
+        "sourceCategory": null,
+        "sourceSlugs": "excel",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "7253d199-dab8-48b9-820e-4b0ad28c9448",
+        "name": "Excel operationnel",
+        "sourceCategory": null,
+        "sourceSlugs": "excel",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,excel",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "2aefc3f9-7c59-4925-a10e-a5f6277620a3",
+        "name": "Power point",
+        "sourceCategory": null,
+        "sourceSlugs": "ppt",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "7e659404-f96d-4c44-affc-9bed884942c5",
+        "name": "Powerpoint operationnel",
+        "sourceCategory": null,
+        "sourceSlugs": "ppt",
+        "maxLevelOrder": 3,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "voltaire,toeic,ppt",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "51278665-b619-4b0d-be80-c9abe4942d38",
+        "name": "Parcours mixtes bureautiques",
+        "sourceCategory": null,
+        "sourceSlugs": "microsoft-office",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "d3558176-f860-4699-8f9e-957671960cf1",
+        "name": "Google Workspace",
+        "sourceCategory": null,
+        "sourceSlugs": "outils-collaboratifs-google",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,outils-collaboratifs-google",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "fbfd5bcf-cec0-4c57-9f81-b31befba3930",
+        "name": "Google docs",
+        "sourceCategory": null,
+        "sourceSlugs": "google-docs",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "voltaire,toeic,google-docs",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "10e5a179-7cf9-4e05-976e-242b78787ccb",
+        "name": "Google sheets",
+        "sourceCategory": null,
+        "sourceSlugs": "google-sheets",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,google-sheets",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "cbd06a12-5145-4e87-850a-e44ef1e8f467",
+        "name": "Google slides",
+        "sourceCategory": null,
+        "sourceSlugs": "google-slides",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "toeic,voltaire,google-slides",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "59f6988e-09b1-4c11-bf01-e63733454578",
+        "name": "Sketchup",
+        "sourceCategory": null,
+        "sourceSlugs": "sketchup",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "sketchup,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "aa6d99a0-404c-48a0-9f8c-3288fad95a5d",
+        "name": "Gimp",
+        "sourceCategory": null,
+        "sourceSlugs": "gimp",
+        "maxLevelOrder": null,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "gimp,toeic,voltaire",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      },
+      {
+        "id": "5cb01e66-4744-4df7-a785-226ce081de2c",
+        "name": "Word",
+        "sourceCategory": null,
+        "sourceSlugs": "word",
+        "maxLevelOrder": 2,
+        "filterMode": "EXCLUDE",
+        "targetSlugs": "voltaire,toeic",
+        "targetCategories": "",
+        "isActive": true,
+        "order": 0
+      }
+    ]
+  },
+  "structured": {
+    "formationsParNiveau": {
+      "Google Docs": {
+        "id": 4,
+        "slug": "google-docs",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 292,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 293,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 294,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 295,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Google Sheets": {
+        "id": 5,
+        "slug": "google-sheets",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 296,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 297,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 298,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 299,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Google Slides": {
+        "id": 10,
+        "slug": "google-slides",
+        "category": "Bureautique Google",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 300,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 301,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 302,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 303,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Excel": {
+        "id": 45,
+        "slug": "excel",
+        "category": "Bureautique Microsoft",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 187,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 188,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 210,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 211,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 178,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Mixte Microsoft Office (Word + Excel)": {
+        "id": 57,
+        "slug": "microsoft-office",
+        "category": "Bureautique Microsoft",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 548,
+            "label": "Initial",
+            "order": 0,
+            "successThreshold": 3
+          },
+          {
+            "id": 549,
+            "label": "Basique",
+            "order": 1,
+            "successThreshold": 4
+          },
+          {
+            "id": 554,
+            "label": "Opérationnel",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 552,
+            "label": "Avancé",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 553,
+            "label": "Expert",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 556,
+            "label": "Professionnel",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Outlook": {
+        "id": 15,
+        "slug": "pack-office-outlook",
+        "category": "Bureautique Microsoft",
+        "certificateur": "TOSA",
+        "niveaux": [
+          {
+            "id": 493,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 494,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 495,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 496,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 497,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "PowerPoint": {
+        "id": 54,
+        "slug": "ppt",
+        "category": "Bureautique Microsoft",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 529,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 530,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 531,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 532,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 534,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Word": {
+        "id": 44,
+        "slug": "word",
+        "category": "Bureautique Microsoft",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 190,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 191,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 216,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 217,
+            "label": "Avance",
+            "order": 4,
+            "successThreshold": 5
+          },
+          {
+            "id": 535,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Gimp": {
+        "id": 48,
+        "slug": "gimp",
+        "category": "Création",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 202,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 203,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 3
+          },
+          {
+            "id": 212,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 213,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Illustrator": {
+        "id": 19,
+        "slug": "illustrator",
+        "category": "Création",
+        "certificateur": "TOSA",
+        "niveaux": [
+          {
+            "id": 383,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 4
+          },
+          {
+            "id": 384,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 385,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Photoshop": {
+        "id": 20,
+        "slug": "photoshop",
+        "category": "Création",
+        "certificateur": "ICDL / TOSA",
+        "niveaux": [
+          {
+            "id": 488,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 489,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 490,
+            "label": "Opérationnel ",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 491,
+            "label": "Avancé ",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 492,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "SketchUp": {
+        "id": 21,
+        "slug": "sketchup",
+        "category": "Création",
+        "certificateur": "ICDL",
+        "niveaux": [
+          {
+            "id": 205,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 206,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 214,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 215,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Excel + IA": {
+        "id": 55,
+        "slug": "Excel-ia",
+        "category": "IA",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 536,
+            "label": "IA Générative ",
+            "order": 0,
+            "successThreshold": 3
+          },
+          {
+            "id": 537,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 538,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 546,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 539,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 540,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Word + IA": {
+        "id": 56,
+        "slug": "word-ia",
+        "category": "IA",
+        "certificateur": "",
+        "niveaux": [
+          {
+            "id": 541,
+            "label": "IA Générative ",
+            "order": 0,
+            "successThreshold": 3
+          },
+          {
+            "id": 542,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 543,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 547,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 544,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 545,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Digitales Compétences": {
+        "id": 23,
+        "slug": "digcomp",
+        "category": "Internet",
+        "certificateur": "DigComp",
+        "niveaux": [
+          {
+            "id": 200,
+            "label": "Initial",
+            "order": 1,
+            "successThreshold": 3
+          },
+          {
+            "id": 201,
+            "label": "Basique",
+            "order": 2,
+            "successThreshold": 5
+          },
+          {
+            "id": 208,
+            "label": "Opérationnel",
+            "order": 3,
+            "successThreshold": 4
+          },
+          {
+            "id": 209,
+            "label": "Avancé",
+            "order": 4,
+            "successThreshold": 4
+          },
+          {
+            "id": 57,
+            "label": "Expert",
+            "order": 5,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Outils Collaboratifs Google": {
+        "id": 43,
+        "slug": "outils-collaboratifs-google",
+        "category": "Internet",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 304,
+            "label": "Initial",
+            "order": 0,
+            "successThreshold": 3
+          },
+          {
+            "id": 305,
+            "label": "Basique",
+            "order": 1,
+            "successThreshold": 4
+          },
+          {
+            "id": 306,
+            "label": "Opérationnel",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 307,
+            "label": "Avancé",
+            "order": 3,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "WordPress": {
+        "id": 22,
+        "slug": "wordpress",
+        "category": "Internet",
+        "certificateur": "TOSA / ICDL",
+        "niveaux": [
+          {
+            "id": 193,
+            "label": "Initial",
+            "order": 0,
+            "successThreshold": 4
+          },
+          {
+            "id": 194,
+            "label": "Basique",
+            "order": 1,
+            "successThreshold": 4
+          },
+          {
+            "id": 218,
+            "label": "Operationnel",
+            "order": 2,
+            "successThreshold": 4
+          }
+        ]
+      },
+      "Anglais ": {
+        "id": 25,
+        "slug": "toeic",
+        "category": "LANGUES",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 1,
+            "label": "A1 - Revoir les bases",
+            "order": 1,
+            "successThreshold": 6
+          },
+          {
+            "id": 2,
+            "label": "A2 - Consolider les bases",
+            "order": 2,
+            "successThreshold": 5
+          },
+          {
+            "id": 3,
+            "label": "B1 - Développer l'autonomie",
+            "order": 3,
+            "successThreshold": 5
+          },
+          {
+            "id": 4,
+            "label": "B2 -  Renforcer les compétences",
+            "order": 4,
+            "successThreshold": 5
+          },
+          {
+            "id": 5,
+            "label": "C1 - Se perfectionner",
+            "order": 5,
+            "successThreshold": 5
+          }
+        ]
+      },
+      "Français": {
+        "id": 51,
+        "slug": "voltaire",
+        "category": "LANGUES",
+        "certificateur": null,
+        "niveaux": [
+          {
+            "id": 308,
+            "label": "Découverte",
+            "order": 0,
+            "successThreshold": 4
+          },
+          {
+            "id": 309,
+            "label": "Technique",
+            "order": 1,
+            "successThreshold": 4
+          },
+          {
+            "id": 310,
+            "label": "Professionnel",
+            "order": 2,
+            "successThreshold": 4
+          },
+          {
+            "id": 311,
+            "label": "Affaires",
+            "order": 3,
+            "successThreshold": 5
+          }
+        ]
+      }
+    },
+    "parcoursParFormation": {
+      "Anglais ": [
+        {
+          "id": 64,
+          "condition": "Si résultat du test = C1 - Se perfectionner",
+          "formation1": "Anglais  Renforcer les compétences - TOEIC",
+          "formation2": "Anglais  Se perfectionner - TOEIC",
+          "order": 0
+        },
+        {
+          "id": 63,
+          "condition": "Si résultat du test = B2 -  Renforcer les compétences",
+          "formation1": "Anglais  Développer l'autonomie  - TOEIC",
+          "formation2": "Anglais  Renforcer les compétences - TOEIC",
+          "order": 1
+        },
+        {
+          "id": 62,
+          "condition": "Si résultat du test = B1 - Développer l'autonomie",
+          "formation1": "Anglais  Consolider les bases - TOEIC",
+          "formation2": "Anglais  Développer l'autonomie - TOEIC",
+          "order": 2
+        },
+        {
+          "id": 89,
+          "condition": "Si résultat du test = A1 - Revoir les bases",
+          "formation1": "Anglais  Consolider les bases - TOEIC",
+          "formation2": "Anglais  Développer l'autonomie - TOEIC",
+          "order": 3
+        },
+        {
+          "id": 90,
+          "condition": "Si résultat du test = A2 - Consolider les bases",
+          "formation1": "Anglais  Consolider les bases - TOEIC",
+          "formation2": "Anglais  Développer l'autonomie - TOEIC",
+          "order": 4
+        }
+      ],
+      "Digitales Compétences": [
+        {
+          "id": 75,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Digitales Compétences Initial (TOSA)",
+          "formation2": "Digitales Compétences Basique (TOSA)",
+          "order": 0
+        },
+        {
+          "id": 78,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "Digitales Compétences Basique (TOSA)",
+          "formation2": "Digitales Compétences Opérationnel (TOSA)",
+          "order": 2
+        }
+      ],
+      "Excel": [
+        {
+          "id": 7,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Digcomp Initial (TOSA)",
+          "formation2": "Excel Initial (TOSA)",
+          "order": 0
+        },
+        {
+          "id": 82,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Excel Initial (TOSA)",
+          "formation2": "Excel basique (TOSA)",
+          "order": 2
+        },
+        {
+          "id": 83,
+          "condition": "Si résultat du test = Avancé",
+          "formation1": "Excel Opérationnel (TOSA)",
+          "formation2": "Excel Avancé (TOSA)",
+          "order": 2
+        },
+        {
+          "id": 84,
+          "condition": "Si résultat du test > Avancé",
+          "formation1": "Excel Avancé (TOSA)",
+          "formation2": "Excel Expert (TOSA)",
+          "order": 3
+        },
+        {
+          "id": 86,
+          "condition": "Si résultat du test = Opérationnel",
+          "formation1": "Excel basique (TOSA)",
+          "formation2": "Excel Opérationnel (TOSA)",
+          "order": 5
+        }
+      ],
+      "Excel + IA": [
+        {
+          "id": 97,
+          "condition": "Si résultat du test ≤ Opérationnel",
+          "formation1": "Excel (TOSA)",
+          "formation2": "IA GENERATIVE (INKREA)",
+          "order": 0
+        }
+      ],
+      "Français": [
+        {
+          "id": 36,
+          "condition": "Si résultat du test = Affaires",
+          "formation1": "Français Professionnel - Voltaire",
+          "formation2": "Français Affaires - Voltaire",
+          "order": 0
+        },
+        {
+          "id": 35,
+          "condition": "Si résultat du test = Professionnel",
+          "formation1": "Français Technique - Voltaire",
+          "formation2": "Français Professionnel - Voltaire",
+          "order": 1
+        },
+        {
+          "id": 34,
+          "condition": "Si résultat du test ≤ Technique",
+          "formation1": "Français Découverte - Voltaire",
+          "formation2": "Français Technique - Voltaire",
+          "order": 2
+        }
+      ],
+      "Gimp": [
+        {
+          "id": 88,
+          "condition": "",
+          "formation1": "GIMP (ICDL)",
+          "formation2": "ILLUSTRATOR opérationnel (TOSA)",
+          "order": 0
+        }
+      ],
+      "Google Docs": [
+        {
+          "id": 95,
+          "condition": "Si résultat du test ≥ Initial",
+          "formation1": "Google Docs (ICDL)",
+          "formation2": "Google Sheets (ICDL) / Google Slides (ICDL)",
+          "order": 3
+        }
+      ],
+      "Google Sheets": [
+        {
+          "id": 69,
+          "condition": "Si résultat du test ≥ Initial",
+          "formation1": "Google Sheets (ICDL)",
+          "formation2": "Google Docs (ICDL) / Google Slides (ICDL)",
+          "order": 0
+        }
+      ],
+      "Google Slides": [
+        {
+          "id": 70,
+          "condition": "Si résultat du test ≥ Initial",
+          "formation1": "Google Slides (ICDL)",
+          "formation2": "Google Docs (ICDL) / Google Sheets (ICDL)",
+          "order": 0
+        }
+      ],
+      "Illustrator": [
+        {
+          "id": 55,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Illustrator initial (TOSA)",
+          "formation2": "Illustrator basique (TOSA)",
+          "order": 0
+        },
+        {
+          "id": 56,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "Illustrator basique (TOSA)",
+          "formation2": "illustrator opérationnel (TOSA)",
+          "order": 1
+        }
+      ],
+      "Intelligence Artificielle Générative": [
+        {
+          "id": 92,
+          "condition": "Si résultat du test ≤ Initial",
+          "formation1": "IA (INKREA)",
+          "formation2": "",
+          "order": 0
+        }
+      ],
+      "Mixte Microsoft Office ": [
+        {
+          "id": 100,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "TOSA Word Initial",
+          "formation2": "TOSA Excel Initial",
+          "order": 0
+        },
+        {
+          "id": 101,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "TOSA Word Basique",
+          "formation2": "TOSA Excel Basique",
+          "order": 1
+        }
+      ],
+      "Outils Collaboratifs Google": [
+        {
+          "id": 50,
+          "condition": "Si résultat du test ≥ Initial",
+          "formation1": "Outils Collaboratifs Google (ICDL)",
+          "formation2": "Google Docs (ICDL) /Google Sheets (ICDL) / Google Slides (ICDL)",
+          "order": 0
+        }
+      ],
+      "Outlook": [
+        {
+          "id": 39,
+          "condition": "Si résultat du test < Opérationnel",
+          "formation1": "Outlook Basique (TOSA)",
+          "formation2": "Outlook Opérationnel (TOSA)",
+          "order": 2
+        }
+      ],
+      "Photoshop": [
+        {
+          "id": 43,
+          "condition": "Si résultat du test > basique",
+          "formation1": "Photoshop basique (TOSA)",
+          "formation2": "Photoshop opérationnel (TOSA)",
+          "order": 1
+        },
+        {
+          "id": 42,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Photoshop initial (TOSA)",
+          "formation2": "Photoshop basique (TOSA)",
+          "order": 1
+        }
+      ],
+      "PowerPoint": [
+        {
+          "id": 19,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Digcomp Initial (TOSA)",
+          "formation2": "PowerPoint Initial (TOSA)",
+          "order": 0
+        },
+        {
+          "id": 20,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "PowerPoint Initial (TOSA)",
+          "formation2": "PowerPoint Basique (TOSA)",
+          "order": 1
+        },
+        {
+          "id": 21,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "PowerPoint Basique (TOSA)",
+          "formation2": "PowerPoint Opérationnel (TOSA)",
+          "order": 2
+        }
+      ],
+      "Sketchup": [
+        {
+          "id": 87,
+          "condition": "",
+          "formation1": "ICDL SketchUp",
+          "formation2": "",
+          "order": 0
+        }
+      ],
+      "SketchUp": [
+        {
+          "id": 91,
+          "condition": "",
+          "formation1": "SketchUp (ICDL)",
+          "formation2": "GIMP (ICDL)",
+          "order": 0
+        }
+      ],
+      "Word": [
+        {
+          "id": 3,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Word initial (TOSA)",
+          "formation2": "Word basique (TOSA)",
+          "order": 1
+        },
+        {
+          "id": 1,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "Digcomp Initial (TOSA)",
+          "formation2": "Word Initial (TOSA)",
+          "order": 1
+        },
+        {
+          "id": 4,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "Word Basique (TOSA)",
+          "formation2": "Word Opérationnel (TOSA)",
+          "order": 2
+        }
+      ],
+      "Word + IA": [
+        {
+          "id": 102,
+          "condition": "Si résultat du test ≤ Opérationnel",
+          "formation1": "Word (TOSA)",
+          "formation2": "IA GENERATIVE (INKREA)",
+          "order": 0
+        }
+      ],
+      "WordPress": [
+        {
+          "id": 29,
+          "condition": "Si résultat du test ≤ Basique",
+          "formation1": "WordPress Initial (TOSA)",
+          "formation2": "WordPress Basique (TOSA)",
+          "order": 0
+        },
+        {
+          "id": 99,
+          "condition": "Si résultat du test > Basique",
+          "formation1": "Wordpress Basique (TOSA)",
+          "formation2": "Wordpress Opérationnel (TOSA)",
+          "order": 1
+        }
+      ]
+    }
+  }
+}

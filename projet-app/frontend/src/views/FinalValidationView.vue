@@ -238,6 +238,59 @@ const answeredPrereqCount = computed(() => {
 
 const isP3Enabled = ref(true);
 
+const displayedExplanation = computed(() => {
+  if (!session.value) return "";
+
+  // Si une explication est explicitement fournie par le backend (règles, etc.)
+  if (session.value.explanationMessage) {
+    return session.value.explanationMessage;
+  }
+
+  // Sinon, générer une explication basée sur le profil
+  const parts = [];
+
+  // 1. Score au test de positionnement
+  if (globalScore.value > 0) {
+    parts.push(`Vous avez obtenu un score de ${globalScore.value}% au test de positionnement.`);
+  }
+
+  // 2. Niveaux validés
+  const validatedCount = validatedLevelsCount.value;
+  const totalCount = totalLevelsCount.value;
+  if (validatedCount > 0 && totalCount > 0) {
+    parts.push(`Vous avez validé ${validatedCount} niveau${validatedCount > 1 ? 'x' : ''} sur ${totalCount}.`);
+  }
+
+  // 3. Niveau atteint
+  if (session.value.stopLevel || session.value.lastValidatedLevel) {
+    const level = session.value.stopLevel || session.value.lastValidatedLevel;
+    parts.push(`Vous êtes arrivé au niveau ${level}.`);
+  }
+
+  // 4. Formation choisie
+  if (session.value.formationChoisie) {
+    parts.push(`Votre formation est : ${session.value.formationChoisie}.`);
+  }
+
+  // 5. Message de contexte P1/P2/P3
+  if (isP3Validation.value) {
+    const p1 = localStorage.getItem("p3_prev_p1");
+    const p2 = localStorage.getItem("p3_prev_p2");
+    if (p1 || p2) {
+      parts.push(`Vous avez précédemment validé : ${[p1, p2].filter(Boolean).join(' et ')}.`);
+    }
+    parts.push(`Nous vous proposons donc cette troisième formation (P3) pour progresser davantage.`);
+  } else {
+    if (p1p2ParcoursItems.value.length >= 2) {
+      parts.push(`Selon vos résultats, nous vous proposons ces deux parcours complémentaires pour une progression complète.`);
+    } else if (p1p2ParcoursItems.value.length === 1) {
+      parts.push(`Basé sur votre profil et vos résultats, ceci est votre parcours recommandé.`);
+    }
+  }
+
+  return parts.filter(Boolean).join(' ');
+});
+
 onMounted(async () => {
   if (store.workflowSteps.length === 0 || store.actualWorkflowSteps.length === 0) {
     await store.updateActualWorkflow();
@@ -463,6 +516,24 @@ function confirmStartP3() {
                   <p class="min-w-0 text-sm font-black text-[#0d1b3e] break-words">
                     {{ item.label }}
                   </p>
+                </div>
+              </div>
+
+              <!-- Explanation Section: How we arrived at P1/P2/P3 -->
+              <div
+                v-if="(p1p2ParcoursItems.length || p3ValidationParcoursItems.length) && displayedExplanation"
+                class="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm mt-4"
+              >
+                <div class="flex items-start gap-2">
+                  <span class="material-icons-outlined text-blue-600 shrink-0 mt-0.5">info</span>
+                  <div class="min-w-0">
+                    <p class="text-[10px] text-blue-600 font-black uppercase tracking-widest mb-1">
+                      Comment avons-nous défini votre parcours
+                    </p>
+                    <p class="text-sm text-blue-900 leading-relaxed">
+                      {{ displayedExplanation }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
