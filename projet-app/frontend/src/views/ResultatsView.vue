@@ -588,6 +588,128 @@ const handleChangeFormation = () => {
   router.push("/formations");
 };
 
+// Compute P1/P2/P3 badges for display
+const parcoursItems = computed(() => {
+  const items = [];
+  
+  // Check if we're in P3 mode
+  const isP3 = store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3;
+  
+  if (isP3) {
+    // En P3: afficher P1, P2, P3
+    const p1 = localStorage.getItem("p3_prev_p1") || "";
+    const p2 = localStorage.getItem("p3_prev_p2") || "";
+    const p3 = session.value?.formationChoisie || displayedParcoursTitle.value || "";
+    
+    if (p1) {
+      items.push({
+        badge: "P1",
+        label: p1,
+        className: "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]"
+      });
+    }
+    if (p2) {
+      items.push({
+        badge: "P2",
+        label: p2,
+        className: "border-[#315264] bg-[#315264]/10 text-[#315264]"
+      });
+    }
+    if (p3) {
+      items.push({
+        badge: "P3",
+        label: p3,
+        className: "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]"
+      });
+    }
+  } else {
+    // En P1/P2: afficher P1 et optionnellement P2
+    const recommendations = session.value?.recommendations || [];
+    const parcours = selectedParcoursChoice.value?.recommendations || recommendations || [];
+    
+    if (parcours.length >= 1 && parcours[0]) {
+      items.push({
+        badge: "P1",
+        label: parcours[0],
+        className: "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]"
+      });
+    }
+    if (parcours.length >= 2 && parcours[1]) {
+      items.push({
+        badge: "P2",
+        label: parcours[1],
+        className: "border-[#315264] bg-[#315264]/10 text-[#315264]"
+      });
+    }
+  }
+  
+  return items;
+});
+
+// Generate explanation message
+const displayedExplanation = computed(() => {
+  if (!session.value) return "";
+
+  // If backend provides explanation, use it
+  if (session.value.explanationMessage) {
+    return session.value.explanationMessage;
+  }
+
+  const parts = [];
+  const isP3 = store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3;
+
+  // Score de positionnement
+  const score = Number(session.value.scorePretest || 0);
+  if (score > 0) {
+    parts.push(`Vous avez obtenu un score de ${score}% au test de positionnement.`);
+  }
+
+  // Niveaux validés
+  if (session.value.levelsScores) {
+    const entries = Object.entries(session.value.levelsScores);
+    const validatedCount = entries.filter(([, val]) => val?.validated).length;
+    if (validatedCount > 0) {
+      parts.push(`Vous avez validé ${validatedCount} niveau${validatedCount > 1 ? 'x' : ''} sur ${entries.length}.`);
+    }
+  }
+
+  // Niveau atteint
+  if (session.value.stopLevel || session.value.lastValidatedLevel) {
+    const level = session.value.stopLevel || session.value.lastValidatedLevel;
+    parts.push(`Vous êtes arrivé au niveau ${level}.`);
+  }
+
+  // Formation de la session actuelle
+  if (session.value.formationChoisie) {
+    if (isP3) {
+      parts.push(`Vous avez suivi la formation : ${session.value.formationChoisie}.`);
+    }
+  }
+
+  // Contexte P1/P2 ou P3
+  if (isP3) {
+    const p1 = localStorage.getItem("p3_prev_p1");
+    const p2 = localStorage.getItem("p3_prev_p2");
+    const prevs = [p1, p2].filter(Boolean);
+    
+    if (prevs.length > 0) {
+      parts.push(`Vous avez précédemment validé : ${prevs.join(' et ')}.`);
+    }
+    parts.push(`Nous vous proposons donc cette troisième formation (P3) pour enrichir davantage votre profil.`);
+  } else {
+    const recommendations = session.value?.recommendations || [];
+    const parcours = selectedParcoursChoice.value?.recommendations || recommendations || [];
+    
+    if (parcours.length >= 2) {
+      parts.push(`Selon vos résultats au test de positionnement, nous vous proposons ces deux parcours complémentaires pour une progression complète.`);
+    } else if (parcours.length === 1) {
+      parts.push(`Basé sur votre profil et vos résultats, ceci est votre parcours recommandé.`);
+    }
+  }
+
+  return parts.filter(Boolean).join(' ');
+});
+
 const generateSimplePdf = () => {
   if (!session.value) return;
   const pdf = new jsPDF({
@@ -938,6 +1060,43 @@ const downloadPDF = async () => {
           >
             Le parcours personnalisé que nous vous proposons
           </h2>
+        </div>
+
+        <!-- P1/P2/P3 Badges Section -->
+        <div v-if="parcoursItems.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+          <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4">
+            Récapitulatif des parcours
+          </p>
+          <div class="space-y-2">
+            <div
+              v-for="item in parcoursItems"
+              :key="item.badge"
+              class="flex items-start gap-3 rounded-lg border p-3"
+              :class="item.className"
+            >
+              <span class="shrink-0 inline-flex items-center justify-center min-w-10 h-7 px-3 rounded-full bg-white/80 text-[11px] font-black">
+                {{ item.badge }}
+              </span>
+              <p class="min-w-0 text-sm font-black text-[#0d1b3e] break-words">
+                {{ item.label }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Explanation Box -->
+          <div v-if="displayedExplanation" class="bg-blue-50 p-4 rounded-xl border border-blue-100 shadow-sm mt-4">
+            <div class="flex items-start gap-2">
+              <span class="material-icons-outlined text-blue-600 shrink-0 mt-0.5">info</span>
+              <div class="min-w-0">
+                <p class="text-[10px] text-blue-600 font-black uppercase tracking-widest mb-1">
+                  Comment avons-nous défini votre parcours
+                </p>
+                <p class="text-sm text-blue-900 leading-relaxed">
+                  {{ displayedExplanation }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div

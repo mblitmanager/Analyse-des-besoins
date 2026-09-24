@@ -1,0 +1,129 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - img "AOPIA" [ref=e8]
+      - img "Like Formation" [ref=e10]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - heading "Situation & Compétences Numériques" [level=1] [ref=e21]
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e25]: work_outline
+          - heading "Votre Profil" [level=2] [ref=e26]
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Votre métier (poste actuel)
+            - 'textbox "Ex: Assistant administratif, Comptable..." [ref=e30]': Test Professional
+          - generic [ref=e31]:
+            - generic [ref=e32]: Votre situation actuelle
+            - generic [ref=e33]:
+              - generic [ref=e35] [cursor=pointer]:
+                - checkbox "work Salarié check" [checked] [active] [ref=e36]
+                - generic [ref=e37]:
+                  - generic [ref=e39]: work
+                  - generic [ref=e40]: Salarié
+                - generic [ref=e42]: check
+              - generic [ref=e44] [cursor=pointer]:
+                - checkbox "storefront Indépendant" [ref=e45]
+                - generic [ref=e46]:
+                  - generic [ref=e48]: storefront
+                  - generic [ref=e49]: Indépendant
+              - generic [ref=e52] [cursor=pointer]:
+                - checkbox "search Demandeur d’emploi" [ref=e53]
+                - generic [ref=e54]:
+                  - generic [ref=e56]: search
+                  - generic [ref=e57]: Demandeur d’emploi
+              - generic [ref=e60] [cursor=pointer]:
+                - checkbox "psychology Reconversion" [ref=e61]
+                - generic [ref=e62]:
+                  - generic [ref=e64]: psychology
+                  - generic [ref=e65]: Reconversion
+      - generic [ref=e67]:
+        - generic [ref=e70]:
+          - generic [ref=e72]: devices
+          - heading "Compétences Numériques" [level=2] [ref=e73]
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: "1"
+              - paragraph [ref=e78]: A quelle fréquence utilisez-vous un ordinateur ?
+            - generic [ref=e79]:
+              - generic [ref=e81] [cursor=pointer]: Quotidiennement
+              - generic [ref=e84] [cursor=pointer]: Occasionnellement
+              - generic [ref=e87] [cursor=pointer]: Jamais
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - generic [ref=e91]: "2"
+              - paragraph [ref=e92]: Savez-vous allumer un ordinateur, utiliser le clavier et la souris ?
+            - generic [ref=e93]:
+              - generic [ref=e95] [cursor=pointer]: Oui
+              - generic [ref=e98] [cursor=pointer]: Oui avec quelques difficultés
+              - generic [ref=e101] [cursor=pointer]: Non
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - generic [ref=e105]: "3"
+              - paragraph [ref=e106]: "Savez-vous vous repérer dans l’environnement Windows : bureau, menu démarrer, fenêtres, icônes, applications… ?"
+            - generic [ref=e107]:
+              - generic [ref=e109] [cursor=pointer]: Oui
+              - generic [ref=e112] [cursor=pointer]: Oui avec quelques difficultés
+              - generic [ref=e115] [cursor=pointer]: Non
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e119]: "4"
+              - paragraph [ref=e120]: A quelle fréquence utilisez-vous internet ?
+            - generic [ref=e121]:
+              - generic [ref=e123] [cursor=pointer]: Quotidiennement
+              - generic [ref=e126] [cursor=pointer]: Occasionnellement
+              - generic [ref=e129] [cursor=pointer]: Jamais
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - generic [ref=e133]: "5"
+              - paragraph [ref=e134]: Savez-vous créer un dossier et y ranger et renommer un fichier?
+            - generic [ref=e135]:
+              - generic [ref=e137] [cursor=pointer]: Oui
+              - generic [ref=e140] [cursor=pointer]: Oui avec quelques difficultés
+              - generic [ref=e143] [cursor=pointer]: Non
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: "6"
+              - paragraph [ref=e148]: Utilisez-vous la visioconférence (Zoom, Teams, etc…)?
+            - generic [ref=e149]:
+              - generic [ref=e151] [cursor=pointer]: Oui
+              - generic [ref=e154] [cursor=pointer]: Non
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]: "7"
+              - paragraph [ref=e159]: A quelle fréquence utilisez-vous votre mail ?
+            - generic [ref=e160]:
+              - generic [ref=e162] [cursor=pointer]: Quotidiennement
+              - generic [ref=e165] [cursor=pointer]: Occasionnellement
+              - generic [ref=e168] [cursor=pointer]: Jamais
+      - generic [ref=e170]:
+        - button "arrow_back Retour" [ref=e171]:
+          - generic [ref=e172]: arrow_back
+          - text: Retour
+        - button "Valider mon profil arrow_forward" [ref=e173] [cursor=pointer]:
+          - generic [ref=e174]: Valider mon profil
+          - generic [ref=e175]: arrow_forward
+  - contentinfo [ref=e176]:
+    - generic [ref=e177]:
+      - navigation [ref=e178]:
+        - link "Règlement intérieur" [ref=e179] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e180] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e181] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e182] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e183] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e185]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e186] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e187]: © 2026 NS Conseil. Tous droits réservés.
+```
