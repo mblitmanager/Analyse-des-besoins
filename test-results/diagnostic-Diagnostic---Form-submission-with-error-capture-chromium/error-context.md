@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - img "AOPIA" [ref=e8]
+      - img "Like Formation" [ref=e10]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Identification" [level=2] [ref=e14]
+        - paragraph [ref=e15]: Veuillez renseigner vos informations pour accéder à notre test de positionnement.
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Date de complétude
+          - generic [ref=e19]: 24/09/2026
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]: Civilité
+            - generic [ref=e23]:
+              - generic [ref=e24] [cursor=pointer]:
+                - radio "Monsieur" [checked] [ref=e25]
+                - generic [ref=e26]: Monsieur
+              - generic [ref=e27] [cursor=pointer]:
+                - radio "Madame" [ref=e28]
+                - generic [ref=e29]: Madame
+            - generic [ref=e30]:
+              - generic [ref=e31]:
+                - generic [ref=e32]: Nom
+                - textbox "Nom" [ref=e33]: Dupont
+              - generic [ref=e34]:
+                - generic [ref=e35]: Prénom
+                - textbox "Prénom" [ref=e36]: Jean
+          - generic [ref=e37]:
+            - generic [ref=e38]: Téléphone
+            - generic [ref=e39]:
+              - generic:
+                - generic: call
+              - textbox "Téléphone" [ref=e40]:
+                - /placeholder: 06 12 34 56 78
+                - text: "0612345678"
+          - generic [ref=e41]:
+            - generic [ref=e42]: Conseiller commercial (facultatif)
+            - generic [ref=e43]:
+              - generic:
+                - generic: person
+              - textbox "Conseiller commercial (facultatif)" [ref=e44]:
+                - /placeholder: Nom de votre conseiller
+          - button "Démarrer le parcours arrow_forward" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]: Démarrer le parcours
+            - generic [ref=e48]: arrow_forward
+        - generic [ref=e50]:
+          - generic [ref=e51]: lock
+          - text: Sécurisé et confidentiel
+  - contentinfo [ref=e52]:
+    - generic [ref=e53]:
+      - navigation [ref=e54]:
+        - link "Règlement intérieur" [ref=e55] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e56] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e57] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e58] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e59] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e61]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e62] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e63]: © 2026 NS Conseil. Tous droits réservés.
+```

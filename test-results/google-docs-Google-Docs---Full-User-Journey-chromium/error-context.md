@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - img "AOPIA" [ref=e8]
+      - img "Like Formation" [ref=e10]
+  - main [ref=e11]:
+    - generic [ref=e20]:
+      - heading "Quelle formation souhaitez-vous suivre ?" [level=1] [ref=e22]
+      - paragraph [ref=e23]: "Faites votre choix ci-dessous :"
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - heading "Bureautique" [level=3] [ref=e29]
+          - generic [ref=e30]:
+            - generic [ref=e31]:
+              - heading "1. Microsoft Office" [level=4] [ref=e32]
+              - generic [ref=e33]:
+                - button "description Excel" [ref=e34] [cursor=pointer]:
+                  - generic [ref=e35]:
+                    - generic [ref=e37]: description
+                    - generic [ref=e38]: Excel
+                - button "description Mixte Microsoft Office (Word + Excel)" [ref=e39] [cursor=pointer]:
+                  - generic [ref=e40]:
+                    - generic [ref=e42]: description
+                    - generic [ref=e43]: Mixte Microsoft Office (Word + Excel)
+                - button "description PowerPoint" [ref=e44] [cursor=pointer]:
+                  - generic [ref=e45]:
+                    - generic [ref=e47]: description
+                    - generic [ref=e48]: PowerPoint
+                - button "description Word" [ref=e49] [cursor=pointer]:
+                  - generic [ref=e50]:
+                    - generic [ref=e52]: description
+                    - generic [ref=e53]: Word
+            - generic [ref=e54]:
+              - heading "2. Google Workspace" [level=4] [ref=e55]
+              - generic [ref=e56]:
+                - button "cloud Google Docs" [ref=e57] [cursor=pointer]:
+                  - generic [ref=e58]:
+                    - generic [ref=e60]: cloud
+                    - generic [ref=e61]: Google Docs
+                - button "cloud Google Sheets" [ref=e62] [cursor=pointer]:
+                  - generic [ref=e63]:
+                    - generic [ref=e65]: cloud
+                    - generic [ref=e66]: Google Sheets
+                - button "cloud Google Slides" [ref=e67] [cursor=pointer]:
+                  - generic [ref=e68]:
+                    - generic [ref=e70]: cloud
+                    - generic [ref=e71]: Google Slides
+        - generic [ref=e72]:
+          - heading "Langues" [level=3] [ref=e75]
+          - generic [ref=e76]:
+            - button "spellcheck Anglais" [ref=e77] [cursor=pointer]:
+              - generic [ref=e78]:
+                - generic [ref=e80]: spellcheck
+                - generic [ref=e81]: Anglais
+            - button "spellcheck Français" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83]:
+                - generic [ref=e85]: spellcheck
+                - generic [ref=e86]: Français
+        - generic [ref=e87]:
+          - heading "Création" [level=3] [ref=e90]
+          - generic [ref=e91]:
+            - button "star Gimp" [ref=e92] [cursor=pointer]:
+              - generic [ref=e93]:
+                - generic [ref=e95]: star
+                - generic [ref=e96]: Gimp
+            - button "star Illustrator" [ref=e97] [cursor=pointer]:
+              - generic [ref=e98]:
+                - generic [ref=e100]: star
+                - generic [ref=e101]: Illustrator
+            - button "draw Photoshop" [ref=e102] [cursor=pointer]:
+              - generic [ref=e103]:
+                - generic [ref=e105]: draw
+                - generic [ref=e106]: Photoshop
+            - button "square SketchUp" [ref=e107] [cursor=pointer]:
+              - generic [ref=e108]:
+                - generic [ref=e110]: square
+                - generic [ref=e111]: SketchUp
+            - button "smart_toy Intelligence Artificielle Générative" [ref=e112] [cursor=pointer]:
+              - generic [ref=e113]:
+                - generic [ref=e115]: smart_toy
+                - generic [ref=e116]: Intelligence Artificielle Générative
+        - generic [ref=e117]:
+          - heading "Internet" [level=3] [ref=e120]
+          - generic [ref=e121]:
+            - button "star Digitales Compétences" [ref=e122] [cursor=pointer]:
+              - generic [ref=e123]:
+                - generic [ref=e125]: star
+                - generic [ref=e126]: Digitales Compétences
+            - button "star Outils Collaboratifs Google" [ref=e127] [cursor=pointer]:
+              - generic [ref=e128]:
+                - generic [ref=e130]: star
+                - generic [ref=e131]: Outils Collaboratifs Google
+            - button "search WordPress" [ref=e132] [cursor=pointer]:
+              - generic [ref=e133]:
+                - generic [ref=e135]: search
+                - generic [ref=e136]: WordPress
+      - button "Continuer arrow_forward" [disabled] [ref=e139]:
+        - generic [ref=e140]: Continuer
+        - generic [ref=e141]: arrow_forward
+  - contentinfo [ref=e142]:
+    - generic [ref=e143]:
+      - navigation [ref=e144]:
+        - link "Règlement intérieur" [ref=e145] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e146] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e147] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e148] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e149] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e151]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e152] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e153]: © 2026 NS Conseil. Tous droits réservés.
+```

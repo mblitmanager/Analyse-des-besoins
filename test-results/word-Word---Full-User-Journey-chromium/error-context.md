@@ -1,0 +1,115 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e7]:
+      - img "AOPIA" [ref=e8]
+      - img "Like Formation" [ref=e10]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - heading "Test de positionnement - Word" [level=1] [ref=e16]
+            - paragraph [ref=e17]: Bienvenue dans votre évaluation adaptive.
+          - generic [ref=e18]:
+            - generic [ref=e19]: trending_up
+            - text: Évaluation du niveau Initial
+        - generic [ref=e23]:
+          - heading "Comment fonctionne ce test ?" [level=3] [ref=e24]
+          - paragraph [ref=e25]:
+            - text: Ce test est adaptatif. Il commence par le niveau
+            - strong [ref=e26]: Initial
+            - text: . Si vous réussissez ce bloc, vous passerez au niveau supérieur pour une évaluation plus précise. L'objectif est de trouver le parcours qui vous correspond le mieux.
+      - generic [ref=e34]:
+        - generic [ref=e36]:
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]: "1"
+              - heading "A quoi sert le logiciel Word ?" [level=3] [ref=e42]
+            - generic [ref=e43]:
+              - generic [ref=e45] [cursor=pointer]:
+                - text: A
+                - strong [ref=e46]: créer
+                - text: des
+                - strong [ref=e47]: tableaux
+                - text: avec des
+                - strong [ref=e48]: formules
+                - text: automatisées
+              - generic [ref=e51] [cursor=pointer]:
+                - text: A
+                - strong [ref=e52]: écrire
+                - text: un mail
+              - generic [ref=e55] [cursor=pointer]:
+                - text: A
+                - strong [ref=e56]: rédiger
+                - text: du contenu
+                - strong [ref=e57]: traitement de texte
+              - generic [ref=e60] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: "2"
+              - heading "Quelle action permet de sauvegarder un document Word pour la première fois ?" [level=3] [ref=e67]
+            - generic [ref=e68]:
+              - generic [ref=e70] [cursor=pointer]:
+                - strong [ref=e71]: Accueil
+                - text: ">"
+                - strong [ref=e72]: Copier
+              - generic [ref=e75] [cursor=pointer]:
+                - strong [ref=e76]: Fichier
+                - text: ">"
+                - strong [ref=e77]: Enregistrer sous
+              - generic [ref=e80] [cursor=pointer]:
+                - strong [ref=e81]: Fichier
+                - text: ">"
+                - strong [ref=e82]: Exporter
+              - generic [ref=e85] [cursor=pointer]: Je ne sais pas
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]: "3"
+              - heading "Par où passe-t-on pour intégrer une photo depuis l’ordinateur ?" [level=3] [ref=e92]
+            - generic [ref=e93]:
+              - generic [ref=e95] [cursor=pointer]:
+                - strong [ref=e96]: Dessin
+                - text: ">"
+                - strong [ref=e97]: Ajouter
+              - generic [ref=e100] [cursor=pointer]:
+                - strong [ref=e101]: Insertion
+                - text: ">"
+                - strong [ref=e102]: Images
+              - generic [ref=e105] [cursor=pointer]:
+                - strong [ref=e106]: Insertion
+                - text: ">"
+                - strong [ref=e107]: Objet
+              - generic [ref=e110] [cursor=pointer]: Je ne sais pas
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - text: ">"
+              - generic [ref=e115]: auto_fix_high
+            - generic [ref=e116]:
+              - paragraph [ref=e117]: Prochaine étape
+              - paragraph [ref=e118]: Finalisation du profil Initial
+          - button "Suivant arrow_forward" [disabled] [ref=e120]:
+            - generic [ref=e121]: Suivant
+            - generic [ref=e122]: arrow_forward
+  - contentinfo [ref=e123]:
+    - generic [ref=e124]:
+      - navigation [ref=e125]:
+        - link "Règlement intérieur" [ref=e126] [cursor=pointer]:
+          - /url: https://ns-conseil.com/reglement-interieur/
+        - link "CGV" [ref=e127] [cursor=pointer]:
+          - /url: https://ns-conseil.com/cgv/
+        - link "Mentions légales" [ref=e128] [cursor=pointer]:
+          - /url: /mentions-legales
+        - link "Respect de la vie privée" [ref=e129] [cursor=pointer]:
+          - /url: /respect-vie-privee
+        - link "Politique de confidentialité" [ref=e130] [cursor=pointer]:
+          - /url: /politique-confidentialite
+      - paragraph [ref=e132]:
+        - text: Besoin d'aide ?
+        - link "Contactez le support" [ref=e133] [cursor=pointer]:
+          - /url: mailto:contact@ns-conseil.com
+      - generic [ref=e134]: © 2026 NS Conseil. Tous droits réservés.
+```
