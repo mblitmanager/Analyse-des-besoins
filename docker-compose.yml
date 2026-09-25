@@ -6,10 +6,9 @@ services:
     restart: unless-stopped
     env_file:
       - ./projet-app/backend/.env
+      - .env.docker
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/analyse
-      - ENCRYPTION_KEY=0000000000000000000000000000000000000000000000000000000000000000
       - TYPEORM_SYNCHRONIZE=false
     ports:
       - "0.0.0.0:3002:3001"
@@ -36,11 +35,7 @@ services:
     container_name: aopia_postgres
     restart: unless-stopped
     env_file:
-      - ./projet-app/backend/.env
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=analyse
+      - .env.docker
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     networks:

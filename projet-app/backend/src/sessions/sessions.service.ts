@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, ILike } from 'typeorm';
+import { In, Repository, ILike, Between } from 'typeorm';
 import { Session } from '../entities/session.entity';
 import { Level } from '../entities/level.entity';
 import { Stagiaire } from '../entities/stagiaire.entity';
@@ -99,6 +99,36 @@ export class SessionsService {
       relations: ['stagiaire'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  /**
+   * Get session history for a specific stagiaire
+   * 
+   * @param stagiaireId - Stagiaire ID
+   * @param limit - Maximum number of sessions to return
+   * @returns Array of sessions with parcours information
+   */
+  async getSessionHistory(stagiaireId: string, limit: number = 10) {
+    const sessions = await this.sessionRepo.find({
+      where: { stagiaire: { id: parseInt(stagiaireId) } },
+      relations: ['stagiaire'],
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
+
+    // Enrich sessions with parcours information
+    const enrichedSessions = await Promise.all(
+      sessions.map(async (session) => {
+        const parcoursNumber = await this.getParcoursNumber(session);
+        return {
+          ...session,
+          parcoursNumber,
+          isParcours: session.formationChoisie ? true : false,
+        };
+      })
+    );
+
+    return enrichedSessions;
   }
 
   async findOne(id: string) {
@@ -2513,4 +2543,3 @@ function isQuestionVisible(
 
   return true; // Default visibility
 }
-

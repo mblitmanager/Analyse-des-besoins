@@ -34,6 +34,8 @@ import { P3OverrideModule } from './p3-override/p3-override.module';
 import { EmailTemplate } from './entities/email-template.entity';
 import { EmailTemplatesModule } from './email-templates/email-templates.module';
 import { MailConfigModule } from './mail-config/mail-config.module';
+// import { LoggerModule } from './logger/logger.module';
+// import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
@@ -129,6 +131,8 @@ import { MailConfigModule } from './mail-config/mail-config.module';
     P3OverrideModule,
     EmailTemplatesModule,
     MailConfigModule,
+    // LoggerModule,
+    // MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],

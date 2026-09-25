@@ -5,32 +5,77 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+// import { LoggerService } from './logger/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
+  // const logger = app.get(LoggerService);
+
+  // Use custom logger
+  // app.useLogger(logger);
+  // logger.log('Application starting...', 'Bootstrap');
+  console.log('Application starting...');
 
   const allowedOrigins = [
     configService.get<string>('FRONTEND_URL'),
-    'https://nsconseil.mbl-service.com',
-    'https://ab-back.mbl-service.com',
-    'https://api-nsconseil.solara-seaview.com',
     'https://ns-conseil-ab.mbl-service.com',
-    'http://51.75.251.135:8081',
   ].filter(Boolean) as string[];
 
   const isProd =
     configService.get<string>('NODE_ENV') === 'production' ||
     process.env.NODE_ENV === 'production';
+  const isOriginAllowed = (origin?: string) =>
+    !origin || (!isProd && origin.includes('localhost')) || allowedOrigins.includes(origin);
+
+  // Security headers with Helmet (TODO: uncomment after installing helmet package)
+  // app.use(helmet({
+  //   contentSecurityPolicy: {
+  //     directives: {
+  //       defaultSrc: ["'self'"],
+  //       styleSrc: ["'self'", "'unsafe-inline'"],
+  //       scriptSrc: ["'self'"],
+  //       imgSrc: ["'self'", "data:", "https:"],
+  //     },
+  //   },
+  //   crossOriginEmbedderPolicy: false,
+  // }));
+
+  // Cache headers for static content
+  app.use((req, res, next) => {
+    // Cache static assets for 1 year
+    if (req.url.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    else if (
+      /^\/api\/(formations|questions)(\/|$)/.test(req.path) &&
+      req.method === 'GET' &&
+      !req.headers.authorization &&
+      !req.headers.cookie
+    ) {
+      res.setHeader('Cache-Control', 'public, max-age=300');
+    }
+    // No cache for dynamic content
+    else {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    next();
+  });
+
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (isOriginAllowed(origin)) return next();
+    console.warn('CORS blocked for origin:', origin);
+    return res.status(403).json({
+      statusCode: 403,
+      message: 'CORS policy: Origin not allowed',
+    });
+  });
 
   app.enableCors({
     origin: (origin, callback) => {
-      // allow non-browser or curl requests with no origin
-      if (!origin) return callback(null, true);
-      // in development allow any localhost origin for convenience
-      if (!isProd && origin.includes('localhost')) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('CORS policy: Origin not allowed'), false);
+      return callback(null, isOriginAllowed(origin));
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,

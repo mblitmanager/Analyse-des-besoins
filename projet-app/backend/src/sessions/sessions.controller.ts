@@ -7,13 +7,15 @@ import {
   Get,
   UseGuards,
   Delete,
+  Res,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { SessionsService } from './sessions.service';
 import { FormationsService } from '../formations/formations.service';
 import { PdfService } from '../pdf/pdf.service';
-import { Res, Query } from '@nestjs/common';
+import type { Response } from 'express';
 
 export class CreateSessionDto {
   brand: string;
@@ -66,6 +68,12 @@ export class SessionsController {
     private readonly formationsService: FormationsService,
     private readonly pdfService: PdfService,
   ) {}
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  findAll(@Query('stagiaireId') stagiaireId?: string) {
+    return this.sessionsService.findAll(stagiaireId);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -148,12 +156,6 @@ export class SessionsController {
     const session = await this.sessionsService.findOne(id);
     if (!session) return { error: 'Not found' };
     return this.sessionsService.getRecommendationData(session);
-  }
-
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  findAll(@Query('stagiaireId') stagiaireId?: string) {
-    return this.sessionsService.findAll(stagiaireId);
   }
 
   @Post()

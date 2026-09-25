@@ -1,0 +1,99 @@
+import { Injectable } from '@nestjs/common';
+
+interface MetricData {
+  count: number;
+  totalTime: number;
+  minTime: number;
+  maxTime: number;
+  lastError?: string;
+}
+
+@Injectable()
+export class MetricsService {
+  private metrics: Map<string, MetricData> = new Map();
+  private requestCount = 0;
+  private errorCount = 0;
+  private startTime = Date.now();
+
+  // Track endpoint performance
+  trackEndpoint(endpoint: string, duration: number, success: boolean) {
+    const current = this.metrics.get(endpoint) || {
+      count: 0,
+      totalTime: 0,
+      minTime: Infinity,
+      maxTime: 0,
+    };
+
+    current.count++;
+    current.totalTime += duration;
+    current.minTime = Math.min(current.minTime, duration);
+    current.maxTime = Math.max(current.maxTime, duration);
+
+    if (!success) {
+      current.lastError = new Date().toISOString();
+    }
+
+    this.metrics.set(endpoint, current);
+    this.requestCount++;
+
+    if (!success) {
+      this.errorCount++;
+    }
+  }
+
+  // Get metrics for a specific endpoint
+  getEndpointMetrics(endpoint: string) {
+    const data = this.metrics.get(endpoint);
+    if (!data) return null;
+
+    return {
+      endpoint,
+      ...data,
+      avgTime: data.count > 0 ? data.totalTime / data.count : 0,
+    };
+  }
+
+  // Get all metrics
+  getAllMetrics() {
+    const result: any[] = [];
+    
+    for (const [endpoint, data] of this.metrics.entries()) {
+      result.push({
+        endpoint,
+        ...data,
+        avgTime: data.count > 0 ? data.totalTime / data.count : 0,
+      });
+    }
+
+    return {
+      uptime: Date.now() - this.startTime,
+      totalRequests: this.requestCount,
+      totalErrors: this.errorCount,
+      errorRate: this.requestCount > 0 ? (this.errorCount / this.requestCount) * 100 : 0,
+      endpoints: result,
+    };
+  }
+
+  // Reset metrics
+  reset() {
+    this.metrics.clear();
+    this.requestCount = 0;
+    this.errorCount = 0;
+    this.startTime = Date.now();
+  }
+
+  // Get health status
+  getHealthStatus() {
+    const uptime = Date.now() - this.startTime;
+    const errorRate = this.requestCount > 0 ? (this.errorCount / this.requestCount) * 100 : 0;
+
+    return {
+      status: errorRate > 10 ? 'degraded' : 'healthy',
+      uptime: `${Math.floor(uptime / 1000)}s`,
+      requests: this.requestCount,
+      errors: this.errorCount,
+      errorRate: `${errorRate.toFixed(2)}%`,
+      endpoints: this.metrics.size,
+    };
+  }
+}

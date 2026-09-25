@@ -69,6 +69,13 @@ const stats = ref([
 const recentSessions = ref([]);
 const sessionsData = ref([]);
 const loading = ref(true);
+const metrics = ref({
+  uptime: 0,
+  totalRequests: 0,
+  totalErrors: 0,
+  errorRate: 0,
+  endpoints: []
+});
 
 const formationDistribution = computed(() => {
   const counts = {};
@@ -172,9 +179,10 @@ async function fetchStats() {
     const token = localStorage.getItem("admin_token");
     const getAuthHeaders = () => ({ Authorization: `Bearer ${token}` });
 
-    const [statsRes, sessionsRes] = await Promise.all([
+    const [statsRes, sessionsRes, metricsRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/admin/stats`, { headers: getAuthHeaders() }),
       axios.get(`${apiBaseUrl}/sessions`, { headers: getAuthHeaders() }),
+      axios.get(`${apiBaseUrl}/metrics`, { headers: getAuthHeaders() }),
     ]);
 
     stats.value = stats.value.map((s) => ({
@@ -184,6 +192,9 @@ async function fetchStats() {
 
     sessionsData.value = sessionsRes.data;
     recentSessions.value = sessionsRes.data.slice(0, 5);
+    
+    // Add metrics data
+    metrics.value = metricsRes.data;
   } catch (error) {
     console.error("Failed to fetch dashboard data:", error);
   } finally {
@@ -283,6 +294,58 @@ function formatDate(date) {
         </div>
         <div class="h-[280px]">
           <Pie :data="formationDistribution" :options="pieOptions" />
+        </div>
+      </div>
+    </div>
+
+    <!-- System Health Section -->
+    <div class="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Santé du Système</h3>
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Métriques en temps réel</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full" :class="metrics.errorRate < 5 ? 'bg-emerald-500' : 'bg-rose-500'"></div>
+          <span class="text-[10px] font-black" :class="metrics.errorRate < 5 ? 'text-emerald-600' : 'text-rose-600'">
+            {{ metrics.errorRate < 5 ? 'Système en bonne santé' : 'Attention requise' }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-slate-50 rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="material-icons-outlined text-slate-400">schedule</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Uptime</span>
+          </div>
+          <p class="text-2xl font-black text-slate-900">{{ Math.floor(metrics.uptime / 1000) }}s</p>
+        </div>
+        
+        <div class="bg-slate-50 rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="material-icons-outlined text-slate-400">cloud_download</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Requêtes</span>
+          </div>
+          <p class="text-2xl font-black text-slate-900">{{ metrics.totalRequests }}</p>
+        </div>
+        
+        <div class="bg-slate-50 rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="material-icons-outlined text-slate-400">error_outline</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Erreurs</span>
+          </div>
+          <p class="text-2xl font-black text-slate-900">{{ metrics.totalErrors }}</p>
+        </div>
+        
+        <div class="bg-slate-50 rounded-2xl p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="material-icons-outlined text-slate-400">percent</span>
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Taux d'erreur</span>
+          </div>
+          <p class="text-2xl font-black" :class="metrics.errorRate < 5 ? 'text-emerald-600' : 'text-rose-600'">
+            {{ metrics.errorRate.toFixed(2) }}%
+          </p>
         </div>
       </div>
     </div>
