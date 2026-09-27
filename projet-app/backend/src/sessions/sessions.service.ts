@@ -10,6 +10,7 @@ import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
 import { isPositionnementAnswerCorrect } from '../questions/positionnement-answer';
+import { matchesLevelCondition, testResultIndex } from './parcours-level-condition';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
 import { QuestionRule } from '../entities/question-rule.entity';
 import { Contact } from '../entities/contact.entity';
@@ -947,53 +948,11 @@ export class SessionsService {
           : results.every(Boolean);
       };
 
-      const stopIdx = levels.findIndex(
-        (l) => cleanLabel(l.label) === cleanLabel(stopLevelLabel),
-      );
+      // Same reading as the results screen: last validated level, short level labels.
+      const resultIdx = testResultIndex(levels, session.levelsScores);
       const evaluateRuleCondition = (rule: ParcoursRule): boolean => {
-        // Match operator and target level even if prefixed with descriptive text
-        const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
-
-        if (condMatch) {
-          const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
-          const targetStr = cleanLabel(condMatch[2]);
-          let targetIdx = levels.findIndex(
-            (l) => cleanLabel(l.label) === targetStr,
-          );
-
-          if (targetIdx === -1 && targetStr.length > 0) {
-            // Try substring match as fallback
-            targetIdx = levels.findIndex((l) =>
-              cleanLabel(l.label).includes(targetStr),
-            );
-          }
-
-          // If the target level doesn't exist in the formation, rule cannot be evaluated
-          if (targetIdx === -1) return false;
-
-          // Note: if user didn't even pass Level 0, their index should be handled correctly.
-          // In the current architecture, stopIdx represents the first failed level.
-          // Example: [Débutant, Initial, Basique]. If they fail Débutant, stopIdx = 0.
-
-          const stopScore = session.levelsScores?.[stopLevelLabel]?.score || 0;
-          const userLevel = stopIdx === 0 && stopScore === 0 ? -1 : stopIdx;
-
-          switch (operator) {
-            case '=':
-              return userLevel === targetIdx;
-            case '<':
-              return userLevel < targetIdx;
-            case '≤':
-              return userLevel <= targetIdx;
-            case '>':
-              return userLevel > targetIdx;
-            case '≥':
-              return userLevel >= targetIdx;
-            default:
-              return false;
-          }
-        }
-
+        const matched = matchesLevelCondition(rule.condition, levels, resultIdx);
+        if (matched !== null) return matched;
         // Fallback for old rules without operators (implicit = or substring match)
         return cleanLabel(rule.condition).includes(stopUpper);
       };
