@@ -647,6 +647,10 @@ const parcoursItems = computed(() => {
 });
 
 // Generate explanation message
+const isP3Results = computed(
+  () => !!(store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3),
+);
+
 const displayedExplanation = computed(() => {
   if (!session.value) return "";
 
@@ -1065,8 +1069,8 @@ const downloadPDF = async () => {
           </h2>
         </div>
 
-        <!-- P1/P2/P3 Badges Section -->
-        <div v-if="parcoursItems.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+        <!-- P1/P2/P3 recap: P3 only (in P1/P2 the parcours card below already says it all) -->
+        <div v-if="isP3Results && parcoursItems.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4">
             Récapitulatif des parcours
           </p>
