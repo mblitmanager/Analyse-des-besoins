@@ -11,6 +11,7 @@ import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
 import { isPositionnementAnswerCorrect } from '../questions/positionnement-answer';
 import { matchesLevelCondition, testResultIndex } from './parcours-level-condition';
+import { getP3PreviousParcours } from './p3-previous-parcours';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
 import { QuestionRule } from '../entities/question-rule.entity';
 import { Contact } from '../entities/contact.entity';
@@ -1467,6 +1468,11 @@ export class SessionsService {
         (session.isP3Mode || baseParcoursNumber >= 3),
     });
 
+    const isP3Report = recommendationsList.length === 1 && (session.isP3Mode || baseParcoursNumber >= 3);
+    const previousParcours = isP3Report
+      ? getP3PreviousParcours(session, (session as any).previousSessions, recommendationsList)
+      : undefined;
+
     const attachments: any[] = [];
     for (let i = 0; i < recommendationsList.length; i++) {
       const rec = recommendationsList[i];
@@ -1505,6 +1511,7 @@ export class SessionsService {
         parcoursNumber: currentParcoursNumber,
         stopLevelOrder: session.stopLevelOrder,
         correctAnswersById: correctAnswersById as Record<number, string | string[]>,
+        ...(previousParcours ? { previousParcours } : {}),
       });
 
       attachments.push({
@@ -1599,6 +1606,7 @@ export class SessionsService {
       isP3Mode: true,
       parcoursNumber: 3,
       correctAnswersById: correctAnswersById as Record<number, string | string[]>,
+      previousParcours: getP3PreviousParcours(session, (session as any).previousSessions, [recommendation]),
     });
 
     const safeRec = recommendation.replace(/[^a-z0-9]/gi, '_').toLowerCase();

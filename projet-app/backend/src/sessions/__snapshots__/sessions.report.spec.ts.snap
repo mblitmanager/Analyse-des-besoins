@@ -66,6 +66,7 @@ exports[`SessionsService report generation resendEmail: P3 same-formation shortc
       "prerequisiteAnswers": {
         "1": "Oui",
       },
+      "previousParcours": [],
       "qTextById": {
         "1": "Question prérequis",
         "2": "Question complémentaire",
@@ -786,6 +787,7 @@ exports[`SessionsService report generation submit: P3 same-formation shortcut 1`
       "prerequisiteAnswers": {
         "1": "Oui",
       },
+      "previousParcours": [],
       "qTextById": {
         "1": "Question prérequis",
         "2": "Question complémentaire",
@@ -907,6 +909,10 @@ exports[`SessionsService report generation submit: single P3 recommendation 1`] 
       "prerequisiteAnswers": {
         "1": "Oui",
       },
+      "previousParcours": [
+        "Word Basique (TOSA)",
+        "Excel Basique (TOSA)",
+      ],
       "qTextById": {
         "1": "Question prérequis",
         "2": "Question complémentaire",

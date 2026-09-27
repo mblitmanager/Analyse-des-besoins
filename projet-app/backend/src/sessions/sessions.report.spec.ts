@@ -141,7 +141,15 @@ describe('SessionsService report generation', () => {
   });
 
   it('submit: single P3 recommendation', async () => {
-    useSession({ isP3Mode: true, parrainNom: null, parrainPrenom: null, parrainEmail: null, parrainTelephone: null, highLevelContinue: false });
+    useSession({
+      isP3Mode: true,
+      parrainNom: null,
+      parrainPrenom: null,
+      parrainEmail: null,
+      parrainTelephone: null,
+      highLevelContinue: false,
+      explanationMessage: 'Word Basique (TOSA) + Excel Basique (TOSA) -> Excel',
+    });
     jest.spyOn(service, 'getRecommendationData').mockResolvedValue({ ...recommendationData, recommendation: 'Excel', finalLevel: null } as any);
     jest.spyOn(service, 'getParcoursNumber').mockResolvedValue(3);
     expect(captured(await service.submit('session-1'))).toMatchSnapshot();

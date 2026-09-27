@@ -35,6 +35,8 @@ export class PdfService {
     parrainTelephone?: string | null;
     highLevelContinue?: boolean;
     isP3Mode?: boolean;
+    /** P3 only: P1 and P2 already validated, shown before the P3 step. */
+    previousParcours?: string[];
     parcoursNumber?: number;
     stopLevelOrder?: number;
     // Optional flag provided by caller to indicate that this formation is a language course
@@ -235,6 +237,7 @@ export class PdfService {
           recommendationItems,
           fullRecommendation,
           !!data.isP3Mode || data.parcoursNumber === 3,
+          data.previousParcours || [],
         );
       }
 
@@ -415,6 +418,7 @@ export class PdfService {
     recommendations: string[],
     fallbackRecommendation: string,
     isP3: boolean,
+    previousParcours: string[] = [],
   ) {
     const boxX = 50;
     const boxWidth = doc.page.width - 100;
@@ -427,6 +431,14 @@ export class PdfService {
     );
     const cardItems = isP3
       ? [
+          // P1 and P2 already validated, then the P3 step (same order as the results page)
+          ...previousParcours.slice(0, 2).map((item, index) => ({
+            label: `P${index + 1}`,
+            text: `${item} - déjà validé`,
+            badgeBg: '#F1F5F9',
+            badgeColor: '#475569',
+            border: '#E2E8F0',
+          })),
           {
             label: 'P3',
             text: p3Detail ? `3ème parcours - ${p3Detail}` : '3ème parcours',
