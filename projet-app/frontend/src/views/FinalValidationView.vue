@@ -5,6 +5,11 @@ import { useAppStore } from "../stores/app";
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import { useToastStore } from "../stores/toast";
 import { getSessionParcoursTitle, normalizeParcoursLabel } from "../utils/parcoursLabel";
+import {
+  getP3PreviousParcours,
+  PARCOURS_BADGE_CLASSES,
+  sessionRecommendationItems,
+} from "../utils/p3PreviousParcours";
 
 const store = useAppStore();
 const router = useRouter();
@@ -85,83 +90,13 @@ const p3RecommendationLabel = computed(() => {
   return raw;
 });
 
-function splitRecommendation(value) {
-  return String(value || "")
-    .split(/\s*&\s*|\s*\|\s*|\s+et\s+/i)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
-function sessionRecommendationItems(sourceSession) {
-  if (!sourceSession) return [];
-  const labels = [];
-  const title = getSessionParcoursTitle(sourceSession);
-  const add = (label) => {
-    const clean = normalizeParcoursLabel(label);
-    if (!clean || clean === normalizeParcoursLabel(title)) return;
-    if (!labels.some((item) => normalizeParcoursLabel(item) === clean)) {
-      labels.push(label);
-    }
-  };
-
-  if (Array.isArray(sourceSession.recommendations)) {
-    sourceSession.recommendations.forEach(add);
-  }
-  splitRecommendation(sourceSession.finalRecommendation).forEach(add);
-  if (labels.length === 0 && title) labels.push(title);
-  return labels;
-}
-
-function previousItemsFromExplanation(message) {
-  const source = String(message || "");
-  if (!source.includes("->")) return [];
-  const [leftSide] = source.split("->");
-  return leftSide
-    .split(/\s+\+\s+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
 const p3ValidationParcoursItems = computed(() => {
   if (!isP3Validation.value || !session.value) return [];
 
-  const previousLabels = [];
-  const addPrevious = (label) => {
-    const clean = normalizeParcoursLabel(label);
-    if (!clean) return;
-    if (!previousLabels.some((item) => normalizeParcoursLabel(item) === clean)) {
-      previousLabels.push(label);
-    }
-  };
-
-  previousItemsFromExplanation(session.value.explanationMessage).forEach(addPrevious);
-
-  [
-    localStorage.getItem("p3_prev_p1") || "",
-    localStorage.getItem("p3_prev_p2") || "",
-  ].forEach(addPrevious);
-
-  const previousSessions = Array.isArray(session.value.previousSessions)
-    ? session.value.previousSessions
-        .filter((item) => item?.id !== session.value.id)
-        .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
-    : [];
-
-  previousSessions.forEach((item) => {
-    sessionRecommendationItems(item).forEach(addPrevious);
-  });
-
-  if (previousLabels.length < 2) {
-    splitRecommendation(localStorage.getItem("p3_prev_recommendations")).forEach(addPrevious);
-  }
-
-  const rows = previousLabels.slice(0, 2).map((label, index) => ({
+  const rows = getP3PreviousParcours(session.value).map((label, index) => ({
     badge: `P${index + 1}`,
     label,
-    className:
-      index === 0
-        ? "border-[#EAE2D6] bg-[#EAE2D6]/50 text-[#315264]"
-        : "border-[#315264] bg-[#315264]/10 text-[#315264]",
+    className: PARCOURS_BADGE_CLASSES[index],
   }));
 
   if (p3RecommendationLabel.value) {
