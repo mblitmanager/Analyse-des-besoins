@@ -9,6 +9,12 @@ import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import { useToastStore } from "../stores/toast";
 import { getSessionParcoursTitle, normalizeParcoursLabel } from "../utils/parcoursLabel";
+import {
+  buildOverrideOptions,
+  findMatchingOverrideRules,
+  labelsMatch,
+  levelConditionMatches,
+} from "../utils/p3Override";
 
 // Ref attaché à la bannière inline
 const inlineBannerRef = ref(null);
@@ -79,72 +85,7 @@ const p3OverrideChoiceOptions = computed(() => {
   const rules = p3OverrideMatchedRules.value.length
     ? p3OverrideMatchedRules.value
     : (p3OverrideMatchedRule.value ? [p3OverrideMatchedRule.value] : []);
-  const seen = new Set();
-  const options = [];
-
-  rules.forEach((rule) => {
-    // Vérifier si la règle a testFormations configuré (paramétrable, pas hardcoded)
-    const hasTestFormations = rule?.testFormations && 
-      (Array.isArray(rule.testFormations) ? rule.testFormations.length > 0 : Object.keys(rule.testFormations).length > 0);
-    
-    if (hasTestFormations) {
-      // Convertir testFormations en tableau si c'est un objet
-      const testFormationsArray = Array.isArray(rule.testFormations) 
-        ? rule.testFormations 
-        : Object.values(rule.testFormations || {});
-      
-      // Résoudre uniquement les formations configurées dans testFormations (par ID ou label).
-      testFormationsArray.forEach((formationIdentifier) => {
-        // Essayer d'abord par ID, puis par label
-        let found = null;
-        const idNum = Number(formationIdentifier);
-        if (!isNaN(idNum) && idNum > 0) {
-          found = formations.value.find(f => f.id === idNum) ||
-            allActiveFormations.value.find(f => f.id === idNum);
-        }
-        if (!found) {
-          found = formations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase())) ||
-            allActiveFormations.value.find(f => (f.label || '').toLowerCase().includes(String(formationIdentifier).toLowerCase()));
-        }
-        if (found) {
-          // Chaque option correspond exactement à une valeur validée en base.
-          const parcoursName = rule.formation1 || rule.formation || 'Formation';
-          const label = `${parcoursName} (${found.label})`;
-          const clean = normalizeParcoursLabel(label);
-          if (!seen.has(clean)) {
-            seen.add(clean);
-            options.push({ label, displayLabel: parcoursName, rule, formationId: found.id });
-          }
-        }
-      });
-      return; // skip normal formation1/formation2 handling for this rule
-    }
-
-    ["formation1", "formation2"].forEach((field) => {
-      const label = String(rule?.[field] || "").trim();
-      const clean = normalizeParcoursLabel(label);
-      if (!label || seen.has(clean)) return;
-      seen.add(clean);
-      options.push({ label, rule });
-    });
-  });
-
-  // Sort options: Excel, PowerPoint, Word first, then alphabetically
-  const priorityOrder = ['Excel', 'PowerPoint', 'Word'];
-  options.sort((a, b) => {
-    const aPriority = priorityOrder.findIndex(p => a.label?.toLowerCase().includes(p.toLowerCase()));
-    const bPriority = priorityOrder.findIndex(p => b.label?.toLowerCase().includes(p.toLowerCase()));
-    
-    if (aPriority !== -1 && bPriority !== -1) {
-      return aPriority - bPriority;
-    }
-    if (aPriority !== -1) return -1;
-    if (bPriority !== -1) return 1;
-    
-    return a.label.localeCompare(b.label, 'fr');
-  });
-
-  return options;
+  return buildOverrideOptions(rules, [...formations.value, ...allActiveFormations.value]);
 });
 
 const p3UnselectedChoicesListWithOrder = computed(() => {
@@ -404,18 +345,6 @@ async function fetchP3Rules() {
   }
 }
 
-function labelsMatch(actual, expected) {
-  const cleanActual = normalizeParcoursLabel(actual);
-  const cleanExpected = normalizeParcoursLabel(expected);
-  if (!cleanExpected) return true;
-  if (!cleanActual) return false;
-  return (
-    cleanActual === cleanExpected ||
-    cleanActual.includes(cleanExpected) ||
-    cleanExpected.includes(cleanActual)
-  );
-}
-
 function getP3PreviousItemsForConditions() {
   // p3_prev_p1/p3_prev_p2 sont stockés dans FinalValidationView.startP3() → source la plus fiable
   const storedP1 = localStorage.getItem("p3_prev_p1") || "";
@@ -442,110 +371,30 @@ function getP3PreviousItemsForConditions() {
   ];
 }
 
-function hasP1P2OverrideConditions(rule) {
-  return !!(String(rule.conditionP1 || "").trim() || String(rule.conditionP2 || "").trim());
-}
-
-function matchesP1P2Override(rule) {
-  const [p1, p2] = getP3PreviousItemsForConditions();
-  const p1Ok = !String(rule.conditionP1 || "").trim() || labelsMatch(p1, rule.conditionP1);
-  const p2Ok = !String(rule.conditionP2 || "").trim() || labelsMatch(p2, rule.conditionP2);
-  return p1Ok && p2Ok;
-}
-
+// Level condition of a rule without P1/P2 conditions, against the P1 level reached.
 function matchesLegacyP3Override(rule) {
   const prevFormation = localStorage.getItem('p3_prev_formation') || currentSession.value?.formationChoisie || '';
   if (!prevFormation) return false;
-
   const formationMatches =
     labelsMatch(prevFormation, rule.formation) ||
     (rule.formationId && Number(rule.formationId) === Number(currentSession.value?.formationId));
   if (!formationMatches) return false;
 
-  const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
-  if (!condMatch) return false;
-
-  const operator = condMatch[1].replace('≤', '<=').replace('≥', '>=');
-  const targetLevel = condMatch[2];
-  const userLevelLabel = currentSession.value?.stopLevel || localStorage.getItem('p3_prev_stop_level') || '';
-  if (!userLevelLabel) return false;
-
   const previousFormation = formations.value.find((formation) =>
     labelsMatch(formation.label, prevFormation) ||
     (rule.formationId && Number(formation.id) === Number(rule.formationId))
   );
-  const levels = previousFormation?.levels || [];
-  const targetLevelObj = levels.find((level) => labelsMatch(level.label, targetLevel));
-  const userLevelObj = levels.find((level) => labelsMatch(level.label, userLevelLabel));
-  if (!targetLevelObj || !userLevelObj) return false;
-
-  const targetOrder = Number(targetLevelObj.order || 0);
-  const userOrder = Number(userLevelObj.order || 0);
-  switch (operator) {
-    case '=':
-      return userOrder === targetOrder;
-    case '<':
-      return userOrder < targetOrder;
-    case '<=':
-      return userOrder <= targetOrder;
-    case '>':
-      return userOrder > targetOrder;
-    case '>=':
-      return userOrder >= targetOrder;
-    default:
-      return false;
-  }
-}
-
-function p3OverrideRuleMatchesFormation(rule, formation) {
-  if (!formation) return true;
-  if (rule.formationId && formation.id) {
-    return Number(rule.formationId) === Number(formation.id);
-  }
-  return labelsMatch(rule.formation, formation.label);
+  const userLevelLabel = currentSession.value?.stopLevel || localStorage.getItem('p3_prev_stop_level') || '';
+  return levelConditionMatches(rule.condition, previousFormation?.levels || [], userLevelLabel);
 }
 
 function findMatchingP3OverrideRules(formation = null) {
-  const sortedRules = [...p3OverrideRules.value]
-    .filter((rule) => rule.isActive !== false && p3OverrideRuleMatchesFormation(rule, formation))
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
-
-  console.log('[P3] findMatchingP3OverrideRules - Formation:', formation?.id, formation?.label);
-  console.log('[P3] findMatchingP3OverrideRules - All active rules:', p3OverrideRules.value.length);
-  console.log('[P3] findMatchingP3OverrideRules - All matching rules:', sortedRules.length);
-  console.log('[P3] findMatchingP3OverrideRules - Rules:', sortedRules.map(r => ({ 
-    id: r.id, 
-    formationId: r.formationId, 
-    formation: r.formation, 
-    parcoursTitle: r.parcoursTitle, 
-    condition: r.condition,
-    conditionP1: r.conditionP1,
-    conditionP2: r.conditionP2,
-    hasTestFormations: !!r.testFormations 
-  })));
-
-  // Filtrer par conditions P1P2 ET niveau
-  const p1p2Matches = sortedRules.filter(
-    (rule) => hasP1P2OverrideConditions(rule) && matchesP1P2Override(rule),
-  );
-  
-  const rulesWithoutP1P2Conditions = sortedRules.filter(
-    (rule) => !hasP1P2OverrideConditions(rule)
-  );
-  
-  console.log('[P3] findMatchingP3OverrideRules - Rules with matching P1P2 conditions:', p1p2Matches.length);
-  console.log('[P3] findMatchingP3OverrideRules - Rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
-  
-  // Every active rule matching P1/P2 is proposed, in the admin order: each rule adds
-  // its own choice (test formation or formation1/formation2). No rule type takes
-  // precedence over another (an IA rule used to hide e.g. an Illustrator rule).
-  if (p1p2Matches.length) return p1p2Matches;
-
-  // Otherwise the rules of this formation without P1/P2 conditions: always when they
-  // have no level condition, else only when the P1 level meets it.
-  return rulesWithoutP1P2Conditions.filter(
-    (rule) => !String(rule.condition || "").trim() || matchesLegacyP3Override(rule),
-  );
+  const [p1, p2] = getP3PreviousItemsForConditions();
+  return findMatchingOverrideRules(p3OverrideRules.value, formation, {
+    p1,
+    p2,
+    levelMatches: matchesLegacyP3Override,
+  });
 }
 
 function showP3OverrideForRules(rules) {

@@ -9,6 +9,8 @@ import {
   runPositionnement,
   startJourney,
 } from "./e2e-helpers";
+// Same override logic as the P3 screen (FormationSelectionView).
+import { buildOverrideOptions, findMatchingOverrideRules } from "../src/utils/p3Override.js";
 
 /**
  * Case-by-case journeys generated from the E2E database:
@@ -89,54 +91,14 @@ const allFormations = (await apiGet<Formation[]>("/formations")).filter((f) => f
 const overrideRules = (await apiGet<P3OverrideRule[]>("/p3-override?activeOnly=true")).filter((r) => r.isActive !== false);
 
 // ── P3 override prediction ──────────────────────────────────────────────────
-// Mirrors FormationSelectionView (findMatchingP3OverrideRules + p3OverrideChoiceOptions):
-// every active rule of the P1 formation whose conditionP1/conditionP2 match the P1/P2
-// formations adds its choices (its test formations, or formation1/formation2).
+// Computed with the P3 screen's own module (src/utils/p3Override.js) from the P1/P2
+// formations of the case; the screen is then checked against it.
 const normalizeLabel = (value?: string | null) =>
   String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
-const labelsMatch = (actual: string, expected?: string | null) => {
-  const a = normalizeLabel(actual);
-  const e = normalizeLabel(expected);
-  if (!e) return true;
-  if (!a) return false;
-  return a === e || a.includes(e) || e.includes(a);
-};
-const testFormationsOf = (rule: P3OverrideRule): unknown[] => {
-  const tf = rule.testFormations;
-  if (!tf) return [];
-  return Array.isArray(tf) ? tf : typeof tf === "object" ? Object.values(tf as object) : [];
-};
-const hasP1P2 = (rule: P3OverrideRule) => !!(String(rule.conditionP1 || "").trim() || String(rule.conditionP2 || "").trim());
-
 function predictP3Override(formation: Formation, p1: string, p2: string): string[] | null {
-  const forFormation = overrideRules
-    .filter((r) => (r.formationId ? Number(r.formationId) === formation.id : labelsMatch(formation.label, r.formation)))
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
-  const p1p2 = forFormation.filter((r) => hasP1P2(r) && labelsMatch(p1, r.conditionP1) && labelsMatch(p2, r.conditionP2));
-  const withoutP1P2 = forFormation.filter((r) => !hasP1P2(r));
-  // Rules with a level condition ("= Basique"...) are not predicted: their result is
-  // compared with the screen and reported as a remark when it differs.
-  const matched = p1p2.length ? p1p2 : withoutP1P2.filter((r) => !String((r as any).condition || "").trim());
+  const matched = findMatchingOverrideRules(overrideRules, formation, { p1, p2 });
   if (!matched.length) return null;
-
-  const options: string[] = [];
-  const add = (label: string) => {
-    if (label && !options.some((o) => normalizeLabel(o) === normalizeLabel(label))) options.push(label);
-  };
-  for (const rule of matched) {
-    const tests = testFormationsOf(rule);
-    if (tests.length) {
-      for (const id of tests) {
-        const found = allFormations.find((f) => f.id === Number(id))
-          ?? allFormations.find((f) => f.label.toLowerCase().includes(String(id).toLowerCase()));
-        if (found) add(String(rule.formation1 || rule.formation || "Formation").trim());
-      }
-    } else {
-      add(String(rule.formation1 || "").trim());
-      add(String(rule.formation2 || "").trim());
-    }
-  }
-  return options;
+  return buildOverrideOptions(matched, allFormations).map((o: any) => o.displayLabel || o.label);
 }
 
 type Case = {
