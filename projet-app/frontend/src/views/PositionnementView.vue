@@ -693,6 +693,13 @@ async function finishTest(overrideSession = null) {
       );
       const stopLabel = currentLevel.label.toUpperCase();
       const cleanLabel = (l) => l.replace(/^Niveau\s+/i, '').trim().toUpperCase();
+      // "Niveau B2 - TOEIC" and "Niveau B2" both designate the B2 level: compare the
+      // part before " - " on both sides, as rules are written either way.
+      const levelPart = (l) => cleanLabel(l).split(/\s*-\s*/)[0].trim();
+      const findConditionLevelIndex = (label) =>
+        levels.value.findIndex(
+          (l) => cleanLabel(l.label) === cleanLabel(label) || levelPart(l.label) === levelPart(label),
+        );
 
       // Calculer l'index du dernier niveau VALIDÉ (pour les conditions "=")
       // L'apprenant s'arrête au niveau courant s'il échoue, mais le dernier
@@ -710,13 +717,7 @@ async function finishTest(overrideSession = null) {
         const condMatch = rule.condition.match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
         if (condMatch) {
           const operator = condMatch[1].replace('<=', '≤').replace('>=', '≥');
-          const targetStr = cleanLabel(condMatch[2]);
-          const targetIdx = levels.value.findIndex((l) => {
-            const cleaned = cleanLabel(l.label);
-            // For Anglais levels (A1, A2, B1, B2, C1), extract just the level part
-            const levelPart = cleaned.split(/\s*-\s*/)[0].trim();
-            return levelPart === targetStr;
-          });
+          const targetIdx = findConditionLevelIndex(condMatch[2]);
           if (targetIdx === -1) return false;
           switch (operator) {
             // "=" → comparer avec le dernier niveau VALIDÉ (pas le niveau d'arrêt)
@@ -1025,7 +1026,7 @@ async function finishTest(overrideSession = null) {
             const rulesWithLevelOrder = activeRules.map(rule => {
               const condMatch = String(rule.condition || "").match(/(=|<|<=|≤|>|>=|≥)\s+(.*)$/);
               const levelLabel = condMatch ? condMatch[2] : "";
-              const levelObj = levels.value.find(l => l.label === levelLabel);
+              const levelObj = levelLabel ? levels.value[findConditionLevelIndex(levelLabel)] : undefined;
               return {
                 rule,
                 levelOrder: levelObj ? levelObj.order : -1,
