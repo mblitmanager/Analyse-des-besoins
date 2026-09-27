@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test:formations-parcours": "playwright test tests/formations-parcours-live.spec.ts",
-    "test:unit": "node --test tests/p3-override.test.js",
+    "test:unit": "node --test tests/p3-override.test.js tests/loading-tracker.test.js",
     "test:positionnement-matrix": "node --test tests/positionnement-answer-matrix.test.js",
     "test:e2e:screenshots": "playwright test tests/e2e-p3-flow.spec.ts --project=chromium",
     "test:e2e:matrix": "E2E_SPEC=e2e-matrix.spec.ts E2E_WORKERS=2 ../../scripts/run-e2e-screenshots.sh",

@@ -6,6 +6,7 @@ import App from './App.vue'
 import axios from 'axios'
 import { useAppStore } from './stores/app'
 import { useAuthStore } from './stores/auth'
+import { installAxiosTracking, installFetchTracking, installRouterTracking } from './utils/loadingTracker'
 
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('admin_token');
@@ -44,6 +45,11 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Global loading indicators (components/GlobalLoader.vue)
+installAxiosTracking(axios)
+installFetchTracking(import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002/api')
+installRouterTracking(router)
 
 app.use(pinia)
 app.use(router)

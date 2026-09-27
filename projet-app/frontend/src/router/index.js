@@ -206,7 +206,11 @@ const CHUNK_RELOAD_KEY = 'chunk_reload_target'
 router.onError((error, to) => {
   const message = String(error?.message || error)
   const isChunkError = /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Loading chunk/i.test(message)
-  if (!isChunkError || !to?.fullPath) throw error
+  // Log instead of rethrowing so that the other error handlers (loading tracker) still run.
+  if (!isChunkError || !to?.fullPath) {
+    console.error(error)
+    return
+  }
   let alreadyReloaded = false
   try {
     alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY) === to.fullPath
@@ -214,7 +218,10 @@ router.onError((error, to) => {
   } catch {
     // storage unavailable: reload once anyway
   }
-  if (alreadyReloaded) throw error
+  if (alreadyReloaded) {
+    console.error(error)
+    return
+  }
   window.location.assign(to.fullPath)
 })
 router.afterEach(() => {
