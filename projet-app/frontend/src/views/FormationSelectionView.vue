@@ -14,6 +14,7 @@ import {
   findMatchingOverrideRules,
   labelsMatch,
   levelConditionMatches,
+  parsePriority,
 } from "../utils/p3Override";
 
 // Ref attaché à la bannière inline
@@ -71,7 +72,10 @@ const p3OverrideChecking = ref(!!store.isP3Mode);
 const p3OverrideSkipped = ref(false);   // true quand l'apprenant a cliqué "Choisir manuellement"
 const p3OverrideRules = ref([]); // Array of P3 override rules
 const showP3OverrideModal = ref(false);
-const p3OverrideAllowManual = ref(true);   // P3_OVERRIDE_ALLOW_MANUAL : afficher "Choisir manuellement"
+const p3OverrideAllowManual = ref(true);
+// P3_OVERRIDE_ORDER / P3_OVERRIDE_PRIORITY (admin > Réglages > P3): order of the imposed choices.
+const p3OverrideOrder = ref("priority");
+const p3OverridePriority = ref("");   // P3_OVERRIDE_ALLOW_MANUAL : afficher "Choisir manuellement"
 const p3OverrideSelectedChoice = ref('');
 const p3OverrideMatchedRule = ref(null); // The rule that matched the user's formation/level
 const p3OverrideMatchedRules = ref([]);
@@ -85,7 +89,10 @@ const p3OverrideChoiceOptions = computed(() => {
   const rules = p3OverrideMatchedRules.value.length
     ? p3OverrideMatchedRules.value
     : (p3OverrideMatchedRule.value ? [p3OverrideMatchedRule.value] : []);
-  return buildOverrideOptions(rules, [...formations.value, ...allActiveFormations.value]);
+  return buildOverrideOptions(rules, [...formations.value, ...allActiveFormations.value], {
+    order: p3OverrideOrder.value,
+    priority: parsePriority(p3OverridePriority.value),
+  });
 });
 
 const p3UnselectedChoicesListWithOrder = computed(() => {
@@ -452,6 +459,8 @@ async function loadP3OverrideRules() {
     p3OverrideRules.value = (rulesRes.data || []).filter(rule => rule.isActive !== false);
 
     // Charger les options de comportement
+    p3OverrideOrder.value = (await store.fetchSetting('P3_OVERRIDE_ORDER')) || 'priority';
+    p3OverridePriority.value = (await store.fetchSetting('P3_OVERRIDE_PRIORITY')) || '';
     const allowManualVal = await store.fetchSetting('P3_OVERRIDE_ALLOW_MANUAL');
     p3OverrideAllowManual.value = allowManualVal !== 'false'; // true par défaut
   } catch (e) {

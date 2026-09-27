@@ -105,16 +105,27 @@ function findFormation(formations, identifier) {
   return formations.find((f) => String(f.label || "").toLowerCase().includes(needle)) || null;
 }
 
-// Displayed first, in this order; the other choices follow alphabetically.
-const PRIORITY_ORDER = ["Excel", "PowerPoint", "Word"];
+/** Default of P3_OVERRIDE_PRIORITY: displayed first, in this order. */
+export const DEFAULT_PRIORITY = ["Excel", "PowerPoint", "Word"];
+
+/** "a, b ,c" (setting value) -> ["a", "b", "c"]; empty -> default list. */
+export function parsePriority(value) {
+  const list = String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
+  return list.length ? list : DEFAULT_PRIORITY;
+}
 
 /**
  * Choices shown for the matching rules: one per test formation for rules with
  * testFormations (label "formation1 (Test formation)", displayed as formation1),
  * otherwise formation1 and formation2. Duplicates are removed.
  * `formations` are searched in order (e.g. P3 list first, then all active formations).
+ *
+ * Order (P3_OVERRIDE_ORDER):
+ * - "admin": rule order from admin > P3 Override, then the rule's own choices;
+ * - "alpha": alphabetical;
+ * - "priority" (default): `priority` formations first, in that order, then alphabetical.
  */
-export function buildOverrideOptions(rules, formations) {
+export function buildOverrideOptions(rules, formations, { order = "priority", priority = DEFAULT_PRIORITY } = {}) {
   const seen = new Set();
   const options = [];
   const add = (option) => {
@@ -140,14 +151,18 @@ export function buildOverrideOptions(rules, formations) {
     }
   }
 
-  const priority = (option) =>
-    PRIORITY_ORDER.findIndex((p) => option.label?.toLowerCase().includes(p.toLowerCase()));
+  if (order === "admin") return options;
+  const alphabetical = (a, b) => a.label.localeCompare(b.label, "fr");
+  if (order === "alpha") return options.sort(alphabetical);
+
+  const rank = (option) =>
+    priority.findIndex((p) => option.label?.toLowerCase().includes(String(p).toLowerCase()));
   return options.sort((a, b) => {
-    const aPriority = priority(a);
-    const bPriority = priority(b);
-    if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
-    if (aPriority !== -1) return -1;
-    if (bPriority !== -1) return 1;
-    return a.label.localeCompare(b.label, "fr");
+    const aRank = rank(a);
+    const bRank = rank(b);
+    if (aRank !== -1 && bRank !== -1) return aRank - bRank;
+    if (aRank !== -1) return -1;
+    if (bRank !== -1) return 1;
+    return alphabetical(a, b);
   });
 }

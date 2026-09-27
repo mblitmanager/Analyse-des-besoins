@@ -137,6 +137,17 @@ export class SeedService implements OnApplicationBootstrap {
           "Afficher l'avertissement « Formation peut-être non adaptée » après un score faible au 1er niveau (jamais en P3)",
       },
       {
+        key: 'P3_OVERRIDE_ORDER',
+        value: 'priority',
+        description:
+          'Ordre des propositions P3 imposées : priority (formations prioritaires puis alphabétique), admin (ordre des règles) ou alpha',
+      },
+      {
+        key: 'P3_OVERRIDE_PRIORITY',
+        value: 'Excel,PowerPoint,Word',
+        description: 'Formations prioritaires affichées en premier (ordre « priority »), séparées par des virgules',
+      },
+      {
         key: 'LOW_SCORE_THRESHOLD',
         value: '3',
         description: "Nombre de bonnes réponses au 1er niveau en dessous duquel l'avertissement s'affiche",

@@ -5,6 +5,7 @@ import {
   findMatchingOverrideRules,
   labelsMatch,
   levelConditionMatches,
+  parsePriority,
   ruleAppliesToFormation,
 } from "../src/utils/p3Override.js";
 
@@ -85,4 +86,18 @@ test("levelConditionMatches compares level orders", () => {
   assert.ok(levelConditionMatches("<= Opérationnel", levels, "Initial"));
   assert.ok(!levelConditionMatches(">= Opérationnel", levels, "Basique"));
   assert.ok(!levelConditionMatches("Basique", levels, "Basique"));
+});
+
+test("options order: admin rule order, alphabetical, or configured priority", () => {
+  const rules = [
+    { formation1: "Outlook Basique (TOSA)" },
+    { formation1: "Word Basique (TOSA)" },
+    { formation1: "Access (TOSA)" },
+  ];
+  const labels = (order, priority) => buildOverrideOptions(rules, formations, { order, priority }).map((o) => o.label);
+  assert.deepEqual(labels("admin"), ["Outlook Basique (TOSA)", "Word Basique (TOSA)", "Access (TOSA)"]);
+  assert.deepEqual(labels("alpha"), ["Access (TOSA)", "Outlook Basique (TOSA)", "Word Basique (TOSA)"]);
+  assert.deepEqual(labels("priority"), ["Word Basique (TOSA)", "Access (TOSA)", "Outlook Basique (TOSA)"]);
+  assert.deepEqual(labels("priority", parsePriority(" Outlook , Word ")), ["Outlook Basique (TOSA)", "Word Basique (TOSA)", "Access (TOSA)"]);
+  assert.deepEqual(parsePriority(""), ["Excel", "PowerPoint", "Word"]);
 });

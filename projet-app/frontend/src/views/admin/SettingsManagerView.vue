@@ -94,6 +94,15 @@ const getSettingColor = (key) => {
 
 const isBoolean = (value) => value === 'true' || value === 'false';
 
+// Settings with a fixed set of values, edited with a select.
+const SELECT_OPTIONS = {
+  P3_OVERRIDE_ORDER: [
+    { value: 'priority', label: 'Formations prioritaires puis alphabétique' },
+    { value: 'admin', label: 'Ordre des règles (P3 Override)' },
+    { value: 'alpha', label: 'Alphabétique' },
+  ],
+};
+
 async function toggleSetting(setting) {
   const newValue = setting.value === 'true' ? 'false' : 'true';
   setting.value = newValue; 
@@ -203,7 +212,15 @@ onMounted(fetchSettings);
               </div>
 
               <div class="pt-5 border-t border-slate-50 mt-4">
-                <div v-if="!isBoolean(s.value)" class="space-y-2">
+                <select
+                  v-if="SELECT_OPTIONS[s.key]"
+                  v-model="s.value"
+                  @change="saveSetting(s.key, s.value)"
+                  class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:border-slate-400 focus:bg-white transition-all"
+                >
+                  <option v-for="opt in SELECT_OPTIONS[s.key]" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                </select>
+                <div v-else-if="!isBoolean(s.value)" class="space-y-2">
                   <input
                     v-model="s.value"
                     type="text"
