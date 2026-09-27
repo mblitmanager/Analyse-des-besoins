@@ -10,7 +10,6 @@ import HighLevelAlertModal from '../components/HighLevelAlertModal.vue';
 import WorkflowProgressBar from '../components/WorkflowProgressBar.vue';
 import { useToastStore } from "../stores/toast";
 import { getSessionParcoursTitle } from "../utils/parcoursLabel";
-import { getP3PreviousParcours, PARCOURS_BADGE_CLASSES } from "../utils/p3PreviousParcours";
 
 const store = useAppStore();
 const router = useRouter();
@@ -97,17 +96,6 @@ const hasParcoursChoices = computed(() => {
     return parcoursChoices.value.length > 1;
   }
   return parcoursChoices.value.length > 1;
-});
-
-// In P3, recall the P1 and P2 parcours already validated, as on the final validation page.
-const p3PreviousItems = computed(() => {
-  const isP3 = store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3;
-  if (!isP3 || !session.value) return [];
-  return getP3PreviousParcours(session.value).map((label, index) => ({
-    badge: `P${index + 1}`,
-    label,
-    className: PARCOURS_BADGE_CLASSES[index],
-  }));
 });
 
 const selectedParcoursChoice = computed(() => {
@@ -662,13 +650,16 @@ const parcoursItems = computed(() => {
 const displayedExplanation = computed(() => {
   if (!session.value) return "";
 
-  // If backend provides explanation, use it
+  const isP3 = store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3;
+
+  // If backend provides explanation, use it. In P3 the automatic "P1 + P2 -> P3"
+  // chain only repeats the recap badges shown just above, so it is hidden.
   if (session.value.explanationMessage) {
+    if (isP3 && session.value.explanationMessage.includes("->")) return "";
     return session.value.explanationMessage;
   }
 
   const parts = [];
-  const isP3 = store.isP3Mode || session.value?.isP3Mode || Number(session.value?.parcoursNumber) === 3;
 
   // Score de positionnement
   const score = Number(session.value.scorePretest || 0);
@@ -995,29 +986,6 @@ const downloadPDF = async () => {
             <span class="material-icons-outlined text-sm mr-1.5">{{ downloadingPDF ? 'sync' : 'picture_as_pdf' }}</span>
             {{ downloadingPDF ? 'PDF' : 'Télécharger PDF' }}
           </button> -->
-        </div>
-
-        <!-- P3 : rappel des parcours P1/P2 déjà validés -->
-        <div
-          v-if="p3PreviousItems.length"
-          class="max-w-xl mx-auto mt-6 bg-white/70 p-3 rounded-xl border border-indigo-100 shadow-sm space-y-2 text-left"
-        >
-          <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
-            Vos parcours précédents
-          </p>
-          <div
-            v-for="item in p3PreviousItems"
-            :key="item.badge"
-            class="flex items-start gap-3 rounded-lg border p-3"
-            :class="item.className"
-          >
-            <span class="shrink-0 inline-flex items-center justify-center min-w-10 h-7 px-3 rounded-full bg-white/80 text-[11px] font-black">
-              {{ item.badge }}
-            </span>
-            <p class="min-w-0 text-sm font-black text-[#0d1b3e] break-words">
-              {{ item.label }}
-            </p>
-          </div>
         </div>
       </div>
 

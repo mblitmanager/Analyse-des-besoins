@@ -90,9 +90,8 @@ const overrideRules = (await apiGet<P3OverrideRule[]>("/p3-override?activeOnly=t
 
 // ── P3 override prediction ──────────────────────────────────────────────────
 // Mirrors FormationSelectionView (findMatchingP3OverrideRules + p3OverrideChoiceOptions):
-// rules of the P1 formation whose conditionP1/conditionP2 match the P1/P2 formations;
-// rules with testFormations take precedence (generative-AI ones first); otherwise
-// every formation1/formation2 of the matching rules is proposed.
+// every active rule of the P1 formation whose conditionP1/conditionP2 match the P1/P2
+// formations adds its choices (its test formations, or formation1/formation2).
 const normalizeLabel = (value?: string | null) =>
   String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
 const labelsMatch = (actual: string, expected?: string | null) => {
@@ -109,24 +108,15 @@ const testFormationsOf = (rule: P3OverrideRule): unknown[] => {
 };
 const hasP1P2 = (rule: P3OverrideRule) => !!(String(rule.conditionP1 || "").trim() || String(rule.conditionP2 || "").trim());
 
-function prioritize(candidates: P3OverrideRule[]): P3OverrideRule[] {
-  const withTests = candidates.filter((r) => testFormationsOf(r).length > 0);
-  if (!withTests.length) return candidates;
-  const ia = withTests.filter((r) => {
-    const label = allFormations.find((f) => f.id === r.formationId)?.label || r.formation || "";
-    const text = `${label} ${r.parcoursTitle || ""} ${r.certification || ""}`.toLowerCase();
-    return text.includes("ia") || text.includes("intelligence") || text.includes("générative") || text.includes("inkrea");
-  });
-  return ia.length ? ia : withTests;
-}
-
 function predictP3Override(formation: Formation, p1: string, p2: string): string[] | null {
   const forFormation = overrideRules
     .filter((r) => (r.formationId ? Number(r.formationId) === formation.id : labelsMatch(formation.label, r.formation)))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   const p1p2 = forFormation.filter((r) => hasP1P2(r) && labelsMatch(p1, r.conditionP1) && labelsMatch(p2, r.conditionP2));
   const withoutP1P2 = forFormation.filter((r) => !hasP1P2(r));
-  const matched = p1p2.length ? prioritize(p1p2) : withoutP1P2.length ? prioritize(withoutP1P2) : [];
+  // Rules with a level condition ("= Basique"...) are not predicted: their result is
+  // compared with the screen and reported as a remark when it differs.
+  const matched = p1p2.length ? p1p2 : withoutP1P2.filter((r) => !String((r as any).condition || "").trim());
   if (!matched.length) return null;
 
   const options: string[] = [];
@@ -367,7 +357,9 @@ test.describe("Matrice formation × niveau × P3", () => {
 
       let p3Choice: string;
       if (await overrideModal.isVisible()) {
-        const modal = page.locator("div.fixed", { has: overrideModal });
+        // Imposed choices replace the formation list (no list behind them).
+        const modal = page.getByTestId("p3-override");
+        expect.soft(await page.locator(".formation-card").count(), "liste P3 masquée quand un override s'applique").toBe(0);
         const options = modal.locator("label:has(input), button:not(:has-text('Valider ce choix')):not(:has-text('Choisir manuellement'))");
         // Options render icon names ("school", "check"...) next to their label.
         const labels = (await options.allInnerTexts())
@@ -465,11 +457,11 @@ test.describe("Matrice formation × niveau × P3", () => {
       // P3 results recall the P1/P2 parcours, like the final validation page.
       await expect(page.getByRole("heading", { name: /^Bravo / })).toBeVisible();
       await page.waitForLoadState("networkidle");
-      const previous = page.getByText("Vos parcours précédents", { exact: true });
-      await expect.soft(previous, "P1/P2 rappelés sur les résultats P3").toBeVisible();
+      const recap = page.getByText("Récapitulatif des parcours", { exact: true });
+      await expect.soft(recap, "P1/P2 rappelés sur les résultats P3").toBeVisible();
       for (const label of [c.choice.formation1, c.choice.formation2].filter((f) => f?.trim())) {
         await expect.soft(
-          page.locator("div", { has: previous }).getByText(label.trim(), { exact: false }).first(),
+          page.locator("div", { has: recap }).getByText(label.trim(), { exact: false }).first(),
           `P1/P2 « ${label.trim()} » rappelé sur les résultats P3`,
         ).toBeVisible();
       }

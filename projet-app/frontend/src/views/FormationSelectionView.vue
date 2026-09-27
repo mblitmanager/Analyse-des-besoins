@@ -59,6 +59,9 @@ const p3AutoFormationDetail = computed(() => {
 
 // ── P3 OVERRIDE: Admin-configurable forced formations by formation and level ──
 const p3OverrideEnabled = ref(false);
+// P3: the page waits for the override rules before showing anything, so the free
+// list never flashes when admin-imposed choices apply.
+const p3OverrideChecking = ref(!!store.isP3Mode);
 const p3OverrideSkipped = ref(false);   // true quand l'apprenant a cliqué "Choisir manuellement"
 const p3OverrideRules = ref([]); // Array of P3 override rules
 const showP3OverrideModal = ref(false);
@@ -66,6 +69,11 @@ const p3OverrideAllowManual = ref(true);   // P3_OVERRIDE_ALLOW_MANUAL : affiche
 const p3OverrideSelectedChoice = ref('');
 const p3OverrideMatchedRule = ref(null); // The rule that matched the user's formation/level
 const p3OverrideMatchedRules = ref([]);
+
+// In P3, matching override rules replace the formation list with their choices only.
+const p3OverrideOnly = computed(
+  () => !!(store.isP3Mode && p3OverrideEnabled.value && p3OverrideMatchedRule.value),
+);
 
 const p3OverrideChoiceOptions = computed(() => {
   const rules = p3OverrideMatchedRules.value.length
@@ -528,105 +536,16 @@ function findMatchingP3OverrideRules(formation = null) {
   console.log('[P3] findMatchingP3OverrideRules - Rules with matching P1P2 conditions:', p1p2Matches.length);
   console.log('[P3] findMatchingP3OverrideRules - Rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
   
-  if (p1p2Matches.length) {
-    // Prioriser les règles avec testFormations configuré (IA Générative)
-    const rulesWithTestFormations = p1p2Matches.filter(rule => {
-      const tf = rule?.testFormations;
-      if (!tf) return false;
-      if (Array.isArray(tf)) return tf.length > 0;
-      if (typeof tf === 'object') return Object.keys(tf).length > 0;
-      return false;
-    });
-    
-    console.log('[P3] findMatchingP3OverrideRules - Rules with testFormations:', rulesWithTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle, testFormations: r.testFormations })));
-    
-    // Règles sans testFormations mais actives
-    const rulesWithoutTestFormations = p1p2Matches.filter(rule => {
-      const tf = rule?.testFormations;
-      if (!tf) return true;
-      if (Array.isArray(tf)) return tf.length === 0;
-      if (typeof tf === 'object') return Object.keys(tf).length === 0;
-      return false;
-    });
-    
-    console.log('[P3] findMatchingP3OverrideRules - Rules without testFormations:', rulesWithoutTestFormations.map(r => ({ formation: r.formation, parcoursTitle: r.parcoursTitle })));
-    
-    if (rulesWithTestFormations.length > 0) {
-      // Parmi les règles avec testFormations, prioriser celles liées à IA Générative
-      const iaGenerativeRules = rulesWithTestFormations.filter(rule => {
-        // Utiliser l'ID de formation si disponible, sinon le label
-        const formationId = rule?.formationId;
-        const formation = formations.value.find(f => f.id === formationId);
-        const formationLabel = formation?.label || rule?.formation || '';
-        const parcoursTitle = rule?.parcoursTitle || '';
-        const certification = rule?.certification || '';
-        
-        const searchStr = (formationLabel + ' ' + parcoursTitle + ' ' + certification).toLowerCase();
-        return searchStr.includes('ia') || searchStr.includes('intelligence') || searchStr.includes('générative') ||
-               searchStr.includes('inkrea');
-      });
-      
-      if (iaGenerativeRules.length > 0) {
-        console.log('[P3] findMatchingP3OverrideRules - Prioritizing IA Générative rules:', iaGenerativeRules.length);
-        return iaGenerativeRules;
-      }
-      
-      console.log('[P3] findMatchingP3OverrideRules - Prioritizing rules with testFormations:', rulesWithTestFormations.length);
-      return rulesWithTestFormations;
-    }
-    
-    // Si aucune règle avec testFormations, retourner les règles sans testFormations
-    if (rulesWithoutTestFormations.length > 0) {
-      console.log('[P3] findMatchingP3OverrideRules - Using rules without testFormations:', rulesWithoutTestFormations.length);
-      return rulesWithoutTestFormations;
-    }
-    
-    return p1p2Matches;
-  }
-  
-  // Si aucune règle P1P2 ne correspond, utiliser les règles sans conditions P1P2
-  if (rulesWithoutP1P2Conditions.length > 0) {
-    console.log('[P3] findMatchingP3OverrideRules - No P1P2 matches, using rules without P1P2 conditions:', rulesWithoutP1P2Conditions.length);
-    
-    // Appliquer la même logique de priorité (testFormations, IA Générative, etc.)
-    const rulesWithTestFormations = rulesWithoutP1P2Conditions.filter(rule => {
-      const tf = rule?.testFormations;
-      if (!tf) return false;
-      if (Array.isArray(tf)) return tf.length > 0;
-      if (typeof tf === 'object') return Object.keys(tf).length > 0;
-      return false;
-    });
-    
-    if (rulesWithTestFormations.length > 0) {
-      const iaGenerativeRules = rulesWithTestFormations.filter(rule => {
-        const formationId = rule?.formationId;
-        const formation = formations.value.find(f => f.id === formationId);
-        const formationLabel = formation?.label || rule?.formation || '';
-        const parcoursTitle = rule?.parcoursTitle || '';
-        const certification = rule?.certification || '';
-        
-        const searchStr = (formationLabel + ' ' + parcoursTitle + ' ' + certification).toLowerCase();
-        return searchStr.includes('ia') || searchStr.includes('intelligence') || searchStr.includes('générative') ||
-               searchStr.includes('inkrea');
-      });
-      
-      if (iaGenerativeRules.length > 0) {
-        console.log('[P3] findMatchingP3OverrideRules - Prioritizing IA Générative rules (no P1P2):', iaGenerativeRules.length);
-        return iaGenerativeRules;
-      }
-      
-      console.log('[P3] findMatchingP3OverrideRules - Using rules with testFormations (no P1P2):', rulesWithTestFormations.length);
-      return rulesWithTestFormations;
-    }
-    
-    return rulesWithoutP1P2Conditions;
-  }
+  // Every active rule matching P1/P2 is proposed, in the admin order: each rule adds
+  // its own choice (test formation or formation1/formation2). No rule type takes
+  // precedence over another (an IA rule used to hide e.g. an Illustrator rule).
+  if (p1p2Matches.length) return p1p2Matches;
 
-  const legacyMatch = sortedRules.find(
-    (rule) => !hasP1P2OverrideConditions(rule) && matchesLegacyP3Override(rule),
+  // Otherwise the rules of this formation without P1/P2 conditions: always when they
+  // have no level condition, else only when the P1 level meets it.
+  return rulesWithoutP1P2Conditions.filter(
+    (rule) => !String(rule.condition || "").trim() || matchesLegacyP3Override(rule),
   );
-  console.log('[P3] findMatchingP3OverrideRules - Legacy match:', legacyMatch ? legacyMatch.parcoursTitle : null);
-  return legacyMatch ? [legacyMatch] : [];
 }
 
 function showP3OverrideForRules(rules) {
@@ -989,7 +908,11 @@ onMounted(async () => {
     fetchFormations(),
     fetchP3Rules(),
   ]);
-  await fetchP3Override();
+  try {
+    await fetchP3Override();
+  } finally {
+    p3OverrideChecking.value = false;
+  }
 
   // IntersectionObserver : affiche la sticky quand la bannière inline sort du viewport
   observer = new IntersectionObserver(
@@ -1841,9 +1764,89 @@ function isSectionActive(section) {
         </div>
       </div>
 
-      <div v-if="loading" class="flex justify-center py-20">
+      <div v-if="loading || p3OverrideChecking" class="flex justify-center py-20">
         <div class="animate-spin border-4 border-gray-100 border-t-brand-primary rounded-full h-12 w-12"></div>
       </div>
+
+      <!-- P3 Override: admin-imposed choices shown instead of the formation list -->
+      <div v-else-if="p3OverrideOnly" data-testid="p3-override" class="flex justify-center">
+      <div class="bg-white rounded-4xl shadow-xl max-w-4xl w-full p-8 md:p-12 border border-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+        
+        <div class="relative z-10 text-center">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #31526420; color: #315264;">
+            <span class="material-icons-outlined text-xl">auto_awesome</span>
+          </div>
+          <h3 class="text-lg font-black text-[#0D1B3E]">3ème Parcours - Choix recommandé</h3>
+        </div>
+        
+        <div class="space-y-2 mb-4">
+          <!-- Special UI for testFormations: show large vertical choice buttons -->
+          <template v-if="p3OverrideMatchedRule?.testFormations && (Array.isArray(p3OverrideMatchedRule.testFormations) ? p3OverrideMatchedRule.testFormations.length > 0 : Object.keys(p3OverrideMatchedRule.testFormations).length > 0)">
+            <div class="grid grid-cols-1 gap-3">
+              <button
+                v-for="option in p3OverrideChoiceOptions"
+                :key="option.label"
+                @click="p3OverrideSelectedChoice = option.label"
+                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                class="p-4 rounded-xl border-2 font-black text-sm text-[#0d1b3e] flex items-center justify-center gap-2 transition-all"
+                :style="{ 
+                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
+                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
+                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
+                }"
+              >
+                <span class="material-icons-outlined text-lg text-[#059669]">school</span>
+                <span>{{ option.displayLabel || option.label }}</span>
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="flex flex-col items-center gap-3">
+              <label
+                v-for="option in p3OverrideChoiceOptions"
+                :key="option.label"
+                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-full"
+                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
+                :style="{
+                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
+                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
+                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
+                }"
+              >
+                <input
+                  type="radio"
+                  :value="option.label"
+                  v-model="p3OverrideSelectedChoice"
+                  class="w-4 h-4 border-slate-300 focus:ring-offset-0"
+                  :style="{ color: '#315264', accentColor: '#315264' }"
+                />
+                <span class="text-sm font-black text-slate-900">{{ option.displayLabel || option.label }}</span>
+                <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
+                  <span class="material-icons-outlined text-white text-xs">check</span>
+                </div>
+              </label>
+            </div>
+          </template>
+        </div>
+        
+        <div class="flex gap-3 justify-center">
+          <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="py-3 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all">
+            Choisir manuellement
+          </button>
+          <button
+            @click="confirmP3Override"
+            :disabled="!p3OverrideSelectedChoice || submitting"
+            class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-lg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50 text-center"
+          >
+            {{ submitting ? 'Validation...' : 'Valider ce choix' }}
+          </button>
+        </div>
+        </div>
+      </div>
+    </div>
 
       <div v-else class="bg-white rounded-4xl p-6 md:p-12 shadow-xl border border-white">
         <div v-if="store.isP3Mode && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice === false)" class="p-8 text-center">
@@ -2135,85 +2138,6 @@ function isSectionActive(section) {
       </div>
     </div>
 
-    <!-- P3 Override Section (Admin-configurable forced choices by formation and level) -->
-    <div v-if="p3OverrideEnabled && p3OverrideMatchedRule" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full p-8 border border-white relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
-        
-        <div class="relative z-10 text-center">
-        <div class="flex items-center justify-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: #31526420; color: #315264;">
-            <span class="material-icons-outlined text-xl">auto_awesome</span>
-          </div>
-          <h3 class="text-lg font-black text-[#0D1B3E]">3ème Parcours - Choix recommandé</h3>
-        </div>
-        
-        <div class="space-y-2 mb-4">
-          <!-- Special UI for testFormations: show large vertical choice buttons -->
-          <template v-if="p3OverrideMatchedRule?.testFormations && (Array.isArray(p3OverrideMatchedRule.testFormations) ? p3OverrideMatchedRule.testFormations.length > 0 : Object.keys(p3OverrideMatchedRule.testFormations).length > 0)">
-            <div class="grid grid-cols-1 gap-3">
-              <button
-                v-for="option in p3OverrideChoiceOptions"
-                :key="option.label"
-                @click="p3OverrideSelectedChoice = option.label"
-                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-                class="p-4 rounded-xl border-2 font-black text-sm text-[#0d1b3e] flex items-center justify-center gap-2 transition-all"
-                :style="{ 
-                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
-                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
-                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
-                }"
-              >
-                <span class="material-icons-outlined text-lg text-[#059669]">school</span>
-                <span>{{ option.displayLabel || option.label }}</span>
-              </button>
-            </div>
-          </template>
-          <template v-else>
-            <div class="flex flex-col items-center gap-3">
-              <label
-                v-for="option in p3OverrideChoiceOptions"
-                :key="option.label"
-                class="flex items-center justify-center gap-3 p-2 px-4 rounded-xl border-2 cursor-pointer transition-all w-full"
-                :class="p3OverrideSelectedChoice === option.label ? 'shadow-lg' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'"
-                :style="{
-                  borderColor: p3OverrideSelectedChoice === option.label ? '#315264' : '#e2e8f0',
-                  backgroundColor: p3OverrideSelectedChoice === option.label ? '#31526410' : 'white',
-                  boxShadow: p3OverrideSelectedChoice === option.label ? '0 10px 15px -3px rgba(49, 82, 100, 0.1)' : 'none'
-                }"
-              >
-                <input
-                  type="radio"
-                  :value="option.label"
-                  v-model="p3OverrideSelectedChoice"
-                  class="w-4 h-4 border-slate-300 focus:ring-offset-0"
-                  :style="{ color: '#315264', accentColor: '#315264' }"
-                />
-                <span class="text-sm font-black text-slate-900">{{ option.displayLabel || option.label }}</span>
-                <div v-if="p3OverrideSelectedChoice === option.label" class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: #315264;">
-                  <span class="material-icons-outlined text-white text-xs">check</span>
-                </div>
-              </label>
-            </div>
-          </template>
-        </div>
-        
-        <div class="flex gap-3 justify-center">
-          <button v-if="p3OverrideAllowManual && (p3OverrideMatchedRule?.formationEntity?.enableP3ManualChoice !== false)" @click="skipP3Override" class="py-3 px-4 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all">
-            Choisir manuellement
-          </button>
-          <button
-            @click="confirmP3Override"
-            :disabled="!p3OverrideSelectedChoice || submitting"
-            class="flex-1 py-3 px-4 bg-[#ebb872] text-[#305364] hover:brightness-105 rounded-lg font-black uppercase tracking-widest text-[10px] shadow-xl shadow-[#ebb872]/20 transition-all disabled:opacity-50 text-center"
-          >
-            {{ submitting ? 'Validation...' : 'Valider ce choix' }}
-          </button>
-        </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
