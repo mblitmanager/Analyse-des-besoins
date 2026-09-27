@@ -491,7 +491,7 @@ function matchesLegacyP3Override(rule) {
 
 function p3OverrideRuleMatchesFormation(rule, formation) {
   if (!formation) return true;
-  if (rule.formationId) {
+  if (rule.formationId && formation.id) {
     return Number(rule.formationId) === Number(formation.id);
   }
   return labelsMatch(rule.formation, formation.label);
@@ -651,27 +651,24 @@ async function fetchP3Override() {
 
     await loadP3OverrideRules();
 
+    // Formation of the P1/P2 journey. It is usually absent from the P3 list, so it is
+    // also looked up among all active formations. Without it no rule applies:
+    // findMatchingP3OverrideRules(null) would match the rules of every formation.
     let currentFormation = null;
     if (currentSession.value) {
-      // Essayer d'abord l'ID de la session
+      const choisie = String(currentSession.value.formationChoisie || "").trim();
       if (currentSession.value.formationId) {
-        currentFormation = {
-          id: currentSession.value.formationId,
-          label: currentSession.value.formationChoisie,
-        };
-      } else if (currentSession.value.formationChoisie) {
-        // Si pas d'ID, trouver la formation par label
-        const foundFormation = formations.value.find(f => 
-          f.label.toLowerCase() === currentSession.value.formationChoisie.toLowerCase()
+        currentFormation = { id: currentSession.value.formationId, label: choisie };
+      } else if (choisie) {
+        const foundFormation = [...formations.value, ...allActiveFormations.value].find(
+          (f) => String(f.label || "").trim().toLowerCase() === choisie.toLowerCase(),
         );
-        if (foundFormation) {
-          currentFormation = {
-            id: foundFormation.id,
-            label: foundFormation.label,
-          };
-        }
+        currentFormation = foundFormation
+          ? { id: foundFormation.id, label: foundFormation.label }
+          : { id: null, label: choisie };
       }
     }
+    if (!currentFormation) return;
     showP3OverrideForRules(findMatchingP3OverrideRules(currentFormation));
   } catch (e) {
     console.warn('[P3 Override] Error fetching override rules:', e);

@@ -1292,6 +1292,21 @@ async function finishTest(overrideSession = null) {
     }
   }
 
+  // Saved both before the high-level alert and on the normal path: the alert path
+  // must keep parcoursChoices, otherwise the results page shows the choice titles
+  // (placeholder finalRecommendation) as formations.
+  const sessionUpdate = {
+    levelsScores: levelsScores.value,
+    finalRecommendation: finalRecommendation.value,
+    stopLevel: currentLevel.label,
+    lastValidatedLevel: finalLevelLabel,
+    positionnementAnswers: positionnementAnswers.value,
+    parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
+    explanationMessage: parcoursRuleMessage.value,
+    parcoursTitle: parcoursTitle.value || null,
+    parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
+  };
+
   if (isHighLevel && !showResults.value) {
 
     const behavior = alertSettings.value.behavior || 'modal';
@@ -1310,31 +1325,13 @@ async function finishTest(overrideSession = null) {
       showHighLevelAlert.value = true;
       submitting.value = false;
       // We update the session anyway so it's saved
-      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-        levelsScores: levelsScores.value,
-        finalRecommendation: finalRecommendation.value,
-        stopLevel: currentLevel.label,
-        lastValidatedLevel: finalLevelLabel,
-        positionnementAnswers: positionnementAnswers.value,
-        explanationMessage: parcoursRuleMessage.value,
-        parcoursTitle: parcoursTitle.value || null,
-      });
+      await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, sessionUpdate);
       return; // Stop here, modal will trigger showResults = true
     }
   }
 
   // 4. Update session
-  const res = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, {
-    levelsScores: levelsScores.value,
-    finalRecommendation: finalRecommendation.value,
-    stopLevel: currentLevel.label,
-    lastValidatedLevel: finalLevelLabel,
-	    positionnementAnswers: positionnementAnswers.value,
-	    parcoursRuleHadPrereqCondition: parcoursRuleHadPrereqCondition.value,
-	    explanationMessage: parcoursRuleMessage.value,
-	    parcoursTitle: parcoursTitle.value || null,
-	    parcoursChoices: parcoursChoices.value.length ? parcoursChoices.value : null,
-	  });
+  const res = await axios.patch(`${apiBaseUrl}/sessions/${sessionId}`, sessionUpdate);
 
   const session = res.data;
   if (session.p3Redirected !== undefined) {
