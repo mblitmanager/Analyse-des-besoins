@@ -11,3 +11,12 @@ dist/
 /backend/.env
 /frontend/.env
 *.sqlite
+
+# Données locales et sorties générées
+postgres-data/
+venv_temp/
+history.txt
+*.bak
+*.bak.*
+test-results/
+playwright-report/
