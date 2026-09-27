@@ -179,10 +179,12 @@ async function fetchStats() {
     const token = localStorage.getItem("admin_token");
     const getAuthHeaders = () => ({ Authorization: `Bearer ${token}` });
 
+    // Metrics are optional (the backend metrics module may be disabled): their
+    // failure must not prevent the stats and sessions from being shown.
     const [statsRes, sessionsRes, metricsRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/admin/stats`, { headers: getAuthHeaders() }),
       axios.get(`${apiBaseUrl}/sessions`, { headers: getAuthHeaders() }),
-      axios.get(`${apiBaseUrl}/metrics`, { headers: getAuthHeaders() }),
+      axios.get(`${apiBaseUrl}/metrics`, { headers: getAuthHeaders() }).catch(() => null),
     ]);
 
     stats.value = stats.value.map((s) => ({
@@ -193,8 +195,7 @@ async function fetchStats() {
     sessionsData.value = sessionsRes.data;
     recentSessions.value = sessionsRes.data.slice(0, 5);
     
-    // Add metrics data
-    metrics.value = metricsRes.data;
+    if (metricsRes?.data) metrics.value = metricsRes.data;
   } catch (error) {
     console.error("Failed to fetch dashboard data:", error);
   } finally {

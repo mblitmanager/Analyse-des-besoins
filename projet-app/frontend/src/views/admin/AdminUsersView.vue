@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import axios from "axios";
 import { useToastStore } from "../../stores/toast";
 
 const users = ref([]);

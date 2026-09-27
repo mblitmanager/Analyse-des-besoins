@@ -199,4 +199,30 @@ router.beforeEach(async (to, from, next) => {
   return next()
 })
 
+// After a deployment, pages opened earlier still reference the previous build's
+// lazy-loaded chunks, which no longer exist: navigation then fails silently (e.g.
+// the admin menu does nothing). Reload the requested page once to get the new build.
+const CHUNK_RELOAD_KEY = 'chunk_reload_target'
+router.onError((error, to) => {
+  const message = String(error?.message || error)
+  const isChunkError = /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Loading chunk/i.test(message)
+  if (!isChunkError || !to?.fullPath) throw error
+  let alreadyReloaded = false
+  try {
+    alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY) === to.fullPath
+    if (!alreadyReloaded) sessionStorage.setItem(CHUNK_RELOAD_KEY, to.fullPath)
+  } catch {
+    // storage unavailable: reload once anyway
+  }
+  if (alreadyReloaded) throw error
+  window.location.assign(to.fullPath)
+})
+router.afterEach(() => {
+  try {
+    sessionStorage.removeItem(CHUNK_RELOAD_KEY)
+  } catch {
+    // ignore
+  }
+})
+
 export default router
