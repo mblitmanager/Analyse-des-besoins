@@ -4,6 +4,7 @@ import { Repository, FindOptionsWhere, DeepPartial, IsNull, In, DataSource } fro
 import { Question } from '../entities/question.entity';
 import { Formation } from '../entities/formation.entity';
 import { Level } from '../entities/level.entity';
+import { isPositionnementAnswerCorrect, stripAnswerKey } from './positionnement-answer';
 
 // Use a type alias for more flexibility with DeepPartial
 type QuestionPayload = DeepPartial<Question> & {
@@ -164,14 +165,31 @@ export class QuestionsService {
       order: { order: 'ASC' },
     });
 
-    // Deduplicate by text (case-insensitive)
+    // Deduplicate by text (case-insensitive). Answer keys are never sent to candidates:
+    // correction goes through checkPositionnementAnswers.
     const seen = new Set<string>();
-    return questions.filter((q) => {
-      const key = q.text.trim().toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    return questions
+      .filter((q) => {
+        const key = q.text.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((q) => stripAnswerKey(q));
+  }
+
+  async checkPositionnementAnswers(answers: Record<string, unknown>) {
+    const ids = Object.keys(answers || {})
+      .map(Number)
+      .filter((id) => Number.isInteger(id));
+    const questions = ids.length
+      ? await this.questionRepo.find({ where: { id: In(ids), type: 'positionnement' } })
+      : [];
+    const results: Record<number, boolean> = {};
+    for (const q of questions) {
+      results[q.id] = isPositionnementAnswerCorrect(q, answers[q.id]);
+    }
+    return { results };
   }
 
   async findAll(formationSlug?: string) {

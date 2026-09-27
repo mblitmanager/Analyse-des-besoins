@@ -465,29 +465,20 @@ async function nextStep() {
       positionnementAnswers.value[currentLevel.label] = {};
     }
 
-    // Score only on filtered (displayed) questions
+    // Score only on filtered (displayed) questions; answer keys stay on the server
+    const levelAnswers = {};
     filteredQuestions.value.forEach((q) => {
       const answer = currentResponses.value[q.id];
       positionnementAnswers.value[currentLevel.label][q.id] = answer;
-
-      if (q.responseType === "checkbox" || q.metadata?.type === "multi_select") {
-        // Multi-select: compare selected options against correctResponseIndexes
-        if (Array.isArray(answer) && Array.isArray(q.correctResponseIndexes)) {
-          const correctOptions = q.correctResponseIndexes.map(i => q.options[i]).sort();
-          const selectedSorted = [...answer].sort();
-          if (
-            correctOptions.length === selectedSorted.length &&
-            correctOptions.every((v, i) => v === selectedSorted[i])
-          ) {
-            correctCount++;
-          }
-        }
-      } else {
-        // Single-choice (qcm): compare single answer against correct option
-        if (answer === q.options[q.correctResponseIndex]) {
-          correctCount++;
-        }
-      }
+      levelAnswers[q.id] = answer;
+    });
+    const checkRes = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/questions/positionnement/check`,
+      { answers: levelAnswers },
+    );
+    const results = checkRes.data?.results || {};
+    filteredQuestions.value.forEach((q) => {
+      if (results[q.id]) correctCount++;
     });
 
     const percentage = (correctCount / filteredQuestions.value.length) * 100;

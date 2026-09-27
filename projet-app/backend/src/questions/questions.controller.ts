@@ -46,6 +46,11 @@ export class QuestionsController {
     return this.questionsService.findByLevel(formation, niveau);
   }
 
+  @Post('positionnement/check')
+  checkPositionnement(@Body() body: { answers: Record<string, unknown> }) {
+    return this.questionsService.checkPositionnementAnswers(body?.answers);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   findAll(@Query('formation') formationSlug?: string) {

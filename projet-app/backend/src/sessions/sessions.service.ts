@@ -9,6 +9,7 @@ import { EmailService } from '../email/email.service';
 import { SettingsService } from '../settings/settings.service';
 import { PdfService } from '../pdf/pdf.service';
 import { Question } from '../entities/question.entity';
+import { isPositionnementAnswerCorrect } from '../questions/positionnement-answer';
 import { ParcoursRule } from '../entities/parcours-rule.entity';
 import { QuestionRule } from '../entities/question-rule.entity';
 import { Contact } from '../entities/contact.entity';
@@ -212,8 +213,75 @@ export class SessionsService {
     // Remove ephemeral flag before persisting (not a DB column)
     delete (data as any).skipFormationReset;
 
+    if (data.levelsScores && Object.keys(data.levelsScores).length > 0) {
+      await this.recomputeLevelsScores(id, data);
+    }
+
     await this.sessionRepo.update(id, data);
     return this.findOne(id);
+  }
+
+  /**
+   * Scores sent by the browser are not trusted: each level's score is recomputed
+   * from the stored answers and the answer keys in DB. P3 carry-over entries
+   * (levels validated in a previous formation, no answers here) are kept as sent.
+   */
+  private async recomputeLevelsScores(id: string, data: Partial<Session>) {
+    const answersByLevel: Record<string, Record<string, unknown>> =
+      data.positionnementAnswers ??
+      (await this.sessionRepo.findOne({ where: { id } }))?.positionnementAnswers ??
+      {};
+
+    const questionIds = Object.values(answersByLevel)
+      .flatMap((answers) => Object.keys(answers || {}))
+      .map(Number)
+      .filter((qid) => Number.isInteger(qid));
+    const questions = questionIds.length
+      ? await this.questionRepo.find({
+          where: { id: In(questionIds), type: 'positionnement' },
+          relations: ['level'],
+        })
+      : [];
+    const questionsById = new Map(questions.map((q) => [q.id, q]));
+
+    const levelOrder: Record<string, number> = {};
+    const recomputed: Record<string, any> = {};
+    for (const [label, entry] of Object.entries<any>(data.levelsScores)) {
+      if (entry?.isP3CarryOver) {
+        recomputed[label] = entry;
+        levelOrder[label] = -1;
+        continue;
+      }
+      const answers = answersByLevel[label] || {};
+      const levelQuestions = Object.keys(answers)
+        .map((qid) => questionsById.get(Number(qid)))
+        .filter((q): q is Question => !!q);
+      const score = levelQuestions.filter((q) =>
+        isPositionnementAnswerCorrect(q, answers[q.id]),
+      ).length;
+      // Unanswered questions are dropped from the JSON payload, so the displayed
+      // total can exceed the number of answers; it can never be lower.
+      const total = Math.max(Number(entry?.total) || 0, levelQuestions.length);
+      const level = levelQuestions[0]?.level;
+      const requiredCorrect = Math.min(Number(level?.successThreshold ?? total), total);
+      levelOrder[label] = level?.order ?? 0;
+      recomputed[label] = {
+        ...entry,
+        score,
+        total,
+        percentage: total ? (score / total) * 100 : 0,
+        requiredCorrect,
+        validated: total > 0 && score >= requiredCorrect,
+      };
+    }
+    data.levelsScores = recomputed;
+
+    if (data.lastValidatedLevel !== undefined) {
+      const validated = Object.keys(recomputed)
+        .filter((label) => recomputed[label].validated)
+        .sort((a, b) => levelOrder[a] - levelOrder[b]);
+      data.lastValidatedLevel = validated[validated.length - 1] ?? 'Débutant';
+    }
   }
 
   async remove(id: string) {

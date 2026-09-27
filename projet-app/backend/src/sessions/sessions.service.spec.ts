@@ -283,6 +283,82 @@ describe('SessionsService', () => {
       const updateCall = (sessionRepo.update as jest.Mock).mock.calls[0][1];
       expect(updateCall.levelsScores).toBeUndefined();
     });
+
+    describe('server-side positionnement scoring', () => {
+      const level = { id: 1, label: 'A1', order: 1, successThreshold: 2 };
+      const questions = [
+        { id: 10, type: 'positionnement', responseType: 'qcm', options: ['a', 'b'], correctResponseIndex: 0, level },
+        { id: 11, type: 'positionnement', responseType: 'qcm', options: ['a', 'b'], correctResponseIndex: 1, level },
+        {
+          id: 12,
+          type: 'positionnement',
+          responseType: 'checkbox',
+          options: ['x', 'y', 'z'],
+          correctResponseIndexes: [0, 2],
+          level,
+        },
+      ];
+
+      beforeEach(() => {
+        const questionRepo = (service as any).questionRepo;
+        jest.spyOn(questionRepo, 'find').mockResolvedValue(questions);
+        jest.spyOn(sessionRepo, 'update').mockResolvedValue({ affected: 1, raw: [], generatedMaps: [] });
+        jest.spyOn(service, 'findOne').mockResolvedValue(mockSession as any);
+      });
+
+      it('overrides a forged score with the one computed from the answers', async () => {
+        await service.update('session-1', {
+          levelsScores: { A1: { score: 3, total: 3, percentage: 100, validated: true } },
+          positionnementAnswers: { A1: { 10: 'b', 11: 'b', 12: ['z', 'x'] } },
+          lastValidatedLevel: 'A1',
+        } as any);
+
+        const saved = (sessionRepo.update as jest.Mock).mock.calls[0][1];
+        expect(saved.levelsScores.A1).toMatchObject({
+          score: 2,
+          total: 3,
+          requiredCorrect: 2,
+          validated: true,
+        });
+        expect(saved.lastValidatedLevel).toBe('A1');
+      });
+
+      it('invalidates a level claimed as validated without correct answers', async () => {
+        await service.update('session-1', {
+          levelsScores: { A1: { score: 3, total: 3, validated: true } },
+          positionnementAnswers: { A1: { 10: 'b', 11: 'a' } },
+          lastValidatedLevel: 'A1',
+        } as any);
+
+        const saved = (sessionRepo.update as jest.Mock).mock.calls[0][1];
+        expect(saved.levelsScores.A1).toMatchObject({ score: 0, total: 3, validated: false });
+        expect(saved.lastValidatedLevel).toBe('Débutant');
+      });
+
+      it('uses stored answers when the payload only carries levelsScores', async () => {
+        jest
+          .spyOn(sessionRepo, 'findOne')
+          .mockResolvedValue({ positionnementAnswers: { A1: { 10: 'a', 11: 'b' } } } as any);
+
+        await service.update('session-1', {
+          levelsScores: { A1: { score: 0, total: 2, validated: false } },
+        } as any);
+
+        const saved = (sessionRepo.update as jest.Mock).mock.calls[0][1];
+        expect(saved.levelsScores.A1).toMatchObject({ score: 2, total: 2, validated: true });
+      });
+
+      it('keeps P3 carry-over entries untouched', async () => {
+        const carryOver = { score: 10, total: 10, percentage: 100, validated: true, isP3CarryOver: true };
+        await service.update('session-1', {
+          levelsScores: { A1: carryOver },
+          positionnementAnswers: {},
+        } as any);
+
+        const saved = (sessionRepo.update as jest.Mock).mock.calls[0][1];
+        expect(saved.levelsScores.A1).toEqual(carryOver);
+      });
+    });
   });
 
   describe('remove', () => {
