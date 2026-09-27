@@ -64,7 +64,7 @@ write_status "$(node -e 'const p=JSON.parse(process.argv[1]); console.log(JSON.s
 ) &
 progress_pid=$!
 
-E2E_RUN_ID="$run_id" E2E_SPEC=e2e-matrix.spec.ts E2E_WORKERS=2 E2E_FORMATIONS="$formations" E2E_P3="$p3" \
+E2E_RUN_ID="$run_id" E2E_SPEC="e2e-matrix.spec.ts e2e-scenarios.spec.ts" E2E_WORKERS=2 E2E_FORMATIONS="$formations" E2E_P3="$p3" \
   bash "$ROOT_DIR/scripts/run-e2e-screenshots.sh" > "$log" 2>&1
 status=$?
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Usage: scripts/run-e2e-screenshots.sh
-#   E2E_SPEC=e2e-matrix.spec.ts E2E_WORKERS=2 scripts/run-e2e-screenshots.sh
+#   E2E_SPEC="e2e-matrix.spec.ts e2e-scenarios.spec.ts" E2E_WORKERS=2 scripts/run-e2e-screenshots.sh
 #   Playwright runs at low priority: this host also serves production, keep workers <= 2.
 #   (matrix filters: E2E_FORMATIONS=word,excel  E2E_P3=0)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -60,6 +60,9 @@ docker exec "$SOURCE_POSTGRES_CONTAINER" sh -c \
 
 cd "$ROOT_DIR/projet-app/frontend"
 SPEC="${E2E_SPEC:-e2e-p3-flow.spec.ts}"
+# E2E_SPEC may list several spec files, separated by spaces.
+read -r -a SPEC_FILES <<< "$SPEC"
+SPEC_PATHS=("${SPEC_FILES[@]/#/tests/}")
 JSON_REPORT="$OUTPUT_DIR/report.json"
 status=0
 API_BASE_URL="$API_URL" \
@@ -67,7 +70,7 @@ VITE_API_BASE_URL="$API_URL" \
 PLAYWRIGHT_HTML_OUTPUT_DIR="$REPORT_DIR" \
 PLAYWRIGHT_HTML_OPEN=never \
 PLAYWRIGHT_JSON_OUTPUT_NAME="$JSON_REPORT" \
-  nice -n 19 npx playwright test "tests/$SPEC" \
+  nice -n 19 npx playwright test "${SPEC_PATHS[@]}" \
     --project=chromium \
     --workers="${E2E_WORKERS:-1}" \
     --output="$OUTPUT_DIR" \
