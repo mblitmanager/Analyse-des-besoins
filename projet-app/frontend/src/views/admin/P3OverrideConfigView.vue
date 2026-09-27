@@ -270,20 +270,62 @@ async function toggleRuleActive(rule) {
   }
 }
 
-async function duplicateRule(rule) {
+// ── Duplication (same formation or another one) ──
+const duplicateSource = ref(null);
+const duplicateTargetId = ref(null);
+const duplicateOpenEdit = ref(false);
+const duplicating = ref(false);
+
+function duplicateRule(rule) {
+  duplicateSource.value = rule;
+  duplicateTargetId.value = currentFormation.value?.id ?? null;
+  duplicateOpenEdit.value = false;
+}
+
+// P1/P2 conditions target the parcours of the source formation: when copying to
+// another formation, the copy is opened for editing by default.
+watch(duplicateTargetId, (id) => {
+  if (duplicateSource.value) duplicateOpenEdit.value = Number(id) !== Number(currentFormation.value?.id);
+});
+
+async function confirmDuplicate() {
+  const rule = duplicateSource.value;
+  const target = allFormations.value.find((f) => Number(f.id) === Number(duplicateTargetId.value));
+  if (!rule || !target) return;
+  duplicating.value = true;
   try {
     const headers = { Authorization: `Bearer ${token()}` };
-    const payload = { 
-      ...rule, 
-      id: undefined,
-      order: filteredRules.value.length,
+    const sameFormation = Number(target.id) === Number(currentFormation.value?.id);
+    const targetRulesCount = allRules.value.filter(
+      (r) => (r.formationId && Number(r.formationId) === Number(target.id)) || r.formation === target.label,
+    ).length;
+    // formationEntity is left out: the relation would otherwise keep the source formation.
+    const { id, formationEntity, createdAt, updatedAt, ...copy } = rule;
+    const payload = {
+      ...copy,
+      formation: target.label,
+      formationId: target.id,
+      order: targetRulesCount,
       parcoursTitle: rule.parcoursTitle ? `${rule.parcoursTitle} (copie)` : '',
     };
-    await axios.post(`${apiBaseUrl}/p3-override`, payload, { headers });
-    toast.success("Règle dupliquée");
+    const { data: created } = await axios.post(`${apiBaseUrl}/p3-override`, payload, { headers });
+    toast.success(sameFormation ? "Règle dupliquée" : `Règle dupliquée vers ${target.label}`);
+    const openEdit = duplicateOpenEdit.value;
+    duplicateSource.value = null;
     await fetchRules();
+    if (!sameFormation) {
+      currentFormation.value = target;
+      await fetchLevelsForFormation(target.label);
+      await fetchParcoursForFormation(target.label);
+    }
+    if (openEdit) {
+      const createdRule = allRules.value.find((r) => Number(r.id) === Number(created?.id)) || created;
+      if (createdRule) await openEditForm(createdRule);
+    }
   } catch (e) {
     toast.error("Erreur lors de la duplication: " + (e.response?.data?.message || e.message));
+  } finally {
+    duplicating.value = false;
   }
 }
 
@@ -684,6 +726,52 @@ onMounted(async () => {
     </div>
 
     <!-- Form Modal -->
+    <!-- Duplicate dialog: target formation -->
+    <div v-if="duplicateSource" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.self="duplicateSource = null">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Dupliquer la règle</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            {{ duplicateSource.parcoursTitle || duplicateSource.formation1 || 'Règle' }}
+          </p>
+        </div>
+        <label class="block space-y-2">
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Formation cible</span>
+          <select
+            v-model="duplicateTargetId"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-slate-400"
+          >
+            <option v-for="f in allFormations" :key="f.id" :value="f.id">
+              {{ f.label }}{{ Number(f.id) === Number(currentFormation?.id) ? ' (formation actuelle)' : '' }}
+            </option>
+          </select>
+        </label>
+        <p
+          v-if="Number(duplicateTargetId) !== Number(currentFormation?.id)"
+          class="p-3 bg-amber-50 border border-amber-100 rounded-xl text-xs font-bold text-amber-800"
+        >
+          Les conditions P1/P2 et les formations proposées sont recopiées telles quelles :
+          vérifiez-les pour la formation cible.
+        </p>
+        <label class="flex items-center gap-3 text-sm font-bold text-slate-700 cursor-pointer">
+          <input v-model="duplicateOpenEdit" type="checkbox" class="w-4 h-4" />
+          Ouvrir la copie en édition
+        </label>
+        <div class="flex gap-3">
+          <button @click="duplicateSource = null" class="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200">
+            Annuler
+          </button>
+          <button
+            @click="confirmDuplicate"
+            :disabled="!duplicateTargetId || duplicating"
+            class="flex-1 px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:opacity-50"
+          >
+            {{ duplicating ? 'Duplication…' : 'Dupliquer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showForm" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
