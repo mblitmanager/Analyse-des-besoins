@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 // import { LoggerService } from './logger/logger.service';
 
 async function bootstrap() {
@@ -29,18 +31,18 @@ async function bootstrap() {
   const isOriginAllowed = (origin?: string) =>
     !origin || (!isProd && origin.includes('localhost')) || allowedOrigins.includes(origin);
 
-  // Security headers with Helmet (TODO: uncomment after installing helmet package)
-  // app.use(helmet({
-  //   contentSecurityPolicy: {
-  //     directives: {
-  //       defaultSrc: ["'self'"],
-  //       styleSrc: ["'self'", "'unsafe-inline'"],
-  //       scriptSrc: ["'self'"],
-  //       imgSrc: ["'self'", "data:", "https:"],
-  //     },
-  //   },
-  //   crossOriginEmbedderPolicy: false,
-  // }));
+  // CSP disabled: this API serves JSON/PDF and Swagger UI needs inline scripts.
+  // Cross-origin resource policy relaxed so the SPA can load PDFs from another origin.
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
+  // Validates only DTO classes decorated with class-validator; plain DTOs pass through unchanged.
+  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
 
   // Cache headers for static content
   app.use((req, res, next) => {

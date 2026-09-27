@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FormationsService } from './formations.service';
 
 @Controller('formations')
@@ -31,16 +33,19 @@ export class FormationsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() data: any) {
     return this.formationsService.create(data);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Body() data: any) {
     return this.formationsService.update(+id, data);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string) {
     return this.formationsService.remove(+id);
   }

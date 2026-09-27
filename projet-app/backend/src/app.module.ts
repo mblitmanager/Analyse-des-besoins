@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -42,6 +43,7 @@ import { MailConfigModule } from './mail-config/mail-config.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 10 }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
@@ -95,7 +97,9 @@ import { MailConfigModule } from './mail-config/mail-config.module';
             P3OverrideRule,
             EmailTemplate,
           ],
-          synchronize: true,
+          synchronize:
+            configService.get<string>('NODE_ENV') !== 'production' &&
+            configService.get<string>('TYPEORM_SYNCHRONIZE') === 'true',
         };
       },
       inject: [ConfigService],

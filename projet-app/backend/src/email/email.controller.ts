@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { EmailService } from './email.service';
 
 interface SendEmailDto {
@@ -12,6 +13,7 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('send-email')
+  @UseGuards(JwtAuthGuard)
   async sendGeneric(@Body() payload: SendEmailDto) {
     const { to, subject, body } = payload;
     return this.emailService.sendReport(to, subject, body);
