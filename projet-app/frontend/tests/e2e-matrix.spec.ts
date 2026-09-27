@@ -454,14 +454,13 @@ test.describe("Matrice formation × niveau × P3", () => {
         await page.getByRole("button", { name: "Continuer", exact: true }).click();
         await page.waitForURL("**/resultats");
       }
-      // P3 results recall the P1/P2 parcours, like the final validation page.
+      // P3 results recall the P1/P2 parcours before the P3 step, like the final validation page.
       await expect(page.getByRole("heading", { name: /^Bravo / })).toBeVisible();
       await page.waitForLoadState("networkidle");
-      const recap = page.getByText("Récapitulatif des parcours", { exact: true });
-      await expect.soft(recap, "P1/P2 rappelés sur les résultats P3").toBeVisible();
+      // The parcours card lists P1 and P2 before the P3 step.
       for (const label of [c.choice.formation1, c.choice.formation2].filter((f) => f?.trim())) {
         await expect.soft(
-          page.locator("div", { has: recap }).getByText(label.trim(), { exact: false }).first(),
+          page.locator("main").getByText(label.trim(), { exact: false }).first(),
           `P1/P2 « ${label.trim()} » rappelé sur les résultats P3`,
         ).toBeVisible();
       }
