@@ -91,6 +91,60 @@ describe('SmtpConfigService', () => {
 
       expect(result.password).toBe('');
     });
+
+    it('keeps the interface configuration when the password cannot be decrypted (never the .env server)', async () => {
+      process.env.MAIL_HOST = 'mail.env-server.test';
+      process.env.MAIL_PASSWORD = 'env-password';
+      settingsService.getValue
+        .mockResolvedValueOnce('ssl0.ovh.net')
+        .mockResolvedValueOnce('465')
+        .mockResolvedValueOnce('equipe@example.com')
+        .mockResolvedValueOnce('encrypted_with_another_key')
+        .mockResolvedValueOnce('ssl');
+      cryptoUtil.decrypt.mockImplementation(() => {
+        throw new Error('Unsupported state or unable to authenticate data');
+      });
+
+      const result = await service.getConfig();
+
+      expect(result).toMatchObject({
+        host: 'ssl0.ovh.net',
+        port: 465,
+        username: 'equipe@example.com',
+        password: '',
+        encryption: 'ssl',
+        passwordUnreadable: true,
+      });
+      delete process.env.MAIL_HOST;
+      delete process.env.MAIL_PASSWORD;
+    });
+
+    it('uses the .env mail settings when nothing is configured in the interface', async () => {
+      process.env.MAIL_HOST = 'mail.env-server.test';
+      process.env.MAIL_PORT = '465';
+      process.env.MAIL_USERNAME = 'contact@example.com';
+      process.env.MAIL_PASSWORD = 'env-password';
+      process.env.MAIL_ENCRYPTION = 'ssl';
+      settingsService.getValue
+        .mockResolvedValueOnce('')
+        .mockResolvedValueOnce('587')
+        .mockResolvedValueOnce('')
+        .mockResolvedValueOnce('')
+        .mockResolvedValueOnce('none');
+
+      const result = await service.getConfig();
+
+      expect(result).toMatchObject({
+        host: 'mail.env-server.test',
+        port: 465,
+        username: 'contact@example.com',
+        password: 'env-password',
+        encryption: 'ssl',
+      });
+      for (const key of ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_ENCRYPTION']) {
+        delete process.env[key];
+      }
+    });
   });
 
   describe('getConfigForDisplay', () => {

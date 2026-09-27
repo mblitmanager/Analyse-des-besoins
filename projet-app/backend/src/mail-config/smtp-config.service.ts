@@ -63,35 +63,40 @@ export class SmtpConfigService implements OnModuleInit {
         this.settingsService.getValue(this.SMTP_KEYS.encryption, 'none'),
       ]);
 
+    // No configuration saved in the interface: the .env mail settings are the default.
+    if (!host) {
+      const config = new SmtpConfigDto();
+      config.host = process.env.MAIL_HOST || process.env.SMTP_HOST || '';
+      config.port = parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || port, 10) || 587;
+      config.username = process.env.MAIL_USERNAME || process.env.SMTP_USERNAME || '';
+      config.password = process.env.MAIL_PASSWORD || process.env.SMTP_PASSWORD || '';
+      config.encryption = process.env.MAIL_ENCRYPTION || process.env.SMTP_ENCRYPTION || encryption;
+      return config;
+    }
+
+    // The configuration saved in the interface is always used as is: when its password
+    // cannot be decrypted (e.g. ENCRYPTION_KEY changed), it must be entered again; the
+    // .env server/account is never substituted for it.
     let password = '';
-    let decryptFailed = false;
+    let passwordUnreadable = false;
     if (encryptedPassword) {
       try {
         password = this.cryptoUtil.decrypt(encryptedPassword);
       } catch {
-        // If decryption fails, return empty password
-        password = '';
-        decryptFailed = true;
+        passwordUnreadable = true;
+        this.logger.error(
+          'SMTP password saved in the interface cannot be decrypted with ENCRYPTION_KEY: enter it again in admin > Config. Email',
+        );
       }
     }
 
-    if (decryptFailed) {
-      const envPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASSWORD || '';
-      if (envPassword) {
-        host = process.env.MAIL_HOST || process.env.SMTP_HOST || host;
-        port = String(parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || String(port), 10) || parseInt(port, 10) || 587);
-        username = process.env.MAIL_USERNAME || process.env.SMTP_USERNAME || username;
-        encryption = process.env.MAIL_ENCRYPTION || process.env.SMTP_ENCRYPTION || encryption;
-        password = envPassword;
-        this.logger.warn('SMTP database password could not be decrypted; using MAIL_PASSWORD fallback');
-      }
-    }
     const config = new SmtpConfigDto();
     config.host = host;
     config.port = parseInt(port, 10) || 587;
     config.username = username;
     config.password = password;
     config.encryption = encryption;
+    config.passwordUnreadable = passwordUnreadable;
 
     return config;
   }

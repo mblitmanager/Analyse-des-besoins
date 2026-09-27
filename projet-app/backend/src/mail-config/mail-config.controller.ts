@@ -42,6 +42,13 @@ export class MailConfigController {
   @Post('smtp/test')
   async testSmtpConnection(): Promise<OperationResultDto> {
     const config = await this.smtpConfigService.getConfig();
+    if (config.passwordUnreadable) {
+      const unreadable = new OperationResultDto();
+      unreadable.success = false;
+      unreadable.error =
+        'Le mot de passe SMTP enregistré est illisible (clé de chiffrement modifiée). Ressaisissez-le puis enregistrez la configuration.';
+      return unreadable;
+    }
     const result = await this.smtpConnectionTester.testConnection(config);
 
     const response = new OperationResultDto();
@@ -56,6 +63,13 @@ export class MailConfigController {
 
   @Post('test-email')
   async sendTestEmail(@Body() dto: SendTestEmailDto): Promise<OperationResultDto> {
+    if ((await this.smtpConfigService.getConfig()).passwordUnreadable) {
+      const unreadable = new OperationResultDto();
+      unreadable.success = false;
+      unreadable.error =
+        'Le mot de passe SMTP enregistré est illisible (clé de chiffrement modifiée). Ressaisissez-le puis enregistrez la configuration.';
+      return unreadable;
+    }
     const result = await this.testEmailSender.sendTestEmail(dto.to);
 
     const response = new OperationResultDto();
