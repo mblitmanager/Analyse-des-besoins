@@ -123,6 +123,43 @@ const filteredRules = computed(() => {
   return allFilteredRules.filter(r => r.isActive !== false);
 });
 
+// ── Rules grouped by P1 + P2 conditions (the candidate sees one group's proposals) ──
+const collapsedGroups = ref({});
+
+const ruleGroups = computed(() => {
+  const norm = (value) => String(value || "").trim().toLowerCase();
+  const groups = new Map();
+  [...filteredRules.value]
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .forEach((rule) => {
+      const p1 = String(rule.conditionP1 || "").trim();
+      const p2 = String(rule.conditionP2 || "").trim();
+      const key = p1 || p2 ? `${norm(p1)}|${norm(p2)}` : "__none__";
+      if (!groups.has(key)) groups.set(key, { key, p1, p2, rules: [] });
+      groups.get(key).rules.push(rule);
+    });
+  return [...groups.values()]
+    .map((group) => ({
+      ...group,
+      activeCount: group.rules.filter((r) => r.isActive !== false).length,
+      proposals: [...new Set(
+        group.rules
+          .filter((r) => r.isActive !== false)
+          .flatMap((r) => [r.formation1, r.formation2])
+          .map((f) => String(f || "").trim())
+          .filter(Boolean),
+      )],
+    }))
+    // Rules without P1/P2 conditions last: they only apply when no P1/P2 group matches.
+    .sort((a, b) => (a.key === "__none__") - (b.key === "__none__"));
+});
+
+function addRuleToGroup(group) {
+  openNewForm();
+  newRule.value.conditionP1 = group.p1;
+  newRule.value.conditionP2 = group.p2;
+}
+
 async function fetchFormations() {
   try {
     const res = await axios.get(`${apiBaseUrl}/formations`, {
@@ -705,10 +742,67 @@ onMounted(async () => {
            <p class="text-xs font-black uppercase tracking-widest">Aucune règle définie pour {{ currentFormation.label }}</p>
         </div>
 
-        <div v-else class="p-6 space-y-4">
-          <div v-for="rule in filteredRules.sort((a,b) => (a.order||0) - (b.order||0))" :key="rule.id">
-            <RuleCard :rule="rule" @edit="openEditForm" @delete="deleteRule" @toggle-active="toggleRuleActive" @duplicate="duplicateRule" />
-          </div>
+        <div v-else class="p-6 space-y-6">
+          <section
+            v-for="group in ruleGroups"
+            :key="group.key"
+            class="rounded-3xl border border-slate-100 bg-slate-50/50 overflow-hidden"
+          >
+            <!-- Group header: P1 + P2 condition and what the candidate is offered -->
+            <div class="flex flex-col md:flex-row md:items-center gap-3 p-4 bg-white border-b border-slate-100">
+              <button
+                @click="collapsedGroups[group.key] = !collapsedGroups[group.key]"
+                class="flex-1 flex items-start gap-3 text-left"
+              >
+                <span
+                  class="material-icons-outlined text-slate-300 transition-transform mt-0.5"
+                  :class="{ '-rotate-90': collapsedGroups[group.key] }"
+                >expand_more</span>
+                <div class="space-y-2 min-w-0">
+                  <div v-if="group.key !== '__none__'" class="flex flex-wrap items-center gap-2">
+                    <span class="px-2 py-1 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-black">P1</span>
+                    <span class="text-xs font-black text-slate-900">{{ group.p1 || 'Tout P1' }}</span>
+                    <span class="text-slate-300">+</span>
+                    <span class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 text-[10px] font-black">P2</span>
+                    <span class="text-xs font-black text-slate-900">{{ group.p2 || 'Tout P2' }}</span>
+                  </div>
+                  <p v-else class="text-xs font-black text-slate-900">
+                    Sans condition P1/P2
+                    <span class="font-bold text-slate-400">— appliquées seulement si aucun groupe P1/P2 ne correspond</span>
+                  </p>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-[10px] font-bold text-slate-400">
+                      {{ group.activeCount }} proposition(s) active(s){{ group.rules.length > group.activeCount ? ` sur ${group.rules.length}` : '' }} :
+                    </span>
+                    <span
+                      v-for="proposal in group.proposals"
+                      :key="proposal"
+                      class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold"
+                    >{{ proposal }}</span>
+                    <span v-if="!group.proposals.length" class="text-[10px] font-bold text-rose-500">aucune (toutes inactives)</span>
+                  </div>
+                </div>
+              </button>
+              <button
+                v-if="group.key !== '__none__'"
+                @click="addRuleToGroup(group)"
+                class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:border-slate-400 flex items-center gap-1 shrink-0"
+              >
+                <span class="material-icons-outlined text-sm">add</span> Ajouter une proposition
+              </button>
+            </div>
+            <div v-show="!collapsedGroups[group.key]" class="p-4 space-y-3">
+              <RuleCard
+                v-for="rule in group.rules"
+                :key="rule.id"
+                :rule="rule"
+                @edit="openEditForm"
+                @delete="deleteRule"
+                @toggle-active="toggleRuleActive"
+                @duplicate="duplicateRule"
+              />
+            </div>
+          </section>
         </div>
       </div>
 
