@@ -1,0 +1,953 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`SessionsService report generation resendEmail: P3 same-formation shortcut 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins (Renvoyé) - P3 Alice Martin - Word Avancé",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - 3ÈME PARCOURS (Même formation - Suite du parcours - Renvoyé)</span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Analyse des besoins - P3 (Renvoyé)</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Formation :</strong> P3</p> <p><strong>Recommandation :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #dbeafe; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #C7D2FE; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #EEF2FF; color: #4338CA; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P3</span> <span style="font-weight: 800; color: #0D1B3E;">3ème parcours - Word Avancé</span> </div> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:Word Avancé>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P3_word_avanc__2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+        "3": "Doublon mise à niveau",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "finalRecommendation": "Word Avancé",
+      "formationChoisie": "Word Avancé",
+      "fullRecommendation": "Word Avancé",
+      "highLevelContinue": false,
+      "isP3Mode": true,
+      "levelsScores": {},
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 3,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word Avancé",
+      ],
+      "scoreFinal": -1,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "emailSentAt": "2026-03-15T09:30:00.000Z",
+    "success": true,
+  },
+  "updates": [],
+}
+`;
+
+exports[`SessionsService report generation resendEmail: sends even when AUTO_SEND_EMAIL is disabled 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins (Renvoyé) - P1 & P2 Alice Martin - Word",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #047857; font-weight: bold; font-size: 14px;"> 🔷 P1 & P2 - PARCOURS INITIAL & COMPLÉMENTAIRE (Rapport Renvoyé) </span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins (Renvoyé)</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Parrain / Marraine :</strong> Paul Durand</p> <p><strong>Formation :</strong> Word</p> <p><strong>Recommandations :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #BAE6FD; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #E0F2FE; color: #075985; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P1</span> <span style="font-weight: 800; color: #0D1B3E;">Word</span> </div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #FDE68A; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #FEF3C7; color: #92400E; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P2</span> <span style="font-weight: 800; color: #0D1B3E;">Excel</span> </div> </div> <div style="margin-top: 30px;"> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">Jean Dupont</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">Assistante</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">Salariée, Temps partiel</td></tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Parrainage</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Parrain / Marraine</td> <td style="padding:10px;border-top:1px solid #eee;">Paul Durand</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">paul@example.test</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">0700000000</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <thead style="background:#f8fafc;"> <tr> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th> </tr> </thead> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau A1</td> <td style="padding:10px;border-top:1px solid #eee;">6/6</td> <td style="padding:10px;border-top:1px solid #eee;">Oui</td> </tr><tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau B1</td> <td style="padding:10px;border-top:1px solid #eee;">2/6</td> <td style="padding:10px;border-top:1px solid #eee;">Non</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Pré-requis (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question prérequis</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Oui</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Questions complémentaires (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question complémentaire</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Matin</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Usage de la langue</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Usage</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Souvent</td> </tr> </tbody> </table> <div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:Word>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P1_word_2026-03-15.pdf",
+        },
+        {
+          "content": "<buffer pdf:Excel>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P2_excel_2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Word",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word & Excel",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 1,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word",
+        "Excel",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Excel",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word & Excel",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 2,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word",
+        "Excel",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "emailSentAt": "2026-03-15T09:30:00.000Z",
+    "success": true,
+  },
+  "updates": [],
+}
+`;
+
+exports[`SessionsService report generation resendEmail: uses stored recommendation and score 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins (Renvoyé) - P1 & P2 Alice Martin - Word",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #047857; font-weight: bold; font-size: 14px;"> 🔷 P1 & P2 - PARCOURS INITIAL & COMPLÉMENTAIRE (Rapport Renvoyé) </span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins (Renvoyé)</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Parrain / Marraine :</strong> Paul Durand</p> <p><strong>Formation :</strong> Word</p> <p><strong>Recommandations :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #BAE6FD; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #E0F2FE; color: #075985; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P1</span> <span style="font-weight: 800; color: #0D1B3E;">PowerPoint</span> </div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #FDE68A; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #FEF3C7; color: #92400E; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P2</span> <span style="font-weight: 800; color: #0D1B3E;">Outlook</span> </div> </div> <div style="margin-top: 30px;"> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">Jean Dupont</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">Assistante</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">Salariée, Temps partiel</td></tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Parrainage</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Parrain / Marraine</td> <td style="padding:10px;border-top:1px solid #eee;">Paul Durand</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">paul@example.test</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">0700000000</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <thead style="background:#f8fafc;"> <tr> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th> </tr> </thead> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau A1</td> <td style="padding:10px;border-top:1px solid #eee;">6/6</td> <td style="padding:10px;border-top:1px solid #eee;">Oui</td> </tr><tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau B1</td> <td style="padding:10px;border-top:1px solid #eee;">2/6</td> <td style="padding:10px;border-top:1px solid #eee;">Non</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Pré-requis (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question prérequis</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Oui</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Questions complémentaires (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question complémentaire</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Matin</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Usage de la langue</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Usage</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Souvent</td> </tr> </tbody> </table> <div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:PowerPoint>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P2_powerpoint_2026-03-15.pdf",
+        },
+        {
+          "content": "<buffer pdf:Outlook>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P3_outlook_2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "PowerPoint",
+      "formationChoisie": "Word",
+      "fullRecommendation": "PowerPoint & Outlook",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 2,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "PowerPoint",
+        "Outlook",
+      ],
+      "scoreFinal": 7,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Outlook",
+      "formationChoisie": "Word",
+      "fullRecommendation": "PowerPoint & Outlook",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 3,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "PowerPoint",
+        "Outlook",
+      ],
+      "scoreFinal": 7,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "emailSentAt": "2026-03-15T09:30:00.000Z",
+    "success": true,
+  },
+  "updates": [],
+}
+`;
+
+exports[`SessionsService report generation submit: AUTO_SEND_EMAIL disabled, unknown conseiller, no levels 1`] = `
+{
+  "emails": [],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Inconnu",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Word",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": null,
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 1,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "updated": {
+      "emailSentAt": "2026-03-15T09:30:00.000Z",
+      "finalRecommendation": "",
+      "isCompleted": true,
+      "parcoursTitle": "Bureautique",
+      "scorePretest": 12,
+      "stopLevel": "Initial",
+      "stopLevelOrder": 0,
+    },
+  },
+  "updates": [
+    [
+      "session-1",
+      {
+        "emailSentAt": "2026-03-15T09:30:00.000Z",
+        "finalRecommendation": "",
+        "isCompleted": true,
+        "parcoursTitle": "Bureautique",
+        "scorePretest": 12,
+        "stopLevel": "Initial",
+        "stopLevelOrder": 0,
+      },
+    ],
+  ],
+}
+`;
+
+exports[`SessionsService report generation submit: P1 & P2 report 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins - P1 & P2 Alice Martin - Word",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #047857; font-weight: bold; font-size: 14px;"> 🔷 P1 & P2 - PARCOURS INITIAL & COMPLÉMENTAIRE </span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Parrain / Marraine :</strong> Paul Durand</p> <p><strong>Formation :</strong> Word</p> <p><strong>Recommandations :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #bbf7d0; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #BAE6FD; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #E0F2FE; color: #075985; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P1</span> <span style="font-weight: 800; color: #0D1B3E;">Word</span> </div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #FDE68A; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #FEF3C7; color: #92400E; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P2</span> <span style="font-weight: 800; color: #0D1B3E;">Excel</span> </div> </div> <div style="margin-top: 30px;"> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">Jean Dupont</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">Assistante</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">Salariée, Temps partiel</td></tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Parrainage</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Parrain / Marraine</td> <td style="padding:10px;border-top:1px solid #eee;">Paul Durand</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Email Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">paul@example.test</td> </tr> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Téléphone Parrain</td> <td style="padding:10px;border-top:1px solid #eee;">0700000000</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <thead style="background:#f8fafc;"> <tr> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th> </tr> </thead> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau A1</td> <td style="padding:10px;border-top:1px solid #eee;">6/6</td> <td style="padding:10px;border-top:1px solid #eee;">Oui</td> </tr><tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau B1</td> <td style="padding:10px;border-top:1px solid #eee;">2/6</td> <td style="padding:10px;border-top:1px solid #eee;">Non</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Pré-requis (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question prérequis</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Oui</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Questions complémentaires (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question complémentaire</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Matin</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Usage de la langue</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Usage</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Souvent</td> </tr> </tbody> </table> <div style="background-color: #FEF2F2; color: #991B1B; padding: 12px; border-left: 4px solid #EF4444; margin-bottom: 20px; border-radius: 4px; font-weight: bold;">⚠️ Niveau supérieur au parcours proposé. Le bénéficiaire a obtenu un score élevé pour cette formation et a souhaité maintenir sa demande.</div> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:Word>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P1_word_2026-03-15.pdf",
+        },
+        {
+          "content": "<buffer pdf:Excel>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P2_excel_2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Word",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word & Excel",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 1,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word",
+        "Excel",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Excel",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word & Excel",
+      "highLevelContinue": true,
+      "isP3Mode": false,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 2,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word",
+        "Excel",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "updated": {
+      "emailSentAt": "2026-03-15T09:30:00.000Z",
+      "finalRecommendation": "Word & Excel",
+      "isCompleted": true,
+      "parcoursTitle": "Bureautique",
+      "scorePretest": 12,
+      "stopLevel": "B1",
+      "stopLevelOrder": 3,
+    },
+  },
+  "updates": [
+    [
+      "session-1",
+      {
+        "emailSentAt": "2026-03-15T09:30:00.000Z",
+        "finalRecommendation": "Word & Excel",
+        "isCompleted": true,
+        "parcoursTitle": "Bureautique",
+        "scorePretest": 12,
+        "stopLevel": "B1",
+        "stopLevelOrder": 3,
+      },
+    ],
+  ],
+}
+`;
+
+exports[`SessionsService report generation submit: P3 same-formation shortcut 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins - P3 Alice Martin - Word Avancé",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #4338CA; font-weight: bold; font-size: 14px;">🔷 P3 - 3ÈME PARCOURS (Même formation - Suite du parcours)</span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Analyse des besoins - P3</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Complétude le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Formation :</strong> Word</p> <p><strong>Recommandation :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #dbeafe; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #C7D2FE; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #EEF2FF; color: #4338CA; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P3</span> <span style="font-weight: 800; color: #0D1B3E;">3ème parcours - Word Avancé</span> </div> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:Word Avancé>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P3_word_avanc__2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+        "3": "Doublon mise à niveau",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "finalRecommendation": "Word Avancé",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Word Avancé",
+      "highLevelContinue": false,
+      "isP3Mode": true,
+      "levelsScores": {},
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 3,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": "paul@example.test",
+      "parrainNom": "Durand",
+      "parrainPrenom": "Paul",
+      "parrainTelephone": "0700000000",
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Word Avancé",
+      ],
+      "scoreFinal": -1,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "updated": {
+      "emailSentAt": "2026-03-15T09:30:00.000Z",
+      "finalRecommendation": "Word Avancé",
+      "isCompleted": true,
+      "parcoursTitle": "Bureautique",
+      "scorePretest": -1,
+      "stopLevel": "P3 Auto",
+      "stopLevelOrder": 2,
+    },
+  },
+  "updates": [
+    [
+      "session-1",
+      {
+        "emailSentAt": "2026-03-15T09:30:00.000Z",
+        "finalRecommendation": "Word Avancé",
+        "isCompleted": true,
+        "parcoursTitle": "Bureautique",
+        "scorePretest": -1,
+        "stopLevel": "P3 Auto",
+        "stopLevelOrder": 2,
+      },
+    ],
+  ],
+}
+`;
+
+exports[`SessionsService report generation submit: single P3 recommendation 1`] = `
+{
+  "emails": [
+    [
+      "jean.dupont@example.test",
+      "Analyse des besoins - P3 Alice Martin - Word",
+      "<div style="font-family: Arial, sans-serif; color: #333; max-width: 800px; margin: auto;"> <div style="background-color: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 8px; padding: 10px; margin-bottom: 20px; text-align: center;"> <span style="color: #4338CA; font-weight: bold; font-size: 14px;"> 🔷 P3 - PARCOURS 3ÈME PARCOURS </span> </div> <h2 style="color: #0D8ABC; margin-bottom: 5px; font-size: 18px;">Bilan d'évaluation - Analyse des besoins</h2> <p style="color: #666; font-size: 14px; margin-top: 0;">Soumis le 15/03/2026 09:30</p> <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" /> <p><strong>Bénéficiaire :</strong> Mme Alice Martin</p> <p><strong>Téléphone :</strong> 0600000000</p> <p><strong>Formation :</strong> Word</p> <p><strong>Recommandations :</strong></p> <div style="padding: 14px; background: #f8fafc; border: 1px solid #dbeafe; border-radius: 12px; margin-bottom: 20px;"> <div style="font-size: 18px; line-height: 1.3; font-weight: 900; color: #0D1B3E; margin-bottom: 10px;">Bureautique</div> <div style="padding: 12px 14px; background: #ffffff; border: 1px solid #C7D2FE; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);"> <span style="display: inline-block; min-width: 34px; padding: 5px 8px; border-radius: 999px; background: #EEF2FF; color: #4338CA; font-weight: 800; font-size: 12px; text-align: center; margin-right: 10px;">P3</span> <span style="font-weight: 800; color: #0D1B3E;">3ème parcours - Excel</span> </div> </div> <div style="margin-top: 30px;"> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Informations complémentaires</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Conseiller</td><td style="padding:10px;border-top:1px solid #eee;">Jean Dupont</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Métier</td><td style="padding:10px;border-top:1px solid #eee;">Assistante</td></tr> <tr><td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Situation</td><td style="padding:10px;border-top:1px solid #eee;">Salariée, Temps partiel</td></tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Scores par niveau</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <thead style="background:#f8fafc;"> <tr> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Niveau</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Score</th> <th style="text-align:left;padding:10px;font-size:12px;color:#6b7280;letter-spacing:.08em;text-transform:uppercase;">Validé</th> </tr> </thead> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau A1</td> <td style="padding:10px;border-top:1px solid #eee;">6/6</td> <td style="padding:10px;border-top:1px solid #eee;">Oui</td> </tr><tr> <td style="padding:10px;border-top:1px solid #eee;font-weight:700;">Niveau B1</td> <td style="padding:10px;border-top:1px solid #eee;">2/6</td> <td style="padding:10px;border-top:1px solid #eee;">Non</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Pré-requis (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question prérequis</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Oui</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Questions complémentaires (réponses)</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Question complémentaire</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Matin</td> </tr> </tbody> </table> <h3 style="margin:18px 0 10px 0;color:#0D1B3E;">Usage de la langue</h3> <table style="width:100%;border-collapse:collapse;border:1px solid #eee;border-radius:10px;overflow:hidden;"> <tbody> <tr> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;width:60%; color: #1f2937;">Usage</td> <td style="padding:10px;border-top:1px solid #eee;font-size:13px;font-weight:700; color: #1f2937;">Souvent</td> </tr> </tbody> </table> </div> <div style="margin-top: 20px; text-align: right;"> <img src="cid:logo_aopia" alt="AOPIA" height="30" style="height: 30px; margin-left: 15px; vertical-align: middle;"> <img src="cid:logo_like" alt="Like Formation" height="30" style="height: 30px; vertical-align: middle;"> </div> <p style="font-size: 11px; color: #999; margin-top: 40px;"> Ceci est un rapport automatique généré par le système d'Analyse des Besoins AOPIA. </p> </div>",
+      [
+        {
+          "content": "<buffer pdf:Excel>",
+          "filename": "Analyse_des_besoins_Alice_Martin_P3_excel_2026-03-15.pdf",
+        },
+        {
+          "cid": "logo_aopia",
+          "filename": "logo-aopia.png",
+          "path": "<cwd>/public/logo/Logo-AOPIA.png",
+        },
+        {
+          "cid": "logo_like",
+          "filename": "logo-like.png",
+          "path": "<cwd>/public/logo/Logo_Like_Formation.png",
+        },
+      ],
+      null,
+    ],
+  ],
+  "pdfCalls": [
+    {
+      "availabilityAnswers": {
+        "4": "Lundi",
+      },
+      "civilite": "Mme",
+      "complementaryAnswers": {
+        "2": "Matin",
+      },
+      "conseiller": "Jean Dupont",
+      "correctAnswersById": {
+        "10": "a",
+      },
+      "email": "alice@example.test",
+      "finalRecommendation": "Excel",
+      "formationChoisie": "Word",
+      "fullRecommendation": "Excel",
+      "highLevelContinue": false,
+      "isP3Mode": true,
+      "levelsScores": {
+        "A1": {
+          "score": 6,
+          "total": 6,
+          "validated": true,
+        },
+        "Niveau B1": {
+          "score": 2,
+          "total": 6,
+          "validated": false,
+        },
+      },
+      "metier": "Assistante",
+      "miseANiveauAnswers": {
+        "3": "Souvent",
+      },
+      "nom": "Martin",
+      "parcoursNumber": 3,
+      "parcoursTitle": "Bureautique",
+      "parrainEmail": null,
+      "parrainNom": null,
+      "parrainPrenom": null,
+      "parrainTelephone": null,
+      "positionnementAnswers": {
+        "A1": {
+          "10": "a",
+        },
+      },
+      "prenom": "Alice",
+      "prerequisiteAnswers": {
+        "1": "Oui",
+      },
+      "qTextById": {
+        "1": "Question prérequis",
+        "2": "Question complémentaire",
+        "3": "Usage",
+      },
+      "recommendations": [
+        "Excel",
+      ],
+      "scoreFinal": 12,
+      "situation": [
+        "Salariée",
+        "Temps partiel",
+      ],
+      "stopLevelOrder": 2,
+      "telephone": "0600000000",
+    },
+  ],
+  "result": {
+    "updated": {
+      "emailSentAt": "2026-03-15T09:30:00.000Z",
+      "finalRecommendation": "Excel",
+      "isCompleted": true,
+      "parcoursTitle": "Bureautique",
+      "scorePretest": 12,
+      "stopLevel": "A1",
+      "stopLevelOrder": 1,
+    },
+  },
+  "updates": [
+    [
+      "session-1",
+      {
+        "emailSentAt": "2026-03-15T09:30:00.000Z",
+        "finalRecommendation": "Excel",
+        "isCompleted": true,
+        "parcoursTitle": "Bureautique",
+        "scorePretest": 12,
+        "stopLevel": "A1",
+        "stopLevelOrder": 1,
+      },
+    ],
+  ],
+}
+`;
