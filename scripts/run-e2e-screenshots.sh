@@ -59,15 +59,26 @@ docker exec "$SOURCE_POSTGRES_CONTAINER" sh -c \
 "${COMPOSE[@]}" up -d --build --wait e2e-backend
 
 cd "$ROOT_DIR/projet-app/frontend"
+SPEC="${E2E_SPEC:-e2e-p3-flow.spec.ts}"
+JSON_REPORT="$OUTPUT_DIR/report.json"
+status=0
 API_BASE_URL="$API_URL" \
 VITE_API_BASE_URL="$API_URL" \
 PLAYWRIGHT_HTML_OUTPUT_DIR="$REPORT_DIR" \
 PLAYWRIGHT_HTML_OPEN=never \
-  nice -n 19 npx playwright test "tests/${E2E_SPEC:-e2e-p3-flow.spec.ts}" \
+PLAYWRIGHT_JSON_OUTPUT_NAME="$JSON_REPORT" \
+  nice -n 19 npx playwright test "tests/$SPEC" \
     --project=chromium \
     --workers="${E2E_WORKERS:-1}" \
-    --output="$OUTPUT_DIR"
+    --output="$OUTPUT_DIR" \
+    --reporter=line,html,json || status=$?
 
-printf '\nCaptures: %s/%s\nRapport: %s/%s/index.html\n' \
+# Campaign for the admin page (/admin/test-validation), read by the backend.
+RESULTS_DIR="$ROOT_DIR/e2e-results/$RUN_ID"
+node "$ROOT_DIR/scripts/e2e-publish.mjs" "$JSON_REPORT" "$RESULTS_DIR" "$SPEC"
+
+printf '\nCaptures: %s/%s\nRapport: %s/%s/index.html\nCampagne admin: %s\n' \
   "$ROOT_DIR/projet-app/frontend" "$OUTPUT_DIR" \
-  "$ROOT_DIR/projet-app/frontend" "$REPORT_DIR"
+  "$ROOT_DIR/projet-app/frontend" "$REPORT_DIR" \
+  "$RESULTS_DIR"
+exit "$status"

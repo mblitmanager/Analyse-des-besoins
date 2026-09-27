@@ -34,9 +34,4 @@ export class AdminController {
   deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(+id);
   }
-
-  @Post('run-test')
-  runTest(@Body() body: { specPath: string }) {
-    return this.adminService.runPlaywrightTest(body.specPath);
-  }
 }

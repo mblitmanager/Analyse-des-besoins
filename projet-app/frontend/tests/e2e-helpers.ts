@@ -32,8 +32,8 @@ export async function getAdminToken(): Promise<string> {
 
 export async function captureCheckpoint(page: Page, testInfo: TestInfo, name: string) {
   const screenshotPath = testInfo.outputPath(`${name}.png`);
-  const screenshot = await page.screenshot({ path: screenshotPath, fullPage: true });
-  await testInfo.attach(name, { body: screenshot, contentType: "image/png" });
+  await page.screenshot({ path: screenshotPath, fullPage: true });
+  await testInfo.attach(name, { path: screenshotPath, contentType: "image/png" });
 }
 
 // Nearest white card around a question header. Locators from .all() are nth()-based

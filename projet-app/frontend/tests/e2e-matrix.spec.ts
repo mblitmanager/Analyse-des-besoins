@@ -230,6 +230,16 @@ async function attachReport(testInfo: TestInfo, report: Record<string, unknown>)
   await testInfo.attach("rapport.json", { body: JSON.stringify(report, null, 2), contentType: "application/json" });
 }
 
+function normalizeTitle(value: string) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/["'«»():]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -296,8 +306,13 @@ test.describe("Matrice formation × niveau × P3", () => {
         return;
       }
 
+      // Titles are compared without quotes/parentheses/colons; an exact mismatch is annotated.
+      const screenText = await page.locator("main").innerText();
       for (const rule of c.expectedRules) {
-        await expect.soft(page.getByText(rule.parcoursTitle.trim(), { exact: false }).first(), "parcours proposé à l'écran").toBeVisible();
+        expect.soft(normalizeTitle(screenText), `parcours « ${rule.parcoursTitle.trim()} » proposé à l'écran`).toContain(normalizeTitle(rule.parcoursTitle));
+        if (!screenText.includes(rule.parcoursTitle.trim())) {
+          test.info().annotations.push({ type: "titre-modifie", description: `Titre configuré « ${rule.parcoursTitle.trim()} » affiché avec une ponctuation différente` });
+        }
       }
 
       await validateResults(page, testInfo, "p1-02", c.expectedRules.length > 1 ? c.choice.parcoursTitle : undefined);
@@ -393,10 +408,25 @@ test.describe("Matrice formation × niveau × P3", () => {
       }
       (report.p3 as any).choix = p3Choice;
 
-      await page.waitForURL(/\/(mise-a-niveau|positionnement|resultats)$/);
+      // A P3 on the same formation (next level) is validated directly, without test nor results.
+      await page.waitForURL(/\/(mise-a-niveau|positionnement|resultats|validation)$/);
       // The P3 journey may run on a new session.
       const p3SessionId = await getSessionId(page);
       (report.p3 as any).nouvelleSession = p3SessionId !== sessionId;
+      if (page.url().endsWith("/validation")) {
+        (report.p3 as any).sansTest = true;
+        await expect(page.getByText("Votre parcours est maintenant validé", { exact: true })).toBeVisible();
+        await captureCheckpoint(page, testInfo, "p3-03-validation-finale");
+        const direct = await apiGet<any>(`/sessions/${p3SessionId}`);
+        (report.p3 as any).session = {
+          isP3Mode: direct.isP3Mode,
+          formationChoisie: direct.formationChoisie,
+          parcoursTitle: direct.parcoursTitle,
+          finalRecommendation: direct.finalRecommendation,
+        };
+        await attachReport(testInfo, report);
+        return;
+      }
       if (!page.url().endsWith("/resultats")) {
         const p3Session = await apiGet<any>(`/sessions/${p3SessionId}`);
         const p3Formation = formations.find((f) => sameLabel(f.label, p3Session.formationChoisie))

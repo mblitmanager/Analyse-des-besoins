@@ -6,11 +6,6 @@ import { Question } from '../entities/question.entity';
 import { Formation } from '../entities/formation.entity';
 import { User } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { exec } from 'child_process';
-import { join } from 'path';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 @Injectable()
 export class AdminService {
@@ -69,23 +64,5 @@ export class AdminService {
       totalFormations,
       avgScore: `${avgScore}%`,
     };
-  }
-
-  async runPlaywrightTest(specPath: string) {
-    const frontendDir = join(__dirname, '../../../../frontend');
-    // Ensure the path is relative to the frontend directory's tests folder
-    // The incoming specPath should be something like 'automated/Word/Word-initial.spec.ts'
-    const command = `npx playwright test tests/${specPath}`;
-
-    try {
-      const { stdout, stderr } = await execAsync(command, { cwd: frontendDir });
-      return { success: true, output: stdout, error: stderr };
-    } catch (error) {
-      return {
-        success: false,
-        output: error.stdout,
-        error: error.stderr || error.message,
-      };
-    }
   }
 }

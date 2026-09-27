@@ -10,6 +10,10 @@ services:
     environment:
       - NODE_ENV=production
       - TYPEORM_SYNCHRONIZE=false
+      - E2E_RESULTS_DIR=/app/e2e-results
+    volumes:
+      # E2E campaigns published by scripts/run-e2e-screenshots.sh (admin > Tests)
+      - ./e2e-results:/app/e2e-results:ro
     ports:
       - "0.0.0.0:3002:3001"
     depends_on:

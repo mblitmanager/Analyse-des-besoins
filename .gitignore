@@ -20,3 +20,4 @@ history.txt
 *.bak.*
 test-results/
 playwright-report/
+e2e-results/
