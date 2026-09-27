@@ -19,6 +19,7 @@ const categories = [
   { id: 'p3', label: 'P3', icon: 'add_circle', patterns: ['P3_'] },
   { id: 'prerequis', label: 'Prérequis', icon: 'checklist', patterns: ['PREREQUISITE_', 'PREREQUIS_'] },
   { id: 'highlevel', label: 'Niveau supérieur', icon: 'trending_up', patterns: ['HIGH_LEVEL_'] },
+  { id: 'lowscore', label: 'Score faible', icon: 'warning', patterns: ['LOW_SCORE_'] },
 ];
 
 const filteredSettings = computed(() => {

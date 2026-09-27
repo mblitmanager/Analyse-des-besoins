@@ -97,6 +97,8 @@ const modalAlertMessage = computed(() => {
 const showFormationWarning = ref(false);
 const allowSkip = ref(true); // admin toggle for skipping this step
 const lowScoreThreshold = ref(3); // default: warn if < 3 correct answers
+// LOW_SCORE_WARNING_ENABLED (admin > Réglages): "Formation peut-être non adaptée" warning.
+const lowScoreWarningEnabled = ref(true);
 const lastScoreDetails = ref({ correctCount: 0, total: 0 });
 const skipFormationWarning = ref(false);
 const formation = ref(null);
@@ -401,6 +403,8 @@ async function fetchPaginationSetting() {
   }
 }
 async function fetchLowScoreThreshold() {
+  // Enabled unless the admin explicitly turned it off.
+  lowScoreWarningEnabled.value = (await store.fetchSetting('LOW_SCORE_WARNING_ENABLED')) !== 'false';
   try {
     const res = await axios.get(`${apiBaseUrl}/settings/LOW_SCORE_THRESHOLD`);
     // Default to 3 if not set or invalid
@@ -483,7 +487,10 @@ async function nextStep() {
 
     const percentage = (correctCount / filteredQuestions.value.length) * 100;
 
-    const shouldWarn = !skipFormationWarning.value && 
+    // Never in P3: the candidate already validated P1/P2 and chose this formation.
+    const shouldWarn = !skipFormationWarning.value &&
+                       lowScoreWarningEnabled.value &&
+                       !store.isP3Mode && 
                        (formation.value?.enableLowScoreWarning !== false) &&
                        currentLevelIndex.value === 0 && 
                        correctCount < lowScoreThreshold.value;

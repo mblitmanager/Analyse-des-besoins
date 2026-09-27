@@ -130,6 +130,17 @@ export class SeedService implements OnApplicationBootstrap {
         value: 'false',
         description: 'Activer le programme de parrainage (Parrain/Marraine)',
       },
+      {
+        key: 'LOW_SCORE_WARNING_ENABLED',
+        value: 'true',
+        description:
+          "Afficher l'avertissement « Formation peut-être non adaptée » après un score faible au 1er niveau (jamais en P3)",
+      },
+      {
+        key: 'LOW_SCORE_THRESHOLD',
+        value: '3',
+        description: "Nombre de bonnes réponses au 1er niveau en dessous duquel l'avertissement s'affiche",
+      },
     ];
 
     for (const s of settings) {
