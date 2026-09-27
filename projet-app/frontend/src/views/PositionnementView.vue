@@ -1248,7 +1248,11 @@ async function finishTest(overrideSession = null) {
       return recText.includes(rawLabel) || recText.includes(cleanL);
     });
 
-    if (isMaxLevel || (proposedLevelObj && validatedLevelObj.order >= proposedLevelObj.order)) {
+    // Dynamic detection (validated level reaches the proposed parcours level) only counts
+    // from HIGH_LEVEL_THRESHOLD_ORDER (default 2 = Opérationnel): validating Basique never
+    // raises the alert. Validating every level of the formation always does.
+    const reachesThreshold = validatedLevelObj.order >= alertSettings.value.thresholdOrder;
+    if (isMaxLevel || (reachesThreshold && proposedLevelObj && validatedLevelObj.order >= proposedLevelObj.order)) {
       isHighLevel = true;
       console.log('[HighLevelAlert] Triggered by dynamic detection:', { isMaxLevel, proposedLevelObj, validatedLevelObj });
     }

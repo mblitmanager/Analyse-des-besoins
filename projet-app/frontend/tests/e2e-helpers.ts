@@ -234,7 +234,8 @@ export async function answerPositionnementScreen(
 
 /**
  * Runs the adaptive positionnement until its recommendation screen, handling the
- * low-score warning and the "high level" alert. Returns the levels seen, in order.
+ * low-score warning and the "high level" alert. Returns the levels seen, in order, and
+ * whether the "high level" alert was shown.
  */
 export async function runPositionnement(
   page: Page,
@@ -246,6 +247,7 @@ export async function runPositionnement(
   await page.waitForURL("**/positionnement");
 
   const seenLevels: string[] = [];
+  let highLevelAlert = false;
   // Final screen: a recommendation, or "Évaluation terminée" when the level is too high.
   const finished = page
     .getByText(/Voici votre parcours de formation recommandé|Évaluation terminée/)
@@ -264,6 +266,7 @@ export async function runPositionnement(
     }
     const keepFormation = page.getByRole("button", { name: /^Continuer avec / });
     if (await keepFormation.isVisible()) {
+      highLevelAlert = true;
       await keepFormation.click({ timeout: 5_000 }).catch(() => {});
       continue;
     }
@@ -292,7 +295,7 @@ export async function runPositionnement(
       )
       .toBe("changed");
   }
-  return seenLevels;
+  return { seenLevels, highLevelAlert };
 }
 
 async function screenSignature(page: Page): Promise<string> {

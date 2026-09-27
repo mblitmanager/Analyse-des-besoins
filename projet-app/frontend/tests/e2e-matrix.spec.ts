@@ -88,6 +88,8 @@ const formations = (await apiGet<Formation[]>("/formations")).filter(
 );
 const rules = (await apiGet<ParcoursRule[]>("/parcours")).filter((r) => r.isActive);
 const allFormations = (await apiGet<Formation[]>("/formations")).filter((f) => f.isActive);
+const highLevelThreshold =
+  parseInt((await apiGet<any>("/settings/HIGH_LEVEL_THRESHOLD_ORDER").catch(() => null))?.value, 10) || 2;
 const overrideRules = (await apiGet<P3OverrideRule[]>("/p3-override?activeOnly=true")).filter((r) => r.isActive !== false);
 
 // ── P3 override prediction ──────────────────────────────────────────────────
@@ -189,7 +191,11 @@ async function selectFormation(page: Page, label: string) {
   await next.click();
 }
 
+// Report of the running case, attached even when the case fails midway.
+const pendingReports = new Map<string, Record<string, unknown>>();
+
 async function attachReport(testInfo: TestInfo, report: Record<string, unknown>) {
+  pendingReports.delete(testInfo.testId);
   console.log(`[matrice] ${testInfo.title} ${JSON.stringify(report)}`);
   await testInfo.attach("rapport.json", { body: JSON.stringify(report, null, 2), contentType: "application/json" });
 }
@@ -230,6 +236,11 @@ async function validateResults(page: Page, testInfo: TestInfo, prefix: string, c
 test.describe.configure({ mode: "parallel" });
 
 test.describe("Matrice formation × niveau × P3", () => {
+  test.afterEach(async ({}, testInfo) => {
+    const report = pendingReports.get(testInfo.testId);
+    if (report) await attachReport(testInfo, report);
+  });
+
   test("la matrice contient des cas", () => {
     expect(cases.length, "aucune formation active avec questions de positionnement").toBeGreaterThan(0);
   });
@@ -244,14 +255,26 @@ test.describe("Matrice formation × niveau × P3", () => {
         regleMasquee: c.expectedRules.some((r) => r.isHiddenResult),
         choix: c.choice?.parcoursTitle ?? null,
       };
+      pendingReports.set(testInfo.testId, report);
 
       // ── P1/P2 ──
-      await startJourney(page, "Matrice", `${c.formation.slug}-${c.passCount}`);
+      await startJourney(page, "Matrice", `${c.formation.slug}-${c.passCount}-${c.p3Rotation}`);
       await selectFormation(page, c.formation.label);
 
       const keys = await loadAnswerKeys(c.formation.slug);
       const passing = new Set(c.levels.slice(0, c.passCount).map((l) => l.label));
-      report.niveauxVus = await runPositionnement(page, keys, (label) => passing.has(label));
+      const quiz = await runPositionnement(page, keys, (label) => passing.has(label));
+      report.niveauxVus = quiz.seenLevels;
+      report.alerteNiveauEleve = quiz.highLevelAlert;
+      // The "high level" alert starts at HIGH_LEVEL_THRESHOLD_ORDER (2 = Opérationnel),
+      // or when every level is validated.
+      const lastValidatedOrder = c.passCount > 0 ? c.levels[c.passCount - 1].order : -1;
+      if (quiz.highLevelAlert) {
+        expect.soft(
+          c.passCount === c.levels.length || lastValidatedOrder >= highLevelThreshold,
+          `alerte « niveau élevé » affichée alors que le dernier niveau validé est d'ordre ${lastValidatedOrder}`,
+        ).toBe(true);
+      }
       await captureCheckpoint(page, testInfo, "p1-01-positionnement");
 
       const sessionId = await getSessionId(page);
@@ -419,6 +442,13 @@ test.describe("Matrice formation × niveau × P3", () => {
       // P3 results recall the P1/P2 parcours before the P3 step, like the final validation page.
       await expect(page.getByRole("heading", { name: /^Bravo / })).toBeVisible();
       await page.waitForLoadState("networkidle");
+      // Several P3 parcours possible: one has to be chosen before the parcours card shows.
+      if (await page.getByRole("heading", { name: "Choisissez votre parcours" }).isVisible()) {
+        const p3Choices = page.locator("main button").filter({ has: page.locator("h4") });
+        const pick = c.p3Rotation % Math.max(await p3Choices.count(), 1);
+        (report.p3 as any).parcoursResultats = (await p3Choices.nth(pick).locator("h4").innerText()).trim();
+        await p3Choices.nth(pick).click();
+      }
       // The parcours card lists P1 and P2 before the P3 step.
       for (const label of [c.choice.formation1, c.choice.formation2].filter((f) => f?.trim())) {
         await expect.soft(
