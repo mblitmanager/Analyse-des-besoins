@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TestRunsService } from './test-runs.service';
+import type { TestRunRequest } from './test-runs.service';
 
 @Controller('admin/test-runs')
 @UseGuards(JwtAuthGuard)
@@ -11,6 +12,16 @@ export class TestRunsController {
   @Get()
   list() {
     return this.testRunsService.listRuns();
+  }
+
+  @Get('status')
+  status() {
+    return this.testRunsService.getStatus();
+  }
+
+  @Post()
+  request(@Body() body: TestRunRequest, @Req() req: any) {
+    return this.testRunsService.requestRun(body, req.user?.email);
   }
 
   @Get(':runId')

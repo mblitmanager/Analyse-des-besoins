@@ -73,7 +73,79 @@ watch(selectedRunId, async (id) => {
   }
 });
 
-onMounted(loadRuns);
+// ─── Launching a campaign (queued, run on the server by scripts/e2e-runner.sh) ───
+const runnerStatus = ref({ runner: { state: "idle" }, pending: [] });
+const availableFormations = ref([]);
+const launchFormations = ref([]);
+const launchP3 = ref(true);
+const launching = ref(false);
+const showLaunch = ref(false);
+let statusTimer = null;
+
+const campaignActive = computed(() =>
+  runnerStatus.value.pending.length > 0 || ["running", "waiting"].includes(runnerStatus.value.runner?.state),
+);
+
+async function loadStatus() {
+  try {
+    const res = await axios.get(`${apiBaseUrl}/admin/test-runs/status`, { silent: true });
+    const wasRunning = runnerStatus.value.runner?.state === "running";
+    runnerStatus.value = res.data;
+    // A finished campaign is published: refresh the list and show it.
+    if (wasRunning && ["done", "failed"].includes(res.data.runner?.state)) {
+      await loadRuns();
+      if (res.data.runner?.runId && runs.value.some((r) => r.id === res.data.runner.runId)) {
+        selectedRunId.value = res.data.runner.runId;
+      }
+    }
+  } catch {
+    /* status is informative only */
+  }
+  clearTimeout(statusTimer);
+  if (campaignActive.value) statusTimer = setTimeout(loadStatus, 15000);
+}
+
+async function openLaunch() {
+  showLaunch.value = true;
+  if (!availableFormations.value.length) {
+    try {
+      const res = await axios.get(`${apiBaseUrl}/formations`);
+      availableFormations.value = (res.data || [])
+        .filter((f) => f.isActive !== false && !f.availableInP3Only)
+        .sort((a, b) => a.label.localeCompare(b.label, "fr"));
+    } catch {
+      availableFormations.value = [];
+    }
+  }
+}
+
+async function launchCampaign() {
+  launching.value = true;
+  try {
+    await axios.post(`${apiBaseUrl}/admin/test-runs`, {
+      formations: launchFormations.value,
+      p3: launchP3.value,
+    });
+    showLaunch.value = false;
+    await loadStatus();
+  } catch (e) {
+    error.value = e.response?.data?.message || "Impossible de lancer la campagne.";
+  } finally {
+    launching.value = false;
+  }
+}
+
+function formatProgress(progress) {
+  if (!progress?.total) return "";
+  return `${progress.done}/${progress.total} parcours (${Math.round((progress.done / progress.total) * 100)} %)`;
+}
+
+onBeforeUnmount(() => clearTimeout(statusTimer));
+
+onMounted(() => {
+  loadRuns();
+  loadStatus();
+});
 
 // Screenshots need the admin token: fetched as blobs, shown through object URLs.
 const imageUrls = ref({});
@@ -201,6 +273,13 @@ const screenshotLabels = {
         </p>
       </div>
       <div class="flex items-center gap-3">
+        <button
+          @click="openLaunch"
+          :disabled="campaignActive"
+          class="px-5 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-slate-800 disabled:opacity-40 flex items-center gap-2"
+        >
+          <span class="material-icons-outlined text-sm">play_arrow</span> Lancer une campagne
+        </button>
         <select
           v-model="selectedRunId"
           :disabled="!runs.length"
@@ -217,6 +296,68 @@ const screenshotLabels = {
         >
           <span class="material-icons-outlined">refresh</span>
         </button>
+      </div>
+    </div>
+
+    <!-- Campaign state (queued / running / last result) -->
+    <div
+      v-if="campaignActive || ['done', 'failed'].includes(runnerStatus.runner?.state)"
+      class="p-5 rounded-3xl border flex items-start gap-4"
+      :class="campaignActive ? 'bg-sky-50 border-sky-100' : runnerStatus.runner.state === 'failed' ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'"
+    >
+      <span class="material-icons-outlined" :class="campaignActive ? 'text-sky-600 animate-spin' : runnerStatus.runner.state === 'failed' ? 'text-rose-600' : 'text-emerald-600'">
+        {{ campaignActive ? 'autorenew' : runnerStatus.runner.state === 'failed' ? 'error' : 'check_circle' }}
+      </span>
+      <div class="text-sm space-y-1">
+        <p class="font-black text-slate-900">
+          <template v-if="runnerStatus.runner?.state === 'running'">Campagne en cours — {{ formatProgress(runnerStatus.runner.progress) || 'démarrage…' }}</template>
+          <template v-else-if="campaignActive">Campagne en attente de démarrage (prise en charge sous une minute)</template>
+          <template v-else-if="runnerStatus.runner.state === 'failed'">La dernière campagne n'a pas pu aller au bout</template>
+          <template v-else>Dernière campagne terminée</template>
+        </p>
+        <p v-if="runnerStatus.runner?.message && campaignActive" class="text-xs font-bold text-slate-500">{{ runnerStatus.runner.message }}</p>
+        <p v-if="runnerStatus.runner?.request" class="text-xs font-bold text-slate-500">
+          {{ runnerStatus.runner.request.formations?.length ? runnerStatus.runner.request.formations.join(', ') : 'Toutes les formations' }}
+          · P3 {{ runnerStatus.runner.request.p3 ? 'inclus' : 'non joué' }}
+          <template v-if="runnerStatus.runner.request.requestedBy"> · demandée par {{ runnerStatus.runner.request.requestedBy }}</template>
+          <template v-if="runnerStatus.runner.startedAt"> · démarrée le {{ formatDate(runnerStatus.runner.startedAt) }}</template>
+        </p>
+      </div>
+    </div>
+
+    <!-- Launch dialog -->
+    <div v-if="showLaunch" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" @click.self="showLaunch = false">
+      <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-8 space-y-5">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Lancer une campagne de tests</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            Les parcours sont joués sur une base de test isolée (copie de la configuration de production, sans envoi d'email).
+            Toutes les formations : environ 1 h 15.
+          </p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Formations (aucune sélection = toutes)</p>
+          <div class="max-h-56 overflow-y-auto grid grid-cols-2 gap-2 p-1">
+            <label v-for="f in availableFormations" :key="f.slug" class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+              <input v-model="launchFormations" type="checkbox" :value="f.slug" class="w-4 h-4" />
+              {{ f.label }}
+            </label>
+          </div>
+        </div>
+        <label class="flex items-center gap-3 text-sm font-bold text-slate-700 cursor-pointer">
+          <input v-model="launchP3" type="checkbox" class="w-4 h-4" />
+          Jouer aussi les parcours P3
+        </label>
+        <div class="flex gap-3">
+          <button @click="showLaunch = false" class="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200">Annuler</button>
+          <button
+            @click="launchCampaign"
+            :disabled="launching"
+            class="flex-1 px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 disabled:opacity-50"
+          >
+            {{ launching ? 'Envoi…' : 'Lancer' }}
+          </button>
+        </div>
       </div>
     </div>
 

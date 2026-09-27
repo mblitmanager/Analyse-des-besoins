@@ -1,5 +1,5 @@
-import { NotFoundException } from '@nestjs/common';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { TestRunsService } from './test-runs.service';
@@ -55,5 +55,44 @@ describe('TestRunsService', () => {
   it('returns no runs when the results folder does not exist', () => {
     const missing = new TestRunsService({ get: () => join(dir, 'missing') } as any);
     expect(missing.listRuns()).toEqual([]);
+  });
+
+  describe('campaign requests', () => {
+    let requests: string;
+    let queue: TestRunsService;
+
+    beforeEach(() => {
+      requests = join(dir, 'requests');
+      queue = new TestRunsService({
+        get: (key: string) => (key === 'E2E_REQUESTS_DIR' ? requests : dir),
+      } as any);
+    });
+
+    it('writes a request file with validated values only', () => {
+      const request = queue.requestRun({ formations: ['word', 'excel'], p3: false }, 'admin@example.test');
+      const files = readdirSync(requests);
+      expect(files).toEqual([`${request.id}.json`]);
+      expect(request).toMatchObject({ formations: ['word', 'excel'], p3: false, requestedBy: 'admin@example.test' });
+      expect(queue.getStatus().pending).toHaveLength(1);
+    });
+
+    it('rejects formation values that are not slugs', () => {
+      expect(() => queue.requestRun({ formations: ['word; rm -rf /'] }, 'a')).toThrow(BadRequestException);
+      expect(() => queue.requestRun({ formations: [42 as any] }, 'a')).toThrow(BadRequestException);
+    });
+
+    it('refuses a second campaign while one is pending or running', () => {
+      queue.requestRun({}, 'a');
+      expect(() => queue.requestRun({}, 'b')).toThrow(ConflictException);
+
+      rmSync(requests, { recursive: true, force: true });
+      writeFileSync(join(dir, 'runner-status.json'), JSON.stringify({ state: 'running' }));
+      expect(queue.getStatus().runner.state).toBe('running');
+      expect(() => queue.requestRun({}, 'c')).toThrow(ConflictException);
+    });
+
+    it('reports an idle runner when no status was written yet', () => {
+      expect(queue.getStatus()).toEqual({ runner: { state: 'idle' }, pending: [] });
+    });
   });
 });

@@ -9,7 +9,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 COMPOSE=(docker compose -p analyse-e2e -f "$ROOT_DIR/docker-compose.e2e.yml")
 SOURCE_POSTGRES_CONTAINER="${SOURCE_POSTGRES_CONTAINER:-aopia_postgres}"
 API_URL="http://localhost:3003/api"
-RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+RUN_ID="${E2E_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
 OUTPUT_DIR="test-results/e2e-screenshots-$RUN_ID"
 REPORT_DIR="playwright-report/e2e-screenshots-$RUN_ID"
 
