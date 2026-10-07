@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import ParcoursMapSection from "../../components/admin/ParcoursMapSection.vue";
 import {
   Chart as ChartJS,
   Title,
@@ -431,6 +432,9 @@ function formatDate(date) {
         </table>
       </div>
     </div>
+
+    <!-- P1 + P2 parcours and P3 possibilities per formation (exportable) -->
+    <ParcoursMapSection />
   </div>
 </template>
 
